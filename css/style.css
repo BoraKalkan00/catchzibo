@@ -227,7 +227,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 @keyframes wipeout { from { clip-path: circle(120% at 50% 50%); } to { clip-path: circle(0% at 50% 50%); } }
 .pile { position: absolute; inset: 0; pointer-events: none; }
 .pile.waiting { visibility: hidden; }
-.pile-item { position: absolute; width: var(--item); height: var(--item); transform: translate(-50%, -50%) rotate(var(--r)) scale(var(--s)); pointer-events: none; transition: transform .1s; filter: drop-shadow(0 3px 2px rgba(20, 8, 8, .45)); }
+.pile-item { position: absolute; width: var(--item); height: var(--item); transform: translate(-50%, -50%) rotate(var(--r)) scale(var(--s)); pointer-events: none; transition: transform .1s; }
 .puff { position: absolute; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: #fff; z-index: 87; pointer-events: none; animation: puff .4s ease-out forwards; }
 @keyframes puff { from { opacity: .85; transform: scale(.5); } to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(var(--z)); } }
 .flash-layer { position: absolute; inset: 0; z-index: 99; pointer-events: none; animation: flashout .36s ease-out forwards; }
@@ -288,7 +288,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 @keyframes holdhand { 0%, 100% { transform: translateY(14px) scale(1.05); } 70% { transform: translateY(14px) scale(.85); } }
 
 .zibo { position: absolute; top: 6px; right: 2px; z-index: 92; width: 29%; max-width: 140px; pointer-events: none; }
-.zibo-sprite { width: 100%; transform-origin: bottom center; animation: breathe 2.6s ease-in-out infinite; }
+.zibo-sprite { width: 100%; transform-origin: bottom center; animation: breathe 2.6s ease-in-out infinite; will-change: transform; }
 @keyframes breathe { 50% { transform: scale(1.012, .975); } }
 .zibo.dance .zibo-sprite { animation: gobdance .46s ease-in-out infinite; }
 @keyframes gobdance { 0%, 100% { transform: rotate(-7deg) translateY(0); } 25% { transform: rotate(0deg) translateY(-12px); } 50% { transform: rotate(7deg) translateY(0); } 75% { transform: rotate(0deg) translateY(-12px); } }
@@ -449,10 +449,23 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .gold-field { position: relative; flex: 1; min-height: 0; overflow: hidden; touch-action: none; }
 .gold-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .gold-street { position: absolute; left: 0; right: 0; bottom: 0; height: 52%; background: linear-gradient(rgba(220, 235, 248, 0), rgba(220, 235, 248, .55) 30%, #dfeaf4); }
-.gold-thrower { position: absolute; left: 50%; bottom: -6%; width: 26%; transform: translateX(-50%); transform-origin: 50% 100%; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .35)); }
+.gold-thrower { position: absolute; left: 50%; bottom: -6%; width: 26%; transform: translateX(-50%); transform-origin: 50% 100%; z-index: 70; will-change: transform; }
+.gold-thrower.walking { animation: walkbob .42s ease-in-out infinite; }
+@keyframes walkbob { 50% { transform: translateX(-50%) translateY(-3%) rotate(1.5deg); } }
 .gold-thrower.throw { animation: throwbob .18s ease-out; }
 @keyframes throwbob { 40% { transform: translateX(-50%) translateY(-6%) scale(1.04, .96); } }
-.crate { position: absolute; transform: translate(-50%, -50%); filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .3)); pointer-events: none; transition: left .42s ease-out; }
+.crate { position: absolute; transform: translate(-50%, -50%); pointer-events: none; transition: left .42s ease-out; }
+.runner-crate { left: 0; top: 0; transform: none; transition: none; will-change: transform; }
+.runner-crate::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: -4%; height: 10%; border-radius: 50%; background: rgba(20, 30, 50, .25); z-index: -1; }
+.runner-crate.hit .crate-img { animation: cratehit .18s ease-out; }
+@keyframes cratehit { 40% { transform: scale(1.08, .9) rotate(-5deg); } }
+.runner-crate.broken { opacity: 0; transition: opacity .2s; }
+.runner .snowball { left: 0; top: 0; margin: -11px 0 0 -11px; }
+.runner .coin-burst { left: 0; top: 0; }
+.gold-field.stopped .lane-dash { animation: none; }
+.gold-combo { position: absolute; left: 50%; top: 14%; z-index: 80; transform: translateX(-50%) scale(.6); padding: 6px 18px; border-radius: 14px; background: var(--gold); color: var(--ink); font-size: 26px; font-weight: 900; opacity: 0; pointer-events: none; transition: opacity .15s, transform .2s cubic-bezier(.3, 1.6, .5, 1); white-space: nowrap; }
+.gold-combo.show { opacity: 1; transform: translateX(-50%) scale(1); }
+.gold-combo.lost { background: var(--red); color: #fff; }
 .crate-img { width: 100%; }
 .crate-hp { position: absolute; left: 12%; right: 12%; top: -10px; height: 9px; border-radius: 6px; background: rgba(8, 18, 34, .7); overflow: hidden; }
 .crate-hp i { display: block; height: 100%; width: 100%; background: #ffd95e; transition: width .12s; }
@@ -485,14 +498,13 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .lane-warn.w0 { left: 20%; } .lane-warn.w1 { left: 50%; } .lane-warn.w2 { left: 80%; }
 .lane-warn.on { animation: lanewarn .3s ease-in-out infinite alternate; }
 @keyframes lanewarn { from { background: rgba(232, 40, 50, .15); } to { background: rgba(232, 40, 50, .5); } }
-.chase-player { position: absolute; bottom: -2%; width: 26%; transform: translateX(-50%); transition: left .14s ease-out; animation: runbob .3s ease-in-out infinite; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .35)); z-index: 10; }
-@keyframes runbob { 50% { margin-bottom: 1.5%; } }
+.chase-player { position: absolute; bottom: -2%; width: 26%; transform: translateX(-50%); transition: left .14s ease-out; animation: runbob .3s ease-in-out infinite; z-index: 10; will-change: transform; }
 .chase-player.hurt { animation: hurtblink .1s linear 6; }
 @keyframes hurtblink { 50% { opacity: .3; } }
 .chase-zibo { position: absolute; width: 34%; transform: translate(-50%, -100%) scale(var(--s, .5)); transform-origin: 50% 100%; transition: left .3s ease-out; z-index: 8; }
 .chase-zibo-img { width: 100%; display: block; }
 .chase-zibo.caught .chase-zibo-img { animation: gobstomp .26s linear infinite; }
-.chase-loot { position: absolute; left: 62%; top: 30%; width: 42%; transform: rotate(14deg); filter: drop-shadow(0 3px 2px rgba(0, 0, 0, .3)); }
+.chase-loot { position: absolute; left: 62%; top: 30%; width: 42%; transform: rotate(14deg); }
 .chase-bubble { top: -26%; right: 60%; font-size: 17px; }
 .bomb { position: absolute; z-index: 9; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #666, #111 60%); border: 3px solid #000; pointer-events: none; }
 .bomb::after { content: ""; position: absolute; top: -10px; left: 50%; width: 4px; height: 10px; background: #f2b632; box-shadow: 0 -4px 6px 2px #ff9a4a; }
@@ -511,3 +523,9 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .chase-intro p { max-width: 280px; }
 .btn.disabled { opacity: .5; }
 .chase-field.shake-hard { animation: shakehard .42s; }
+
+/* Pil ve ısı: uygulama arka plandayken tüm döngüsel animasyonlar durur. */
+body.paused *, body.paused *::before, body.paused *::after { animation-play-state: paused !important; }
+@keyframes runbob { 50% { transform: translateX(-50%) translateY(-4%); } }
+.gold-field.runner { background: linear-gradient(#10203a 0 36%, #c9dbe9 36%, #e6eff6); }
+.runner-prop { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; will-change: transform; }

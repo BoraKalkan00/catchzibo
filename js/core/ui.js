@@ -48,7 +48,7 @@ CZ.ui = (function () {
 
   function snow(count) {
     const box = h('div', { class: 'snow', 'aria-hidden': 'true' });
-    for (let i = 0; i < (count || 22); i++) {
+    for (let i = 0; i < (count || 14); i++) {
       const size = 3 + Math.random() * 5;
       box.append(h('i', {
         style: `left:${Math.random() * 100}%;width:${size}px;height:${size}px;animation-duration:${6 + Math.random() * 8}s;animation-delay:-${Math.random() * 12}s;opacity:${0.4 + Math.random() * 0.5}`

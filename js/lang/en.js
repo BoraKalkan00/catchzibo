@@ -238,7 +238,7 @@ CZ.i18n.register('en', 'English', {
   'item.jar_candy_red.note': 'Fewer candies than before. Much fewer.',
   'hub.gold': 'Snowball Fight',
   'hub.goldReady': 'Free round ready!',
-  'gold.sub': 'Zibo dropped gifts all over the street. Hit them with snowballs: every hit is gold, every broken box is a bonus!',
+  'gold.sub': 'Walk down Zibo’s street! Gifts pop up left, right and ahead. Break them before you pass: every hit is gold, every broken box is a bonus. Don’t let any slip by or you lose your streak!',
   'gold.weapons': 'Weapons',
   'gold.dmg': 'Hit: {n}',
   'gold.owned': 'Equipped',
@@ -338,5 +338,7 @@ CZ.i18n.register('en', 'English', {
   'item.musicbox_red.note': 'Zibo taught it a new song. Please don’t wind it.',
   'item.present_star.name': 'The Last Gift',
   'item.present_star.note': 'Saved for the very last night of the year.',
-  'mansion.nextDate': 'Room cleared! The next room opens on {date}. Replay for stars until then.'
+  'mansion.nextDate': 'Room cleared! The next room opens on {date}. Replay for stars until then.',
+  'gold.combo': 'STREAK x{n}!',
+  'gold.comboLost': 'Streak lost!'
 });

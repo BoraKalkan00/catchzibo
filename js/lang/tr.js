@@ -238,7 +238,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'item.jar_candy_red.note': 'Eskisinden daha az şeker var. Çok daha az.',
   'hub.gold': 'Kartopu Savaşı',
   'hub.goldReady': 'Ücretsiz tur hazır!',
-  'gold.sub': 'Zibo sokağa hediye paketleri saçmış. Kartopu at: her isabet altın, her kırılan paket bonus!',
+  'gold.sub': 'Zibo’nun sokağında yürü! Hediyeler sağdan, soldan ve önünden çıkar. Yanından geçmeden kır: her isabet altın, her kırılan kutu bonus. Birini kaçırırsan serin bozulur!',
   'gold.weapons': 'Silahlar',
   'gold.dmg': 'Hasar: {n}',
   'gold.owned': 'Kuşanıldı',
@@ -338,5 +338,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'item.musicbox_red.note': 'Zibo ona yeni bir şarkı öğretmiş. Lütfen kurma.',
   'item.present_star.name': 'Son Hediye',
   'item.present_star.note': 'Yılın en son gecesi için saklanmıştı.',
-  'mansion.nextDate': 'Oda bitti! Sıradaki oda {date} tarihinde açılıyor. O zamana kadar yıldız için tekrar oyna.'
+  'mansion.nextDate': 'Oda bitti! Sıradaki oda {date} tarihinde açılıyor. O zamana kadar yıldız için tekrar oyna.',
+  'gold.combo': 'SERİ x{n}!',
+  'gold.comboLost': 'Seri bozuldu!'
 });

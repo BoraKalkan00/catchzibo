@@ -206,12 +206,16 @@ CZ.GOLD = {
   roundSeconds: 30,
   cooldownMinutes: 60,   // ücretsiz turdan sonra bekleme (reklamla hemen oynanabilir)
   throwGapMs: 110,       // iki atış arası en kısa süre
-  slots: [[0.2, 0.62], [0.5, 0.7], [0.8, 0.62]],   // sandıkların durduğu yerler (sahne %)
+  walkSpeed: 0.3,        // kutuların yaklaşma hızı (1 / sn): ~3.5 sn'de yanından geçer
+  spawnEveryMs: [650, 1050],
+  maxCrates: 5,
+  comboStep: 4,          // her 4 kırılan kutuda çarpan +1 (kutu kaçırırsan seri sıfırlanır)
+  comboMax: 3,
   crates: [
-    { id: 'small', art: 'item.gift_red_green', hp: 5, size: 0.24, weight: 50 },
-    { id: 'big', art: 'item.gift_blue_gold', hp: 10, size: 0.3, weight: 30 },
-    { id: 'chest', art: 'gold.chest_wood', hp: 30, size: 0.34, weight: 15 },
-    { id: 'golden', art: 'gold.chest_gold', hp: 40, size: 0.32, weight: 5, hops: true }   // zıplayarak yer değiştirir
+    { id: 'small', art: 'item.gift_red_green', hp: 3, weight: 50 },
+    { id: 'big', art: 'item.gift_blue_gold', hp: 6, weight: 30 },
+    { id: 'chest', art: 'gold.chest_wood', hp: 12, weight: 15 },
+    { id: 'golden', art: 'gold.chest_gold', hp: 20, weight: 5, hops: true }   // yolda sağa sola kayar
   ],
   // Kış etkinliği silahları. Altınla bir kez alınır.
   weapons: [

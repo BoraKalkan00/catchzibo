@@ -26,6 +26,9 @@
   // Uzun basmada telefonun menü açmasını engeller.
   document.addEventListener('contextmenu', e => e.preventDefault());
 
+  // Arka plana geçince animasyonları dondur: telefon ısınmasın, pil gitmesin.
+  document.addEventListener('visibilitychange', () => document.body.classList.toggle('paused', document.hidden));
+
   CZ.ui.go('title');
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
