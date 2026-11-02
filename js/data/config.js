@@ -177,6 +177,25 @@ CZ.SHOP = [
 
 CZ.DIARY_COUNT = 14;
 
+// GÜNLÜK ÖDÜL ve SEVİYE.
+CZ.PROGRESS = {
+  daily: [                         // art arda giriş: 1. gün ... 7. gün (7'den sonra tekrar 1'e döner)
+    { gold: 30 },
+    { emeralds: 5 },
+    { gold: 60 },
+    { cocoa: 1 },
+    { gold: 100 },
+    { emeralds: 15 },
+    { gold: 250, emeralds: 30, cocoa: 1, big: true }
+  ],
+  xp: { find: 50, replay: 10, crate: 2, chase: 30, daily: 10 },
+  xpBase: 80,                      // 1→2 için 80 XP, sonra her seviye 40 fazla
+  xpStep: 40,
+  levelGold: 40,                   // seviye ödülü: 40 × seviye altın + 5 zümrüt, her 5 seviyede kakao
+  levelEmeralds: 5,
+  ziboLines: ['level.z1', 'level.z2', 'level.z3', 'level.z4', 'level.z5', 'level.z6', 'level.z7', 'level.z8']
+};
+
 // KOVALAMACA: eşyayı bulunca Zibo kapıp kaçar. 3 şerit, bomba, kanca.
 // Zibo yenildikçe güçlenir (level = kaç kez yakalandığı).
 CZ.CHASE = {

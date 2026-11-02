@@ -345,6 +345,7 @@ CZ.screens.chase = (function () {
     CZ.state.markFound(p.roundId, base + pocket, p.stars, p.seconds);
     d.chaseWins = (d.chaseWins || 0) + 1;
     CZ.state.save();
+    CZ.progress.addXp(CZ.PROGRESS.xp.chase);
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 40, 30, 160]);
     c.ziboImg.src = CZ.art('zibo.tantrum');

@@ -532,3 +532,36 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .chase-zibo-img { animation: ziborun .26s ease-in-out infinite; transform-origin: 50% 100%; will-change: transform; }
 .chase-zibo.caught .chase-zibo-img, .chase-zibo.stopped .chase-zibo-img { animation: none; }
 @keyframes ziborun { 50% { transform: translateY(-5%) rotate(-3deg); } }
+
+/* Günlük ödül ve seviye */
+.hub-me { display: flex; align-items: center; gap: 8px; }
+.level-bar { display: grid; grid-template-columns: auto 64px; grid-template-rows: auto auto; column-gap: 6px; align-items: center; padding: 4px 10px 4px 4px; border-radius: 14px; background: rgba(8, 18, 34, .72); color: #fff; }
+.level-badge { grid-row: span 2; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--gold); color: var(--ink); font-size: 16px; font-weight: 900; }
+.xp-track { height: 7px; border-radius: 4px; background: #34445f; overflow: hidden; }
+.xp-track i { display: block; height: 100%; background: #7df08a; }
+.level-bar small { font-size: 11px; font-weight: 700; opacity: .85; }
+.daily-modal, .level-modal { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.daily-modal h2 { font-size: 26px; }
+.day-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; width: 100%; margin: 4px 0 8px; }
+.day-tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; border-radius: 12px; background: #efe3cb; font-size: 13px; }
+.day-tile small { font-size: 11px; color: var(--muted); }
+.day-icon { width: 30px; height: 30px; }
+.day-tile.big { grid-column: span 2; background: #ffe7a6; }
+.day-tile.big .day-icon { width: 44px; height: 44px; }
+.day-tile.got { opacity: .45; }
+.day-tile.today { background: var(--emerald); color: #fff; box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--emerald); }
+.day-tile.today small { color: #e7fff1; }
+.day-tile.claimed { animation: claimpop .6s ease-out forwards; }
+@keyframes claimpop { 40% { transform: scale(1.25); } 100% { transform: scale(1); opacity: .5; } }
+.level-modal small { font-size: 18px; font-weight: 800; color: var(--emerald-dark); text-transform: uppercase; letter-spacing: 1px; }
+.level-num { font-size: 64px; font-weight: 900; line-height: 1; color: var(--gold); -webkit-text-stroke: 2px #8a5a0e; }
+.level-zibo { width: 120px; }
+.level-line { font-style: italic; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 99px; background: #efe3cb; font-weight: 800; }
+.chip-icon { width: 22px; height: 22px; }
+.hub-top { gap: 6px; }
+.hub-stats { flex-wrap: wrap; justify-content: flex-end; gap: 4px; min-width: 0; }
+.hub-stats .emeralds { font-size: 14px; padding: 4px 9px 4px 5px; }
+.hub-stats .emerald-icon { width: 18px; height: 18px; }
+.hub-avatar { width: 46px; height: 46px; }

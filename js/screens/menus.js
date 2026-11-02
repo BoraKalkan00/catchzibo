@@ -85,7 +85,9 @@
         img('scene.town', 'scene-bg'),
         snow(),
         h('div', { class: 'hub-top' },
-          img('avatar.' + (state.data.avatar || 'girl'), 'hub-avatar'),
+          h('div', { class: 'hub-me' },
+            img('avatar.' + (state.data.avatar || 'girl'), 'hub-avatar'),
+            CZ.progress.bar()),
           h('div', { class: 'hub-stats' },
             h('div', { class: 'emeralds' }, img('ui.star', 'emerald-icon'), h('span', { text: `${game.totalStars()}/${game.rounds().length * 3}` })),
             h('div', { class: 'emeralds gold-badge' }, img('ui.gold', 'emerald-icon'), h('span', { text: state.data.gold || 0 })),
@@ -104,9 +106,12 @@
           nav(t('hub.book'), 'ui.book', 'book'),
           nav(t('hub.diary'), 'ui.diary', 'diary', game.diaryUnread()),
           nav(t('hub.settings'), 'ui.gear', 'settings')));
+      // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
+      this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
     },
     leave() {
       clearTimeout(this.helloTimer);
+      clearTimeout(this.popTimer);
       if (this.zibo) this.zibo.stop();
     }
   };

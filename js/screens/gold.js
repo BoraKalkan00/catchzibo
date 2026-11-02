@@ -413,6 +413,7 @@ CZ.screens.gold = (function () {
     }
     CZ.audio.sfx('crack');
     CZ.audio.vibrate([30, 20, 40]);
+    g.xp = (g.xp || 0) + CZ.PROGRESS.xp.crate;
     // Altınlar saçılır (az sayıda: telefon ısınmasın).
     for (let i = 0; i < 6; i++) {
       const coin = img('ui.gold', 'coin-burst');
@@ -440,6 +441,7 @@ CZ.screens.gold = (function () {
     const record = g.earned > (d.goldBest || 0);
     if (record) d.goldBest = g.earned;
     CZ.state.save();
+    if (g.xp) CZ.progress.addXp(g.xp);
     CZ.audio.music(null);
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 60]);

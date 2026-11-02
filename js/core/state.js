@@ -24,7 +24,10 @@ CZ.state = (function () {
     goldNextAt: 0,   // bir sonraki ücretsiz kartopu turunun zamanı (ms)
     goldBest: 0,
     cocoa: 0,        // sıcak kakao: sıradaki aramaya +süre
-    chaseWins: 0     // Zibo kaç kez yakalandı: kovalamaca zorlaşır
+    chaseWins: 0,    // Zibo kaç kez yakalandı: kovalamaca zorlaşır
+    xp: 0,
+    level: 1,
+    daily: { last: null, streak: 0 }
   });
 
   let data = fresh();
@@ -82,6 +85,7 @@ CZ.state = (function () {
     data.emeralds += reward;
     if (!old.found) data.newReturn = id;
     save();
+    if (CZ.progress) CZ.progress.addXp(old.found ? CZ.PROGRESS.xp.replay : CZ.PROGRESS.xp.find);
   }
   function restUntilTomorrow(id) {
     data.rounds[id] = { lockedUntil: tomorrow() };

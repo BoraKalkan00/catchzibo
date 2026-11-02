@@ -340,5 +340,21 @@ CZ.i18n.register('en', 'English', {
   'item.present_star.note': 'Saved for the very last night of the year.',
   'mansion.nextDate': 'Room cleared! The next room opens on {date}. Replay for stars until then.',
   'gold.combo': 'STREAK x{n}!',
-  'gold.comboLost': 'Streak lost!'
+  'gold.comboLost': 'Streak lost!',
+  'daily.title': 'Daily Gift',
+  'daily.sub': 'Come back every day. Day 7 is a big treasure chest!',
+  'daily.broken': 'You missed a day, so your streak starts over. Don’t let Zibo win!',
+  'daily.day': 'Day {n}',
+  'daily.chest': 'CHEST',
+  'daily.claim': 'Claim',
+  'level.up': 'Level up!',
+  'level.toast': 'Level up! You’re level {n}.',
+  'level.z1': 'Hmph. Lucky. That’s all it was.',
+  'level.z2': 'You’re getting good. I don’t like it.',
+  'level.z3': 'Okay, okay. Maybe you’re a LITTLE clever.',
+  'level.z4': 'My mom says I should be nicer to you. NEVER!',
+  'level.z5': 'Level up? I’m level 9000. Probably.',
+  'level.z6': 'Stop getting stronger! That’s MY thing!',
+  'level.z7': 'Fine. You win this level. But not the next one!',
+  'level.z8': 'I wrote about you in my diary. It wasn’t nice.'
 });

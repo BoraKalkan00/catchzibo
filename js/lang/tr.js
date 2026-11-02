@@ -340,5 +340,21 @@ CZ.i18n.register('tr', 'Türkçe', {
   'item.present_star.note': 'Yılın en son gecesi için saklanmıştı.',
   'mansion.nextDate': 'Oda bitti! Sıradaki oda {date} tarihinde açılıyor. O zamana kadar yıldız için tekrar oyna.',
   'gold.combo': 'SERİ x{n}!',
-  'gold.comboLost': 'Seri bozuldu!'
+  'gold.comboLost': 'Seri bozuldu!',
+  'daily.title': 'Günlük Hediye',
+  'daily.sub': 'Her gün gel. 7. gün koca bir hazine sandığı!',
+  'daily.broken': 'Bir gün kaçırdın, serin baştan başlıyor. Zibo’ya kazandırma!',
+  'daily.day': '{n}. gün',
+  'daily.chest': 'SANDIK',
+  'daily.claim': 'Al',
+  'level.up': 'Seviye atladın!',
+  'level.toast': 'Seviye atladın! Artık {n}. seviyedesin.',
+  'level.z1': 'Hıh. Şans. Hepsi bu.',
+  'level.z2': 'İyileşiyorsun. Hiç hoşuma gitmedi.',
+  'level.z3': 'Tamam, tamam. Belki BİRAZ zekisin.',
+  'level.z4': 'Annem sana daha nazik olmamı söylüyor. ASLA!',
+  'level.z5': 'Seviye mi atladın? Ben 9000. seviyedeyim. Herhalde.',
+  'level.z6': 'Güçlenmeyi bırak! O BENİM işim!',
+  'level.z7': 'Peki. Bu seviyeyi kazandın. Ama sonrakini değil!',
+  'level.z8': 'Günlüğüme seni yazdım. Hiç hoş şeyler değildi.'
 });
