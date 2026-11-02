@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#14233c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Catch Zibo!</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/ui/emerald.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main id="app"></main>
+  <div id="rotate-note" aria-live="polite"></div>
+  <noscript>Catch Zibo needs JavaScript.</noscript>
+
+  <!-- Sıra önemli. ES modülü kullanılmadı ki dosyayı çift tıklayınca (file://) da çalışsın. -->
+  <script src="js/core/assets.js"></script>
+  <script src="js/core/state.js"></script>
+  <script src="js/core/i18n.js"></script>
+  <script src="js/lang/en.js"></script>
+  <script src="js/lang/tr.js"></script>
+  <!-- Yeni dil: buraya <script src="js/lang/xx.js"></script> ekle -->
+  <script src="js/data/config.js"></script>
+  <script src="js/core/audio.js"></script>
+  <script src="js/core/ui.js"></script>
+  <script src="js/core/game.js"></script>
+  <script src="js/screens/menus.js"></script>
+  <script src="js/screens/story.js"></script>
+  <script src="js/screens/play.js"></script>
+  <script src="js/screens/village.js"></script>
+  <script src="js/screens/gold.js"></script>
+  <script src="js/screens/chase.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

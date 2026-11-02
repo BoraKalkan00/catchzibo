@@ -1,0 +1,13 @@
+{
+  "name": "Catch Zibo!",
+  "short_name": "Catch Zibo",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14233c",
+  "theme_color": "#14233c",
+  "icons": [
+    { "src": "assets/ui/emerald.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
