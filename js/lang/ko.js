@@ -17,7 +17,7 @@ CZ.i18n.register('ko', '한국어', {
   'story.3': '지보는 전부 언덕 위 저택으로 끌고 갔어요. 버릇없냐고요? 아주요. 미안해하냐고요? 전혀요.',
   'story.4': '그래서 문을 두드렸어요. 네 물건을 찾아서, 내 거라고 외치고, 집으로 가져가요!',
   'hub.enter': '저택에 들어가기',
-  'hub.village': '마을',
+  'hub.village': '우리 집',
   'hub.book': '분실물 보관소',
   'hub.diary': '지보의 일기',
   'hub.settings': '설정',
@@ -67,12 +67,12 @@ CZ.i18n.register('ko', '한국어', {
   'ad.fake': '테스트 모드: 실제 광고는 없어요.',
   'ad.wait': '{s}초 후 계속…',
   'win.title': '찾았다!',
-  'win.home': '마을로 돌아왔어요.',
+  'win.home': '집 선반에 올려 뒀어요.',
   'win.reward': '+{n} 에메랄드',
   'win.record': '새 기록: {s}초!',
   'win.roomDone': '거실을 전부 되찾았어요! 지보가 화났어요. 부엌이 열렸어요!',
   'win.next': '다음 물건',
-  'win.toVillage': '마을로 가기',
+  'win.toVillage': '집으로',
   'win.toMansion': '저택으로 돌아가기',
   'village.title': '너의 마을',
   'village.returned': '집으로 돌아온 것',
@@ -339,5 +339,6 @@ CZ.i18n.register('ko', '한국어', {
   'level.z5': '레벨 업? 나는 레벨 9000이야. 아마도.',
   'level.z6': '더 강해지지 마! 그건 내 특기라고!',
   'level.z7': '좋아. 이 레벨은 네가 이겼어. 하지만 다음은 안 돼!',
-  'level.z8': '일기에 너에 대해 썼어. 좋은 말은 아니었어.'
+  'level.z8': '일기에 너에 대해 썼어. 좋은 말은 아니었어.',
+  'hub.hood': '이웃'
 });

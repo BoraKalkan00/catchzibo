@@ -102,7 +102,8 @@
               h('span', {}, h('strong', { text: t('hub.gold') }),
                 h('small', { text: CZ.screens.gold.isFree() ? t('hub.goldReady') : CZ.screens.gold.waitText() }))))),
         h('nav', { class: 'hub-nav' },
-          nav(t('hub.village'), 'ui.village', 'village'),
+          nav(t('hub.village'), 'ui.house', 'house', CZ.house && CZ.house.attention()),
+          nav(t('hub.hood'), 'ui.hood', 'hood'),
           nav(t('hub.book'), 'ui.book', 'book'),
           nav(t('hub.diary'), 'ui.diary', 'diary', game.diaryUnread()),
           nav(t('hub.settings'), 'ui.gear', 'settings')));

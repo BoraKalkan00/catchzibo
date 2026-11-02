@@ -134,7 +134,8 @@ CZ.progress = (function () {
   // Merkezde: önce günlük ödül, sonra bekleyen seviye atlamaları.
   function showOnHub(root, refresh) {
     const shown = dailyBox(root, () => { if (!levelBox(root, refresh)) refresh(); });
-    if (!shown) levelBox(root, refresh);
+    if (shown || levelBox(root, refresh)) return;
+    if (CZ.house) CZ.house.raidBox(root, refresh);
   }
 
   function bar() {

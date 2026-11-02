@@ -17,7 +17,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'story.3': 'Er schleppte alles den Hügel hinauf in seine Villa. Verwöhnt? Sehr. Tut es ihm leid? Kein bisschen.',
   'story.4': 'Also hast du geklopft. Finde, was dir gehört, beanspruche es und bring es nach Hause!',
   'hub.enter': 'Villa betreten',
-  'hub.village': 'Dorf',
+  'hub.village': 'Mein Haus',
   'hub.book': 'Fundbüro',
   'hub.diary': 'Zibos Tagebuch',
   'hub.settings': 'Einstellungen',
@@ -67,12 +67,12 @@ CZ.i18n.register('de', 'Deutsch', {
   'ad.fake': 'Testmodus: hier keine echte Werbung.',
   'ad.wait': 'Weiter in {s} …',
   'win.title': 'Geschafft!',
-  'win.home': 'Es ist zurück in deinem Dorf.',
+  'win.home': 'Es steht jetzt in deinem Haus.',
   'win.reward': '+{n} Smaragde',
   'win.record': 'Neuer Rekord: {s} Sekunden!',
   'win.roomDone': 'Das ganze Wohnzimmer gehört wieder dir! Zibo tobt. Die Küche ist jetzt offen!',
   'win.next': 'Nächstes Teil',
-  'win.toVillage': 'Zum Dorf',
+  'win.toVillage': 'Zu meinem Haus',
   'win.toMansion': 'Zurück zur Villa',
   'village.title': 'Dein Dorf',
   'village.returned': 'Wieder daheim',
@@ -339,5 +339,6 @@ CZ.i18n.register('de', 'Deutsch', {
   'level.z5': 'Level aufgestiegen? Ich bin Level 9000. Wahrscheinlich.',
   'level.z6': 'Hör auf, stärker zu werden! Das ist MEIN Ding!',
   'level.z7': 'Na gut. Dieses Level gehört dir. Aber nicht das nächste!',
-  'level.z8': 'Ich hab über dich in mein Tagebuch geschrieben. Es war nicht nett.'
+  'level.z8': 'Ich hab über dich in mein Tagebuch geschrieben. Es war nicht nett.',
+  'hub.hood': 'Nachbarn'
 });

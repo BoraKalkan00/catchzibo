@@ -17,7 +17,7 @@ CZ.i18n.register('fr', 'Français', {
   'story.3': 'Il a tout traîné jusqu’à son manoir sur la colline. Gâté ? Très. Désolé ? Pas du tout.',
   'story.4': 'Alors tu as frappé. Trouve ce qui est à toi, réclame-le et ramène-le à la maison !',
   'hub.enter': 'Entrer dans le manoir',
-  'hub.village': 'Village',
+  'hub.village': 'Ma maison',
   'hub.book': 'Objets trouvés',
   'hub.diary': 'Journal de Zibo',
   'hub.settings': 'Réglages',
@@ -67,12 +67,12 @@ CZ.i18n.register('fr', 'Français', {
   'ad.fake': 'Mode test : pas de vraie pub ici.',
   'ad.wait': 'On continue dans {s}…',
   'win.title': 'Tu l’as !',
-  'win.home': 'Il est de retour dans ton village.',
+  'win.home': 'Il est rangé dans ta maison.',
   'win.reward': '+{n} émeraudes',
   'win.record': 'Nouveau record : {s} secondes !',
   'win.roomDone': 'Tout le salon est de nouveau à toi ! Zibo est furieux. La cuisine vient d’ouvrir !',
   'win.next': 'Objet suivant',
-  'win.toVillage': 'Aller au village',
+  'win.toVillage': 'À la maison',
   'win.toMansion': 'Retour au manoir',
   'village.title': 'Ton village',
   'village.returned': 'De retour',
@@ -339,5 +339,6 @@ CZ.i18n.register('fr', 'Français', {
   'level.z5': 'Niveau supérieur ? Moi je suis niveau 9000. Probablement.',
   'level.z6': 'Arrête de devenir plus fort ! C’est MON truc !',
   'level.z7': 'Bon. Ce niveau est à toi. Mais pas le suivant !',
-  'level.z8': 'J’ai écrit sur toi dans mon journal. Ce n’était pas gentil.'
+  'level.z8': 'J’ai écrit sur toi dans mon journal. Ce n’était pas gentil.',
+  'hub.hood': 'Voisins'
 });

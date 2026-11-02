@@ -182,6 +182,12 @@ CZ.audio = (function () {
       tone(midi(n), t, 0.1, { type: 'square', gain: 0.03, attack: 0.002 });
       tone(midi(n + 7), t + 0.05, 0.2, { gain: 0.07 });
     },
+    // İnşa: üç çekiç vuruşu ve küçük bir ding.
+    build: t => {
+      [0, 0.13, 0.26].forEach(at => { noise(t + at, 0.06, { gain: 0.18, freq: 900, q: 1.2 }); tone(150, t + at, 0.06, { gain: 0.16, to: 80 }); });
+      tone(midi(84), t + 0.42, 0.4, { gain: 0.08 });
+      tone(midi(91), t + 0.5, 0.5, { gain: 0.06 });
+    },
     buy: t => [67, 72, 76, 79].forEach((n, i) => tone(midi(n), t + i * 0.06, 0.3, { gain: 0.09 })),
     // Kartopu savaşı
     throw: t => noise(t, 0.12, { gain: 0.06, freq: 1800, to: 600, q: 0.7 }),

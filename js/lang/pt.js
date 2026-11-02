@@ -17,7 +17,7 @@ CZ.i18n.register('pt', 'Português', {
   'story.3': 'Ele levou tudo morro acima até a mansão dele. Mimado? Muito. Arrependido? Nem um pouco.',
   'story.4': 'Então você bateu na porta. Encontre o que é seu, pegue de volta e leve para casa!',
   'hub.enter': 'Entrar na mansão',
-  'hub.village': 'Vila',
+  'hub.village': 'Minha casa',
   'hub.book': 'Achados e perdidos',
   'hub.diary': 'Diário do Zibo',
   'hub.settings': 'Configurações',
@@ -67,12 +67,12 @@ CZ.i18n.register('pt', 'Português', {
   'ad.fake': 'Modo de teste: sem anúncio de verdade aqui.',
   'ad.wait': 'Continuando em {s}…',
   'win.title': 'Conseguiu!',
-  'win.home': 'Está de volta na sua vila.',
+  'win.home': 'Já está na sua casa.',
   'win.reward': '+{n} esmeraldas',
   'win.record': 'Novo recorde: {s} segundos!',
   'win.roomDone': 'A sala de estar inteira é sua de novo! O Zibo está furioso. A cozinha acabou de abrir!',
   'win.next': 'Próximo item',
-  'win.toVillage': 'Ir para a vila',
+  'win.toVillage': 'Ir para casa',
   'win.toMansion': 'Voltar à mansão',
   'village.title': 'Sua vila',
   'village.returned': 'De volta em casa',
@@ -339,5 +339,6 @@ CZ.i18n.register('pt', 'Português', {
   'level.z5': 'Subiu de nível? Eu sou nível 9000. Provavelmente.',
   'level.z6': 'Para de ficar mais forte! Isso é coisa MINHA!',
   'level.z7': 'Tá bom. Este nível é seu. Mas o próximo não!',
-  'level.z8': 'Escrevi sobre você no meu diário. Não foi legal.'
+  'level.z8': 'Escrevi sobre você no meu diário. Não foi legal.',
+  'hub.hood': 'Vizinhos'
 });

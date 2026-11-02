@@ -365,10 +365,10 @@ CZ.screens.chase = (function () {
     const id = setTimeout(() => {
       const next = CZ.game.nextOpen();
       const actions = next
-        ? [btn(t('win.toVillage'), () => CZ.ui.go('village'), 'ghost-dark wide'),
+        ? [btn(t('win.toVillage'), () => CZ.ui.go('house'), 'ghost-dark wide'),
           btn(t('win.next'), () => CZ.ui.wipeTo('play', { roundId: next.id }), 'primary wide')]
         : [btn(t('win.toMansion'), () => CZ.ui.go('mansion'), 'ghost-dark wide'),
-          btn(t('win.toVillage'), () => CZ.ui.go('village'), 'primary wide')];
+          btn(t('win.toVillage'), () => CZ.ui.go('house'), 'primary wide')];
       const starRow = h('div', { class: 'star-row' }, [0, 1, 2].map(i => img(i < p.stars ? 'ui.star' : 'ui.star_empty', 'star' + (i < p.stars ? ' pop' : ''))));
       c.el.append(h('div', { class: 'sheet sheet-win' },
         starRow,

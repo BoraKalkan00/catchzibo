@@ -17,7 +17,7 @@ CZ.i18n.register('ja', '日本語', {
   'story.3': 'ジボは全部を丘の上の屋敷に運んだ。わがまま？とても。反省？ぜんぜん。',
   'story.4': 'だからきみはドアをノックした。自分の物を見つけて、取りもどして、家に持ち帰ろう！',
   'hub.enter': '屋敷に入る',
-  'hub.village': '村',
+  'hub.village': 'おうち',
   'hub.book': '落とし物',
   'hub.diary': 'ジボの日記',
   'hub.settings': '設定',
@@ -67,12 +67,12 @@ CZ.i18n.register('ja', '日本語', {
   'ad.fake': 'テストモード：本物の広告はないよ。',
   'ad.wait': '{s}秒後につづく…',
   'win.title': 'やった！',
-  'win.home': '村にもどったよ。',
+  'win.home': 'おうちのたなにかざったよ。',
   'win.reward': '+{n} エメラルド',
   'win.record': '新記録：{s}秒！',
   'win.roomDone': 'リビングを全部取りもどした！ジボはカンカン。キッチンがひらいたよ！',
   'win.next': '次のアイテム',
-  'win.toVillage': '村へ行く',
+  'win.toVillage': 'おうちへ',
   'win.toMansion': '屋敷にもどる',
   'village.title': 'きみの村',
   'village.returned': '家にもどった物',
@@ -339,5 +339,6 @@ CZ.i18n.register('ja', '日本語', {
   'level.z5': 'レベルアップ？ぼくはレベル9000。たぶん。',
   'level.z6': '強くなるのやめて！それはぼくの得意技！',
   'level.z7': 'いいよ。このレベルはきみの勝ち。でも次はわたさない！',
-  'level.z8': '日記にきみのことを書いた。いい内容じゃなかった。'
+  'level.z8': '日記にきみのことを書いた。いい内容じゃなかった。',
+  'hub.hood': 'ご近所'
 });
