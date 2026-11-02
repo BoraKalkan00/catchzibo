@@ -255,12 +255,12 @@ CZ.game = (function () {
     let fidgetTimer = null;
     function fidget() {
       fidgetTimer = setTimeout(() => {
-        if (!locked && mood === 'idle' && shown !== 'tongue' && !speaking() && !document.hidden) {
+        if (!locked && mood === 'idle' && shown === 'idle' && !speaking() && !document.hidden) {
           const pick = Math.random();
           if (pick < 0.3) {
-            show('tongue');
+            show('laugh');
             sprite.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(5deg)' }, { transform: 'rotate(0)' }], { duration: 700 });
-            setTimeout(() => { if (!locked && shown === 'tongue') show(mood); }, 950);
+            setTimeout(() => { if (!locked && shown === 'laugh') show(mood); }, 950);
           } else if (pick < 0.55) {
             sprite.animate([
               { transform: 'rotate(0) translateX(0)' },
