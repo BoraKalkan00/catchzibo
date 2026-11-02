@@ -1,11 +1,15 @@
 # Her güncellemede telefona kurulabilir bir APK üretir.
-# Sonuç: GitHub → Actions → en son "Android APK" çalışması → Artifacts → catchzibo-apk
+# Telefondan indirme linki (her zaman en yeni sürüm):
+#   https://github.com/BoraKalkan00/catchzibo/releases/latest/download/catchzibo.apk
 name: Android APK
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   apk:
@@ -53,3 +57,14 @@ jobs:
           name: catchzibo-apk
           path: app/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+
+      - name: APK'yı sabit indirme linkine koy
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk ../catchzibo.apk
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: test-build
+          name: Catch Zibo! test sürümü
+          body: Telefona kurulacak en yeni test sürümü. Her güncellemede otomatik yenilenir.
+          files: catchzibo.apk
+          make_latest: true
