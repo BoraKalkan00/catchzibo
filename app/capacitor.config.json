@@ -1,0 +1,11 @@
+{
+  "appId": "com.catchzibo.game",
+  "appName": "Catch Zibo!",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#14233c"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

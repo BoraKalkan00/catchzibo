@@ -1,0 +1,11 @@
+{
+  "name": "catchzibo-app",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Catch Zibo! Android uygulaması (Capacitor). Oyunun kendisi depo kökünde; bu klasör sadece onu uygulamaya sarar.",
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  }
+}

@@ -1,0 +1,55 @@
+# Her güncellemede telefona kurulabilir bir APK üretir.
+# Sonuç: GitHub → Actions → en son "Android APK" çalışması → Artifacts → catchzibo-apk
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Oyun dosyalarını uygulamaya kopyala
+        run: |
+          mkdir -p www
+          rsync -a ../ www/ --exclude .git --exclude .github --exclude app --exclude '*.md'
+
+      - name: Capacitor kur ve Android projesini oluştur
+        run: |
+          npm install
+          npx cap add android
+          npx cap sync android
+
+      - name: Dikey ekran ve sürüm ayarları
+        run: |
+          sed -i 's/<activity/<activity android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
+          sed -i "s/versionCode 1/versionCode ${GITHUB_RUN_NUMBER}/" android/app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"0.1.${GITHUB_RUN_NUMBER}\"/" android/app/build.gradle
+
+      - name: APK derle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: catchzibo-apk
+          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
