@@ -529,9 +529,9 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 @keyframes runbob { 50% { transform: translateX(-50%) translateY(-4%); } }
 .gold-field.runner { background: linear-gradient(#10203a 0 36%, #c9dbe9 36%, #e6eff6); }
 .runner-prop { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; will-change: transform; }
-.chase-zibo-img { animation: ziborun .26s ease-in-out infinite; transform-origin: 50% 100%; will-change: transform; }
+.chase-zibo-img { animation: ziborun .333s ease-in-out infinite; transform-origin: 50% 100%; will-change: transform; }
 .chase-zibo.caught .chase-zibo-img, .chase-zibo.stopped .chase-zibo-img { animation: none; }
-@keyframes ziborun { 50% { transform: translateY(-5%) rotate(-3deg); } }
+@keyframes ziborun { 0%,50%,100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-5%) rotate(-3deg); } 75% { transform: translateY(-5%) rotate(3deg); } }
 
 /* Günlük ödül ve seviye */
 .hub-me { display: flex; align-items: center; gap: 8px; }

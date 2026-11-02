@@ -6,15 +6,16 @@ window.CZ = window.CZ || {};
 CZ.OVERRIDES = {
   // Zibo'nun Gemini çizimleri. Eksik pozlar gelene kadar en yakın poz kullanılır.
   'zibo.idle': 'assets/zibo/png/smug.webp',
-  'zibo.blink': 'assets/zibo/png/smug.webp',
+  'zibo.blink': 'assets/zibo/png/blink.webp',
   'zibo.smug': 'assets/zibo/png/smug.webp',
   'zibo.laugh': 'assets/zibo/png/laugh.webp',
-  'zibo.mad': 'assets/zibo/png/smug.webp',
-  'zibo.nervous': 'assets/zibo/png/smug.webp',
-  'zibo.tantrum': 'assets/zibo/png/laugh.webp',
+  'zibo.mad': 'assets/zibo/png/mad.webp',
+  'zibo.nervous': 'assets/zibo/png/nervous.webp',
+  'zibo.tantrum': 'assets/zibo/png/tantrum.webp',
   'zibo.tongue': 'assets/zibo/png/run_tongue.webp',
-  'zibo.run1': 'assets/zibo/png/run_tongue.webp',
-  'zibo.run2': 'assets/zibo/png/run_tongue.webp',
+  'zibo.run1': 'assets/zibo/png/back1.webp',
+  'zibo.run2': 'assets/zibo/png/back2.webp',
+  'zibo.back': 'assets/zibo/png/back.webp',
   'zibo.runLoot': 'assets/zibo/png/run_loot.webp'
 };
 

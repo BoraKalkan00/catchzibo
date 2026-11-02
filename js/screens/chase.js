@@ -38,7 +38,8 @@ CZ.screens.chase = (function () {
       + '<line x1="46" y1="0" x2="5" y2="100" stroke="#9fb6cc" stroke-width=".8" vector-effect="non-scaling-stroke"/><line x1="54" y1="0" x2="95" y2="100" stroke="#9fb6cc" stroke-width=".8" vector-effect="non-scaling-stroke"/>'
       + '</svg>';
     c.warns = [0, 1, 2].map(i => h('i', { class: 'lane-warn w' + i }));
-    c.player = img('avatar.' + (CZ.state.data.avatar || 'girl'), 'chase-player');
+    c.player = img('avatar.' + (CZ.state.data.avatar || 'girl') + '_run1', 'chase-player');
+    ['_run1', '_run2'].forEach(f => { new Image().src = CZ.art('avatar.' + (CZ.state.data.avatar || 'girl') + f); });
     c.ziboImg = img('zibo.run1', 'chase-zibo-img');
     c.loot = img('item.' + round.target, 'chase-loot');
     c.bubble = h('div', { class: 'bubble chase-bubble' }, h('em', { class: 'bubble-goblin' }), h('span', { class: 'bubble-line' }));
@@ -123,8 +124,10 @@ CZ.screens.chase = (function () {
     c.bombs.slice().forEach(b => { if (now >= b.at) explode(b); });
 
     // Koşu karesi: bacaklar sırayla.
-    const runFrame = Math.floor(c.frame * 7) % 2 ? 'zibo.run2' : 'zibo.run1';
+    const runFrame = Math.floor(c.frame * 6) % 2 ? 'zibo.run2' : 'zibo.run1';
     if (c.ziboImg.dataset.f !== runFrame) { c.ziboImg.dataset.f = runFrame; c.ziboImg.src = CZ.art(runFrame); }
+    const me = 'avatar.' + (CZ.state.data.avatar || 'girl') + (Math.floor(c.frame * 6.6) % 2 ? '_run2' : '_run1');
+    if (c.player.dataset.f !== me) { c.player.dataset.f = me; c.player.src = CZ.art(me); }
 
     layout();
     const shown = Math.max(0, Math.ceil(c.timeLeft));
@@ -142,7 +145,7 @@ CZ.screens.chase = (function () {
   function layout() {
     const near = 1 - Math.min(1, c.gap / C.startGap);
     const y = lerp(0.3, 0.6, near);
-    const scale = lerp(0.42, 0.95, near);
+    const scale = lerp(0.55, 1.0, near);
     // Zibo'nun şeridi yolun o yükseklikteki genişliğine göre: uzakta yol dar.
     const f = Math.max(0, (y - ROAD_TOP) / (1 - ROAD_TOP));
     const half = 0.04 + f * 0.41;
