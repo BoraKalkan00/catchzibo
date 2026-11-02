@@ -4,6 +4,8 @@
     CZ.state.data.lang = code;
     CZ.state.save();
     CZ.i18n.set(code);
+    // Arapça sağdan sola okunur.
+    document.documentElement.dir = code === 'ar' ? 'rtl' : 'ltr';
     document.getElementById('rotate-note').textContent = CZ.t('rotate');
   };
 

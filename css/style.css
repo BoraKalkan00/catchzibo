@@ -565,3 +565,12 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .hub-stats .emeralds { font-size: 14px; padding: 4px 9px 4px 5px; }
 .hub-stats .emerald-icon { width: 18px; height: 18px; }
 .hub-avatar { width: 46px; height: 46px; }
+
+/* Dil seçimi (9 dil) */
+.set-lang { flex-direction: column; align-items: stretch; gap: 10px; }
+.lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.lang-btn { min-height: 40px; padding: 4px 6px; border-radius: 12px; background: #e0d1b5; color: var(--ink); font-size: 14px; font-weight: 800; }
+.lang-btn.active { background: var(--emerald); color: #fff; }
+/* Sağdan sola (Arapça): menüler aynalanır, oyun alanları ve yön tuşları olduğu gibi kalır. */
+[dir=rtl] .room, [dir=rtl] .gold-field, [dir=rtl] .chase-field, [dir=rtl] .chase-controls, [dir=rtl] .timebar, [dir=rtl] .day-grid { direction: ltr; }
+[dir=rtl] .bubble, [dir=rtl] .gold-combo, [dir=rtl] .mine-pop, [dir=rtl] .day-tile { direction: rtl; }

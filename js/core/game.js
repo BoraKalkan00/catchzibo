@@ -80,8 +80,11 @@ CZ.game = (function () {
       c.font = 'italic 500 58px Fredoka, sans-serif';
       let y = 270;
       let line = '';
-      pageText.split(' ').forEach(word => {
-        const test = line ? line + ' ' + word : word;
+      // Japonca/Korece gibi boşluksuz yazılarda harf harf sar.
+      const spaced = pageText.includes(' ');
+      const sep = spaced ? ' ' : '';
+      (spaced ? pageText.split(' ') : [...pageText]).forEach(word => {
+        const test = line ? line + sep + word : word;
         if (c.measureText(test).width > 800) {
           c.fillText(line, 140, y);
           y += 76;

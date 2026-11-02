@@ -246,12 +246,15 @@
       el.append(
         header(t('settings.title'), () => go('hub')),
         h('div', { class: 'scroll settings' },
-          row(t('settings.language'), h('div', { class: 'seg' }, CZ.i18n.list.map(l => h('button', {
-            class: l.code === CZ.i18n.current ? 'active' : '',
-            type: 'button',
-            onClick: () => { CZ.applyLanguage(l.code); CZ.ui.refresh(); },
-            text: l.name
-          })))),
+          h('div', { class: 'set-row set-lang' },
+            h('span', { text: t('settings.language') }),
+            h('div', { class: 'lang-grid' }, CZ.i18n.list.map(l => h('button', {
+              class: 'lang-btn' + (l.code === CZ.i18n.current ? ' active' : ''),
+              type: 'button',
+              lang: l.code,
+              onClick: () => { CZ.audio.sfx('button'); CZ.applyLanguage(l.code); CZ.ui.refresh(); },
+              text: l.name
+            })))),
           row(t('settings.avatar'), h('div', { class: 'set-avatar' },
             img('avatar.' + (d.avatar || 'girl'), 'set-avatar-img'),
             btn(t('settings.change'), () => go('avatar', { returnTo: 'settings' }), 'small ghost-dark'))),
