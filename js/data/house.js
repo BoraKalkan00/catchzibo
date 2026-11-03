@@ -93,3 +93,13 @@ CZ.RAID = {
   stealShare: 0.15, stealBase: 40, stealPerLevel: 3, minGold: 50,
   bounty: 25 // Zibo savuşturulursa düşürdüğü altın
 };
+
+// İnşaat süreleri (dakika): bir işçi var, aynı anda tek iş. Elmasla hızlandırılır (10 dk = 1 elmas).
+CZ.BUILD_TIME = {
+  found: [1], wall1: [5], wall2: [10], wall3: [20], wall4: [30],
+  door: [30, 60, 120, 240, 360], win: [30, 60, 180, 300], roof: [240, 300, 420],
+  walls: [120, 240, 480], chimney: [30, 120], fence: [20, 60, 180, 360],
+  garden: [10, 30, 60, 120], lights: [15, 45, 90],
+  'room.bedroom': [120], 'room.kitchen': [240], 'room.bath': [360], 'room.play': [480]
+};
+CZ.SPEEDUP_MIN_PER_EMERALD = 10;

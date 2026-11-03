@@ -182,8 +182,10 @@ CZ.houseArt = (function () {
   }
 
   // Bahçe süsleri (yüzeye dik "kart" gibi çizilir).
+  let ownerUrl = null;
   function sprite(kind, x, y) {
     const [cx, cy] = P(x, y, 0);
+    if (kind === 'owner') { const hgt = U * 2.6; return `<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${U * 0.6}" ry="${U * 0.2}" fill="#000" opacity=".18"/><image href="${ownerUrl}" x="${(cx - hgt * 0.4).toFixed(1)}" y="${(cy - hgt).toFixed(1)}" width="${(hgt * 0.8).toFixed(1)}" height="${hgt.toFixed(1)}"/>`; }
     const T = (sx, sy) => `translate(${cx.toFixed(1)} ${cy.toFixed(1)}) scale(${sx || 1})`;
     if (kind === 'bush') return `<g transform="${T()}"><ellipse cx="0" cy="0" rx="15" ry="5" fill="#000" opacity=".15"/><circle cx="-7" cy="-9" r="9" fill="#3f8f4a" ${ST}/><circle cx="7" cy="-10" r="10" fill="#4aa457" ${ST}/><circle cx="0" cy="-17" r="9" fill="#58b765" ${ST}/><circle cx="-3" cy="-14" r="2" fill="#e8483e"/><circle cx="6" cy="-8" r="2" fill="#e8483e"/></g>`;
     if (kind === 'pot') return `<g transform="${T()}"><path d="M-7 -12h14l-3 12h-8z" fill="#c26a3d" ${ST}/><circle cx="-4" cy="-16" r="4.5" fill="#f37aa7" ${ST}/><circle cx="4" cy="-17" r="4.5" fill="#ffd34d" ${ST}/><circle cx="0" cy="-21" r="4.5" fill="#fff" ${ST}/></g>`;
@@ -242,6 +244,7 @@ CZ.houseArt = (function () {
   function exterior(H, opts) {
     const o = opts || {};
     U = o.unit || 21; OX = 200; OY = 118;
+    ownerUrl = o.owner || null;
     const lv = id => H.parts[id] || 0;
     const ext = paintC('ext', H.paint.ext), roofC = paintC('roof', H.paint.roof);
     const brick = H.paint.ext === 'brick';
@@ -343,6 +346,8 @@ CZ.houseArt = (function () {
     if (g >= 3) items.push(['snowman', 5.8, 5.4]);
     if (g >= 4) items.push(['tree', -2.4, 3.9]);
     if (lv('lights') >= 3) items.push(['lamp', 0.4, FY1 - 0.4], ['lamp', 2.6, FY1 - 0.4]);
+    // Ev sahibi kapının önünde durur (kostümüyle).
+    if (o.owner && lv('found')) items.push(['owner', 2.9, 5.0]);
     items.sort((a, b) => (a[1] + a[2]) - (b[1] + b[2]));
     out += wrap('garden', items.map(i => sprite(...i)).join(''));
 

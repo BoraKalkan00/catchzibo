@@ -17,6 +17,7 @@ CZ.house = (function () {
 
   function ensure() {
     const s = d();
+    if (s.house && s.house.job && Date.now() >= s.house.job.end) applyJob(s.house);
     if (!s.house) {
       s.house = blank();
       s.house.start = CZ.state.today();
@@ -80,12 +81,50 @@ CZ.house = (function () {
     if (!cost) return 'max';
     if (!needMet(H, p.need)) return 'need';
     if (!canPay(H, cost)) return 'short';
+    if (H.job) return 'busy';
     pay(H, cost);
-    H.parts[id] = lv(H, id) + 1;
-    if (id === 'roof' && !H.rooms.living) H.rooms.living = { wall: 'cream', floor: 'wood', furn: {} };
+    startJob(H, id);
+    return 'ok';
+  }
+
+  /* ---------- İşçi: süreli inşaat ---------- */
+  function startJob(H, id) {
+    const lvlIndex = id.startsWith('room.') ? 0 : lv(H, id);
+    const mins = (CZ.BUILD_TIME[id] || [1])[Math.min(lvlIndex, (CZ.BUILD_TIME[id] || [1]).length - 1)];
+    const now = Date.now();
+    H.job = { id, start: now, end: now + mins * 60000 };
+    CZ.state.save();
+    if (CZ.notify) CZ.notify.schedule();
+  }
+  function applyJob(H) {
+    const id = H.job.id;
+    H.job = null;
+    if (id.startsWith('room.')) {
+      H.rooms[id.slice(5)] = { wall: 'cream', floor: 'wood', furn: {} };
+      if (CZ.progress) CZ.progress.addXp(20);
+    } else {
+      H.parts[id] = lv(H, id) + 1;
+      if (id === 'roof' && !H.rooms.living) H.rooms.living = { wall: 'cream', floor: 'wood', furn: {} };
+      if (CZ.progress) CZ.progress.addXp(8);
+    }
     H.fresh = id;
     CZ.state.save();
-    if (CZ.progress) CZ.progress.addXp(8);
+  }
+  // Süresi dolan işi bitir. Bittiyse true.
+  function tick() {
+    const H = d().house;
+    if (H && H.job && Date.now() >= H.job.end) { applyJob(H); return true; }
+    return false;
+  }
+  const jobLeft = H => H.job ? Math.max(0, H.job.end - Date.now()) : 0;
+  const speedCost = H => Math.max(1, Math.ceil(jobLeft(H) / 60000 / CZ.SPEEDUP_MIN_PER_EMERALD));
+  function speedUp() {
+    const H = ensure();
+    if (!H.job) return 'none';
+    const cost = speedCost(H);
+    if ((d().emeralds || 0) < cost) return 'short';
+    d().emeralds -= cost;
+    applyJob(H);
     return 'ok';
   }
 
@@ -95,11 +134,9 @@ CZ.house = (function () {
     if (H.rooms[id]) return 'max';
     if (!needMet(H, r.need)) return 'need';
     if (r.cost && !canPay(H, r.cost)) return 'short';
+    if (H.job) return 'busy';
     if (r.cost) pay(H, r.cost);
-    H.rooms[id] = { wall: 'cream', floor: 'wood', furn: {} };
-    H.fresh = 'room.' + id;
-    CZ.state.save();
-    if (CZ.progress) CZ.progress.addXp(20);
+    startJob(H, 'room.' + id);
     return 'ok';
   }
 
@@ -223,6 +260,7 @@ CZ.house = (function () {
           h('span', {}, '⚔️ ', t('raid.attack'), ' ', h('b', { text: r.attack })),
           h('span', {}, '🛡️ ', t('raid.defense'), ' ', h('b', { text: r.def }))),
         h('div', { class: 'chips' }, h('span', { class: 'chip' + (r.won ? '' : ' minus') }, img('ui.gold', 'chip-icon'), (r.won ? '+' : '−') + r.gold)),
+        !r.won && r.gold ? h('p', { class: 'small-note', text: t('raid.revengeTip', { n: Math.ceil(r.gold * 0.6) }) }) : null,
         h('div', { class: 'row' },
           btn(t('common.continue'), () => { wrap.remove(); if (onDone) onDone(); }, 'ghost-dark'),
           btn(t('raid.fix'), () => { wrap.remove(); CZ.ui.wipeTo('house'); }, 'primary'))));
@@ -230,6 +268,19 @@ CZ.house = (function () {
     CZ.audio.sfx(r.won ? 'win' : 'lose');
     CZ.audio.vibrate(r.won ? [30, 30, 80] : [120, 60, 120]);
     return true;
+  }
+
+  // İntikam: son baskında çalınan altının %60'ı, kovalamacada Zibo yakalanınca geri gelir (bir kez).
+  function revenge() {
+    const H = d().house;
+    const r = H && H.raids && H.raids[0];
+    if (!r || r.won || r.revenged || !r.gold) return 0;
+    if (daysSince(r.date) > 2) return 0;
+    const back = Math.ceil(r.gold * 0.6);
+    r.revenged = true;
+    d().gold = (d().gold || 0) + back;
+    CZ.state.save();
+    return back;
   }
 
   // Zibo'nun ev ekranındaki laf sokması: savunmaya göre.
@@ -302,15 +353,38 @@ CZ.house = (function () {
     return CZ.NEIGHBORS.map(n => {
       const target = Math.round(n.base + n.rate * day);
       const house = grow(target, n.seed * 1000 + Math.min(day, 400));
-      return { id: n.id, name: CZ.t('hood.name.' + n.id), pos: CZ.t('hood.pos.' + n.id), level: level(house), house, bot: true };
+      const r = rng(n.seed);
+      const kind = r() < 0.5 ? 'boy' : 'girl';
+      // Altın Avı rekoru: her komşunun kendi yeteneği var, günler geçtikçe biraz artar.
+      const goldBest = Math.round(50 + n.seed * 2.2 + Math.min(day, 30) * 2.5 + r() * 30);
+      return { id: n.id, name: CZ.t('hood.name.' + n.id), pos: CZ.t('hood.pos.' + n.id), level: level(house), house, bot: true,
+        kind, look: CZ.avatarArt.botLook(n.seed), goldBest };
     });
   }
 
-  function ranking() {
+  // type: 'level' (ev seviyesi) ya da 'gold' (Altın Avı rekoru)
+  function ranking(type) {
     const H = ensure();
-    const me = { id: 'me', name: CZ.t('hood.you'), level: level(H), house: H, me: true };
-    return neighbors().concat([me]).sort((a, b) => b.level - a.level);
+    const me = { id: 'me', name: CZ.t('hood.you'), level: level(H), house: H, me: true, kind: d().avatar || 'girl', goldBest: d().goldBest || 0 };
+    const key = type === 'gold' ? 'goldBest' : 'level';
+    return neighbors().concat([me]).sort((a, b) => b[key] - a[key]);
   }
+
+  // Ev ismi: 1000 elmas. Mahallede de görünür.
+  const NAME_PRICE = 1000;
+  function setName(name) {
+    const H = ensure();
+    const clean = String(name || '').replace(/[<>]/g, '').trim().slice(0, 22);
+    if (!clean) return 'empty';
+    if (!H.name) {
+      if ((d().emeralds || 0) < NAME_PRICE) return 'short';
+      d().emeralds -= NAME_PRICE;
+    }
+    H.name = clean;
+    CZ.state.save();
+    return 'ok';
+  }
+  const title = H => (H && H.name) || null;
 
   function like(id) {
     const H = ensure();
@@ -326,6 +400,7 @@ CZ.house = (function () {
   function attention() {
     const H = d().house;
     if (!H) return true;
+    if (H.job) return Date.now() >= H.job.end;
     const id = nextShell(H);
     if (id) return canPay(H, nextCost(H, id));
     return false;
@@ -334,6 +409,6 @@ CZ.house = (function () {
   return {
     attention, ensure, lv, partDef, roomDef, needMet, missing, nextCost, shortOf, canPay, buyMat, build, addRoom,
     furnCost, buyFurn, paint, level, defense, maxDefense, nextShell, SHELL, checkRaid, raidBox, ziboLine,
-    neighbors, ranking, like, grow, daysSince
+    tick, jobLeft, speedCost, speedUp, revenge, neighbors, ranking, like, grow, daysSince, setName, title, NAME_PRICE
   };
 })();

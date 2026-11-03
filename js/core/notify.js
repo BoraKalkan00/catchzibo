@@ -5,6 +5,7 @@ CZ.notify = (function () {
   const HOUR = 19;
   const DAYS = 3;
   const IDS = [101, 102, 103];
+  const JOB_ID = 110;
 
   function plugin() {
     const cap = window.Capacitor;
@@ -52,7 +53,7 @@ CZ.notify = (function () {
     const ln = plugin();
     if (!ln) return;
     try {
-      await ln.cancel({ notifications: IDS.map(id => ({ id })) });
+      await ln.cancel({ notifications: IDS.concat([JOB_ID]).map(id => ({ id })) });
       if (CZ.state.data.notify === false) return;
       const perm = await ln.checkPermissions();
       if (perm.display !== 'granted') return;
@@ -64,6 +65,13 @@ CZ.notify = (function () {
         at.setHours(HOUR, Math.floor(Math.random() * 20), 0, 0);
         return { id, title: CZ.t('notif.title'), body: text(pool[(start + i) % pool.length]), schedule: { at, allowWhileIdle: true } };
       });
+      // İnşaat bitince ayrıca haber ver.
+      const H = CZ.state.data.house;
+      if (H && H.job && H.job.end > Date.now() + 30000) {
+        const id = H.job.id;
+        const name = id.startsWith('room.') ? CZ.t(id) : CZ.t('part.' + id);
+        notifications.push({ id: JOB_ID, title: CZ.t('notif.title'), body: CZ.t('notif.job', { name }), schedule: { at: new Date(H.job.end), allowWhileIdle: true } });
+      }
       await ln.schedule({ notifications });
     } catch (e) {
       console.warn('Bildirim kurulamadı.', e);

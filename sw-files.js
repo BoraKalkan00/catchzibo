@@ -229,6 +229,7 @@ self.CZ_FILES = [
  "css/style.css",
  "js/core/assets.js",
  "js/core/audio.js",
+ "js/core/avatar.js",
  "js/core/game.js",
  "js/core/house.js",
  "js/core/houseart.js",
@@ -254,5 +255,6 @@ self.CZ_FILES = [
  "js/screens/house.js",
  "js/screens/menus.js",
  "js/screens/play.js",
- "js/screens/story.js"
+ "js/screens/story.js",
+ "js/screens/wardrobe.js"
 ];

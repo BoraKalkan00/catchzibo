@@ -78,9 +78,10 @@
       this.tab = tab;
       const fresh = H.fresh;
       H.fresh = null;
-      const ghost = HS.nextShell(H);
+      const job = H.job;
+      const ghost = job ? (HS.SHELL.includes(job.id) ? job.id : null) : HS.nextShell(H);
 
-      const view = html('house-view', art.exterior(H, { fresh, ghost }));
+      const view = html('house-view' + (job ? ' building' : ''), art.exterior(H, { fresh, ghost, owner: CZ.art('avatar.' + (d().avatar || 'girl')) }));
       if (fresh) {
         CZ.audio.sfx('build');
         CZ.audio.vibrate([20, 40, 20, 40, 60]);
@@ -110,12 +111,61 @@
       const panel = tab === 'build' ? this.buildPanel(H) : tab === 'rooms' ? this.roomsPanel(H) : this.paintPanel(H);
 
       el.append(
-        topbar(t('house.title'), () => go('hub')),
+        topbar(HS.title(H) || t('house.title'), () => go('hub')),
         h('div', { class: 'house-top' }, stats(H),
           h('button', { class: 'hood-btn', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('hood'); } }, '🏘️ ', t('hood.title'))),
         h('div', { class: 'house-stage' }, view, zibo.el),
+        job ? this.jobBar(H) : '',
         mats, tabs,
-        h('div', { class: 'scroll house-scroll' }, panel));
+        h('div', { class: 'scroll house-scroll' }, this.coach(H), panel));
+    },
+
+    // Kısa rehber: her ipucu bir kez, sırası gelince.
+    coach(H) {
+      const seen = d().houseTut || (d().houseTut = []);
+      let key = null;
+      if (!HS.lv(H, 'found') && !H.job) key = 'start';
+      else if (H.job && !seen.includes('wait')) key = 'wait';
+      else if (HS.lv(H, 'found') && !H.job && !seen.includes('mats')) key = 'mats';
+      else if (HS.lv(H, 'door') && !seen.includes('raid')) key = 'raid';
+      else if (H.rooms.living && !seen.includes('rooms')) key = 'rooms';
+      if (!key || seen.includes(key)) return null;
+      const card = h('div', { class: 'coach-card' },
+        h('img', { class: 'coach-zibo', src: CZ.art(key === 'raid' ? 'zibo.laugh' : 'zibo.smug'), alt: '' }),
+        h('p', { text: t('tut.' + key) }),
+        key === 'start' ? null : h('button', { class: 'btn small primary', type: 'button', onClick: () => { seen.push(key); CZ.state.save(); card.remove(); } }, t('tut.ok')));
+      return card;
+    },
+
+    // İşçi çubuğu: ne yapılıyor, ne kadar kaldı, elmasla bitir.
+    jobBar(H) {
+      const job = H.job;
+      const name = job.id.startsWith('room.') ? t(job.id) : t('part.' + job.id);
+      const left = h('b', {});
+      const fill = h('i', {});
+      const cost = h('span', {});
+      const upd = () => {
+        const ms = HS.jobLeft(H);
+        if (ms <= 0) { clearInterval(this.jobTimer); HS.tick(); CZ.ui.refresh(); return; }
+        const sec = Math.ceil(ms / 1000);
+        const hh = Math.floor(sec / 3600), mm = Math.floor(sec % 3600 / 60), ss = sec % 60;
+        left.textContent = (hh ? hh + ':' + String(mm).padStart(2, '0') : mm) + ':' + String(ss).padStart(2, '0');
+        fill.style.width = Math.min(100, (Date.now() - job.start) / (job.end - job.start) * 100) + '%';
+        cost.textContent = HS.speedCost(H);
+      };
+      upd();
+      clearInterval(this.jobTimer);
+      this.jobTimer = setInterval(upd, 1000);
+      return h('div', { class: 'job-bar' },
+        h('div', { class: 'job-info' }, h('small', { text: '🔨 ' + t('house.building', { name }) }), left, h('div', { class: 'job-track' }, fill)),
+        h('button', {
+          class: 'btn small primary', type: 'button',
+          onClick: () => {
+            const r = HS.speedUp();
+            if (r === 'short') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('look.need')); }
+            CZ.ui.refresh();
+          }
+        }, img('ui.emerald', 'btn-icon'), cost, ' ', t('house.finish')));
     },
 
     buildPanel(H) {
@@ -130,7 +180,7 @@
       return h('div', { class: 'build-list' }, cards.map(({ p, lvl, cost, ok, rank }) => {
         const max = p.levels.length;
         const label = lvl === 0 ? t('house.build') : t('house.upgrade');
-        const act = () => attempt(H, cost, () => HS.build(p.id), () => { this.tab = 'build'; CZ.ui.refresh(); });
+        const act = () => attempt(H, cost, () => { HS.build(p.id); CZ.audio.sfx('build'); CZ.ui.toast(t('house.started')); }, () => { this.tab = 'build'; CZ.ui.refresh(); });
         return h('div', { class: 'build-card' + (rank === 0 ? ' next' : '') + (!ok ? ' locked' : '') + (!cost ? ' maxed' : '') },
           h('div', { class: 'build-info' },
             h('strong', { text: t('part.' + p.id) }),
@@ -138,8 +188,18 @@
             rank === 0 ? h('em', { class: 'next-tag', text: t('house.nextStep') }) : null,
             cost && ok ? costChips(H, cost) : null,
             !ok ? h('small', { class: 'need', text: '🔒 ' + t('house.needFirst', { list: HS.missing(H, p.need).map(k => t(k)).join(', ') }) }) : null),
-          cost && ok ? btn(label, act, rank === 0 ? 'primary small pulse' : 'primary small') : h('span', { class: 'max-tag', text: !cost ? '✓' : '' }));
+          H.job && H.job.id === p.id ? h('span', { class: 'max-tag busy', text: '🔨' })
+            : cost && ok ? (H.job ? h('button', { class: 'btn small ghost-dark', type: 'button', onClick: () => CZ.ui.toast(t('house.busy')) }, '⏳ ' + this.mins(p.id, lvl))
+              : btn(label + ' · ' + this.mins(p.id, lvl), act, rank === 0 ? 'primary small pulse' : 'primary small'))
+            : h('span', { class: 'max-tag', text: !cost ? '✓' : '' }));
       }));
+    },
+
+    // Süre yazısı: 5 dk, 2 sa
+    mins(id, lvl) {
+      const list = CZ.BUILD_TIME[id] || [1];
+      const m = list[Math.min(lvl || 0, list.length - 1)];
+      return m >= 60 ? t('time.h', { n: Math.round(m / 60 * 10) / 10 }) : t('time.m', { n: m });
     },
 
     roomsPanel(H) {
@@ -149,7 +209,9 @@
         const items = owned ? Object.keys(H.rooms[r.id].furn).length : 0;
         let action;
         if (owned) action = btn(t('house.enter'), () => CZ.ui.wipeTo('room', { id: r.id }), 'primary small');
-        else if (ok && r.cost) action = btn(t('house.addRoom'), () => attempt(H, r.cost, () => HS.addRoom(r.id), () => { this.tab = 'rooms'; CZ.ui.refresh(); }), 'primary small');
+        else if (H.job && H.job.id === 'room.' + r.id) action = h('span', { class: 'max-tag busy', text: '🔨' });
+        else if (ok && r.cost && H.job) action = h('button', { class: 'btn small ghost-dark', type: 'button', onClick: () => CZ.ui.toast(t('house.busy')) }, '⏳ ' + this.mins('room.' + r.id, 0));
+        else if (ok && r.cost) action = btn(t('house.addRoom') + ' · ' + this.mins('room.' + r.id, 0), () => attempt(H, r.cost, () => { HS.addRoom(r.id); CZ.audio.sfx('build'); CZ.ui.toast(t('house.started')); }, () => { this.tab = 'rooms'; CZ.ui.refresh(); }), 'primary small');
         else action = h('span', { class: 'max-tag', text: '🔒' });
         return h('div', { class: 'build-card' + (!ok && !owned ? ' locked' : '') },
           h('div', { class: 'build-info' },
@@ -178,7 +240,32 @@
             }
           }, h('i'), owned ? null : h('small', {}, img('ui.gold', 'swatch-gold'), String(p.price)));
         })));
-      return h('div', {}, group('ext'), group('roof'));
+      const named = !!H.name;
+      return h('div', {},
+        h('h2', { class: 'section-title', text: t('house.name') }),
+        h('div', { class: 'build-card' },
+          h('div', { class: 'build-info' }, h('strong', { text: H.name || t('house.noName') }), h('small', { text: named ? t('house.renameFree') : t('house.nameSub', { n: HS.NAME_PRICE }) })),
+          h('button', { class: 'btn small primary', type: 'button', onClick: () => this.nameBox(H) }, named ? '✏️' : img('ui.emerald', 'btn-icon'), named ? '' : String(HS.NAME_PRICE))),
+        group('ext'), group('roof'));
+    },
+
+    nameBox(H) {
+      if (!H.name && (d().emeralds || 0) < HS.NAME_PRICE) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('house.nameNeed', { n: HS.NAME_PRICE })); }
+      const input = h('input', { class: 'name-input', type: 'text', maxlength: '22', placeholder: t('house.namePh') });
+      input.value = H.name || '';
+      const wrap = h('div', { class: 'modal-wrap' },
+        h('div', { class: 'modal' },
+          h('h2', { text: t('house.name') }),
+          input,
+          h('div', { class: 'row' },
+            btn(t('common.cancel'), () => wrap.remove(), 'ghost-dark'),
+            btn(t('house.nameSave'), () => {
+              const r = HS.setName(input.value);
+              if (r !== 'ok') { CZ.audio.sfx('wrong'); return; }
+              wrap.remove(); CZ.audio.sfx('win'); CZ.ui.refresh();
+            }, 'primary'))));
+      document.querySelector('#app').append(wrap);
+      setTimeout(() => input.focus(), 50);
     },
 
     // Malzeme dükkanı
@@ -210,6 +297,7 @@
 
     leave() {
       clearTimeout(this.sayTimer);
+      clearInterval(this.jobTimer);
       if (this.zibo) this.zibo.stop();
     }
   };
@@ -303,8 +391,8 @@
       const H = HS.ensure();
       const tab = params.tab || this.tab || 'map';
       this.tab = tab;
-      const list = HS.ranking();
-      const tabs = h('div', { class: 'tabs' }, ['map', 'rank'].map(id => h('button', {
+      const list = HS.ranking(tab === 'gold' ? 'gold' : 'level');
+      const tabs = h('div', { class: 'tabs' }, ['map', 'rank', 'gold'].map(id => h('button', {
         class: 'tab' + (id === tab ? ' on' : ''), type: 'button',
         onClick: () => { CZ.audio.sfx('button'); this.tab = id; CZ.ui.refresh(); }
       }, t('hood.tab.' + id))));
@@ -317,10 +405,20 @@
             class: 'plot' + (n.me ? ' me' : ''), type: 'button', style: `animation-delay:${i * 0.05}s`,
             onClick: () => { CZ.audio.sfx('button'); n.me ? CZ.ui.wipeTo('house') : CZ.ui.wipeTo('visit', { id: n.id }); }
           });
-          card.append(html('plot-art', art.exterior(n.house, {})),
-            h('div', { class: 'plot-tag' }, h('b', { class: 'plot-lv', text: n.level }), h('span', { text: n.me ? t('hood.yourHouse') : t('hood.house', { name: n.pos }) })));
+          card.append(html('plot-art', art.exterior(n.house, { owner: n.me ? CZ.art('avatar.' + n.kind) : CZ.avatarArt.url(n.kind, n.look) })),
+            h('div', { class: 'plot-tag' }, h('b', { class: 'plot-lv', text: n.level }), h('span', { text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) })));
           return card;
         }));
+      } else if (tab === 'gold') {
+        const myRank = list.findIndex(x => x.me) + 1;
+        body = h('div', {},
+          h('p', { class: 'section-note rank-note', text: myRank === 1 ? t('hood.goldFirst') : t('hood.goldBehind', { name: list[myRank - 2].name, n: list[myRank - 2].goldBest }) }),
+          h('ol', { class: 'rank-list' }, list.map((n, i) => h('li', { class: 'rank-row' + (n.me ? ' me' : '') },
+            h('b', { class: 'rank-n', text: i + 1 }),
+            h('img', { class: 'rank-av', src: n.me ? CZ.art('avatar.' + n.kind) : CZ.avatarArt.url(n.kind, n.look), alt: '' }),
+            h('span', { class: 'rank-name', text: n.me ? t('hood.you') : n.name }),
+            h('em', {}, img('ui.gold', 'swatch-gold'), ' ' + n.goldBest)))),
+          btn(t('hood.goPlay'), () => CZ.ui.wipeTo('gold'), 'primary wide'));
       } else {
         const myRank = list.findIndex(x => x.me) + 1;
         body = h('div', {},
@@ -328,7 +426,7 @@
           h('ol', { class: 'rank-list' }, list.map((n, i) => h('li', {
             class: 'rank-row' + (n.me ? ' me' : ''),
             onClick: () => { if (!n.me) CZ.ui.wipeTo('visit', { id: n.id }); }
-          }, h('b', { class: 'rank-n', text: i + 1 }), h('span', { class: 'rank-name', text: n.me ? t('hood.yourHouse') : t('hood.house', { name: n.pos }) }), h('em', { text: t('house.level') + ' ' + n.level })))));
+          }, h('b', { class: 'rank-n', text: i + 1 }), h('img', { class: 'rank-av', src: n.me ? CZ.art('avatar.' + n.kind) : CZ.avatarArt.url(n.kind, n.look), alt: '' }), h('span', { class: 'rank-name', text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) }), h('em', { text: t('house.level') + ' ' + n.level })))));
       }
       el.append(topbar(t('hood.title'), () => go('house')), tabs, h('div', { class: 'scroll hood-scroll' }, body));
     }
@@ -343,7 +441,7 @@
       el.append(
         topbar(t('hood.house', { name: n.pos }), () => go('hood')),
         h('div', { class: 'house-top' }, stats(n.house)),
-        h('div', { class: 'house-stage visit' }, html('house-view', art.exterior(n.house, {}))),
+        h('div', { class: 'house-stage visit' }, html('house-view', art.exterior(n.house, { owner: CZ.avatarArt.url(n.kind, n.look) }))),
         h('div', { class: 'scroll visit-scroll' },
           h('p', { class: 'section-note', text: HS.level(n.house) > HS.level(H) ? t('hood.visitBigger', { name: n.pos }) : t('hood.visitSmaller', { name: n.pos }) }),
           h('div', { class: 'visit-actions' },

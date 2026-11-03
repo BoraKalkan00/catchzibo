@@ -26,6 +26,8 @@ CZ.FOLDERS = {
 
 CZ.art = function (key) {
   if (CZ.OVERRIDES[key]) return CZ.OVERRIDES[key];
+  // Oyuncu karakteri renk ve kostüme göre çizilir (js/core/avatar.js).
+  if (key.startsWith('avatar.') && CZ.avatarArt) return CZ.avatarArt.url(key.slice(7));
   const dot = key.indexOf('.');
   return 'assets/' + CZ.FOLDERS[key.slice(0, dot)] + '/' + key.slice(dot + 1) + '.svg';
 };

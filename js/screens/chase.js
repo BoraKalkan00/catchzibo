@@ -349,6 +349,8 @@ CZ.screens.chase = (function () {
     d.chaseWins = (d.chaseWins || 0) + 1;
     CZ.state.save();
     CZ.progress.addXp(CZ.PROGRESS.xp.chase);
+    // İntikam: Zibo dün gece altın çaldıysa, yakalayınca bir kısmı geri gelir.
+    const back = CZ.house ? CZ.house.revenge() : 0;
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 40, 30, 160]);
     c.ziboImg.src = CZ.art('zibo.tantrum');
@@ -375,6 +377,7 @@ CZ.screens.chase = (function () {
         h('h2', { text: t(`item.${c.round.target}.name`) }),
         h('p', { text: firstClear ? t(roomDef.id === 'living' ? 'win.roomDone' : 'win.roomDone.' + roomDef.id) : t('chase.winNote') }),
         h('p', { class: 'reward' }, img('ui.emerald', 'emerald-icon'), t('chase.reward', { n: base, p: pocket })),
+        back ? h('p', { class: 'reward revenge' }, img('ui.gold', 'emerald-icon'), t('raid.revenge', { n: back })) : null,
         h('div', { class: 'sheet-row' }, actions)));
       void before;
     }, 1300);
