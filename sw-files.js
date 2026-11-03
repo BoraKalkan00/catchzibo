@@ -240,6 +240,7 @@ self.CZ_FILES = [
  "js/core/ui.js",
  "js/data/config.js",
  "js/data/house.js",
+ "js/data/looks.js",
  "js/lang/ar.js",
  "js/lang/de.js",
  "js/lang/en.js",

@@ -151,7 +151,7 @@ CZ.screens.gold = (function () {
     const weapon = weaponDef(d.weapon);
     const avatar = d.avatar || 'girl';
     Object.assign(g, {
-      el, weapon, avatar, running: false, timeLeft: G.roundSeconds, last: performance.now(), clockT: 0,
+      el, weapon, avatar, perk: CZ.closet ? CZ.closet.perk() : {}, running: false, timeLeft: G.roundSeconds + ((CZ.closet && CZ.closet.perk().bonusSeconds) || 0), last: performance.now(), clockT: 0,
       earned: 0, crates: [], traps: [], props: [], lastThrow: 0, timers: [], combo: 0, nextSpawn: 0,
       lane: 1, stun: 0, ziboLane: 2, ziboNext: 0, nextTrap: 0, frame: 0, nextDust: 0
     });
@@ -197,7 +197,7 @@ CZ.screens.gold = (function () {
     g.running = true;
     g.last = performance.now();
     g.nextSpawn = g.last + 300;
-    g.nextTrap = g.last + G.trapsFromSecond * 1000;
+    g.nextTrap = g.last + (G.trapsFromSecond + (g.perk.trapDelay || 0)) * 1000;
     g.ziboNext = g.last + 1500;
     g.loop = requestAnimationFrame(loop);
     CZ.audio.music('play');
@@ -371,7 +371,7 @@ CZ.screens.gold = (function () {
       g.shown = shown;
       g.clock.textContent = shown;
       g.clock.classList.toggle('danger', g.timeLeft <= 5);
-      g.bar.style.width = Math.max(0, g.timeLeft / G.roundSeconds * 100) + '%';
+      g.bar.style.width = Math.min(100, Math.max(0, g.timeLeft / G.roundSeconds * 100)) + '%';
       g.bar.classList.toggle('danger', g.timeLeft <= 5);
       if (shown <= 5 && shown > 0) CZ.audio.sfx('tick');
     }
@@ -386,7 +386,7 @@ CZ.screens.gold = (function () {
 
   // Tuzağa çarptın: altın kaybı, kısa sersemleme, seri bozulur.
   function trapHit(c, shot) {
-    const lose = Math.min(c.def.lose, g.earned);
+    const lose = Math.min(Math.ceil(c.def.lose * (g.perk.trapMul || 1)), g.earned);
     if (lose > 0) loseGold(lose);
     float(shot ? c.px : g.meX, shot ? c.py - c.size : g.H * 0.7, lose > 0 ? '−' + lose : t('gold.ouch'), true, true);
     g.stun = c.def.stun;
@@ -554,7 +554,7 @@ CZ.screens.gold = (function () {
     const cy = crate.py - crate.size / 2;
     g.combo += 1;
     const mult = multiplier();
-    const bonus = crate.def.gold * mult;
+    const bonus = Math.round(crate.def.gold * mult * (g.perk.goldMul || 1) + (g.perk.goldMul && Math.random() < 0.3 ? 1 : 0));
     addGold(bonus);
     float(cx, cy - 40, '+' + bonus + (mult > 1 ? ' x' + mult : '') + '!', true);
     if (g.combo >= G.comboStep && g.combo % G.comboStep === 0) {

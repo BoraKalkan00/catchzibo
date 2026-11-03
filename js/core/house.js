@@ -358,7 +358,7 @@ CZ.house = (function () {
       // Altın Avı rekoru: her komşunun kendi yeteneği var, günler geçtikçe biraz artar.
       const goldBest = Math.round(50 + n.seed * 2.2 + Math.min(day, 30) * 2.5 + r() * 30);
       return { id: n.id, name: CZ.t('hood.name.' + n.id), pos: CZ.t('hood.pos.' + n.id), level: level(house), house, bot: true,
-        kind, look: CZ.avatarArt.botLook(n.seed), goldBest };
+        kind, look: CZ.avatarArt.botLook(n.seed, kind), goldBest };
     });
   }
 

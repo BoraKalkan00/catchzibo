@@ -81,7 +81,7 @@
       const job = H.job;
       const ghost = job ? (HS.SHELL.includes(job.id) ? job.id : null) : HS.nextShell(H);
 
-      const view = html('house-view' + (job ? ' building' : ''), art.exterior(H, { fresh, ghost, owner: CZ.art('avatar.' + (d().avatar || 'girl')) }));
+      const view = html('house-view' + (job ? ' building' : ''), art.exterior(H, { fresh, ghost, owner: CZ.art('avatar.' + (d().avatar || 'girl') + '@' + ((d().look || {}).emote || 'wave')) }));
       if (fresh) {
         CZ.audio.sfx('build');
         CZ.audio.vibrate([20, 40, 20, 40, 60]);
@@ -405,7 +405,7 @@
             class: 'plot' + (n.me ? ' me' : ''), type: 'button', style: `animation-delay:${i * 0.05}s`,
             onClick: () => { CZ.audio.sfx('button'); n.me ? CZ.ui.wipeTo('house') : CZ.ui.wipeTo('visit', { id: n.id }); }
           });
-          card.append(html('plot-art', art.exterior(n.house, { owner: n.me ? CZ.art('avatar.' + n.kind) : CZ.avatarArt.url(n.kind, n.look) })),
+          card.append(html('plot-art', art.exterior(n.house, { owner: n.me ? CZ.art('avatar.' + n.kind) : CZ.avatarArt.url(n.kind, n.look, 'idle') })),
             h('div', { class: 'plot-tag' }, h('b', { class: 'plot-lv', text: n.level }), h('span', { text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) })));
           return card;
         }));
@@ -441,7 +441,7 @@
       el.append(
         topbar(t('hood.house', { name: n.pos }), () => go('hood')),
         h('div', { class: 'house-top' }, stats(n.house)),
-        h('div', { class: 'house-stage visit' }, html('house-view', art.exterior(n.house, { owner: CZ.avatarArt.url(n.kind, n.look) }))),
+        h('div', { class: 'house-stage visit' }, html('house-view', art.exterior(n.house, { owner: CZ.avatarArt.url(n.kind, n.look, n.look.emote) }))),
         h('div', { class: 'scroll visit-scroll' },
           h('p', { class: 'section-note', text: HS.level(n.house) > HS.level(H) ? t('hood.visitBigger', { name: n.pos }) : t('hood.visitSmaller', { name: n.pos }) }),
           h('div', { class: 'visit-actions' },
