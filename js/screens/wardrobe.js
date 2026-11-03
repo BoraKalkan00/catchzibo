@@ -1,41 +1,44 @@
-// GARDIROP: elmasla görünüş. Küçük paketler: ten, göz, saç rengi. Büyük paketler: kostüm.
+// GARDIROP (Duolingo tarzı karakter tasarımı): yüz, saç modeli, saç rengi, göz, kaş, ağız, aksesuar, şapka, ten, kostüm.
+// Bedava seçenekler hemen giyilir; elmaslı olanlar önce denenir, sonra alınır.
 CZ.screens.wardrobe = {
   render(el, params) {
     const { h, img, btn } = CZ.ui;
     const t = CZ.t;
     const d = CZ.state.data;
     if (!d.look) d.look = {};
-    if (!d.lookOwned) d.lookOwned = { skin: ['s1'], eyes: ['e1'], hair: ['h0'], costume: ['none'] };
-    const tab = params.tab || this.tab || 'costume';
+    if (!d.lookOwned) d.lookOwned = {};
+    CZ.LOOK_TABS.forEach(k => { if (!d.lookOwned[k]) d.lookOwned[k] = []; });
+    const owns = (k, item) => item.price === 0 || d.lookOwned[k].includes(item.id);
+    const tab = params.tab || this.tab || 'style';
     this.tab = tab;
     const kind = d.avatar || 'girl';
     const preview = this.preview || null;
     this.preview = null;
-    // Önizleme: satın almadan önce denenebilir.
     const L = Object.assign({}, d.look, preview || {});
-    const show = l => {
-      const pick = (k, id) => (CZ.LOOKS[k].find(x => x.id === id) || CZ.LOOKS[k][0]);
-      return { skin: pick('skin', l.skin).c, eyes: pick('eyes', l.eyes).c, hair: pick('hair', l.hair).c, costume: pick('costume', l.costume).id };
-    };
-    const P = show(L);
-    const front = h('img', { class: 'ward-front', src: CZ.avatarArt.url(kind, P), alt: '' });
-    const backImg = h('img', { class: 'ward-back', src: CZ.avatarArt.url(kind + '_run1', P), alt: '' });
+    const front = h('img', { class: 'ward-front', src: CZ.avatarArt.url(kind, L), alt: '' });
+    const backImg = h('img', { class: 'ward-back', src: CZ.avatarArt.url(kind + '_run1', L), alt: '' });
     let f = 0;
     clearInterval(this.anim);
-    this.anim = setInterval(() => { f = 1 - f; backImg.src = CZ.avatarArt.url(kind + (f ? '_run2' : '_run1'), P); }, 160);
+    this.anim = setInterval(() => { f = 1 - f; backImg.src = CZ.avatarArt.url(kind + (f ? '_run2' : '_run1'), L); }, 160);
 
+    const colorTab = ['hair', 'eyes', 'skin'].includes(tab);
     const items = CZ.LOOKS[tab].map(item => {
-      const owned = d.lookOwned[tab].includes(item.id);
-      const on = (d.look[tab] || CZ.LOOKS[tab][0].id) === item.id;
+      const owned = owns(tab, item);
+      const current = d.look[tab] || CZ.LOOKS[tab][0].id;
+      const on = current === item.id;
       const trying = preview && preview[tab] === item.id;
       let face;
-      if (tab === 'costume') {
-        face = h('img', { class: 'ward-cost', src: CZ.avatarArt.url(kind, show(Object.assign({}, d.look, { costume: item.id }))), alt: '' });
+      if (colorTab) {
+        const fallback = tab === 'hair' ? (kind === 'girl' ? '#8a4a24' : '#3b2a20') : '#ccc';
+        face = h('i', { class: 'ward-swatch', style: `--c:${item.c || fallback}` });
       } else {
-        face = h('i', { style: `--c:${item.c || (kind === 'girl' ? '#8a4a24' : '#3b2a20')}` });
+        // Küçük önizleme: o seçenekle karakterin kendisi
+        const look = Object.assign({}, d.look, { [tab]: item.id }, tab === 'style' ? { hat: 'none' } : {});
+        face = h('img', { class: 'ward-cost' + (tab === 'costume' ? '' : ' head'), src: CZ.avatarArt.url(kind, look), alt: '' });
       }
       return h('button', {
-        class: 'ward-item' + (on ? ' on' : '') + (trying ? ' trying' : '') + (tab === 'costume' ? ' big' : ''), type: 'button',
+        class: 'ward-item' + (on ? ' on' : '') + (trying ? ' trying' : '') + (colorTab ? '' : ' big'), type: 'button',
+        'aria-label': colorTab ? t('look.tab.' + tab) : t('look.' + tab + '.' + item.id),
         onClick: () => {
           CZ.audio.sfx('button');
           if (owned) { d.look[tab] = item.id; CZ.state.save(); CZ.ui.refresh(); return; }
@@ -43,11 +46,11 @@ CZ.screens.wardrobe = {
           CZ.ui.refresh();
         }
       }, face,
-      tab === 'costume' ? h('span', { class: 'ward-name', text: t('look.' + item.id) }) : null,
+      colorTab ? null : h('span', { class: 'ward-name', text: t('look.' + tab + '.' + item.id) }),
       owned ? null : h('small', {}, img('ui.emerald', 'swatch-gold'), String(item.price)));
     });
 
-    let buyBar = null;
+    let buyBar = '';
     if (preview) {
       const id = preview[tab];
       const item = CZ.LOOKS[tab].find(x => x.id === id);
@@ -70,18 +73,24 @@ CZ.screens.wardrobe = {
         }, img('ui.emerald', 'btn-icon'), String(item.price)));
     }
 
+    const tabBar = h('div', { class: 'tabs ward-tabs' }, CZ.LOOK_TABS.map(id => h('button', {
+      class: 'tab' + (id === tab ? ' on' : ''), type: 'button',
+      onClick: () => { CZ.audio.sfx('button'); this.tab = id; this.scrollX = tabBar.scrollLeft; CZ.ui.refresh(); }
+    }, t('look.tab.' + id))));
+
     el.append(
       CZ.ui.header(t('look.title'), () => CZ.ui.go(params.returnTo || 'hub')),
       h('div', { class: 'ward-stage' }, front, backImg),
-      buyBar || '',
-      h('div', { class: 'tabs' }, ['costume', 'hair', 'eyes', 'skin'].map(id => h('button', {
-        class: 'tab' + (id === tab ? ' on' : ''), type: 'button',
-        onClick: () => { CZ.audio.sfx('button'); this.tab = id; CZ.ui.refresh(); }
-      }, t('look.tab.' + id)))),
+      buyBar,
+      tabBar,
       h('div', { class: 'scroll ward-scroll' },
         h('p', { class: 'section-note', text: t(tab === 'costume' ? 'look.bigNote' : 'look.smallNote') }),
-        h('div', { class: 'ward-grid' + (tab === 'costume' ? ' big' : '') }, items),
+        h('div', { class: 'ward-grid' + (colorTab ? '' : ' big') }, items),
         btn(t('look.kind'), () => CZ.ui.go('avatar', { returnTo: 'wardrobe' }), 'ghost wide')));
+    // Sekme çubuğu kaydırılmışsa yerinde kalsın.
+    tabBar.scrollLeft = this.scrollX || 0;
+    const on = tabBar.querySelector('.tab.on');
+    if (on && !this.scrollX) on.scrollIntoView({ inline: 'center', block: 'nearest' });
   },
   leave() { clearInterval(this.anim); }
 };
