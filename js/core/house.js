@@ -85,7 +85,7 @@ CZ.house = (function () {
     if (id === 'roof' && !H.rooms.living) H.rooms.living = { wall: 'cream', floor: 'wood', furn: {} };
     H.fresh = id;
     CZ.state.save();
-    if (CZ.progress) CZ.progress.addXp(15);
+    if (CZ.progress) CZ.progress.addXp(8);
     return 'ok';
   }
 
@@ -99,7 +99,7 @@ CZ.house = (function () {
     H.rooms[id] = { wall: 'cream', floor: 'wood', furn: {} };
     H.fresh = 'room.' + id;
     CZ.state.save();
-    if (CZ.progress) CZ.progress.addXp(40);
+    if (CZ.progress) CZ.progress.addXp(20);
     return 'ok';
   }
 
@@ -117,7 +117,7 @@ CZ.house = (function () {
     H.rooms[roomId].furn[f] = (H.rooms[roomId].furn[f] || 0) + 1;
     H.freshFurn = roomId + '.' + f;
     CZ.state.save();
-    if (CZ.progress) CZ.progress.addXp(10);
+    if (CZ.progress) CZ.progress.addXp(4);
     return 'ok';
   }
 

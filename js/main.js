@@ -29,9 +29,14 @@
   document.addEventListener('contextmenu', e => e.preventDefault());
 
   // Arka plana geçince animasyonları dondur: telefon ısınmasın, pil gitmesin.
-  document.addEventListener('visibilitychange', () => document.body.classList.toggle('paused', document.hidden));
+  document.addEventListener('visibilitychange', () => {
+    document.body.classList.toggle('paused', document.hidden);
+    // Uygulamadan çıkarken bildirimleri evin son durumuna göre yeniden kur.
+    if (document.hidden) CZ.notify.schedule();
+  });
 
   CZ.ui.go('title');
+  CZ.notify.schedule();
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js').catch(err => console.warn('Çevrimdışı mod açılamadı.', err));

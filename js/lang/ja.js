@@ -219,7 +219,7 @@ CZ.i18n.register('ja', '日本語', {
   'item.pie_cherry.note': 'ジボが「あたためるため」とベッドの下にかくしていた。',
   'item.jar_candy_red.name': 'ハッカあめのびん',
   'item.jar_candy_red.note': '前よりあめが少ない。ずっと少ない。',
-  'hub.gold': '雪合戦',
+  'hub.gold': 'ゴールドハント',
   'hub.goldReady': '無料ラウンドOK！',
   'gold.sub': 'ジボの通りを歩こう！プレゼントが左右と前に出てくるよ。通りすぎる前にこわそう：当てるたびに金貨、こわせばボーナス。1つでも見のがすと連続がとぎれるよ！',
   'gold.weapons': '武器',

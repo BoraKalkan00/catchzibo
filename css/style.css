@@ -685,3 +685,42 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .raid-line { font-size: 15px; font-weight: 600; margin: 6px 0 10px; }
 .raid-bars { display: flex; justify-content: center; gap: 16px; margin-bottom: 10px; font-size: 15px; }
 .chip.minus { background: #f6c9c0; color: #8f1f23; }
+
+/* ===== ALTIN AVI: 4 şerit, koşan oyuncu, tuzaklar ===== */
+.gold-road { top: 36%; }
+.runner-me { position: absolute; left: 0; bottom: -2%; width: 25%; z-index: 70; transition: transform .13s ease-out; will-change: transform; pointer-events: none; }
+.me-body { width: 100%; animation: runbody .3s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes runbody { 0%, 50%, 100% { transform: translateY(0); } 25% { transform: translateY(-4%) rotate(-2deg); } 75% { transform: translateY(-4%) rotate(2deg); } }
+.me-weapon { position: absolute; left: 60%; top: 36%; width: 56%; transform-origin: 32% 93%; transform: rotate(-12deg); animation: weaponbob .3s ease-in-out infinite; }
+@keyframes weaponbob { 50% { transform: rotate(-4deg) translateY(-3%); } }
+.runner-me.throw .me-weapon { animation: swing .2s ease-out; }
+@keyframes swing { 0% { transform: rotate(-12deg); } 35% { transform: rotate(-55deg) scale(1.08); } 100% { transform: rotate(-12deg); } }
+.runner-me.lean-l .me-body { animation: leanl .2s ease-out, runbody .3s ease-in-out infinite .2s; }
+.runner-me.lean-r .me-body { animation: leanr .2s ease-out, runbody .3s ease-in-out infinite .2s; }
+@keyframes leanl { 50% { transform: rotate(-10deg) translateX(-4%); } }
+@keyframes leanr { 50% { transform: rotate(10deg) translateX(4%); } }
+.me-stars { position: absolute; left: 50%; top: -8%; transform: translateX(-50%); font-size: 26px; opacity: 0; }
+.runner-me.stunned .me-stars { opacity: 1; animation: spinstars .5s linear infinite; }
+.runner-me.stunned .me-body { animation: slip .35s ease-in-out infinite; }
+@keyframes spinstars { to { transform: translateX(-50%) rotate(360deg); } }
+@keyframes slip { 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+.runner-me.stopped .me-body, .runner-me.stopped .me-weapon { animation: none; }
+.runner-zibo { position: absolute; left: 0; top: 0; z-index: 9; pointer-events: none; will-change: transform; filter: brightness(.9); }
+.runner-zibo.drop { animation: zibodrop .3s ease-out; }
+@keyframes zibodrop { 40% { margin-top: -6px; } }
+.trap .crate-img { filter: none; }
+.trap::after { display: none; }
+.dust { background: #e3ebf3; width: 12px; height: 12px; }
+.boom-ring { position: absolute; z-index: 40; width: 20px; height: 20px; margin: -10px; border-radius: 50%; border: 5px solid #fff3a8; pointer-events: none; animation: boomring .45s ease-out forwards; }
+@keyframes boomring { to { transform: scale(6); opacity: 0; border-width: 1px; } }
+.hurt-flash { position: absolute; inset: 0; z-index: 80; pointer-events: none; opacity: 0; background: radial-gradient(transparent 45%, rgba(216, 54, 58, .55)); }
+.hurt-flash.on { animation: hurtflash .5s ease-out; }
+@keyframes hurtflash { 15% { opacity: 1; } }
+.gold-field.shake { animation: shakesoft .22s; }
+.gold-field.shake-hard { animation: shakehard .42s; }
+.gold-float.bad { color: #ff8a80; -webkit-text-stroke-color: #5a0e0e; }
+.runner-crate.hit .crate-img { animation: cratehit .18s ease-out; filter: brightness(1.6); }
+.snowball.w-thunder { box-shadow: 0 0 14px 4px #ffe36e; }
+.snowball.w-candy { background: repeating-linear-gradient(45deg, #fff 0 5px, #e8483e 5px 10px) !important; }
+.gold-controls .play-hint { flex: 1.4; margin: 0; font-size: 13px; text-align: center; }
+.gold-wait .btn { margin-top: 8px; }

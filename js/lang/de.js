@@ -219,7 +219,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'item.pie_cherry.note': 'Zibo hat ihn unters Bett gelegt, „damit er warm bleibt“.',
   'item.jar_candy_red.name': 'Pfefferminz-Bonbonglas',
   'item.jar_candy_red.note': 'Weniger Bonbons als vorher. Viel weniger.',
-  'hub.gold': 'Schneeballschlacht',
+  'hub.gold': 'Goldjagd',
   'hub.goldReady': 'Gratisrunde bereit!',
   'gold.sub': 'Lauf durch Zibos Straße! Geschenke tauchen links, rechts und vor dir auf. Zerbrich sie, bevor du vorbei bist: Jeder Treffer ist Gold, jede kaputte Kiste ein Bonus. Lass keine durch, sonst ist deine Serie weg!',
   'gold.weapons': 'Waffen',

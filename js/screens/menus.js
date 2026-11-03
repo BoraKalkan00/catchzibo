@@ -109,6 +109,7 @@
           nav(t('hub.settings'), 'ui.gear', 'settings')));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
       this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
+      if (state.data.tutorialDone && CZ.house && state.data.house) CZ.notify.askOnce();
     },
     leave() {
       clearTimeout(this.helloTimer);
@@ -262,6 +263,11 @@
           row(t('settings.sound'), toggle('sound')),
           row(t('settings.music'), toggle('music')),
           row(t('settings.vibration'), toggle('vibration')),
+          CZ.notify.available() ? row(t('settings.notify'), h('button', {
+            class: 'toggle' + (d.notify !== false ? ' on' : ''), type: 'button', role: 'switch', 'aria-checked': String(d.notify !== false),
+            onClick: () => { d.notify = d.notify === false; d.notifyAsked = false; state.save(); if (d.notify) CZ.notify.askOnce(); CZ.notify.schedule(); CZ.ui.refresh(); },
+            text: d.notify !== false ? t('settings.on') : t('settings.off')
+          })) : null,
           btn(t('settings.story'), () => go('story', { replay: true }), 'ghost-dark wide'),
           h('div', { class: 'test-box' },
             h('h2', { text: t('settings.test') }),
@@ -272,6 +278,9 @@
               game.ensureDiary();
               CZ.ui.toast(t('settings.nextDayDone'));
             }, 'ghost-dark wide'),
+            CZ.notify.available() ? btn(t('settings.testNotify'), async () => {
+              CZ.ui.toast(await CZ.notify.test() ? t('settings.testNotifyOk') : t('settings.testNotifyNo'));
+            }, 'ghost-dark wide') : null,
             btn(t('settings.addEmeralds'), () => {
               d.emeralds += 100;
               state.save();

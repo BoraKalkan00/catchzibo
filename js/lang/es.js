@@ -219,7 +219,7 @@ CZ.i18n.register('es', 'Español', {
   'item.pie_cherry.note': 'Zibo la escondió bajo su cama «para que no se enfríe».',
   'item.jar_candy_red.name': 'Bote de caramelos de menta',
   'item.jar_candy_red.note': 'Menos caramelos que antes. Muchos menos.',
-  'hub.gold': 'Guerra de bolas de nieve',
+  'hub.gold': 'Caza de oro',
   'hub.goldReady': '¡Ronda gratis lista!',
   'gold.sub': '¡Recorre la calle de Zibo! Aparecen regalos a la izquierda, a la derecha y delante. Rómpelos antes de pasar: cada golpe es oro y cada caja rota, un extra. ¡Si se te escapa uno, pierdes la racha!',
   'gold.weapons': 'Armas',

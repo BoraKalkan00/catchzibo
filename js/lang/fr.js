@@ -219,7 +219,7 @@ CZ.i18n.register('fr', 'Français', {
   'item.pie_cherry.note': 'Zibo l’a cachée sous son lit « pour la garder au chaud ».',
   'item.jar_candy_red.name': 'Bocal de bonbons à la menthe',
   'item.jar_candy_red.note': 'Moins de bonbons qu’avant. Beaucoup moins.',
-  'hub.gold': 'Bataille de boules de neige',
+  'hub.gold': 'Chasse à l’or',
   'hub.goldReady': 'Partie gratuite prête !',
   'gold.sub': 'Marche dans la rue de Zibo ! Des cadeaux surgissent à gauche, à droite et devant toi. Casse-les avant de passer : chaque coup rapporte de l’or, chaque boîte cassée un bonus. Laisse-en filer un et tu perds ta série !',
   'gold.weapons': 'Armes',

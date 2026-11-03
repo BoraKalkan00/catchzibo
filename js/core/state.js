@@ -27,7 +27,8 @@ CZ.state = (function () {
     chaseWins: 0,    // Zibo kaç kez yakalandı: kovalamaca zorlaşır
     xp: 0,
     level: 1,
-    daily: { last: null, streak: 0 }
+    daily: { last: null, streak: 0 },
+    notify: true     // günlük bildirim (Android)
   });
 
   let data = fresh();

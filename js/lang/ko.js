@@ -219,7 +219,7 @@ CZ.i18n.register('ko', '한국어', {
   'item.pie_cherry.note': '지보가 “따뜻하게 두려고” 침대 밑에 숨겼어요.',
   'item.jar_candy_red.name': '박하사탕 병',
   'item.jar_candy_red.note': '사탕이 전보다 적어요. 훨씬 적어요.',
-  'hub.gold': '눈싸움',
+  'hub.gold': '골드 사냥',
   'hub.goldReady': '무료 라운드 준비 완료!',
   'gold.sub': '지보의 거리를 걸어가요! 선물이 왼쪽, 오른쪽, 앞에서 나타나요. 지나치기 전에 부숴요: 맞힐 때마다 금화, 부술 때마다 보너스. 하나라도 놓치면 연속 기록이 끊겨요!',
   'gold.weapons': '무기',

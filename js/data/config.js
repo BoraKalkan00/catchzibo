@@ -188,10 +188,10 @@ CZ.PROGRESS = {
     { emeralds: 15 },
     { gold: 250, emeralds: 30, cocoa: 1, big: true }
   ],
-  xp: { find: 50, replay: 10, crate: 2, chase: 30, daily: 10 },
-  xpBase: 80,                      // 1→2 için 80 XP, sonra her seviye 40 fazla
-  xpStep: 40,
-  levelGold: 40,                   // seviye ödülü: 40 × seviye altın + 5 zümrüt, her 5 seviyede kakao
+  xp: { find: 40, replay: 8, crate: 0.5, chase: 25, daily: 10 },
+  xpBase: 120,                     // 1→2 için 120 XP, sonra her seviye 80 fazla
+  xpStep: 80,
+  levelGold: 20,                   // seviye ödülü: 20 × seviye altın + 5 zümrüt, her 5 seviyede kakao
   levelEmeralds: 5,
   ziboLines: ['level.z1', 'level.z2', 'level.z3', 'level.z4', 'level.z5', 'level.z6', 'level.z7', 'level.z8']
 };
@@ -223,25 +223,38 @@ CZ.CHASE = {
 // Her isabet: hasar kadar altın. Kırılınca: canı kadar BONUS altın.
 CZ.GOLD = {
   roundSeconds: 30,
-  cooldownMinutes: 60,   // ücretsiz turdan sonra bekleme (reklamla hemen oynanabilir)
+  cooldownMinutes: 60,   // ücretsiz turdan sonra bekleme (reklam ya da elmasla hemen oynanabilir)
+  skipEmeralds: 5,       // beklemeyi elmasla atla
   throwGapMs: 110,       // iki atış arası en kısa süre
   walkSpeed: 0.3,        // kutuların yaklaşma hızı (1 / sn): ~3.5 sn'de yanından geçer
-  spawnEveryMs: [650, 1050],
+  lanes: 4,              // yol 4 şeritli: sağa sola kayarak tuzaklardan kaç
+  spawnEveryMs: [700, 1100],
   maxCrates: 5,
   comboStep: 4,          // her 4 kırılan kutuda çarpan +1 (kutu kaçırırsan seri sıfırlanır)
-  comboMax: 3,
+  comboMax: 2,
+  // Altın yalnız kutu kırılınca gelir (isabet başına altın yok): tur başına ~100 altın.
   crates: [
-    { id: 'small', art: 'item.gift_red_green', hp: 3, weight: 50 },
-    { id: 'big', art: 'item.gift_blue_gold', hp: 6, weight: 30 },
-    { id: 'chest', art: 'gold.chest_wood', hp: 12, weight: 15 },
-    { id: 'golden', art: 'gold.chest_gold', hp: 20, weight: 5, hops: true }   // yolda sağa sola kayar
+    { id: 'small', art: 'item.gift_red_green', hp: 3, gold: 1, weight: 50 },
+    { id: 'big', art: 'item.gift_blue_gold', hp: 6, gold: 2, weight: 30 },
+    { id: 'chest', art: 'gold.chest_wood', hp: 12, gold: 4, weight: 15 },
+    { id: 'golden', art: 'gold.chest_gold', hp: 20, gold: 10, weight: 5, hops: true }   // şerit değiştirir
   ],
-  // Kış etkinliği silahları. Altınla bir kez alınır.
+  // Zibo yolun ucunda koşar ve arkasına tuzak bırakır. Aynı şeritteysen çarparsın.
+  trapEveryMs: [1700, 2600],
+  trapsFromSecond: 3,
+  traps: [
+    { id: 'ice', art: 'gold.trap_ice', lose: 4, stun: 0.9, weight: 35 },      // buz: kayarsın, kısa süre atamazsın
+    { id: 'banana', art: 'gold.trap_banana', lose: 5, stun: 0.6, weight: 30 }, // muz kabuğu
+    { id: 'snow', art: 'gold.trap_snow', lose: 6, stun: 0.5, weight: 25 },     // kar yığını
+    { id: 'bomb', art: 'gold.trap_bomb', lose: 10, stun: 0.7, weight: 10, shootable: true } // sahte sandık: vurursan da patlar!
+  ],
   weapons: [
     { id: 'snowball', art: 'gold.weap_snowball', dmg: 1, price: 0, ball: '#f4fbff' },
-    { id: 'sling', art: 'gold.weap_sling', dmg: 2, price: 120, ball: '#f4fbff' },
-    { id: 'ice', art: 'gold.weap_ice', dmg: 3, price: 700, ball: '#9fe0ff' },
-    { id: 'staff', art: 'gold.weap_staff', dmg: 5, price: 2000, ball: '#c9a8ff' }
+    { id: 'sling', art: 'gold.weap_sling', dmg: 2, price: 150, ball: '#f4fbff' },
+    { id: 'candy', art: 'gold.weap_candy', dmg: 3, price: 500, ball: '#ff6b6b' },
+    { id: 'ice', art: 'gold.weap_ice', dmg: 4, price: 1000, ball: '#9fe0ff' },
+    { id: 'staff', art: 'gold.weap_staff', dmg: 6, price: 2200, ball: '#c9a8ff' },
+    { id: 'thunder', art: 'gold.weap_thunder', dmg: 9, price: 4000, ball: '#ffe36e' }
   ],
   cocoa: { price: 60, seconds: 5, max: 3 }   // sıcak kakao: sıradaki aramaya +5 sn
 };

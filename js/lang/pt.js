@@ -219,7 +219,7 @@ CZ.i18n.register('pt', 'Português', {
   'item.pie_cherry.note': 'O Zibo escondeu debaixo da cama “para manter quentinha”.',
   'item.jar_candy_red.name': 'Pote de balas de hortelã',
   'item.jar_candy_red.note': 'Menos balas do que antes. Bem menos.',
-  'hub.gold': 'Guerra de bolas de neve',
+  'hub.gold': 'Caça ao ouro',
   'hub.goldReady': 'Rodada grátis pronta!',
   'gold.sub': 'Caminhe pela rua do Zibo! Presentes aparecem à esquerda, à direita e à frente. Quebre antes de passar: cada acerto é ouro, cada caixa quebrada é bônus. Deixe um escapar e você perde a sequência!',
   'gold.weapons': 'Armas',
