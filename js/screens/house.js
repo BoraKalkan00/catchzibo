@@ -13,7 +13,7 @@
     return h('header', { class: 'topbar' },
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.back'), onClick: () => { CZ.audio.sfx('button'); onBack(); }, text: '‹' }),
       h('h1', { text: title }),
-      goldChip());
+      h('div', { class: 'top-money' }, goldChip(), CZ.ui.emeralds()));
   }
 
   // Bedel çipleri: eksik olan kırmızı.
@@ -93,25 +93,23 @@
         view.append(h('div', { class: 'level-float', text: t('house.grew') }));
       }
 
-      // Kunduz Usta: inşaatı yapar, öğüt verir, Zibo'ya karşı uyarır.
-      const ul = HS.ustaLine(H, fresh);
+      // Kunduz Usta: büyük ve hep görünür konuşma balonu. Rehber ipuçları da burada.
+      const tip = this.tipKey(H);
+      const ul = tip && !fresh ? { key: 'tut.' + tip, pose: tip === 'raid' ? 'worried' : tip === 'wait' ? 'hammer' : tip === 'mats' ? 'think' : 'talk' } : HS.ustaLine(H, fresh);
+      if (tip && !fresh) { const seen = d().houseTut || (d().houseTut = []); if (!seen.includes(tip) && tip !== 'start') { seen.push(tip); CZ.state.save(); } }
       const ustaImg = h('img', { class: 'usta-img', src: CZ.art('usta.' + ul.pose), alt: '' });
-      const ustaName = h('em', { class: 'bubble-goblin usta-name', text: t('usta.name') });
-      const ustaText = h('span', { class: 'bubble-line' });
-      const bubble = h('div', { class: 'bubble' }, ustaName, ustaText);
-      const usta = { el: h('div', { class: 'zibo house-actor usta' }, bubble, ustaImg) };
-      this.zibo = null;
-      const say = (line, pose) => {
+      const ustaText = h('p', { class: 'usta-text', text: t(ul.key, ul.p || {}) });
+      const usta = h('div', { class: 'usta-box' },
+        h('div', { class: 'usta-bubble' }, h('em', { text: t('usta.name') }), ustaText), ustaImg);
+      usta.addEventListener('pointerdown', () => {
+        CZ.audio.sfx('poke');
+        const line = HS.ustaLine(H);
         ustaText.textContent = t(line.key, line.p || {});
-        ustaImg.src = CZ.art('usta.' + (pose || line.pose));
-        bubble.classList.add('show');
+        ustaImg.src = CZ.art('usta.' + ['talk', 'wave', 'think'][Math.floor(Math.random() * 3)]);
         ustaImg.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-10px)' }, { transform: 'translateY(0)' }], { duration: 320 });
-        clearTimeout(this.hideTimer);
-        this.hideTimer = setTimeout(() => bubble.classList.remove('show'), 2600 + ustaText.textContent.length * 45);
-      };
-      this.sayTimer = setTimeout(() => say(ul), fresh ? 900 : 500);
-      usta.el.addEventListener('pointerdown', () => { CZ.audio.sfx('poke'); say(HS.ustaLine(H), ['talk', 'wave', 'think'][Math.floor(Math.random() * 3)]); });
-      const zibo = usta;
+      });
+      this.zibo = null;
+      const zibo = { el: usta };
 
       const mats = h('button', { class: 'mat-bar', type: 'button', onClick: () => { CZ.audio.sfx('button'); this.shop(el, H); } },
         CZ.MATS.map(m => { const s = h('span', { class: 'mat' }); s.innerHTML = art.matIcon(m.id); s.append(String(H.mats[m.id] || 0)); return s; }),
@@ -129,9 +127,42 @@
         h('div', { class: 'house-top' }, stats(H),
           h('button', { class: 'hood-btn', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('hood'); } }, '🏘️ ', t('hood.title'))),
         h('div', { class: 'house-stage' }, view, zibo.el),
-        job ? this.jobBar(H) : '',
+        job ? this.jobBar(H) : this.nextButton(H),
         mats, tabs,
-        h('div', { class: 'scroll house-scroll' }, this.coach(H), panel));
+        h('div', { class: 'scroll house-scroll' }, panel));
+    },
+
+    // Hangi ipucu sırada (bir kez gösterilir; 'start' temel atılana kadar kalır)
+    tipKey(H) {
+      const seen = d().houseTut || [];
+      let key = null;
+      if (!HS.lv(H, 'found') && !H.job) key = 'start';
+      else if (H.job && !seen.includes('wait')) key = 'wait';
+      else if (HS.lv(H, 'found') && !H.job && !seen.includes('mats') && HS.nextShell(H) && !HS.canPay(H, HS.nextCost(H, HS.nextShell(H)))) key = 'mats';
+      else if (HS.lv(H, 'door') && !seen.includes('raid')) key = 'raid';
+      else if (H.rooms.living && !seen.includes('rooms')) key = 'rooms';
+      return key && (key === 'start' || !seen.includes(key)) ? key : null;
+    },
+
+    // Evin altındaki tek büyük düğme: sıradaki iş (Clash of Clans gibi düşünmeden bas)
+    nextButton(H) {
+      const id = HS.nextShell(H);
+      let partId = id;
+      if (!partId) {
+        // Kabuk bitti: savunmanın en zayıf yerini öner
+        const def = CZ.PARTS.filter(p => p.def && HS.nextCost(H, p.id) && HS.needMet(H, p.need));
+        def.sort((a, b) => HS.lv(H, a.id) - HS.lv(H, b.id));
+        partId = def[0] && def[0].id;
+      }
+      if (!partId) return '';
+      const cost = HS.nextCost(H, partId);
+      const lvl = HS.lv(H, partId);
+      const chips = h('span', { class: 'next-cost' }, Object.keys(cost).map(k => { const c = h('i', {}); c.innerHTML = art.matIcon(k); c.append(String(cost[k])); return c; }), '⏱ ' + this.mins(partId, lvl));
+      const label = (lvl ? t('house.upgradeX', { name: t('part.' + partId) }) : t('house.buildX', { name: t('part.' + partId) }));
+      return h('button', {
+        class: 'next-btn pulse', type: 'button',
+        onClick: () => attempt(H, cost, () => { HS.build(partId); CZ.audio.sfx('build'); CZ.ui.toast(t('house.started')); }, () => CZ.ui.refresh())
+      }, h('b', { text: '🔨 ' + label }), chips);
     },
 
     // Kısa rehber: her ipucu bir kez, sırası gelince.
@@ -176,8 +207,10 @@
         h('button', {
           class: 'btn small primary', type: 'button',
           onClick: () => {
+            const spent = HS.speedCost(H);
             const r = HS.speedUp();
             if (r === 'short') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('look.need')); }
+            CZ.ui.toast(t('house.spent', { n: spent }));
             CZ.ui.refresh();
           }
         }, img('ui.emerald', 'btn-icon'), cost, ' ', t('house.finish')));

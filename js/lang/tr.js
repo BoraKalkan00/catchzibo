@@ -813,5 +813,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   'usta.weak': 'Bu ev Zibo’ya karşı hiç güvenli değil. Kapıya demir bant, pencereye kepenk lazım!',
   'usta.meh': 'Fena değil ama Zibo inatçıdır. Çiti biraz daha yükseltelim mi?',
   'usta.ok': 'Ev sağlamlaşıyor! Biraz daha çalışırsak Zibo dişini kıracak.',
-  'usta.strong': 'Bu ev kale gibi oldu! Zibo kafasını duvara vursun.'
+  'usta.strong': 'Bu ev kale gibi oldu! Zibo kafasını duvara vursun.',
+  'house.buildX': '{name} yap',
+  'house.upgradeX': '{name} güçlendir',
+  'house.spent': '💎 {n} elmas harcandı, iş bitti!'
 });

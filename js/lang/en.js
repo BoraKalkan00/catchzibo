@@ -813,5 +813,8 @@ CZ.i18n.register('en', 'English', {
   'usta.weak': 'This house isn’t safe from Zibo at all. The door needs iron bands, the windows need shutters!',
   'usta.meh': 'Not bad, but Zibo is stubborn. Shall we raise the fence?',
   'usta.ok': 'The house is getting tough! A bit more work and Zibo will break his teeth.',
-  'usta.strong': 'This house is a fortress! Let Zibo bang his head on the wall.'
+  'usta.strong': 'This house is a fortress! Let Zibo bang his head on the wall.',
+  'house.buildX': 'Build: {name}',
+  'house.upgradeX': 'Upgrade: {name}',
+  'house.spent': '💎 {n} emeralds spent, job done!'
 });

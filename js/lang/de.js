@@ -604,5 +604,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'usta.weak': 'Dieses Haus ist gar nicht sicher vor Zibo. Die Tür braucht Eisenbänder, die Fenster Läden!',
   'usta.meh': 'Nicht schlecht, aber Zibo ist stur. Sollen wir den Zaun erhöhen?',
   'usta.ok': 'Das Haus wird stabil! Noch etwas Arbeit und Zibo beißt sich die Zähne aus.',
-  'usta.strong': 'Dieses Haus ist eine Festung! Soll Zibo doch gegen die Wand laufen.'
+  'usta.strong': 'Dieses Haus ist eine Festung! Soll Zibo doch gegen die Wand laufen.',
+  'house.buildX': '{name} bauen',
+  'house.upgradeX': '{name} verbessern'
 });

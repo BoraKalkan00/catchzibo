@@ -881,3 +881,22 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 @keyframes hammerbob { 50% { transform: rotate(-6deg) translateY(-2px); } }
 .coach-zibo { width: 54px; }
 .mine-pop.good { background: var(--emerald); font-size: 26px; text-transform: none; }
+/* Ev ekranı: büyük usta balonu + sıradaki iş düğmesi */
+.house-stage { max-height: 40vh; }
+.house-stage .house-view { max-width: 86%; margin: 0 auto; }
+.usta-box { position: absolute; left: 6px; right: 6px; top: 2px; display: flex; align-items: flex-start; gap: 4px; pointer-events: auto; z-index: 3; }
+.usta-bubble { position: relative; flex: 1; min-width: 0; padding: 8px 12px 10px; border-radius: 16px 16px 4px 16px; background: #fffdf5; color: var(--ink); box-shadow: 0 4px 12px rgba(0, 0, 0, .35); animation: fade .35s ease-out; }
+.usta-bubble::after { content: ""; position: absolute; right: -9px; top: 26px; border-left: 12px solid #fffdf5; border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
+.usta-bubble em { display: block; font-style: normal; font-size: 12px; font-weight: 900; color: #c96a10; }
+.usta-text { font-size: 15.5px; font-weight: 700; line-height: 1.28; }
+.usta-box .usta-img { width: 82px; flex: none; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .3)); }
+.next-btn { flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 2px 12px 8px; padding: 10px 14px; border-radius: 18px; background: var(--emerald); color: #fff; box-shadow: 0 5px 0 var(--emerald-dark); }
+.next-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--emerald-dark); }
+.next-btn b { font-size: 19px; font-weight: 900; }
+.next-cost { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 800; }
+.next-cost i { display: inline-flex; align-items: center; gap: 2px; font-style: normal; }
+.next-cost .mat-icon { width: 20px; height: 20px; }
+.next-btn.pulse { animation: btnpulse 1.5s ease-in-out infinite; }
+.top-money { display: flex; gap: 5px; flex: none; }
+.top-money .emeralds { font-size: 15px; padding: 4px 9px 4px 5px; }
+.top-money .emerald-icon { width: 20px; height: 20px; }

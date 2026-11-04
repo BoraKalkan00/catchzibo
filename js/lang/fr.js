@@ -604,5 +604,7 @@ CZ.i18n.register('fr', 'Français', {
   'usta.weak': 'Cette maison n’est pas du tout sûre face à Zibo. La porte a besoin de fer, les fenêtres de volets !',
   'usta.meh': 'Pas mal, mais Zibo est têtu. On rehausse la clôture ?',
   'usta.ok': 'La maison devient solide ! Encore un effort et Zibo s’y cassera les dents.',
-  'usta.strong': 'Cette maison est une forteresse ! Que Zibo se cogne contre le mur.'
+  'usta.strong': 'Cette maison est une forteresse ! Que Zibo se cogne contre le mur.',
+  'house.buildX': 'Construire : {name}',
+  'house.upgradeX': 'Améliorer : {name}'
 });

@@ -604,5 +604,7 @@ CZ.i18n.register('es', 'Español', {
   'usta.weak': 'Esta casa no es nada segura contra Zibo. ¡La puerta necesita hierro y las ventanas, contraventanas!',
   'usta.meh': 'No está mal, pero Zibo es terco. ¿Subimos la valla?',
   'usta.ok': '¡La casa se pone fuerte! Un poco más y Zibo se romperá los dientes.',
-  'usta.strong': '¡Esta casa es una fortaleza! Que Zibo se dé contra la pared.'
+  'usta.strong': '¡Esta casa es una fortaleza! Que Zibo se dé contra la pared.',
+  'house.buildX': 'Construir: {name}',
+  'house.upgradeX': 'Mejorar: {name}'
 });
