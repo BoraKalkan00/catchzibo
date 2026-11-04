@@ -221,7 +221,7 @@ CZ.i18n.register('pt', 'Português', {
   'item.jar_candy_red.note': 'Menos balas do que antes. Bem menos.',
   'hub.gold': 'Caça ao ouro',
   'hub.goldReady': 'Rodada grátis pronta!',
-  'gold.sub': 'Corra pela estrada de 4 faixas do Zibo! Quebre presentes e baús para ganhar ouro. O Zibo corre na frente soltando armadilhas: deslize ou use as setas para trocar de faixa. Bater numa armadilha custa ouro!',
+  'gold.sub': 'Persiga o Zibo pela rua nevada da vila! Pegue o ouro, pule os presentes, deslize sob as faixas e desvie dos trenós. Jogue bolas de neve nos baús para abri-los. Às vezes uma esmeralda brilha no ar!',
   'gold.weapons': 'Armas',
   'gold.dmg': 'Dano: {n}',
   'gold.owned': 'Equipada',
@@ -609,5 +609,15 @@ CZ.i18n.register('pt', 'Português', {
   'house.upgradeX': 'Melhorar: {name}',
   'hub.bookShort': 'Itens',
   'hub.diaryShort': 'Diário',
-  'quest.short': 'Missões'
+  'quest.short': 'Missões',
+  'run.hintLane': 'Deslize esq./dir.: faixa',
+  'run.hintJump': 'Deslize para cima: pular',
+  'run.hintSlide': 'Deslize para baixo: abaixar',
+  'run.hintTap': 'Toque: jogar bola de neve',
+  'run.go': 'Corra!',
+  'run.end': 'Fim da corrida!',
+  'run.meters': 'Você correu {m} metros',
+  'run.power.magnet': 'Ímã!',
+  'run.power.double': 'Ouro em dobro!',
+  'run.noGl': 'Este aparelho não abriu a corrida 3D.'
 });

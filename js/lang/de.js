@@ -221,7 +221,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'item.jar_candy_red.note': 'Weniger Bonbons als vorher. Viel weniger.',
   'hub.gold': 'Goldjagd',
   'hub.goldReady': 'Gratisrunde bereit!',
-  'gold.sub': 'Lauf über Zibos 4-spurige Straße! Zerschlag Geschenke und Truhen für Gold. Zibo rennt voraus und legt Fallen: wisch oder tippe die Pfeile, um die Spur zu wechseln. Eine Falle kostet Gold!',
+  'gold.sub': 'Jag Zibo die verschneite Dorfstraße entlang! Sammle Gold, spring über Geschenke, rutsch unter Bannern durch und weich den Schlitten aus. Wirf Schneebälle auf Truhen, dann regnet es Gold. Manchmal funkelt ein Smaragd in der Luft!',
   'gold.weapons': 'Waffen',
   'gold.dmg': 'Treffer: {n}',
   'gold.owned': 'Ausgerüstet',
@@ -609,5 +609,15 @@ CZ.i18n.register('de', 'Deutsch', {
   'house.upgradeX': '{name} verbessern',
   'hub.bookShort': 'Sachen',
   'hub.diaryShort': 'Tagebuch',
-  'quest.short': 'Aufgaben'
+  'quest.short': 'Aufgaben',
+  'run.hintLane': 'Links/rechts wischen: Spur',
+  'run.hintJump': 'Hoch wischen: springen',
+  'run.hintSlide': 'Runter wischen: rutschen',
+  'run.hintTap': 'Tippen: Schneeball werfen',
+  'run.go': 'Lauf!',
+  'run.end': 'Lauf vorbei!',
+  'run.meters': 'Du bist {m} Meter gelaufen',
+  'run.power.magnet': 'Magnet!',
+  'run.power.double': 'Doppeltes Gold!',
+  'run.noGl': 'Dieses Gerät kann den 3D-Lauf nicht öffnen.'
 });

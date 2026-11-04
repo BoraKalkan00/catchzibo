@@ -238,7 +238,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'item.jar_candy_red.note': 'Eskisinden daha az şeker var. Çok daha az.',
   'hub.gold': 'Altın Avı',
   'hub.goldReady': 'Ücretsiz tur hazır!',
-  'gold.sub': 'Zibo’nun 4 şeritli yolunda koş! Hediyeleri ve sandıkları kır, altın topla. Zibo önde koşup tuzak bırakır: kaydırarak ya da oklarla şerit değiştir. Tuzağa çarparsan altın kaybedersin!',
+  'gold.sub': 'Zibo’nun peşinden karlı köy yolunda koş! Altınları topla, kutuların üstünden zıpla, pankartların altından kay, kızaklardan kaç. Sandıklara kartopu at, kırılınca altın saçar. Bazen havada elmas parlar!',
   'gold.weapons': 'Silahlar',
   'gold.dmg': 'Hasar: {n}',
   'gold.owned': 'Kuşanıldı',
@@ -819,5 +819,15 @@ CZ.i18n.register('tr', 'Türkçe', {
   'house.spent': '💎 {n} elmas harcandı, iş bitti!',
   'hub.bookShort': 'Eşyalar',
   'hub.diaryShort': 'Günlük',
-  'quest.short': 'Görevler'
+  'quest.short': 'Görevler',
+  'run.hintLane': 'Sağa-sola kaydır: şerit',
+  'run.hintJump': 'Yukarı kaydır: zıpla',
+  'run.hintSlide': 'Aşağı kaydır: eğil',
+  'run.hintTap': 'Dokun: kartopu at',
+  'run.go': 'Koş!',
+  'run.end': 'Koşu bitti!',
+  'run.meters': '{m} metre koştun',
+  'run.power.magnet': 'Mıknatıs!',
+  'run.power.double': 'Çift altın!',
+  'run.noGl': 'Bu cihaz 3D koşuyu açamadı.'
 });

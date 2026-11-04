@@ -238,7 +238,7 @@ CZ.i18n.register('en', 'English', {
   'item.jar_candy_red.note': 'Fewer candies than before. Much fewer.',
   'hub.gold': 'Gold Hunt',
   'hub.goldReady': 'Free round ready!',
-  'gold.sub': 'Run down Zibo’s 4-lane road! Smash gifts and chests for gold. Zibo runs ahead dropping traps: swipe or use the arrows to switch lanes. Hitting a trap costs gold!',
+  'gold.sub': 'Chase Zibo down the snowy village road! Grab the gold, jump over gift boxes, slide under banners and dodge the sleds. Throw snowballs at chests to burst them open. Sometimes an emerald sparkles in the air!',
   'gold.weapons': 'Weapons',
   'gold.dmg': 'Hit: {n}',
   'gold.owned': 'Equipped',
@@ -819,5 +819,15 @@ CZ.i18n.register('en', 'English', {
   'house.spent': '💎 {n} emeralds spent, job done!',
   'hub.bookShort': 'Items',
   'hub.diaryShort': 'Diary',
-  'quest.short': 'Quests'
+  'quest.short': 'Quests',
+  'run.hintLane': 'Swipe left/right: change lane',
+  'run.hintJump': 'Swipe up: jump',
+  'run.hintSlide': 'Swipe down: slide',
+  'run.hintTap': 'Tap: throw a snowball',
+  'run.go': 'Run!',
+  'run.end': 'Run over!',
+  'run.meters': 'You ran {m} meters',
+  'run.power.magnet': 'Magnet!',
+  'run.power.double': 'Double gold!',
+  'run.noGl': 'This device could not open the 3D run.'
 });

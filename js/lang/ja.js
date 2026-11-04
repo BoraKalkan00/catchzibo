@@ -221,7 +221,7 @@ CZ.i18n.register('ja', '日本語', {
   'item.jar_candy_red.note': '前よりあめが少ない。ずっと少ない。',
   'hub.gold': 'ゴールドハント',
   'hub.goldReady': '無料ラウンドOK！',
-  'gold.sub': 'ジボの4車線の道を走ろう！プレゼントや宝箱をこわしてゴールドをゲット。ジボは前を走ってワナを落とすよ。スワイプか矢印で車線をかえてよけよう。ワナに当たるとゴールドがへる！',
+  'gold.sub': '雪の村の道でジボを追いかけよう！金貨を集め、プレゼントを飛び越え、旗の下をスライディング、ソリをよけよう。宝箱に雪玉を当てると金貨が飛び出す。ときどき空中にエメラルドが光るよ！',
   'gold.weapons': '武器',
   'gold.dmg': 'ダメージ：{n}',
   'gold.owned': '装備中',
@@ -617,5 +617,15 @@ CZ.i18n.register('ja', '日本語', {
   'house.upgradeX': '{name}をきょうか',
   'hub.bookShort': 'アイテム',
   'hub.diaryShort': '日記',
-  'quest.short': 'ミッション'
+  'quest.short': 'ミッション',
+  'run.hintLane': '左右スワイプ：レーン移動',
+  'run.hintJump': '上スワイプ：ジャンプ',
+  'run.hintSlide': '下スワイプ：スライディング',
+  'run.hintTap': 'タップ：雪玉を投げる',
+  'run.go': '走れ！',
+  'run.end': 'ラン終了！',
+  'run.meters': '{m}メートル走った',
+  'run.power.magnet': 'マグネット！',
+  'run.power.double': 'ゴールド2倍！',
+  'run.noGl': 'この端末では3Dランを開けません。'
 });

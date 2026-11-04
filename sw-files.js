@@ -278,6 +278,9 @@ self.CZ_FILES = [
  "js/screens/house.js",
  "js/screens/menus.js",
  "js/screens/play.js",
+ "js/screens/runner3d.js",
  "js/screens/story.js",
- "js/screens/wardrobe.js"
+ "js/screens/wardrobe.js",
+ "js/vendor/three.LICENSE.txt",
+ "js/vendor/three.min.js"
 ];

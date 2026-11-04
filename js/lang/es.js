@@ -221,7 +221,7 @@ CZ.i18n.register('es', 'Español', {
   'item.jar_candy_red.note': 'Menos caramelos que antes. Muchos menos.',
   'hub.gold': 'Caza de oro',
   'hub.goldReady': '¡Ronda gratis lista!',
-  'gold.sub': '¡Corre por la carretera de 4 carriles de Zibo! Rompe regalos y cofres para ganar oro. Zibo va delante soltando trampas: desliza o usa las flechas para cambiar de carril. ¡Chocar con una trampa cuesta oro!',
+  'gold.sub': '¡Persigue a Zibo por la calle nevada del pueblo! Recoge oro, salta los regalos, deslízate bajo las pancartas y esquiva los trineos. Lanza bolas de nieve a los cofres para romperlos. ¡A veces brilla una esmeralda en el aire!',
   'gold.weapons': 'Armas',
   'gold.dmg': 'Golpe: {n}',
   'gold.owned': 'Equipada',
@@ -609,5 +609,15 @@ CZ.i18n.register('es', 'Español', {
   'house.upgradeX': 'Mejorar: {name}',
   'hub.bookShort': 'Objetos',
   'hub.diaryShort': 'Diario',
-  'quest.short': 'Misiones'
+  'quest.short': 'Misiones',
+  'run.hintLane': 'Desliza izq./der.: carril',
+  'run.hintJump': 'Desliza arriba: saltar',
+  'run.hintSlide': 'Desliza abajo: agacharse',
+  'run.hintTap': 'Toca: lanzar bola de nieve',
+  'run.go': '¡Corre!',
+  'run.end': '¡Fin de la carrera!',
+  'run.meters': 'Corriste {m} metros',
+  'run.power.magnet': '¡Imán!',
+  'run.power.double': '¡Oro doble!',
+  'run.noGl': 'Este dispositivo no pudo abrir la carrera 3D.'
 });

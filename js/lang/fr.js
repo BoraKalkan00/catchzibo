@@ -221,7 +221,7 @@ CZ.i18n.register('fr', 'Français', {
   'item.jar_candy_red.note': 'Moins de bonbons qu’avant. Beaucoup moins.',
   'hub.gold': 'Chasse à l’or',
   'hub.goldReady': 'Partie gratuite prête !',
-  'gold.sub': 'Cours sur la route à 4 voies de Zibo ! Casse cadeaux et coffres pour gagner de l’or. Zibo court devant et pose des pièges : glisse ou utilise les flèches pour changer de voie. Un piège te coûte de l’or !',
+  'gold.sub': 'Poursuis Zibo dans la rue enneigée du village ! Ramasse l’or, saute les cadeaux, glisse sous les banderoles et évite les traîneaux. Lance des boules de neige sur les coffres pour les ouvrir. Parfois, une émeraude brille dans les airs !',
   'gold.weapons': 'Armes',
   'gold.dmg': 'Coup : {n}',
   'gold.owned': 'Équipée',
@@ -609,5 +609,15 @@ CZ.i18n.register('fr', 'Français', {
   'house.upgradeX': 'Améliorer : {name}',
   'hub.bookShort': 'Objets',
   'hub.diaryShort': 'Journal',
-  'quest.short': 'Quêtes'
+  'quest.short': 'Quêtes',
+  'run.hintLane': 'Glisse gauche/droite : voie',
+  'run.hintJump': 'Glisse vers le haut : saute',
+  'run.hintSlide': 'Glisse vers le bas : glisse',
+  'run.hintTap': 'Touche : lance une boule de neige',
+  'run.go': 'Cours !',
+  'run.end': 'Course finie !',
+  'run.meters': 'Tu as couru {m} mètres',
+  'run.power.magnet': 'Aimant !',
+  'run.power.double': 'Or double !',
+  'run.noGl': 'Cet appareil ne peut pas lancer la course 3D.'
 });

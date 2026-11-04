@@ -221,7 +221,7 @@ CZ.i18n.register('ko', '한국어', {
   'item.jar_candy_red.note': '사탕이 전보다 적어요. 훨씬 적어요.',
   'hub.gold': '골드 사냥',
   'hub.goldReady': '무료 라운드 준비 완료!',
-  'gold.sub': '지보의 4차선 도로를 달려요! 선물과 상자를 부숴 골드를 모아요. 지보가 앞서 달리며 함정을 떨어뜨려요: 밀거나 화살표로 차선을 바꿔요. 함정에 부딪히면 골드를 잃어요!',
+  'gold.sub': '눈 덮인 마을 길에서 지보를 쫓아가세요! 금화를 모으고, 선물 상자를 뛰어넘고, 현수막 아래로 미끄러지고, 썰매를 피하세요. 상자에 눈덩이를 던지면 금화가 쏟아져요. 가끔 공중에 에메랄드가 반짝여요!',
   'gold.weapons': '무기',
   'gold.dmg': '공격력: {n}',
   'gold.owned': '장착 중',
@@ -617,5 +617,15 @@ CZ.i18n.register('ko', '한국어', {
   'house.upgradeX': '{name} 강화',
   'hub.bookShort': '물건',
   'hub.diaryShort': '일기',
-  'quest.short': '퀘스트'
+  'quest.short': '퀘스트',
+  'run.hintLane': '좌우 스와이프: 차선 변경',
+  'run.hintJump': '위로 스와이프: 점프',
+  'run.hintSlide': '아래로 스와이프: 슬라이드',
+  'run.hintTap': '탭: 눈덩이 던지기',
+  'run.go': '달려!',
+  'run.end': '달리기 끝!',
+  'run.meters': '{m}미터 달렸어요',
+  'run.power.magnet': '자석!',
+  'run.power.double': '골드 두 배!',
+  'run.noGl': '이 기기에서는 3D 달리기를 열 수 없어요.'
 });
