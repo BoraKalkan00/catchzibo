@@ -32,6 +32,9 @@ CZ.OVERRIDES = {
   'scene.room_throne': 'assets/scenes/room_throne.webp',
   'scene.road': 'assets/scenes/road.webp',
   'story.1': 'assets/scenes/story1.webp',
+  'story.2': 'assets/scenes/story2.webp',
+  'story.3': 'assets/scenes/story3.webp',
+  'story.4': 'assets/scenes/story4.webp',
   // Kunduz Usta: ev inşasında yardımcı
   'usta.wave': 'assets/usta/wave.webp', 'usta.talk': 'assets/usta/talk.webp', 'usta.hammer': 'assets/usta/hammer.webp',
   'usta.worried': 'assets/usta/worried.webp', 'usta.cheer': 'assets/usta/cheer.webp', 'usta.think': 'assets/usta/think.webp'
