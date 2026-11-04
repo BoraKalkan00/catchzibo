@@ -637,5 +637,12 @@ CZ.i18n.register('es', 'Español', {
   'char.knight': 'Caballero Dorado',
   'char.santa': 'Pequeño Santa',
   'win.prize': '¡Nuevo personaje: {item}! Está en Personajes.',
-  'quest.wardrobe': 'Visita Personajes y elige uno'
+  'quest.wardrobe': 'Visita Personajes y elige uno',
+  'part.color.jacket': 'Chaqueta',
+  'part.color.hat': 'Gorro',
+  'part.color.scarf': 'Bufanda',
+  'chars.bought': '¡Nuevo color!',
+  'color.yellow': 'Amarillo',
+  'color.black': 'Negro',
+  'color.white': 'Blanco'
 });

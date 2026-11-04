@@ -645,5 +645,12 @@ CZ.i18n.register('ar', 'العربية', {
   'char.knight': 'الفارس الذهبي',
   'char.santa': 'سانتا الصغير',
   'win.prize': 'شخصية جديدة: {item}! تجدها في الشخصيات.',
-  'quest.wardrobe': 'زر الشخصيات واختر واحدة'
+  'quest.wardrobe': 'زر الشخصيات واختر واحدة',
+  'part.color.jacket': 'السترة',
+  'part.color.hat': 'القبعة',
+  'part.color.scarf': 'الوشاح',
+  'chars.bought': 'لون جديد لك!',
+  'color.yellow': 'أصفر',
+  'color.black': 'أسود',
+  'color.white': 'أبيض'
 });

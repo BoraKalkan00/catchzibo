@@ -637,5 +637,12 @@ CZ.i18n.register('fr', 'Français', {
   'char.knight': 'Chevalier d’Or',
   'char.santa': 'Petit Père Noël',
   'win.prize': 'Nouveau personnage : {item} ! Va voir dans Personnages.',
-  'quest.wardrobe': 'Va dans Personnages et choisis-en un'
+  'quest.wardrobe': 'Va dans Personnages et choisis-en un',
+  'part.color.jacket': 'Veste',
+  'part.color.hat': 'Bonnet',
+  'part.color.scarf': 'Écharpe',
+  'chars.bought': 'Nouvelle couleur !',
+  'color.yellow': 'Jaune',
+  'color.black': 'Noir',
+  'color.white': 'Blanc'
 });

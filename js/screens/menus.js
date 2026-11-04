@@ -105,7 +105,7 @@
         h('button', { class: 'mansion-hot', type: 'button', 'aria-label': t('hub.enter'), onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } }),
         h('div', { class: 'hub-top glass-bar' },
           h('div', { class: 'hub-me' },
-            h('button', { class: 'hub-avatar-btn', type: 'button', 'aria-label': t('chars.title'), onClick: () => { CZ.audio.sfx('button'); go('chars'); } }, img('char.' + (state.data.avatar || 'girl') + '_front', 'hub-avatar')),
+            h('button', { class: 'hub-avatar-btn', type: 'button', 'aria-label': t('chars.title'), onClick: () => { CZ.audio.sfx('button'); go('chars'); } }, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'hub-avatar')),
             CZ.progress.bar()),
           h('div', { class: 'hub-stats' },
             h('div', { class: 'emeralds gold-badge' }, img('ui.gold', 'emerald-icon'), h('span', { text: state.data.gold || 0 })),
@@ -142,7 +142,7 @@
       const job = H.job;
       const status = job ? '🔨 ' + t('hub.houseBuilding') : CZ.house.attention() ? '👉 ' + t('hub.houseNext') : t('house.level') + ' ' + lvl;
       const houseArt = h('div', { class: 'hub-house-art' });
-      houseArt.innerHTML = CZ.houseArt.exterior(H, { owner: CZ.art('char.' + (state.data.avatar || 'girl') + '_front') });
+      houseArt.innerHTML = CZ.houseArt.exterior(H, { owner: CZ.charArt.url(state.data.avatar || 'girl', 'front') });
       const q = CZ.quests.today();
       const done = q.list.filter(x => x.claimed).length;
       return h('div', { class: 'hub-cards' },
@@ -311,7 +311,7 @@
               text: l.name
             })))),
           row(t('settings.avatar'), h('div', { class: 'set-avatar' },
-            img('char.' + (d.avatar || 'girl') + '_front', 'set-avatar-img'),
+            CZ.charArt.img(d.avatar || 'girl', 'front', 'set-avatar-img'),
             btn(t('settings.change'), () => go('chars', { returnTo: 'settings' }), 'small ghost-dark'))),
           row(t('settings.sound'), toggle('sound')),
           row(t('settings.music'), toggle('music')),

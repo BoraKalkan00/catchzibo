@@ -31,14 +31,71 @@ if (CZ.closet) CZ.closet.perk = () => ({});
 
 CZ.screens.chars = {
   music: 'home',
+  part: 'jacket',
+  trying: null,
   render(el, params) {
-    const { h, img } = CZ.ui;
+    const { h, img, btn } = CZ.ui;
     const t = CZ.t;
     const d = CZ.state.data;
     const me = d.avatar || 'girl';
+    const CA = CZ.charArt;
+    const canColor = !!CZ.PART_RULES[me];
+    const worn = Object.assign({}, CZ.PART_ORIG[me] || {}, CA.colorsOf(me));
+    const look = this.trying ? Object.assign({}, worn, { [this.trying.part]: this.trying.color }) : worn;
     const preview = h('div', { class: 'chars-stage' },
-      h('img', { class: 'chars-hero', src: CZ.art('char.' + me + '_wave'), alt: '' }),
+      h('div', { class: 'emeralds gold-badge chars-gold' }, img('ui.gold', 'emerald-icon'), h('span', { class: 'emerald-count', text: d.gold || 0 })),
+      CA.img(me, 'wave', 'chars-hero', look),
       h('div', { class: 'chars-name' }, h('strong', { text: t('char.' + me) }), h('small', { text: t('chars.selected') })));
+
+    // Renk paneli: mont / bere / atkı
+    let colorPanel = null;
+    if (canColor) {
+      const orig = CZ.PART_ORIG[me][this.part];
+      const list = [orig].concat(Object.keys(CZ.COLOR_PRICES[this.part]).filter(c => c !== orig));
+      const sw = color => {
+        const isOrig = color === orig;
+        const owned = isOrig || CA.owns(this.part, color);
+        const on = look[this.part] === color;
+        const price = CZ.COLOR_PRICES[this.part][color];
+        return h('button', {
+          class: 'swatch' + (on ? ' on' : '') + (owned ? ' owned' : ''), type: 'button',
+          onClick: () => {
+            CZ.audio.sfx('button');
+            if (owned) { this.trying = null; CA.equip(me, this.part, color); if (CZ.quests) CZ.quests.track('wardrobe'); }
+            else this.trying = { part: this.part, color };
+            CZ.ui.refresh();
+          }
+        },
+        h('i', { style: 'background:#' + CZ.COLORS[color].hex.toString(16).padStart(6, '0') }),
+        owned ? (worn[this.part] === color ? h('b', { text: '✓' }) : null)
+          : h('small', { class: 'swatch-price' }, img(price.gold ? 'ui.gold' : 'ui.emerald', 'mini-ico'), String(price.gold || price.emeralds)));
+      };
+      const tabs = h('div', { class: 'part-tabs' }, ['jacket', 'hat', 'scarf'].map(p => h('button', {
+        class: 'part-tab' + (p === this.part ? ' on' : ''), type: 'button',
+        onClick: () => { this.part = p; this.trying = null; CZ.audio.sfx('button'); CZ.ui.refresh(); }
+      }, t('part.color.' + p))));
+      let buyBar = null;
+      if (this.trying) {
+        const { part, color } = this.trying;
+        const price = CZ.COLOR_PRICES[part][color];
+        buyBar = h('div', { class: 'buy-bar' },
+          h('span', { text: t('color.' + color) + ' ' + t('part.color.' + part) }),
+          btn(String(price.gold || price.emeralds), () => {
+            const r = CA.buy(part, color);
+            if (r !== 'ok') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t(r === 'gold' ? 'gold.need' : 'gold.gemNeed')); }
+            CA.equip(me, part, color);
+            this.trying = null;
+            CZ.audio.sfx('buy');
+            CZ.audio.vibrate(30);
+            if (CZ.quests) CZ.quests.track('wardrobe');
+            CZ.ui.toast(t('chars.bought'));
+            CZ.ui.refresh();
+          }, 'primary small', price.gold ? 'ui.gold' : 'ui.emerald'),
+          btn('✕', () => { this.trying = null; CZ.ui.refresh(); }, 'ghost-dark small'));
+      }
+      colorPanel = h('div', { class: 'color-panel' }, tabs, h('div', { class: 'swatches' }, list.map(sw)), buyBar);
+    }
+
     const card = c => {
       const st = CZ.chars.state(c);
       const selected = c.id === me;
@@ -52,6 +109,7 @@ CZ.screens.chars = {
           if (st === 'soon') { CZ.audio.sfx('button'); return CZ.ui.toast(t('chars.soonNote')); }
           if (selected) return;
           d.avatar = c.id;
+          this.trying = null;
           CZ.state.save();
           CZ.audio.sfx('buy');
           if (CZ.quests) CZ.quests.track('wardrobe');
@@ -59,13 +117,13 @@ CZ.screens.chars = {
           CZ.ui.refresh();
         }
       },
-      h('img', { class: 'char-img', src: CZ.chars.front(c.id), alt: '' }),
+      st === 'open' && CZ.chars.hasArt(c.id) ? CA.img(c.id, 'front', 'char-img') : h('img', { class: 'char-img', src: CZ.chars.front(c.id), alt: '' }),
       st !== 'open' ? h('span', { class: 'char-lock', text: st === 'soon' ? '✨' : '🔒' }) : null,
       h('span', { class: 'char-label', text: label }));
     };
     el.append(
-      CZ.ui.header(t('chars.title'), () => CZ.ui.go(params && params.returnTo ? params.returnTo : 'hub')),
+      CZ.ui.header(t('chars.title'), () => { this.trying = null; CZ.ui.go(params && params.returnTo ? params.returnTo : 'hub'); }),
       preview,
-      h('div', { class: 'scroll chars-grid' }, CZ.ROSTER.map(card)));
+      h('div', { class: 'scroll chars-body' }, colorPanel, h('div', { class: 'chars-grid' }, CZ.ROSTER.map(card))));
   }
 };

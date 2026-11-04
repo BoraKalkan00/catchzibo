@@ -645,5 +645,12 @@ CZ.i18n.register('ko', '한국어', {
   'char.knight': '황금 기사',
   'char.santa': '꼬마 산타',
   'win.prize': '새 캐릭터 해제: {item}! 캐릭터에서 만나요.',
-  'quest.wardrobe': '캐릭터에서 하나 고르기'
+  'quest.wardrobe': '캐릭터에서 하나 고르기',
+  'part.color.jacket': '재킷',
+  'part.color.hat': '모자',
+  'part.color.scarf': '목도리',
+  'chars.bought': '새 색상 획득!',
+  'color.yellow': '노랑',
+  'color.black': '검정',
+  'color.white': '하양'
 });

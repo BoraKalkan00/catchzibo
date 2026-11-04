@@ -25,10 +25,10 @@ CZ.screens.story = (function () {
       const scene = h('div', { class: `story-scene shot-${index + 1}` }, img('story.' + (index + 1), 'story-img'));
       // Sahnelerde oyundaki 3D Zibo ve oyuncunun kendi karakteri
       const me = CZ.state.data.avatar || 'girl';
-      if (index === 0) scene.append(img('char.' + me + '_wave', 'story-hero s1'));
+      if (index === 0) scene.append(CZ.charArt.img(me, 'wave', 'story-hero s1'));
       if (index === 1) scene.append(img('zibo.runLoot', 'story-zibo s2'));
       if (index === 2) scene.append(img('zibo.laugh', 'story-zibo s3'));
-      if (index === 3) scene.append(img('zibo.smug', 'story-zibo s4'), img('char.' + me + '_back1', 'story-hero s4'));
+      if (index === 3) scene.append(img('zibo.smug', 'story-zibo s4'), CZ.charArt.img(me, 'back1', 'story-hero s4'));
       stage.append(scene);
       const old = stage.children;
       while (old.length > 2) old[0].remove();

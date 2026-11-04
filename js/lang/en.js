@@ -845,5 +845,12 @@ CZ.i18n.register('en', 'English', {
   'char.snowkid': 'Snow Kid',
   'char.reindeer': 'Reindeer',
   'char.knight': 'Golden Knight',
-  'char.santa': 'Little Santa'
+  'char.santa': 'Little Santa',
+  'part.color.jacket': 'Jacket',
+  'part.color.hat': 'Hat',
+  'part.color.scarf': 'Scarf',
+  'chars.bought': 'New color unlocked!',
+  'color.yellow': 'Yellow',
+  'color.black': 'Black',
+  'color.white': 'White'
 });

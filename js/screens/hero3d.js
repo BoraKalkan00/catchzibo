@@ -7,7 +7,7 @@ CZ.CHARS = {
 };
 
 CZ.hero3d = function (THREE, kind) {
-  const C = CZ.CHARS[kind] || CZ.CHARS.girl;
+  const C = Object.assign({}, CZ.CHARS[kind] || CZ.CHARS.girl, CZ.charArt ? CZ.charArt.hexes(kind) : {});
   const mat = c => new THREE.MeshLambertMaterial({ color: c });
   const M = { skin: mat(C.skin), hair: mat(C.hair), hat: mat(C.hatColor), pom: mat(C.pom), jacket: mat(C.jacket), scarf: mat(C.scarf), pants: mat(C.pants), boots: mat(C.boots), fur: mat(C.fur || 0xffffff) };
   const sph = (r, m, x, y, z, sx, sy, sz) => {

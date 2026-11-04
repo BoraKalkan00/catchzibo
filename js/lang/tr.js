@@ -845,5 +845,12 @@ CZ.i18n.register('tr', 'Türkçe', {
   'char.snowkid': 'Kardan Çocuk',
   'char.reindeer': 'Ren Geyiği',
   'char.knight': 'Altın Şövalye',
-  'char.santa': 'Minik Noel Baba'
+  'char.santa': 'Minik Noel Baba',
+  'part.color.jacket': 'Mont',
+  'part.color.hat': 'Bere',
+  'part.color.scarf': 'Atkı',
+  'chars.bought': 'Yeni renk senin!',
+  'color.yellow': 'Sarı',
+  'color.black': 'Siyah',
+  'color.white': 'Beyaz'
 });

@@ -35,6 +35,7 @@
     if (document.hidden) CZ.notify.schedule();
   });
 
+  if (CZ.charArt) CZ.charArt.warm();
   CZ.ui.go('title');
   CZ.notify.schedule();
 

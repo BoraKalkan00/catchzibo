@@ -637,5 +637,12 @@ CZ.i18n.register('de', 'Deutsch', {
   'char.knight': 'Goldritter',
   'char.santa': 'Kleiner Nikolaus',
   'win.prize': 'Neue Figur frei: {item}! Schau bei Figuren.',
-  'quest.wardrobe': 'Geh zu Figuren und wähle eine'
+  'quest.wardrobe': 'Geh zu Figuren und wähle eine',
+  'part.color.jacket': 'Jacke',
+  'part.color.hat': 'Mütze',
+  'part.color.scarf': 'Schal',
+  'chars.bought': 'Neue Farbe gehört dir!',
+  'color.yellow': 'Gelb',
+  'color.black': 'Schwarz',
+  'color.white': 'Weiß'
 });
