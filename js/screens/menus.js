@@ -22,7 +22,7 @@
         zibo.say(game.pickLine('poke'), 'mad');
       });
       el.append(
-        img('scene.title', 'scene-bg'),
+        h('div', { class: 'hub-bg title-bg' }, img('scene.hub_bg', 'hub-bg-img')),
         snow(),
         h('div', { class: 'title-box' },
           h('h1', { class: 'logo', 'aria-label': t('title.name') }, letters),

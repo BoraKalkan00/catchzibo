@@ -54,13 +54,10 @@ CZ.ROOMS = [{
   scene: 'room_kitchen',
   opens: '2026-12-08',
   fx: {
-    size: [900, 1600],
-    fire: { x: 556, y: 560, w: 190, h: 150 },
-    snow: { x: 92, y: 150, w: 300, h: 250 },
-    lights: [
-      [60, 118, '#ffd95e'], [150, 130, '#ff6b6b'], [240, 139, '#6fc3ff'], [330, 145, '#7df08a'], [420, 148, '#ffd95e'],
-      [510, 147, '#ff6b6b'], [600, 144, '#6fc3ff'], [690, 137, '#7df08a'], [780, 126, '#ffd95e'], [870, 113, '#ff6b6b']
-    ]
+    size: [1536, 2048],
+    fire: null,
+    snow: { x: 610, y: 150, w: 365, h: 345 },
+    lights: [[502, 560, '#ffd27a'], [300, 905, '#ffb347'], [195, 940, '#ff8c3a']]
   },
   rounds: [
     { id: 'k1', target: 'mug_red', count: 24, share: 0.45, heaps: 2, spread: 0.32, seconds: 30, buzz: 1.3, similar: ['mug_blue', 'mug_white', 'mug_green', 'mug_red_striped'] },
