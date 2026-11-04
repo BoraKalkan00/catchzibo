@@ -606,5 +606,8 @@ CZ.i18n.register('fr', 'Français', {
   'usta.ok': 'La maison devient solide ! Encore un effort et Zibo s’y cassera les dents.',
   'usta.strong': 'Cette maison est une forteresse ! Que Zibo se cogne contre le mur.',
   'house.buildX': 'Construire : {name}',
-  'house.upgradeX': 'Améliorer : {name}'
+  'house.upgradeX': 'Améliorer : {name}',
+  'hub.bookShort': 'Objets',
+  'hub.diaryShort': 'Journal',
+  'quest.short': 'Quêtes'
 });

@@ -816,5 +816,8 @@ CZ.i18n.register('en', 'English', {
   'usta.strong': 'This house is a fortress! Let Zibo bang his head on the wall.',
   'house.buildX': 'Build: {name}',
   'house.upgradeX': 'Upgrade: {name}',
-  'house.spent': '💎 {n} emeralds spent, job done!'
+  'house.spent': '💎 {n} emeralds spent, job done!',
+  'hub.bookShort': 'Items',
+  'hub.diaryShort': 'Diary',
+  'quest.short': 'Quests'
 });

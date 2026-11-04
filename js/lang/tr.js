@@ -816,5 +816,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   'usta.strong': 'Bu ev kale gibi oldu! Zibo kafasını duvara vursun.',
   'house.buildX': '{name} yap',
   'house.upgradeX': '{name} güçlendir',
-  'house.spent': '💎 {n} elmas harcandı, iş bitti!'
+  'house.spent': '💎 {n} elmas harcandı, iş bitti!',
+  'hub.bookShort': 'Eşyalar',
+  'hub.diaryShort': 'Günlük',
+  'quest.short': 'Görevler'
 });

@@ -81,10 +81,19 @@
       const line = game.hubLine();
       this.helloTimer = setTimeout(() => zibo.say(line, line === 'zibo.hub.worried' ? 'nervous' : 'smug'), 500);
 
+      const goldFree = CZ.screens.gold.isFree();
+      const H = CZ.house.ensure();
+      CZ.house.tick();
+      const q = CZ.quests.today();
+      const houseArt = h('div', { class: 'tile-art house-mini' });
+      houseArt.innerHTML = CZ.houseArt.exterior(H, {});
+      const tile = (cls, art, title, sub, onClick, hot) => h('button', { class: 'hub-tile ' + cls + (hot ? ' hot' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); onClick(); } },
+        art, h('strong', { text: title }), h('small', { text: sub }), hot ? h('i', { class: 'dot' }) : null);
       el.append(
-        img('scene.town', 'scene-bg'),
-        snow(),
-        h('div', { class: 'hub-top' },
+        h('div', { class: 'hub-bg' }, img('scene.hub_bg', 'hub-bg-img')),
+        snow(10),
+        h('button', { class: 'mansion-hot', type: 'button', 'aria-label': t('hub.enter'), onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } }),
+        h('div', { class: 'hub-top glass-bar' },
           h('div', { class: 'hub-me' },
             h('button', { class: 'hub-avatar-btn', type: 'button', 'aria-label': t('look.title'), onClick: () => { CZ.audio.sfx('button'); go('wardrobe'); } }, img('avatar.' + (state.data.avatar || 'girl'), 'hub-avatar')),
             CZ.progress.bar()),
@@ -93,21 +102,21 @@
             CZ.ui.emeralds(),
             h('button', { class: 'hub-gear', type: 'button', 'aria-label': t('hub.settings'), onClick: () => { CZ.audio.sfx('button'); go('settings'); } }, img('ui.gear', 'hub-gear-img')))),
         zibo.el,
-        h('div', { class: 'hub-center' },
-          h('div', { class: 'hub-next' },
-            btn(t('hub.enter'), () => CZ.ui.wipeTo('mansion'), 'primary big pulse'),
-            h('span', { class: 'hub-progress', text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) }),
-            h('button', { class: 'gold-hub-btn' + (CZ.screens.gold.isFree() ? ' ready' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('gold'); } },
-              img('ui.gold', 'gold-hub-icon'),
-              h('span', {}, h('strong', { text: t('hub.gold') }),
-                h('small', { text: CZ.screens.gold.isFree() ? t('hub.goldReady') : CZ.screens.gold.waitText() }))))),
-        this.cards(),
-        h('nav', { class: 'hub-nav' },
-          nav(t('hub.village'), 'ui.house', 'house', CZ.house && CZ.house.attention()),
+        h('div', { class: 'hub-main' },
+          h('button', { class: 'play-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
+            h('b', { text: t('hub.enter') }),
+            h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) })),
+          h('div', { class: 'hub-tiles' },
+            tile('gold-tile' + (goldFree ? ' ready' : ''), img('ui.gold', 'tile-icon'), t('hub.gold'), goldFree ? t('hub.goldReady') : CZ.screens.gold.waitText(), () => CZ.ui.wipeTo('gold'), goldFree),
+            tile('house-tile', houseArt, CZ.house.title(H) || t('house.title'), H.job ? '🔨 ' + t('hub.houseBuilding') : t('house.level') + ' ' + CZ.house.level(H), () => CZ.ui.wipeTo('house'), CZ.house.attention()),
+            tile('quest-tile', h('div', { class: 'tile-art quest-art' }, h('span', { text: '📋' }), h('div', { class: 'quest-dots' }, q.list.map(x => h('i', { class: x.claimed ? 'on' : x.have >= x.n ? 'ready' : '' })), h('i', { class: 'chest' + (q.chest ? ' on' : '') }))),
+              t('quest.short'), `${q.list.filter(x => x.claimed).length}/3`, () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), CZ.quests.ready()))),
+        h('nav', { class: 'hub-nav glass-bar' },
+          nav(t('hub.village'), 'ui.house', 'house'),
           nav(t('look.title'), 'ui.wardrobe', 'wardrobe'),
           nav(t('hub.hood'), 'ui.hood', 'hood'),
-          nav(t('hub.book'), 'ui.book', 'book'),
-          nav(t('hub.diary'), 'ui.diary', 'diary', game.diaryUnread())));
+          nav(t('hub.bookShort'), 'ui.book', 'book'),
+          nav(t('hub.diaryShort'), 'ui.diary', 'diary', game.diaryUnread())));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
       this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
       if (state.data.tutorialDone && CZ.house && state.data.house) CZ.notify.askOnce();

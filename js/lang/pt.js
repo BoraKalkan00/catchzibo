@@ -606,5 +606,8 @@ CZ.i18n.register('pt', 'Português', {
   'usta.ok': 'A casa está ficando forte! Mais um pouco e o Zibo quebra os dentes.',
   'usta.strong': 'Esta casa é uma fortaleza! O Zibo que bata a cabeça na parede.',
   'house.buildX': 'Construir: {name}',
-  'house.upgradeX': 'Melhorar: {name}'
+  'house.upgradeX': 'Melhorar: {name}',
+  'hub.bookShort': 'Itens',
+  'hub.diaryShort': 'Diário',
+  'quest.short': 'Missões'
 });

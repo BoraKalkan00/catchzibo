@@ -614,5 +614,8 @@ CZ.i18n.register('ko', '한국어', {
   'usta.ok': '집이 튼튼해지고 있어! 조금만 더 하면 지보가 이를 다 부러뜨릴 거야.',
   'usta.strong': '이 집은 요새야! 지보는 벽에 머리나 박으라지.',
   'house.buildX': '{name} 짓기',
-  'house.upgradeX': '{name} 강화'
+  'house.upgradeX': '{name} 강화',
+  'hub.bookShort': '물건',
+  'hub.diaryShort': '일기',
+  'quest.short': '퀘스트'
 });

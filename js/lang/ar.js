@@ -614,5 +614,8 @@ CZ.i18n.register('ar', 'العربية', {
   'usta.ok': 'البيت يزداد قوة! قليل من العمل وسيكسر زيبو أسنانه.',
   'usta.strong': 'هذا البيت قلعة! ليضرب زيبو رأسه بالجدار.',
   'house.buildX': 'ابنِ: {name}',
-  'house.upgradeX': 'طوّر: {name}'
+  'house.upgradeX': 'طوّر: {name}',
+  'hub.bookShort': 'الأغراض',
+  'hub.diaryShort': 'اليوميات',
+  'quest.short': 'المهام'
 });

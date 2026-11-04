@@ -614,5 +614,8 @@ CZ.i18n.register('ja', '日本語', {
   'usta.ok': '家がじょうぶになってきた！もう少しでジボは歯がたたないよ。',
   'usta.strong': 'この家はまるでおしろ！ジボはかべに頭をぶつけるといい。',
   'house.buildX': '{name}をたてる',
-  'house.upgradeX': '{name}をきょうか'
+  'house.upgradeX': '{name}をきょうか',
+  'hub.bookShort': 'アイテム',
+  'hub.diaryShort': '日記',
+  'quest.short': 'ミッション'
 });
