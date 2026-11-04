@@ -880,3 +880,4 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .job-usta { width: 40px; flex: none; animation: hammerbob .5s ease-in-out infinite; transform-origin: 50% 100%; }
 @keyframes hammerbob { 50% { transform: rotate(-6deg) translateY(-2px); } }
 .coach-zibo { width: 54px; }
+.mine-pop.good { background: var(--emerald); font-size: 26px; text-transform: none; }

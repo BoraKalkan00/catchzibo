@@ -257,7 +257,7 @@ CZ.i18n.register('es', 'Español', {
   'chase.hook': 'Gancho',
   'chase.pulled': '-{n} m!',
   'chase.miss': '¡Fallaste!',
-  'chase.caught': '¡TE PILLÉ!',
+  'chase.caught': '¡Atrapaste a Zibo!',
   'chase.winNote': 'Los bolsillos de Zibo estaban llenos de esmeraldas. ¡Ya no!',
   'chase.reward': '+{n} +{p} de sus bolsillos',
   'chase.outLives': '¡Bum! Zibo escapó',

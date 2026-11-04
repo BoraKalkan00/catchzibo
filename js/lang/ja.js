@@ -257,7 +257,7 @@ CZ.i18n.register('ja', '日本語', {
   'chase.hook': 'フック',
   'chase.pulled': '-{n} m！',
   'chase.miss': 'はずれ！',
-  'chase.caught': 'つかまえた！',
+  'chase.caught': 'ジボをつかまえた！',
   'chase.winNote': 'ジボのポケットはエメラルドでいっぱいだった。もう空っぽ！',
   'chase.reward': '+{n} +{p}（ポケットから）',
   'chase.outLives': 'ドカン！ジボがにげた',

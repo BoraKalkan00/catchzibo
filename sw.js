@@ -1,6 +1,6 @@
 // İnternetsiz çalışma. Önce ağı dener (yeni görseller hemen görünsün), ağ yoksa hafızadan verir.
 importScripts('sw-files.js');
-const CACHE = 'catchzibo-v19';
+const CACHE = 'catchzibo-v20';
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache =>
@@ -16,7 +16,8 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) return;
-  event.respondWith(fetch(event.request).then(response => {
+  // Telefonun kendi önbelleği eski kodu vermesin: her seferinde sunucuya sorar.
+  event.respondWith(fetch(event.request, { cache: 'no-cache' }).then(response => {
     if (response.ok) {
       const copy = response.clone();
       caches.open(CACHE).then(cache => cache.put(event.request, copy));

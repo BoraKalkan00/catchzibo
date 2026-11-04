@@ -257,7 +257,7 @@ CZ.i18n.register('ko', '한국어', {
   'chase.hook': '갈고리',
   'chase.pulled': '-{n} m!',
   'chase.miss': '빗나감!',
-  'chase.caught': '잡았다!',
+  'chase.caught': '지보를 잡았다!',
   'chase.winNote': '지보 주머니는 에메랄드로 가득했어요. 이제는 아니죠!',
   'chase.reward': '+{n} +{p} (주머니에서)',
   'chase.outLives': '쾅! 지보가 도망쳤어요',

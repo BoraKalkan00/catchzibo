@@ -274,7 +274,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'chase.hook': 'Kanca',
   'chase.pulled': '-{n} m!',
   'chase.miss': 'Iska!',
-  'chase.caught': 'YAKALADIN!',
+  'chase.caught': 'Zibo’yu yakaladın!',
   'chase.winNote': 'Zibo’nun cepleri zümrüt doluydu. Artık değil!',
   'chase.reward': '+{n} +{p} ceplerinden',
   'chase.outLives': 'Bum! Zibo kaçtı',

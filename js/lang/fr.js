@@ -257,7 +257,7 @@ CZ.i18n.register('fr', 'Français', {
   'chase.hook': 'Crochet',
   'chase.pulled': '-{n} m !',
   'chase.miss': 'Raté !',
-  'chase.caught': 'ATTRAPÉ !',
+  'chase.caught': 'Zibo attrapé !',
   'chase.winNote': 'Les poches de Zibo étaient pleines d’émeraudes. Plus maintenant !',
   'chase.reward': '+{n} +{p} de ses poches',
   'chase.outLives': 'Boum ! Zibo s’est enfui',

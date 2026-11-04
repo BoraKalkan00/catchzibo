@@ -360,7 +360,7 @@ CZ.screens.chase = (function () {
     c.ziboImg.dataset.f = 'dizzy';
     c.zibo.classList.add('caught');
     say('zibo.chase.caught');
-    const mine = h('div', { class: 'mine-pop show', text: t('chase.caught') });
+    const mine = h('div', { class: 'mine-pop good show', text: '🎉 ' + t('chase.caught') });
     c.field.append(mine);
     const roomDef = CZ.game.roomOf(p.roundId);
     if (d.roomDoneSeen === true) d.roomDoneSeen = ['living'];

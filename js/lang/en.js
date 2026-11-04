@@ -274,7 +274,7 @@ CZ.i18n.register('en', 'English', {
   'chase.hook': 'Hook',
   'chase.pulled': '-{n} m!',
   'chase.miss': 'Missed!',
-  'chase.caught': 'GOT YOU!',
+  'chase.caught': 'You caught Zibo!',
   'chase.winNote': 'Zibo’s pockets were full of emeralds. Not anymore!',
   'chase.reward': '+{n} +{p} from his pockets',
   'chase.outLives': 'Boom! Zibo got away',

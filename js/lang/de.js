@@ -257,7 +257,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'chase.hook': 'Haken',
   'chase.pulled': '-{n} m!',
   'chase.miss': 'Daneben!',
-  'chase.caught': 'ERWISCHT!',
+  'chase.caught': 'Zibo erwischt!',
   'chase.winNote': 'Zibos Taschen waren voller Smaragde. Jetzt nicht mehr!',
   'chase.reward': '+{n} +{p} aus seinen Taschen',
   'chase.outLives': 'Bumm! Zibo ist entkommen',

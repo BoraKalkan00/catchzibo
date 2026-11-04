@@ -257,7 +257,7 @@ CZ.i18n.register('ar', 'العربية', {
   'chase.hook': 'خطاف',
   'chase.pulled': '-{n} م!',
   'chase.miss': 'أخطأت!',
-  'chase.caught': 'أمسكتك!',
+  'chase.caught': 'أمسكت زيبو!',
   'chase.winNote': 'كانت جيوب زيبو مليئة بالزمرد. لم تعد كذلك!',
   'chase.reward': '+{n} +{p} من جيوبه',
   'chase.outLives': 'بوم! هرب زيبو',
