@@ -41,7 +41,7 @@ CZ.FOLDERS = {
   item: 'items', zibo: 'zibo', avatar: 'avatar', scene: 'scenes', story: 'story', village: 'village', ui: 'ui', gold: 'gold'
 };
 
-CZ.ITEMS3D = new Set(["bell_gold_blue", "bell_gold_green", "bell_gold_red", "bell_silver_blue", "bell_silver_red", "cane_green", "cane_red", "globe_house", "globe_snowman", "globe_snowman_bare", "globe_star", "globe_tree", "mini_tree", "mitten_blue", "mitten_green", "mitten_red", "ornament_blue_star", "ornament_gold_star", "ornament_green_dots", "ornament_red_dots", "ornament_red_star", "ornament_red_stripes", "pinecone", "star_gold", "star_silver", "stocking_blue", "stocking_green", "stocking_green_striped", "stocking_red", "stocking_red_striped", "teddy_brown", "teddy_white", "wreath"]);
+CZ.ITEMS3D = new Set(["bell_gold_blue", "bell_gold_green", "bell_gold_red", "bell_silver_blue", "bell_silver_red", "box_blue", "box_green", "box_purple", "box_red", "box_red_silver", "cane_green", "cane_red", "gift_blue_gold", "gift_gold_red", "gift_green_red", "gift_purple_gold", "gift_purple_orange", "gift_purple_silver", "gift_red_green", "globe_house", "globe_snowman", "globe_snowman_bare", "globe_star", "globe_tree", "mini_tree", "mitten_blue", "mitten_green", "mitten_red", "ornament_blue_star", "ornament_gold_star", "ornament_green_dots", "ornament_red_dots", "ornament_red_star", "ornament_red_stripes", "ornament_silver_stripes", "pinecone", "present_bell", "present_plain", "present_star", "present_star_blue", "present_star_red", "star_gold", "star_silver", "stocking_blue", "stocking_green", "stocking_green_striped", "stocking_red", "stocking_red_striped", "teddy_brown", "teddy_white", "wreath"]);
 
 CZ.art = function (key) {
   if (CZ.OVERRIDES[key]) return CZ.OVERRIDES[key];
