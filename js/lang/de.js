@@ -33,7 +33,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'mansion.locked': 'Finde zuerst die vorherigen Sachen.',
   'mansion.resting': 'Das hat Zibo gut versteckt. Komm morgen wieder!',
   'play.find': 'Dein gestohlenes Teil',
-  'play.reminder': 'Tippen hebt Sachen weg. Siehst du deins? HALTE es gedrückt. Hältst du das falsche, verlierst du!',
+  'play.reminder': 'Tippen: hochheben. Siehst du deins, HALTE es. Das falsche halten kostet 5 Sekunden!',
   'play.tutorial': 'Übung',
   'play.introFind': 'Finde das!',
   'play.introYours': 'Das gehört dir!',
@@ -45,7 +45,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'tut.lift': 'Das ist dein Strumpf! Er ist verschüttet. TIPPE auf das obere Teil, um es wegzuheben.',
   'tut.lift2': 'Super! TIPPE noch eins weg.',
   'tut.claim': 'Da ist er! Halte deinen Strumpf GEDRÜCKT, um „Das ist meins!“ zu sagen.',
-  'tut.wrongHold': 'Das gehört dir nicht! Im echten Spiel verlierst du, wenn du das Falsche beanspruchst. Einfach antippen zum Wegheben.',
+  'tut.wrongHold': 'Das ist nicht deins! In einer echten Runde kostet das 5 Sekunden. Tippe jetzt einfach zum Hochheben.',
   'tut.wrongLift': 'Vorsicht! Im echten Spiel verlierst du, wenn du dein eigenes Teil weghebst. HALTE es stattdessen.',
   'tut.timer': 'Jetzt wird’s ernst: Du hast 30 Sekunden!',
   'lose.time': 'Zeit ist um!',
@@ -621,5 +621,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'run.power.double': 'Doppeltes Gold!',
   'run.noGl': 'Dieses Gerät kann den 3D-Lauf nicht öffnen.',
   'house.adSped': 'Werbung geschaut: {m} Min. schneller!',
-  'house.min': 'Min.'
+  'house.min': 'Min.',
+  'play.penalty': '-{n} s!',
+  'hub.unlockIn': 'Finde noch {n} Dinge'
 });

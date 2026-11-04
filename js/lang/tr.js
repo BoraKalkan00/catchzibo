@@ -39,7 +39,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'mansion.resting': 'Zibo bunu iyi saklamış. Yarın tekrar gel!',
 
   'play.find': 'Çalınan eşyan',
-  'play.reminder': 'Dokunup kaldır. Seninkini görünce BASILI TUT. Yanlışına basılı tutarsan kaybedersin!',
+  'play.reminder': 'Dokun: kaldır. Seninkini görünce BASILI TUT. Yanlış eşyayı tutarsan 5 saniye gider!',
   'play.tutorial': 'Eğitim',
   'play.introFind': 'Bunu bul!',
   'play.introYours': 'Bu senin eşyan!',
@@ -52,7 +52,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'tut.lift': 'İşte senin çorabın! Eşyaların altında kalmış. Üstteki eşyaya DOKUN ve kaldır.',
   'tut.lift2': 'Harika! Yolu açmak için bir tanesine daha DOKUN.',
   'tut.claim': 'İşte orada! “Bu benim!” demek için çorabına BASILI TUT.',
-  'tut.wrongHold': 'O senin değil! Gerçek turda yanlış eşyayı sahiplenmek kaybettirir. Sadece dokunup kaldır.',
+  'tut.wrongHold': 'O senin değil! Gerçek turda yanlış eşyayı tutarsan 5 saniye kaybedersin. Şimdilik sadece dokunup kaldır.',
   'tut.wrongLift': 'Dikkat! Gerçek turda kendi eşyanı kaldırmak kaybettirir. Ona BASILI TUT.',
   'tut.timer': 'Bu sefer gerçek: 30 saniyen var!',
 
@@ -831,5 +831,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'run.power.double': 'Çift altın!',
   'run.noGl': 'Bu cihaz 3D koşuyu açamadı.',
   'house.adSped': 'Reklam sayesinde {m} dk kısaldı!',
-  'house.min': 'dk'
+  'house.min': 'dk',
+  'play.penalty': '-{n} sn!',
+  'hub.unlockIn': '{n} eşya daha bul'
 });

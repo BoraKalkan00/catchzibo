@@ -33,7 +33,7 @@ CZ.i18n.register('pt', 'Português', {
   'mansion.locked': 'Encontre os itens anteriores primeiro.',
   'mansion.resting': 'O Zibo escondeu bem este. Volte amanhã!',
   'play.find': 'Seu item roubado',
-  'play.reminder': 'Toque para tirar as coisas. Viu o seu? SEGURE. Se segurar o errado, você perde!',
+  'play.reminder': 'Toque: levanta. Quando vir o seu, SEGURE. Segurar o errado custa 5 segundos!',
   'play.tutorial': 'Tutorial',
   'play.introFind': 'Encontre isto!',
   'play.introYours': 'Este é seu!',
@@ -45,7 +45,7 @@ CZ.i18n.register('pt', 'Português', {
   'tut.lift': 'Essa é a sua meia! Ela está soterrada. TOQUE no item de cima para tirá-lo.',
   'tut.lift2': 'Boa! TOQUE em mais um para liberar.',
   'tut.claim': 'Ali está! SEGURE a sua meia para dizer “é meu!”',
-  'tut.wrongHold': 'Isso não é seu! Numa rodada de verdade, pegar o item errado faz perder. Só toque para tirar.',
+  'tut.wrongHold': 'Esse não é seu! Numa rodada real custa 5 segundos. Por enquanto, só toque para levantar.',
   'tut.wrongLift': 'Cuidado! Numa rodada de verdade, tirar o seu próprio item faz perder. SEGURE em vez disso.',
   'tut.timer': 'Agora é pra valer: você tem 30 segundos!',
   'lose.time': 'Acabou o tempo!',
@@ -621,5 +621,7 @@ CZ.i18n.register('pt', 'Português', {
   'run.power.double': 'Ouro em dobro!',
   'run.noGl': 'Este aparelho não abriu a corrida 3D.',
   'house.adSped': 'Anúncio assistido: {m} min a menos!',
-  'house.min': 'min'
+  'house.min': 'min',
+  'play.penalty': '-{n} s!',
+  'hub.unlockIn': 'Encontre mais {n} itens'
 });

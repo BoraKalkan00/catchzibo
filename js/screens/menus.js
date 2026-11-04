@@ -87,8 +87,18 @@
       const q = CZ.quests.today();
       const houseArt = h('div', { class: 'tile-art house-mini' });
       houseArt.innerHTML = CZ.houseArt.exterior(H, {});
-      const tile = (cls, art, title, sub, onClick, hot) => h('button', { class: 'hub-tile ' + cls + (hot ? ' hot' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); onClick(); } },
-        art, h('strong', { text: title }), h('small', { text: sub }), hot ? h('i', { class: 'dot' }) : null);
+      // Yeni oyuncu her şeyi birden görmesin: bölümler buldukça açılır.
+      const found = game.foundCount();
+      const open = key => found >= (CZ.UNLOCK[key] || 0);
+      const tile = (cls, art, title, sub, onClick, hot, key) => {
+        if (key && !open(key)) {
+          const need = CZ.UNLOCK[key] - found;
+          return h('button', { class: 'hub-tile locked ' + cls, type: 'button', onClick: () => { CZ.audio.sfx('wrong'); CZ.ui.toast(t('hub.unlockIn', { n: need })); } },
+            img('ui.lock', 'tile-icon'), h('strong', { text: title }), h('small', { text: t('hub.unlockIn', { n: need }) }));
+        }
+        return h('button', { class: 'hub-tile ' + cls + (hot ? ' hot' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); onClick(); } },
+          art, h('strong', { text: title }), h('small', { text: sub }), hot ? h('i', { class: 'dot' }) : null);
+      };
       el.append(
         h('div', { class: 'hub-bg' }, img('scene.hub_bg', 'hub-bg-img')),
         snow(10),
@@ -107,18 +117,21 @@
             h('b', { text: t('hub.enter') }),
             h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) })),
           h('div', { class: 'hub-tiles' },
-            tile('gold-tile' + (goldFree ? ' ready' : ''), img('ui.gold', 'tile-icon'), t('hub.gold'), goldFree ? t('hub.goldReady') : CZ.screens.gold.waitText(), () => CZ.ui.wipeTo('gold'), goldFree),
-            tile('house-tile', houseArt, CZ.house.title(H) || t('house.title'), H.job ? '🔨 ' + t('hub.houseBuilding') : t('house.level') + ' ' + CZ.house.level(H), () => CZ.ui.wipeTo('house'), CZ.house.attention()),
+            tile('gold-tile' + (goldFree ? ' ready' : ''), img('ui.gold', 'tile-icon'), t('hub.gold'), goldFree ? t('hub.goldReady') : CZ.screens.gold.waitText(), () => CZ.ui.wipeTo('gold'), goldFree, 'gold'),
+            tile('house-tile', houseArt, CZ.house.title(H) || t('house.title'), H.job ? '🔨 ' + t('hub.houseBuilding') : t('house.level') + ' ' + CZ.house.level(H), () => CZ.ui.wipeTo('house'), CZ.house.attention(), 'house'),
             tile('quest-tile', h('div', { class: 'tile-art quest-art' }, h('span', { text: '📋' }), h('div', { class: 'quest-dots' }, q.list.map(x => h('i', { class: x.claimed ? 'on' : x.have >= x.n ? 'ready' : '' })), h('i', { class: 'chest' + (q.chest ? ' on' : '') }))),
-              t('quest.short'), `${q.list.filter(x => x.claimed).length}/3`, () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), CZ.quests.ready()))),
+              t('quest.short'), `${q.list.filter(x => x.claimed).length}/3`, () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), CZ.quests.ready(), 'quests'))),
         h('nav', { class: 'hub-nav glass-bar' },
-          nav(t('hub.village'), 'ui.house', 'house'),
+          open('house') ? nav(t('hub.village'), 'ui.house', 'house') : null,
           nav(t('look.title'), 'ui.wardrobe', 'wardrobe'),
-          nav(t('hub.hood'), 'ui.hood', 'hood'),
-          nav(t('hub.bookShort'), 'ui.book', 'book'),
-          nav(t('hub.diaryShort'), 'ui.diary', 'diary', game.diaryUnread())));
+          open('hood') ? nav(t('hub.hood'), 'ui.hood', 'hood') : null,
+          open('book') ? nav(t('hub.bookShort'), 'ui.book', 'book') : null,
+          open('diary') ? nav(t('hub.diaryShort'), 'ui.diary', 'diary', game.diaryUnread()) : null));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
-      this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
+      // İlk girişte pencere açılmaz: oyuncu önce merkezi görsün.
+      state.data.hubVisits = (state.data.hubVisits || 0) + 1;
+      state.save();
+      if (state.data.hubVisits > 1) this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
       if (state.data.tutorialDone && CZ.house && state.data.house) CZ.notify.askOnce();
     },
     // Evim (küçük resim + durum) ve günlük görevler kartı
@@ -310,7 +323,7 @@
             text: d.notify !== false ? t('settings.on') : t('settings.off')
           })) : null,
           btn(t('settings.story'), () => go('story', { replay: true }), 'ghost-dark wide'),
-          h('div', { class: 'test-box' },
+          !CZ.DEV ? null : h('div', { class: 'test-box' },
             h('h2', { text: t('settings.test') }),
             h('p', { text: t('settings.testNote') }),
             btn(t('settings.nextDay'), () => {

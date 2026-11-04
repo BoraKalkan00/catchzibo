@@ -33,7 +33,7 @@ CZ.i18n.register('es', 'Español', {
   'mansion.locked': 'Primero encuentra los objetos anteriores.',
   'mansion.resting': 'Zibo lo escondió bien. ¡Vuelve mañana!',
   'play.find': 'Tu objeto robado',
-  'play.reminder': 'Toca para quitar cosas. ¿Ves el tuyo? MANTÉN pulsado. ¡Si eliges el equivocado, pierdes!',
+  'play.reminder': 'Toca: levanta. Cuando veas el tuyo, MANTÉNLO. ¡Mantener el equivocado cuesta 5 segundos!',
   'play.tutorial': 'Tutorial',
   'play.introFind': '¡Encuentra esto!',
   'play.introYours': '¡Esto es tuyo!',
@@ -45,7 +45,7 @@ CZ.i18n.register('es', 'Español', {
   'tut.lift': '¡Es tu calcetín! Está enterrado. TOCA el objeto de encima para quitarlo.',
   'tut.lift2': '¡Bien! TOCA uno más para despejar.',
   'tut.claim': '¡Ahí está! MANTÉN pulsado tu calcetín para decir «¡es mío!»',
-  'tut.wrongHold': '¡Eso no es tuyo! En una ronda real, reclamar el objeto equivocado te hace perder. Solo tócalo para quitarlo.',
+  'tut.wrongHold': '¡Ese no es tuyo! En una ronda real cuesta 5 segundos. Por ahora, solo toca para levantar.',
   'tut.wrongLift': '¡Cuidado! En una ronda real, quitar tu propio objeto te hace perder. MANTÉN pulsado en su lugar.',
   'tut.timer': 'Ahora en serio: ¡tienes 30 segundos!',
   'lose.time': '¡Se acabó el tiempo!',
@@ -621,5 +621,7 @@ CZ.i18n.register('es', 'Español', {
   'run.power.double': '¡Oro doble!',
   'run.noGl': 'Este dispositivo no pudo abrir la carrera 3D.',
   'house.adSped': '¡Anuncio visto: {m} min menos!',
-  'house.min': 'min'
+  'house.min': 'min',
+  'play.penalty': '-{n} s!',
+  'hub.unlockIn': 'Encuentra {n} objetos más'
 });

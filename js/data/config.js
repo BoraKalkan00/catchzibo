@@ -5,9 +5,10 @@ CZ.CONFIG = {
   adFakeSeconds: 3,
   maxAdContinues: 2,     // bir denemede en fazla kaç kez "reklamla devam"
   holdMs: 450,           // bu süreden uzun basma = "bu benim"
+  wrongPenalty: 5,       // yanlış eşyayı sahiplenmek: -5 sn (tur bitmez)
   moveCancelPx: 22,      // parmak bu kadar kayarsa basma iptal
-  rewardBase: 10,
-  rewardPerSeconds: 3,   // kalan her 3 saniye +1 zümrüt
+  rewardBase: 6,
+  rewardPerSeconds: 4,   // kalan her 4 saniye +1 zümrüt
   rewardReplay: 3,
   rewardNewStar: 5,      // tekrar oynarken kazanılan her yeni yıldız
   stars: [0.66, 0.33],   // kalan sürenin turun süresine oranı: %66+ = 3 yıldız, %33+ = 2, altı 1 (30 sn'de 20 ve 10 sn)
@@ -213,7 +214,7 @@ CZ.CHASE = {
 // Her isabet: hasar kadar altın. Kırılınca: canı kadar BONUS altın.
 CZ.GOLD = {
   roundSeconds: 30,
-  cooldownMinutes: 60,   // ücretsiz turdan sonra bekleme (reklam ya da elmasla hemen oynanabilir)
+  cooldownMinutes: 0,    // bekleme yok: Subway Surfers gibi istediğin kadar koş
   skipEmeralds: 5,       // beklemeyi elmasla atla
   throwGapMs: 110,       // iki atış arası en kısa süre
   walkSpeed: 0.3,        // kutuların yaklaşma hızı (1 / sn): ~3.5 sn'de yanından geçer
@@ -285,3 +286,14 @@ CZ.ZIBO_LINES = {
 
 // Goblin dili: her cümle için anlamsız bir söz üretmekte kullanılır.
 CZ.GOBLIN = ['nak', 'zib', 'gruk', 'bli', 'hee', 'ozz', 'mek', 'tik', 'wub', 'krik', 'yap', 'dro', 'snik', 'pfft', 'glo', 'zub'];
+
+// Merkezdeki bölümler, bulunan eşya sayısına göre açılır (yeni oyuncu boğulmasın).
+CZ.UNLOCK = { house: 1, gold: 2, quests: 2, hood: 3, book: 3, diary: 3 };
+// Test araçları yalnız ?dev=1 ile açılır (bir kez açınca bu cihazda hatırlanır, ?dev=0 kapatır).
+CZ.DEV = (function () {
+  try {
+    const m = location.search.match(/[?&]dev=(\d)/);
+    if (m) localStorage.setItem('cz.dev', m[1]);
+    return localStorage.getItem('cz.dev') === '1';
+  } catch (e) { return false; }
+})();

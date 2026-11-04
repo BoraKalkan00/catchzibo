@@ -39,7 +39,7 @@ CZ.i18n.register('en', 'English', {
   'mansion.resting': 'Zibo hid this one well. Come back tomorrow!',
 
   'play.find': 'Your stolen item',
-  'play.reminder': 'Tap to lift things off. See yours? HOLD it. Hold the wrong one and you lose!',
+  'play.reminder': 'Tap: lift. When you see yours, HOLD it. Holding the wrong item costs 5 seconds!',
   'play.tutorial': 'Tutorial',
   'play.introFind': 'Find this!',
   'play.introYours': 'This one is yours!',
@@ -52,7 +52,7 @@ CZ.i18n.register('en', 'English', {
   'tut.lift': 'That’s your stocking! It’s buried. TAP the item on top to lift it away.',
   'tut.lift2': 'Nice! TAP one more to clear the way.',
   'tut.claim': 'There it is! Press and HOLD your stocking to say “it’s mine!”',
-  'tut.wrongHold': 'That’s not yours! In a real round, claiming the wrong item loses. Just tap to lift it.',
+  'tut.wrongHold': 'That’s not yours! In a real round, holding the wrong item costs 5 seconds. For now, just tap to lift.',
   'tut.wrongLift': 'Careful! In a real round, lifting your own item loses. HOLD it instead.',
   'tut.timer': 'For real this time: you have 30 seconds!',
 
@@ -831,5 +831,7 @@ CZ.i18n.register('en', 'English', {
   'run.power.double': 'Double gold!',
   'run.noGl': 'This device could not open the 3D run.',
   'house.adSped': 'Ad watched: {m} min faster!',
-  'house.min': 'min'
+  'house.min': 'min',
+  'play.penalty': '-{n} s!',
+  'hub.unlockIn': 'Find {n} more items'
 });

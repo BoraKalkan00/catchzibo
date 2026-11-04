@@ -382,8 +382,16 @@ CZ.screens.play = (function () {
     if (item.target) return win(item);
     shake(item);
     if (s.tutorial) return tutorialWarn(t('tut.wrongHold'));
-    s.wrongId = item.id;
-    lose('wrong');
+    // Yanlış eşya: tur bitmez, süre gider ve Zibo güler (eskiden anında kaybettiriyordu).
+    s.timeLeft = Math.max(0.1, s.timeLeft - cfg.wrongPenalty);
+    CZ.audio.sfx('wrong');
+    CZ.audio.vibrate([40, 30, 40]);
+    s.zibo.say(CZ.game.pickLine('wrong'), 'laugh');
+    const tag = h('div', { class: 'penalty-pop', text: t('play.penalty', { n: cfg.wrongPenalty }) });
+    tag.style.left = item.x * 100 + '%';
+    tag.style.top = item.y * 100 + '%';
+    s.room.append(tag);
+    later(() => tag.remove(), 1000);
   }
 
   // Hedefin üstünde kaç eşya kaldı? Kaybedince "az kalmıştı" hissi için.

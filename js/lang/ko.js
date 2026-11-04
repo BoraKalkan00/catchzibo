@@ -33,7 +33,7 @@ CZ.i18n.register('ko', '한국어', {
   'mansion.locked': '앞의 물건부터 찾아요.',
   'mansion.resting': '지보가 꽁꽁 숨겼어요. 내일 다시 와요!',
   'play.find': '도둑맞은 물건',
-  'play.reminder': '탭하면 물건을 치워요. 네 물건이 보이면 꾹 누르세요. 엉뚱한 걸 누르면 져요!',
+  'play.reminder': '탭: 들어올리기. 내 물건을 보면 길게 누르기. 틀리면 5초가 줄어요!',
   'play.tutorial': '튜토리얼',
   'play.introFind': '이걸 찾아요!',
   'play.introYours': '이건 네 거야!',
@@ -45,7 +45,7 @@ CZ.i18n.register('ko', '한국어', {
   'tut.lift': '네 양말이야! 파묻혀 있어요. 위에 있는 물건을 탭해서 치워요.',
   'tut.lift2': '좋아요! 하나 더 탭해서 길을 터요.',
   'tut.claim': '찾았다! 양말을 꾹 눌러서 “내 거야!”라고 말해요.',
-  'tut.wrongHold': '그건 네 게 아니야! 실전에서 엉뚱한 물건을 고르면 져요. 탭해서 치우기만 해요.',
+  'tut.wrongHold': '그건 네 것이 아니야! 실제 라운드에서는 5초가 줄어요. 지금은 탭해서 들어 올려요.',
   'tut.wrongLift': '조심! 실전에서 네 물건을 치우면 져요. 대신 꾹 누르세요.',
   'tut.timer': '이번엔 진짜예요: 30초 안에 찾아요!',
   'lose.time': '시간 초과!',
@@ -629,5 +629,7 @@ CZ.i18n.register('ko', '한국어', {
   'run.power.double': '골드 두 배!',
   'run.noGl': '이 기기에서는 3D 달리기를 열 수 없어요.',
   'house.adSped': '광고 시청: {m}분 단축!',
-  'house.min': '분'
+  'house.min': '분',
+  'play.penalty': '-{n}초!',
+  'hub.unlockIn': '{n}개 더 찾기'
 });

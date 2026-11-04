@@ -33,7 +33,7 @@ CZ.i18n.register('fr', 'Français', {
   'mansion.locked': 'Trouve d’abord les objets précédents.',
   'mansion.resting': 'Zibo l’a bien caché. Reviens demain !',
   'play.find': 'Ton objet volé',
-  'play.reminder': 'Touche pour enlever les objets. Tu vois le tien ? MAINTIENS-le. Si tu maintiens le mauvais, tu perds !',
+  'play.reminder': 'Touche : soulève. Quand tu vois le tien, MAINTIENS. Le mauvais coûte 5 secondes !',
   'play.tutorial': 'Tutoriel',
   'play.introFind': 'Trouve ça !',
   'play.introYours': 'Celui-ci est à toi !',
@@ -45,7 +45,7 @@ CZ.i18n.register('fr', 'Français', {
   'tut.lift': 'C’est ta chaussette ! Elle est enfouie. TOUCHE l’objet du dessus pour l’enlever.',
   'tut.lift2': 'Bien ! TOUCHE-en encore un pour dégager.',
   'tut.claim': 'La voilà ! MAINTIENS ta chaussette pour dire « c’est à moi ! »',
-  'tut.wrongHold': 'Ce n’est pas à toi ! Dans une vraie partie, réclamer le mauvais objet fait perdre. Touche-le juste pour l’enlever.',
+  'tut.wrongHold': 'Ce n’est pas le tien ! En vraie partie, ça coûte 5 secondes. Pour l’instant, touche juste pour soulever.',
   'tut.wrongLift': 'Attention ! Dans une vraie partie, enlever ton propre objet fait perdre. MAINTIENS-le plutôt.',
   'tut.timer': 'Pour de vrai cette fois : tu as 30 secondes !',
   'lose.time': 'Temps écoulé !',
@@ -621,5 +621,7 @@ CZ.i18n.register('fr', 'Français', {
   'run.power.double': 'Or double !',
   'run.noGl': 'Cet appareil ne peut pas lancer la course 3D.',
   'house.adSped': 'Pub regardée : {m} min de moins !',
-  'house.min': 'min'
+  'house.min': 'min',
+  'play.penalty': '-{n} s !',
+  'hub.unlockIn': 'Trouve encore {n} objets'
 });

@@ -33,7 +33,7 @@ CZ.i18n.register('ja', '日本語', {
   'mansion.locked': '先に前のアイテムを見つけてね。',
   'mansion.resting': 'ジボがしっかりかくしたみたい。また明日来てね！',
   'play.find': 'ぬすまれた物',
-  'play.reminder': 'タップで物をどかす。自分のが見えたら長押し。まちがった物を長押しすると負け！',
+  'play.reminder': 'タップで持ち上げる。自分のを見つけたら長押し。間違えると5秒減るよ！',
   'play.tutorial': 'チュートリアル',
   'play.introFind': 'これをさがして！',
   'play.introYours': 'これがきみの物！',
@@ -45,7 +45,7 @@ CZ.i18n.register('ja', '日本語', {
   'tut.lift': 'きみのくつしただ！うもれている。上の物をタップしてどかそう。',
   'tut.lift2': 'いいね！もう1つタップして道をあけよう。',
   'tut.claim': 'あった！くつしたを長押しして「わたしの！」と言おう。',
-  'tut.wrongHold': 'それはきみのじゃないよ！本番でまちがった物を取ると負け。タップしてどかすだけでOK。',
+  'tut.wrongHold': 'それは君のじゃない！本番では5秒減るよ。今はタップで持ち上げよう。',
   'tut.wrongLift': '気をつけて！本番で自分の物をどかすと負け。かわりに長押ししよう。',
   'tut.timer': 'ここからが本番：制限時間は30秒！',
   'lose.time': '時間切れ！',
@@ -629,5 +629,7 @@ CZ.i18n.register('ja', '日本語', {
   'run.power.double': 'ゴールド2倍！',
   'run.noGl': 'この端末では3Dランを開けません。',
   'house.adSped': '広告視聴：{m}分短縮！',
-  'house.min': '分'
+  'house.min': '分',
+  'play.penalty': '-{n}秒！',
+  'hub.unlockIn': 'あと{n}個見つけよう'
 });
