@@ -78,7 +78,7 @@ CZ.screens.chase = (function () {
       box.classList.add('out');
       setTimeout(() => box.remove(), 300);
       start();
-    }, 2300);
+    }, 1400);
     c.timers.push(id);
     box.addEventListener('pointerdown', () => { clearTimeout(id); box.remove(); start(); }, { once: true });
   }
@@ -134,7 +134,7 @@ CZ.screens.chase = (function () {
 
   // Perspektif: Zibo uzaktayken yolun üst kısmında ve küçük, yaklaştıkça büyür ve aşağı iner.
   function layout() {
-    if (c.run) c.run.setZibo(c.ziboLane, -(3.6 + c.gap * 0.22));
+    if (c.run) c.run.setZibo(c.ziboLane, -(3.2 + c.gap * 0.15));
     c.gapText.textContent = t('chase.meters', { n: Math.ceil(c.gap) });
     c.gapBar.style.width = Math.max(0, 100 - c.gap / C.startGap * 100) + '%';
     c.hookBtn.classList.toggle('cool', c.hookReady > 0);

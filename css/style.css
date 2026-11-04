@@ -90,7 +90,7 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 @keyframes bob { 50% { translate: 0 -8px; } }
 
 /* Avatar */
-.screen-avatar { justify-content: center; gap: 24px; padding: 20px 16px; background: linear-gradient(#142a4f, #47709e); }
+.screen-avatar { justify-content: center; gap: 24px; padding: 20px 16px; background: linear-gradient(rgba(10, 20, 44, .35), rgba(10, 20, 44, .75)), url(../assets/scenes/hub_bg.webp) center 30% / cover no-repeat; }
 .avatar-head { text-align: center; position: relative; }
 .avatar-head h1 { font-size: 30px; font-weight: 900; }
 .avatar-head p { margin-top: 8px; font-size: 15px; color: #dbe6f3; }
@@ -1074,3 +1074,26 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 @keyframes recpop { 0% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); } }
 @keyframes tappulse { 50% { transform: scale(1.08); } }
 .privacy-link { display: block; margin-top: 12px; text-align: center; color: #9fb6e0; font-weight: 700; text-decoration: underline; }
+/* ===== Kayıp Eşyalar albümü ===== */
+.album { padding: 10px 12px 20px; }
+.album-room { margin-bottom: 14px; padding: 10px; border-radius: 18px; background: rgba(255, 255, 255, .08); }
+.album-room.done { background: rgba(93, 255, 154, .12); box-shadow: inset 0 0 0 2px rgba(93, 255, 154, .45); }
+.album-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.album-thumb { width: 54px; height: 54px; border-radius: 12px; object-fit: cover; }
+.album-title { flex: 1; min-width: 0; }
+.album-title strong { display: block; font-size: 17px; }
+.album-bar { height: 8px; margin: 4px 0 2px; border-radius: 6px; background: rgba(0, 0, 0, .3); overflow: hidden; }
+.album-bar i { display: block; height: 100%; background: linear-gradient(90deg, #5dff9a, #2ecc71); border-radius: 6px; }
+.album-title small { opacity: .75; font-weight: 700; }
+.album-prize { position: relative; width: 50px; text-align: center; }
+.album-prize img { height: 54px; object-fit: contain; }
+.album-prize img.mystery { filter: brightness(0) opacity(.5); }
+.album-prize small { position: absolute; right: -2px; bottom: -2px; font-size: 16px; }
+.album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.album-tile { position: relative; aspect-ratio: 1; border-radius: 14px; background: rgba(8, 16, 36, .5); display: grid; place-items: center; padding: 6px; }
+.album-tile .album-img { width: 100%; height: 100%; object-fit: contain; filter: brightness(0) opacity(.35); }
+.album-tile.has { background: var(--paper); box-shadow: 0 3px 0 rgba(0, 0, 0, .25); }
+.album-tile.has .album-img { filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .25)); }
+.album-stars { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 11px; letter-spacing: -1px; }
+.album-stars i { font-style: normal; color: rgba(0, 0, 0, .2); }
+.album-stars i.on { color: #f2b51e; }

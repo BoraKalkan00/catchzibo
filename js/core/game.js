@@ -272,7 +272,14 @@ CZ.game = (function () {
               { transform: 'rotate(8deg) translateX(4%)', offset: 0.7 },
               { transform: 'rotate(0) translateX(0)' }
             ], { duration: 1400, easing: 'ease-in-out' });
+          } else if (pick < 0.68) {
+            show('taunt');
+            sprite.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06, .95)' }, { transform: 'scale(1)' }], { duration: 300, iterations: 3 });
+            setTimeout(() => { if (!locked && shown === 'taunt') show(mood); }, 1000);
           } else if (pick < 0.8) {
+            setAnim('dance');
+            setTimeout(() => { if (!locked) setAnim(null); }, 1400);
+          } else if (pick < 0.9) {
             show('smug');
             hop();
             setTimeout(() => { if (!locked && shown === 'smug') show(mood); }, 1100);
@@ -282,7 +289,7 @@ CZ.game = (function () {
           }
         }
         fidget();
-      }, 4500 + Math.random() * 4500);
+      }, 2600 + Math.random() * 3000);
     }
     scheduleBlink();
     fidget();

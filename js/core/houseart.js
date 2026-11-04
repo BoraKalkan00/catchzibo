@@ -256,9 +256,30 @@ CZ.houseArt = (function () {
     const FX0 = -3.8, FX1 = 9.0, FY0 = -3.8, FY1 = 6.4;
     let out = '';
 
-    // Zemin: karlı arsa ve taş yol
+    // Zemin: havada duran karlı ada (toprak kenarlı), çam ağaçları ve taşlar — boş arsa bile canlı görünsün.
+    const A0 = FX0 - 0.7, A1 = FX1 + 0.7, B0 = FY0 - 0.7, B1 = FY1 + 0.7, DEP = 2.4;
+    out += path([P(A0, B1, 0), P(A1, B1, 0), P(A1, B1, -DEP), P(A0, B1, -DEP * 0.6)], '#7a5638', `stroke="${INK}" stroke-width="2"`);
+    out += path([P(A1, B0, 0), P(A1, B1, 0), P(A1, B1, -DEP), P(A1, B0, -DEP * 0.6)], '#5e412a', `stroke="${INK}" stroke-width="2"`);
+    out += path([P(A0, B1, 0), P(A1, B1, 0), P(A1, B1, -0.28), P(A0, B1, -0.22)], '#ffffff', 'stroke="none"');
+    out += path([P(A1, B0, 0), P(A1, B1, 0), P(A1, B1, -0.28), P(A1, B0, -0.22)], '#e6eef8', 'stroke="none"');
+    const pine = (x, y, k) => {
+      const [bx, by] = P(x, y, 0);
+      const w = U * 0.9 * k, hh = U * 2.6 * k;
+      return `<rect x="${(bx - U * 0.12 * k).toFixed(1)}" y="${(by - U * 0.45 * k).toFixed(1)}" width="${(U * 0.24 * k).toFixed(1)}" height="${(U * 0.45 * k).toFixed(1)}" fill="#6b4226"/>`
+        + [0, 1, 2].map(i => {
+          const ty = by - U * 0.3 * k - i * hh * 0.28, ww = w * (1 - i * 0.24);
+          return `<path d="M${(bx - ww).toFixed(1)} ${ty.toFixed(1)} L${bx.toFixed(1)} ${(ty - hh * 0.42).toFixed(1)} L${(bx + ww).toFixed(1)} ${ty.toFixed(1)}Z" fill="#2f7a4a" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>`
+            + `<path d="M${(bx - ww * 0.5).toFixed(1)} ${(ty - hh * 0.2).toFixed(1)} L${bx.toFixed(1)} ${(ty - hh * 0.42).toFixed(1)} L${(bx + ww * 0.5).toFixed(1)} ${(ty - hh * 0.2).toFixed(1)}Z" fill="#ffffff"/>`;
+        }).join('');
+    };
+    const rock = (x, y, k) => { const [bx, by] = P(x, y, 0); return `<ellipse cx="${bx.toFixed(1)}" cy="${(by - 3).toFixed(1)}" rx="${(U * 0.45 * k).toFixed(1)}" ry="${(U * 0.28 * k).toFixed(1)}" fill="#9aa3b4" stroke="${INK}" stroke-width="2"/><ellipse cx="${bx.toFixed(1)}" cy="${(by - 3 - U * 0.14 * k).toFixed(1)}" rx="${(U * 0.32 * k).toFixed(1)}" ry="${(U * 0.12 * k).toFixed(1)}" fill="#fff"/>`; };
     out += path([P(FX0 - 0.7, FY0 - 0.7, 0), P(FX1 + 0.7, FY0 - 0.7, 0), P(FX1 + 0.7, FY1 + 0.7, 0), P(FX0 - 0.7, FY1 + 0.7, 0)], '#e8f0f8', `stroke="#b9c9dc" stroke-width="2"`);
     out += path([P(FX0 - 0.2, FY0 - 0.2, 0), P(FX1 + 0.2, FY0 - 0.2, 0), P(FX1 + 0.2, FY1 + 0.2, 0), P(FX0 - 0.2, FY1 + 0.2, 0)], '#f6f9fd', 'stroke="none"');
+    out += pine(FX0 - 0.1, FY0 - 0.1, 1.7) + pine(FX0 + 1.6, FY0 - 0.3, 1.25) + pine(FX1 - 0.4, FY0 - 0.2, 1.5) + pine(FX0 - 0.2, FY1 - 1.5, 1.3) + rock(FX0 + 0.2, FY1 - 0.8, 0.9) + rock(FX1 - 1.2, FY0 + 1.2, 0.7);
+    if (!lv('found')) {
+      // Henüz temel yok: inşaat yeri kesik çizgiyle gösterilir
+      out += path([P(-0.3, -0.3, 0.02), P(5.3, -0.3, 0.02), P(5.3, 4.3, 0.02), P(-0.3, 4.3, 0.02)], 'none', `stroke="#e0a020" stroke-width="3" stroke-dasharray="8 6"`);
+    }
     if (lv('found')) {
       for (let y = 4.4; y < FY1 - 0.3; y += 0.7) out += path([P(0.95, y, 0), P(2.05, y, 0), P(2.05, y + 0.5, 0), P(0.95, y + 0.5, 0)], '#c9c3b8', `stroke="#9a958b" stroke-width="1"`);
     }
@@ -386,7 +407,7 @@ CZ.houseArt = (function () {
     }
     // Görüntü kutusu arsaya göre: ev ekranda büyük görünsün.
     const L = P(FX0 - 0.7, FY1 + 0.7, 0)[0] - 4, R = P(FX1 + 0.7, FY0 - 0.7, 0)[0] + 4;
-    const T = P(FX0, FY0, 0)[1] - (play ? 9.5 : 7.2) * U, B = P(FX1 + 0.7, FY1 + 0.7, 0)[1] + 4;
+    const T = Math.min(P(FX0, FY0, 0)[1] - (play ? 9.5 : 7.2) * U, P(FX0 - 0.1, FY0 - 0.1, 0)[1] - 4.6 * U), B = P(FX1 + 0.7, FY1 + 0.7, -2.4)[1] + 4;
     const vb = o.viewBox || `${L.toFixed(0)} ${T.toFixed(0)} ${(R - L).toFixed(0)} ${(B - T).toFixed(0)}`;
     return `<svg class="house-svg" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg">${out}</svg>`;
   }

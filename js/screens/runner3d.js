@@ -404,7 +404,7 @@ CZ.runner3d = (function () {
       const tex = T['z_' + f] || T.z_run1;
       if (!tex || ziboMat.map === tex) return;
       ziboMat.map = tex; ziboMat.needsUpdate = true;
-      zibo.scale.set(1.7 * tex.userData.ratio, 1.7, 1);
+      zibo.scale.set((CHASE ? 2.1 : 1.7) * tex.userData.ratio, CHASE ? 2.1 : 1.7, 1);
     }
 
     /* ---------- Kovalamaca yardımcıları: bomba, uyarı şeridi, kanca ---------- */
@@ -415,7 +415,15 @@ CZ.runner3d = (function () {
       lootSp.scale.set(0.7 * T.loot.userData.ratio, 0.7, 1);
       scene.add(lootSp);
     });
-    const warnMat = new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0, depthWrite: false });
+    // Uyarı: kırmızı-sarı tehlike çizgili, kenarları yumuşak ışıyan şerit (düz dikdörtgen değil).
+    const warnTex = canvasTex(64, 256, (x, w, hh) => {
+      const g = x.createLinearGradient(0, 0, w, 0);
+      g.addColorStop(0, 'rgba(255,40,40,0)'); g.addColorStop(0.18, 'rgba(255,40,40,.9)'); g.addColorStop(0.82, 'rgba(255,40,40,.9)'); g.addColorStop(1, 'rgba(255,40,40,0)');
+      x.fillStyle = g; x.fillRect(0, 0, w, hh);
+      x.fillStyle = 'rgba(255,220,60,.85)';
+      for (let y = 0; y < hh; y += 32) { x.beginPath(); x.moveTo(10, y); x.lineTo(32, y + 14); x.lineTo(54, y); x.lineTo(54, y + 10); x.lineTo(32, y + 24); x.lineTo(10, y + 10); x.fill(); }
+    }, [1, 3]);
+    const warnMat = new THREE.MeshBasicMaterial({ map: warnTex, transparent: true, opacity: 0, depthWrite: false });
     const warns = [];
     if (CHASE) for (let l = 0; l < LANES; l++) {
       const w = mesh(GEO.plane, warnMat.clone(), LANE_W * 0.92, 9, 1, laneX(l), 0.02, -1.5);
@@ -436,8 +444,9 @@ CZ.runner3d = (function () {
     function chaseFx(dt) {
       warns.forEach((w, l) => {
         const on = s.bombs.some(b => b.lane === l);
-        w.material.opacity = on ? 0.25 + Math.abs(Math.sin(s.frame * 12)) * 0.3 : Math.max(0, w.material.opacity - dt * 3);
+        w.material.opacity = on ? 0.55 + Math.abs(Math.sin(s.frame * 10)) * 0.4 : Math.max(0, w.material.opacity - dt * 3);
       });
+      warnTex.offset.y -= dt * 1.6;
       for (let i = s.bombs.length - 1; i >= 0; i--) {
         const b = s.bombs[i];
         b.t += dt;
@@ -831,7 +840,9 @@ CZ.runner3d = (function () {
         if (opts.perk.goldMul && Math.random() < (opts.perk.goldMul - 1) * 3) n += 1;
         s.gold += n;
         s.score = (s.score || 0) + 5 * n;
-        CZ.audio.sfx('coin');
+        s.coinStreak = s.t - (s.lastCoinT || -9) < 0.4 ? (s.coinStreak || 0) + 1 : 0;
+        s.lastCoinT = s.t;
+        CZ.audio.sfx('coin', s.coinStreak);
         opts.onGold(n);
       } else if (c.kind === 'gem') {
         s.emeralds += 1;

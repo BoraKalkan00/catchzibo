@@ -255,24 +255,44 @@
     }
   };
 
+  // Koleksiyon albümü: oda oda ızgara. Bulunmayan eşya karanlık siluet; odayı bitirince ödül karakteri.
   CZ.screens.book = {
     render(el) {
       const list = game.rounds();
-      const card = r => {
+      const tile = r => {
         const has = state.isFound(r.id);
-        return h('article', { class: 'book-card' + (has ? '' : ' unknown') },
-          img('item.' + r.target, 'book-img'),
-          h('div', {},
-            h('h3', { text: has ? t(`item.${r.target}.name`) : t('book.unknown') }),
-            h('p', { text: has ? t(`item.${r.target}.note`) : t('book.unknownNote') }),
-            has ? h('small', { text: t('book.foundOn', { date: game.formatDate(state.round(r.id).found) }) }) : null,
-            has && state.round(r.id).best !== undefined && !r.tutorial ? h('small', { class: 'book-best' }, img('ui.star', 'tile-star'), ` ${state.round(r.id).stars}/3 · ${t('book.best', { s: game.formatSeconds(state.round(r.id).best) })}`) : null));
+        const st = state.round(r.id).stars || 0;
+        return h('button', {
+          class: 'album-tile' + (has ? ' has' : ''), type: 'button',
+          onClick: () => {
+            CZ.audio.sfx('button');
+            if (!has) return CZ.ui.toast(t('book.unknownNote'));
+            CZ.ui.toast(t(`item.${r.target}.name`) + ' — ' + t(`item.${r.target}.note`));
+          }
+        }, img('item.' + r.target, 'album-img'),
+        has && !r.tutorial ? h('span', { class: 'album-stars' }, [0, 1, 2].map(i => h('i', { class: i < st ? 'on' : '', text: '★' }))) : null);
+      };
+      const section = room => {
+        const got = room.rounds.filter(r => state.isFound(r.id)).length;
+        const done = got === room.rounds.length;
+        const prize = CZ.ROOM_PRIZES[room.id];
+        return h('section', { class: 'album-room' + (done ? ' done' : '') },
+          h('div', { class: 'album-head' },
+            h('img', { class: 'album-thumb', src: CZ.art('scene.' + room.scene), alt: '' }),
+            h('div', { class: 'album-title' },
+              h('strong', { text: t('room.' + room.id) }),
+              h('div', { class: 'album-bar' }, h('i', { style: `width:${got / room.rounds.length * 100}%` })),
+              h('small', { text: got + '/' + room.rounds.length })),
+            prize ? h('div', { class: 'album-prize' + (done ? ' won' : '') },
+              h('img', { src: CZ.chars.front(prize), alt: '', class: done && CZ.chars.hasArt(prize) ? '' : 'mystery' }),
+              h('small', { text: done ? '✓' : '🎁' })) : null),
+          h('div', { class: 'album-grid' }, room.rounds.map(tile)));
       };
       el.append(
         header(t('book.title'), () => go('hub')),
-        h('div', { class: 'scroll' },
+        h('div', { class: 'scroll album' },
           h('p', { class: 'section-note', text: t('book.count', { found: game.foundCount(), total: list.length }) }),
-          h('div', { class: 'book-list' }, list.map(card))));
+          CZ.ROOMS.map(section)));
     }
   };
 

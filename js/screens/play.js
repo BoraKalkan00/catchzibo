@@ -216,6 +216,13 @@ CZ.screens.play = (function () {
   }
 
   function drawPile(plan) {
+    // Hiçbir eşya ekrandan taşmasın: yarı boyu kadar kenardan içeride kalır.
+    const rb = s.room.getBoundingClientRect();
+    if (rb.width) plan.forEach(o => {
+      const hx = (s.itemPx * (o.s || 1) * 0.55) / rb.width + 0.01, hy = (s.itemPx * (o.s || 1) * 0.55) / rb.height + 0.01;
+      o.x = Math.min(1 - hx, Math.max(hx, o.x));
+      o.y = Math.min(1 - hy, Math.max(Math.max(hy, 0.16), o.y));
+    });
     s.items = plan.map((o, z) => {
       const el = img('item.' + o.id, 'pile-item');
       el.style.cssText = `left:${o.x * 100}%;top:${o.y * 100}%;z-index:${z + 1};--r:${o.r}deg;--s:${o.s}`;

@@ -18,7 +18,7 @@ CZ.state = (function () {
     lastVisit: null,
     roomDoneSeen: false,
     dayOffset: 0,    // yalnızca test: "yarına geç"
-    gold: 0,         // altın: kartopu savaşından, gündelik şeyler için
+    gold: 100,       // başlangıç altını: ilk dakikada bir şey alınabilsin. altın: kartopu savaşından, gündelik şeyler için
     weapons: ['snowball'],
     weapon: 'snowball',
     goldNextAt: 0,   // bir sonraki ücretsiz kartopu turunun zamanı (ms)

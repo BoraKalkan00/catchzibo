@@ -287,7 +287,7 @@ CZ.GOBLIN = ['nak', 'zib', 'gruk', 'bli', 'hee', 'ozz', 'mek', 'tik', 'wub', 'kr
 // Merkezdeki bölümler, bulunan eşya sayısına göre açılır (yeni oyuncu boğulmasın).
 // Merkezde "Reklam izle, altın al": küçük ödül, günde en fazla 5 kez.
 CZ.AD_REWARD = { gold: 25, perDay: 5 };
-CZ.UNLOCK = { house: 1, gold: 2, quests: 2, hood: 3, book: 3, diary: 3 };
+CZ.UNLOCK = { house: 1, gold: 1, quests: 2, hood: 3, book: 3, diary: 3 };
 // Test araçları yalnız ?dev=1 ile açılır (bir kez açınca bu cihazda hatırlanır, ?dev=0 kapatır).
 CZ.DEV = (function () {
   try {
