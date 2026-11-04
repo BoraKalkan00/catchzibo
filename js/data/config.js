@@ -89,13 +89,10 @@ CZ.ROOMS = [{
   scene: 'room_treasure',
   opens: '2026-12-22',
   fx: {
-    size: [900, 1600],
-    fire: { x: 626, y: 540, w: 170, h: 130 },
-    snow: { x: 100, y: 150, w: 200, h: 230 },
-    lights: [
-      [60, 92, '#ffd95e'], [150, 104, '#fff3a8'], [240, 113, '#ffd95e'], [330, 119, '#7df08a'], [420, 122, '#ffd95e'],
-      [510, 121, '#fff3a8'], [600, 118, '#ffd95e'], [690, 111, '#7df08a'], [780, 100, '#ffd95e'], [870, 87, '#fff3a8']
-    ]
+    size: [1530, 2048],
+    fire: null,
+    snow: { x: 690, y: 455, w: 180, h: 205 },
+    lights: [[184, 575, '#ffb347'], [1352, 585, '#ffb347'], [180, 1160, '#ffe27a'], [1000, 900, '#ffe27a'], [560, 1000, '#ffe27a']]
   },
   rounds: [
     { id: 't1', target: 'crown_gold', count: 30, share: 0.5, heaps: 3, spread: 0.24, seconds: 29, buzz: 1.6, similar: ['crown_silver', 'crown_gold_blue', 'crown_gold_green', 'crown_gold_mixed'] },
