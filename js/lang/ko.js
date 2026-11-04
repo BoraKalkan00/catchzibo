@@ -631,5 +631,19 @@ CZ.i18n.register('ko', '한국어', {
   'house.adSped': '광고 시청: {m}분 단축!',
   'house.min': '분',
   'play.penalty': '-{n}초!',
-  'hub.unlockIn': '{n}개 더 찾기'
+  'hub.unlockIn': '{n}개 더 찾기',
+  'chars.title': '캐릭터',
+  'chars.selected': '선택됨',
+  'chars.soon': '곧 공개',
+  'chars.soonNote': '이 캐릭터는 그리는 중이에요. 곧 나와요!',
+  'chars.finishRoom': '{room} 완료 시 해제',
+  'char.boy': '레오',
+  'char.girl': '엘라',
+  'char.elf': '엘프 소녀',
+  'char.snowkid': '눈꼬마',
+  'char.reindeer': '순록',
+  'char.knight': '황금 기사',
+  'char.santa': '꼬마 산타',
+  'win.prize': '새 캐릭터 해제: {item}! 캐릭터에서 만나요.',
+  'quest.wardrobe': '캐릭터에서 하나 고르기'
 });

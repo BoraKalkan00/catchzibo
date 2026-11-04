@@ -631,5 +631,19 @@ CZ.i18n.register('ja', '日本語', {
   'house.adSped': '広告視聴：{m}分短縮！',
   'house.min': '分',
   'play.penalty': '-{n}秒！',
-  'hub.unlockIn': 'あと{n}個見つけよう'
+  'hub.unlockIn': 'あと{n}個見つけよう',
+  'chars.title': 'キャラクター',
+  'chars.selected': '選択中',
+  'chars.soon': '近日登場',
+  'chars.soonNote': 'このキャラは制作中、もうすぐ登場！',
+  'chars.finishRoom': '{room}クリアで解放',
+  'char.boy': 'レオ',
+  'char.girl': 'エラ',
+  'char.elf': 'エルフの女の子',
+  'char.snowkid': '雪の子',
+  'char.reindeer': 'トナカイ',
+  'char.knight': '黄金の騎士',
+  'char.santa': 'ちびサンタ',
+  'win.prize': '新キャラ解放：{item}！キャラクターで選べるよ。',
+  'quest.wardrobe': 'キャラクター画面でキャラを選ぼう'
 });

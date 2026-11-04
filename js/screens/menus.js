@@ -105,7 +105,7 @@
         h('button', { class: 'mansion-hot', type: 'button', 'aria-label': t('hub.enter'), onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } }),
         h('div', { class: 'hub-top glass-bar' },
           h('div', { class: 'hub-me' },
-            h('button', { class: 'hub-avatar-btn', type: 'button', 'aria-label': t('look.title'), onClick: () => { CZ.audio.sfx('button'); go('wardrobe'); } }, img('char.' + (state.data.avatar || 'girl') + '_front', 'hub-avatar')),
+            h('button', { class: 'hub-avatar-btn', type: 'button', 'aria-label': t('chars.title'), onClick: () => { CZ.audio.sfx('button'); go('chars'); } }, img('char.' + (state.data.avatar || 'girl') + '_front', 'hub-avatar')),
             CZ.progress.bar()),
           h('div', { class: 'hub-stats' },
             h('div', { class: 'emeralds gold-badge' }, img('ui.gold', 'emerald-icon'), h('span', { text: state.data.gold || 0 })),
@@ -123,7 +123,7 @@
               t('quest.short'), `${q.list.filter(x => x.claimed).length}/3`, () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), CZ.quests.ready(), 'quests'))),
         h('nav', { class: 'hub-nav glass-bar' },
           open('house') ? nav(t('hub.village'), 'ui.house', 'house') : null,
-          nav(t('look.title'), 'ui.wardrobe', 'wardrobe'),
+          nav(t('chars.title'), 'ui.wardrobe', 'chars'),
           open('hood') ? nav(t('hub.hood'), 'ui.hood', 'hood') : null,
           open('book') ? nav(t('hub.bookShort'), 'ui.book', 'book') : null,
           open('diary') ? nav(t('hub.diaryShort'), 'ui.diary', 'diary', game.diaryUnread()) : null));
@@ -142,7 +142,7 @@
       const job = H.job;
       const status = job ? '🔨 ' + t('hub.houseBuilding') : CZ.house.attention() ? '👉 ' + t('hub.houseNext') : t('house.level') + ' ' + lvl;
       const houseArt = h('div', { class: 'hub-house-art' });
-      houseArt.innerHTML = CZ.houseArt.exterior(H, { owner: CZ.art('avatar.' + (state.data.avatar || 'girl') + '@' + ((state.data.look || {}).emote || 'wave')) });
+      houseArt.innerHTML = CZ.houseArt.exterior(H, { owner: CZ.art('char.' + (state.data.avatar || 'girl') + '_front') });
       const q = CZ.quests.today();
       const done = q.list.filter(x => x.claimed).length;
       return h('div', { class: 'hub-cards' },
@@ -196,10 +196,9 @@
         const prize = (room, done) => {
           const pz = CZ.ROOM_PRIZES[room.id];
           if (!pz) return null;
-          const look = Object.assign({}, state.data.look || {}, { [pz[0]]: pz[1] });
           return h('div', { class: 'room-prize' + (done ? ' won' : '') },
-            h('img', { src: CZ.avatarArt.url(state.data.avatar || 'girl', look), alt: '' }),
-            h('span', {}, h('small', { text: done ? t('mansion.prizeWon') : t('mansion.prize') }), h('b', { text: t('look.' + pz[0] + '.' + pz[1]) })));
+            h('img', { src: CZ.chars.front(pz), alt: '', class: CZ.chars.hasArt(pz) ? '' : 'mystery' }),
+            h('span', {}, h('small', { text: done ? t('mansion.prizeWon') : t('mansion.prize') }), h('b', { text: t('char.' + pz) })));
         };
         return h('section', { class: 'room-block' + (isOpen ? '' : ' room-locked') },
           h('div', { class: 'room-card' },
@@ -313,7 +312,7 @@
             })))),
           row(t('settings.avatar'), h('div', { class: 'set-avatar' },
             img('char.' + (d.avatar || 'girl') + '_front', 'set-avatar-img'),
-            btn(t('settings.change'), () => go('wardrobe', { returnTo: 'settings' }), 'small ghost-dark'))),
+            btn(t('settings.change'), () => go('chars', { returnTo: 'settings' }), 'small ghost-dark'))),
           row(t('settings.sound'), toggle('sound')),
           row(t('settings.music'), toggle('music')),
           row(t('settings.vibration'), toggle('vibration')),

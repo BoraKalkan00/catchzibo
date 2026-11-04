@@ -286,6 +286,7 @@ self.CZ_FILES = [
  "js/lang/pt.js",
  "js/lang/tr.js",
  "js/main.js",
+ "js/screens/chars.js",
  "js/screens/chase.js",
  "js/screens/gold.js",
  "js/screens/hero3d.js",

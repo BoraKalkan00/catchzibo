@@ -82,7 +82,7 @@
       const job = H.job;
       const ghost = job ? (HS.SHELL.includes(job.id) ? job.id : null) : HS.nextShell(H);
 
-      const view = html('house-view' + (job ? ' building' : ''), art.exterior(H, { fresh, ghost, owner: CZ.art('avatar.' + (d().avatar || 'girl') + '@' + ((d().look || {}).emote || 'wave')) }));
+      const view = html('house-view' + (job ? ' building' : ''), art.exterior(H, { fresh, ghost, owner: CZ.art('char.' + (d().avatar || 'girl') + '_front') }));
       if (fresh) {
         CZ.audio.sfx('build');
         CZ.audio.vibrate([20, 40, 20, 40, 60]);
@@ -468,7 +468,7 @@
             class: 'plot' + (n.me ? ' me' : ''), type: 'button', style: `animation-delay:${i * 0.05}s`,
             onClick: () => { CZ.audio.sfx('button'); n.me ? CZ.ui.wipeTo('house') : CZ.ui.wipeTo('visit', { id: n.id }); }
           });
-          card.append(html('plot-art', art.exterior(n.house, { owner: n.me ? CZ.art('avatar.' + n.kind) : CZ.avatarArt.url(n.kind, n.look, 'idle') })),
+          card.append(html('plot-art', art.exterior(n.house, { owner: n.me ? CZ.art('char.' + n.kind + '_front') : CZ.avatarArt.url(n.kind, n.look, 'idle') })),
             h('div', { class: 'plot-tag' }, h('b', { class: 'plot-lv', text: n.level }), h('span', { text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) })));
           return card;
         }));
@@ -478,7 +478,7 @@
           h('p', { class: 'section-note rank-note', text: myRank === 1 ? t('hood.goldFirst') : t('hood.goldBehind', { name: list[myRank - 2].name, n: list[myRank - 2].goldBest }) }),
           h('ol', { class: 'rank-list' }, list.map((n, i) => h('li', { class: 'rank-row' + (n.me ? ' me' : '') },
             h('b', { class: 'rank-n', text: i + 1 }),
-            h('img', { class: 'rank-av', src: n.me ? CZ.art('avatar.' + n.kind) : CZ.avatarArt.url(n.kind, n.look), alt: '' }),
+            h('img', { class: 'rank-av', src: n.me ? CZ.art('char.' + n.kind + '_front') : CZ.avatarArt.url(n.kind, n.look), alt: '' }),
             h('span', { class: 'rank-name', text: n.me ? t('hood.you') : n.name }),
             h('em', {}, img('ui.gold', 'swatch-gold'), ' ' + n.goldBest)))),
           btn(t('hood.goPlay'), () => CZ.ui.wipeTo('gold'), 'primary wide'));
@@ -489,7 +489,7 @@
           h('ol', { class: 'rank-list' }, list.map((n, i) => h('li', {
             class: 'rank-row' + (n.me ? ' me' : ''),
             onClick: () => { if (!n.me) CZ.ui.wipeTo('visit', { id: n.id }); }
-          }, h('b', { class: 'rank-n', text: i + 1 }), h('img', { class: 'rank-av', src: n.me ? CZ.art('avatar.' + n.kind) : CZ.avatarArt.url(n.kind, n.look), alt: '' }), h('span', { class: 'rank-name', text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) }), h('em', { text: t('house.level') + ' ' + n.level })))));
+          }, h('b', { class: 'rank-n', text: i + 1 }), h('img', { class: 'rank-av', src: n.me ? CZ.art('char.' + n.kind + '_front') : CZ.avatarArt.url(n.kind, n.look), alt: '' }), h('span', { class: 'rank-name', text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) }), h('em', { text: t('house.level') + ' ' + n.level })))));
       }
       el.append(topbar(t('hood.title'), () => go('house')), tabs, h('div', { class: 'scroll hood-scroll' }, body));
     }

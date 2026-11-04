@@ -294,7 +294,7 @@ CZ.screens.chase = (function () {
         starRow,
         h('h2', { text: t(`item.${c.round.target}.name`) }),
         h('p', { text: firstClear ? t(roomDef.id === 'living' ? 'win.roomDone' : 'win.roomDone.' + roomDef.id) : t('chase.winNote') }),
-        firstClear && CZ.ROOM_PRIZES[roomDef.id] ? h('p', { class: 'reward prize' }, '🎁 ', t('win.prize', { item: t('look.' + CZ.ROOM_PRIZES[roomDef.id][0] + '.' + CZ.ROOM_PRIZES[roomDef.id][1]) })) : null,
+        firstClear && CZ.ROOM_PRIZES[roomDef.id] ? h('p', { class: 'reward prize' }, '🎁 ', t('win.prize', { item: t('char.' + CZ.ROOM_PRIZES[roomDef.id]) })) : null,
         h('p', { class: 'reward', 'data-fly': 'emeralds', 'data-n': base + pocket }, img('ui.emerald', 'emerald-icon'), t('chase.reward', { n: base, p: pocket })),
         back ? h('p', { class: 'reward revenge', 'data-fly': 'gold', 'data-n': back }, img('ui.gold', 'emerald-icon'), t('raid.revenge', { n: back })) : null,
         h('div', { class: 'sheet-row' }, actions)));

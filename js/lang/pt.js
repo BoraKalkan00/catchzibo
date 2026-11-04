@@ -623,5 +623,19 @@ CZ.i18n.register('pt', 'Português', {
   'house.adSped': 'Anúncio assistido: {m} min a menos!',
   'house.min': 'min',
   'play.penalty': '-{n} s!',
-  'hub.unlockIn': 'Encontre mais {n} itens'
+  'hub.unlockIn': 'Encontre mais {n} itens',
+  'chars.title': 'Personagens',
+  'chars.selected': 'Selecionado',
+  'chars.soon': 'Em breve',
+  'chars.soonNote': 'Este personagem está sendo desenhado, chega logo!',
+  'chars.finishRoom': 'Abre após: {room}',
+  'char.boy': 'Leo',
+  'char.girl': 'Ella',
+  'char.elf': 'Garota Elfa',
+  'char.snowkid': 'Menino de Neve',
+  'char.reindeer': 'Rena',
+  'char.knight': 'Cavaleiro Dourado',
+  'char.santa': 'Pequeno Noel',
+  'win.prize': 'Novo personagem: {item}! Veja em Personagens.',
+  'quest.wardrobe': 'Visite Personagens e escolha um'
 });

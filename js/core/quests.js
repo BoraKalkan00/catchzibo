@@ -88,7 +88,7 @@ CZ.quests = (function () {
     const t = CZ.t;
     const wrap = h('div', { class: 'modal-wrap' });
     const chips = r => h('span', { class: 'q-reward' }, r.gold ? [img('ui.gold', 'chip-icon'), '+' + r.gold] : null, r.emeralds ? [img('ui.emerald', 'chip-icon'), '+' + r.emeralds] : null);
-    const GO = { find: 'mansion', chase: 'mansion', perfect: 'mansion', goldRun: 'gold', crate: 'gold', dodge: 'gold', build: 'house', furn: 'house', like: 'hood', wardrobe: 'wardrobe' };
+    const GO = { find: 'mansion', chase: 'mansion', perfect: 'mansion', goldRun: 'gold', crate: 'gold', dodge: 'gold', build: 'house', furn: 'house', like: 'hood', wardrobe: 'chars' };
     const draw = () => {
       const q = today();
       const all = q.list.every(x => x.claimed);

@@ -704,7 +704,7 @@ CZ.screens.play = (function () {
       h('h2', { text: t(`item.${s.round.target}.name`) }),
       h('p', { text: firstClear ? t(roomId === 'living' ? 'win.roomDone' : 'win.roomDone.' + roomId) : s.result.newRecord ? t('win.record', { s: CZ.game.formatSeconds(s.result.seconds) }) : t('win.home') }),
       h('p', { class: 'small-note', text: t(`item.${s.round.target}.note`) }),
-      firstClear && CZ.ROOM_PRIZES[roomId] ? h('p', { class: 'reward prize' }, '🎁 ', t('win.prize', { item: t('look.' + CZ.ROOM_PRIZES[roomId][0] + '.' + CZ.ROOM_PRIZES[roomId][1]) })) : null,
+      firstClear && CZ.ROOM_PRIZES[roomId] ? h('p', { class: 'reward prize' }, '🎁 ', t('win.prize', { item: t('char.' + CZ.ROOM_PRIZES[roomId]) })) : null,
       h('p', { class: 'reward', 'data-fly': 'emeralds', 'data-n': reward }, img('ui.emerald', 'emerald-icon'), t('win.reward', { n: reward })),
       h('div', { class: 'sheet-row' }, actions.slice().reverse()));
   }

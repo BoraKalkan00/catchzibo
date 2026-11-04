@@ -631,5 +631,19 @@ CZ.i18n.register('ar', 'العربية', {
   'house.adSped': 'شاهدت إعلانًا: أسرع بـ {m} دقيقة!',
   'house.min': 'د',
   'play.penalty': '-{n} ث!',
-  'hub.unlockIn': 'اعثر على {n} أغراض أخرى'
+  'hub.unlockIn': 'اعثر على {n} أغراض أخرى',
+  'chars.title': 'الشخصيات',
+  'chars.selected': 'المختارة',
+  'chars.soon': 'قريبًا',
+  'chars.soonNote': 'يتم رسم هذه الشخصية، قريبًا جدًا!',
+  'chars.finishRoom': 'تُفتح بعد {room}',
+  'char.boy': 'ليو',
+  'char.girl': 'إيلا',
+  'char.elf': 'فتاة الجان',
+  'char.snowkid': 'طفل الثلج',
+  'char.reindeer': 'الرنة',
+  'char.knight': 'الفارس الذهبي',
+  'char.santa': 'سانتا الصغير',
+  'win.prize': 'شخصية جديدة: {item}! تجدها في الشخصيات.',
+  'quest.wardrobe': 'زر الشخصيات واختر واحدة'
 });

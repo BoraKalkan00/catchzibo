@@ -623,5 +623,19 @@ CZ.i18n.register('de', 'Deutsch', {
   'house.adSped': 'Werbung geschaut: {m} Min. schneller!',
   'house.min': 'Min.',
   'play.penalty': '-{n} s!',
-  'hub.unlockIn': 'Finde noch {n} Dinge'
+  'hub.unlockIn': 'Finde noch {n} Dinge',
+  'chars.title': 'Figuren',
+  'chars.selected': 'Ausgewählt',
+  'chars.soon': 'Bald',
+  'chars.soonNote': 'Diese Figur wird gerade gezeichnet – bald da!',
+  'chars.finishRoom': 'Frei nach: {room}',
+  'char.boy': 'Leo',
+  'char.girl': 'Ella',
+  'char.elf': 'Elfenmädchen',
+  'char.snowkid': 'Schneekind',
+  'char.reindeer': 'Rentier',
+  'char.knight': 'Goldritter',
+  'char.santa': 'Kleiner Nikolaus',
+  'win.prize': 'Neue Figur frei: {item}! Schau bei Figuren.',
+  'quest.wardrobe': 'Geh zu Figuren und wähle eine'
 });
