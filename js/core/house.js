@@ -286,6 +286,22 @@ CZ.house = (function () {
     return back;
   }
 
+  // Kunduz Usta'nın ev ekranındaki sözü ve pozu: evin durumuna göre.
+  function ustaLine(H, fresh) {
+    const name = id => id.startsWith('room.') ? CZ.t(id) : CZ.t('part.' + id);
+    if (fresh) return { key: 'usta.done', pose: 'cheer', p: { name: name(fresh) } };
+    if (H.job) return { key: 'usta.working', pose: 'hammer', p: { name: name(H.job.id) } };
+    if (!lv(H, 'found')) return { key: 'usta.hello', pose: 'wave' };
+    const next = nextShell(H);
+    if (next) return canPay(H, nextCost(H, next)) ? { key: 'usta.next', pose: 'talk', p: { name: name(next) } } : { key: 'usta.mats', pose: 'think', p: { name: name(next) } };
+    const share = defense(H) / maxDefense();
+    if (H.raids && H.raids[0] && !H.raids[0].won && H.raids[0].date === CZ.state.today()) return { key: 'usta.raided', pose: 'worried' };
+    if (share < 0.25) return { key: 'usta.weak', pose: 'worried' };
+    if (share < 0.5) return { key: 'usta.meh', pose: 'think' };
+    if (share < 0.8) return { key: 'usta.ok', pose: 'talk' };
+    return { key: 'usta.strong', pose: 'cheer' };
+  }
+
   // Zibo'nun ev ekranındaki laf sokması: savunmaya göre.
   function ziboLine(H) {
     if (!lv(H, 'found')) return 'house.z.empty';
@@ -413,6 +429,6 @@ CZ.house = (function () {
   return {
     attention, ensure, lv, partDef, roomDef, needMet, missing, nextCost, shortOf, canPay, buyMat, build, addRoom,
     furnCost, buyFurn, paint, level, defense, maxDefense, nextShell, SHELL, checkRaid, raidBox, ziboLine,
-    tick, jobLeft, speedCost, speedUp, revenge, neighbors, ranking, like, grow, daysSince, setName, title, NAME_PRICE
+    ustaLine, tick, jobLeft, speedCost, speedUp, revenge, neighbors, ranking, like, grow, daysSince, setName, title, NAME_PRICE
   };
 })();

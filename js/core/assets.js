@@ -16,7 +16,10 @@ CZ.OVERRIDES = {
   'zibo.run1': 'assets/zibo/png/back1.webp',
   'zibo.run2': 'assets/zibo/png/back2.webp',
   'zibo.back': 'assets/zibo/png/back.webp',
-  'zibo.runLoot': 'assets/zibo/png/run_loot.webp'
+  'zibo.runLoot': 'assets/zibo/png/run_loot.webp',
+  // Kunduz Usta: ev inşasında yardımcı
+  'usta.wave': 'assets/usta/wave.webp', 'usta.talk': 'assets/usta/talk.webp', 'usta.hammer': 'assets/usta/hammer.webp',
+  'usta.worried': 'assets/usta/worried.webp', 'usta.cheer': 'assets/usta/cheer.webp', 'usta.think': 'assets/usta/think.webp'
 };
 
 // Yazılmayan her görsel bu kuraldan bulunur: 'item.x' -> assets/items/x.svg

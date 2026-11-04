@@ -70,7 +70,7 @@ CZ.notify = (function () {
       if (H && H.job && H.job.end > Date.now() + 30000) {
         const id = H.job.id;
         const name = id.startsWith('room.') ? CZ.t(id) : CZ.t('part.' + id);
-        notifications.push({ id: JOB_ID, title: CZ.t('notif.title'), body: CZ.t('notif.job', { name }), schedule: { at: new Date(H.job.end), allowWhileIdle: true } });
+        notifications.push({ id: JOB_ID, title: CZ.t('usta.name') + ' 🦫', body: CZ.t('notif.job', { name }), schedule: { at: new Date(H.job.end), allowWhileIdle: true } });
       }
       await ln.schedule({ notifications });
     } catch (e) {

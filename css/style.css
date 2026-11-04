@@ -873,3 +873,10 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .room-prize b { font-size: 13px; }
 .room-prize.won { background: rgba(23, 168, 104, .25); border-style: solid; border-color: var(--emerald); }
 .reward.prize { color: #b5640e; font-weight: 800; }
+/* Kunduz Usta */
+.house-actor.usta { width: 24%; top: 2%; }
+.usta-img { width: 100%; display: block; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .3)); }
+.usta-name { color: #c96a10 !important; }
+.job-usta { width: 40px; flex: none; animation: hammerbob .5s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes hammerbob { 50% { transform: rotate(-6deg) translateY(-2px); } }
+.coach-zibo { width: 54px; }

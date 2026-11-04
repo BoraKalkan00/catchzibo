@@ -93,12 +93,25 @@
         view.append(h('div', { class: 'level-float', text: t('house.grew') }));
       }
 
-      const zibo = CZ.game.ziboActor();
-      this.zibo = zibo;
-      zibo.el.classList.add('house-actor');
-      const zl = HS.ziboLine(H);
-      this.sayTimer = setTimeout(() => zibo.say(zl, zl === 'house.z.strong' ? 'nervous' : zl === 'house.z.weak' ? 'laugh' : 'smug'), fresh ? 900 : 500);
-      zibo.el.addEventListener('pointerdown', () => { CZ.audio.sfx('poke'); zibo.say(HS.ziboLine(H), 'mad'); });
+      // Kunduz Usta: inşaatı yapar, öğüt verir, Zibo'ya karşı uyarır.
+      const ul = HS.ustaLine(H, fresh);
+      const ustaImg = h('img', { class: 'usta-img', src: CZ.art('usta.' + ul.pose), alt: '' });
+      const ustaName = h('em', { class: 'bubble-goblin usta-name', text: t('usta.name') });
+      const ustaText = h('span', { class: 'bubble-line' });
+      const bubble = h('div', { class: 'bubble' }, ustaName, ustaText);
+      const usta = { el: h('div', { class: 'zibo house-actor usta' }, bubble, ustaImg) };
+      this.zibo = null;
+      const say = (line, pose) => {
+        ustaText.textContent = t(line.key, line.p || {});
+        ustaImg.src = CZ.art('usta.' + (pose || line.pose));
+        bubble.classList.add('show');
+        ustaImg.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-10px)' }, { transform: 'translateY(0)' }], { duration: 320 });
+        clearTimeout(this.hideTimer);
+        this.hideTimer = setTimeout(() => bubble.classList.remove('show'), 2600 + ustaText.textContent.length * 45);
+      };
+      this.sayTimer = setTimeout(() => say(ul), fresh ? 900 : 500);
+      usta.el.addEventListener('pointerdown', () => { CZ.audio.sfx('poke'); say(HS.ustaLine(H), ['talk', 'wave', 'think'][Math.floor(Math.random() * 3)]); });
+      const zibo = usta;
 
       const mats = h('button', { class: 'mat-bar', type: 'button', onClick: () => { CZ.audio.sfx('button'); this.shop(el, H); } },
         CZ.MATS.map(m => { const s = h('span', { class: 'mat' }); s.innerHTML = art.matIcon(m.id); s.append(String(H.mats[m.id] || 0)); return s; }),
@@ -132,7 +145,7 @@
       else if (H.rooms.living && !seen.includes('rooms')) key = 'rooms';
       if (!key || seen.includes(key)) return null;
       const card = h('div', { class: 'coach-card' },
-        h('img', { class: 'coach-zibo', src: CZ.art(key === 'raid' ? 'zibo.laugh' : 'zibo.smug'), alt: '' }),
+        h('img', { class: 'coach-zibo', src: CZ.art(key === 'raid' ? 'usta.worried' : key === 'wait' ? 'usta.hammer' : key === 'mats' ? 'usta.think' : 'usta.talk'), alt: '' }),
         h('p', { text: t('tut.' + key) }),
         key === 'start' ? null : h('button', { class: 'btn small primary', type: 'button', onClick: () => { seen.push(key); CZ.state.save(); card.remove(); } }, t('tut.ok')));
       return card;
@@ -158,7 +171,8 @@
       clearInterval(this.jobTimer);
       this.jobTimer = setInterval(upd, 1000);
       return h('div', { class: 'job-bar' },
-        h('div', { class: 'job-info' }, h('small', { text: '🔨 ' + t('house.building', { name }) }), left, h('div', { class: 'job-track' }, fill)),
+        h('img', { class: 'job-usta', src: CZ.art('usta.hammer'), alt: '' }),
+        h('div', { class: 'job-info' }, h('small', { text: t('house.building', { name }) }), left, h('div', { class: 'job-track' }, fill)),
         h('button', {
           class: 'btn small primary', type: 'button',
           onClick: () => {
@@ -298,6 +312,7 @@
 
     leave() {
       clearTimeout(this.sayTimer);
+      clearTimeout(this.hideTimer);
       clearInterval(this.jobTimer);
       if (this.zibo) this.zibo.stop();
     }
