@@ -60,6 +60,7 @@ CZ.closet = (function () {
     return true;
   }
   function equip(cat, id) {
+    if (CZ.quests) CZ.quests.track('wardrobe');
     d().look = d().look || {};
     d().look[cat] = id;
     CZ.state.save();

@@ -361,7 +361,7 @@ CZ.screens.gold = (function () {
       if (!c.done && c.z >= 0.94) {
         c.done = true;
         if (c.sx === g.lane) trapHit(c);
-        else { CZ.audio.sfx('throw'); float(c.px, c.py - c.size, CZ.t('gold.dodge')); }
+        else { CZ.audio.sfx('throw'); float(c.px, c.py - c.size, CZ.t('gold.dodge')); if (CZ.quests) CZ.quests.track('dodge'); }
       }
       if (c.z >= 1.1) { c.alive = false; c.el.remove(); g.traps.splice(g.traps.indexOf(c), 1); return; }
       place(c, 0.85);
@@ -566,6 +566,7 @@ CZ.screens.gold = (function () {
     if (crate.def.gold >= 5) shake(crate.def.gold >= 12);
     boom(cx, cy);
     g.xp = (g.xp || 0) + CZ.PROGRESS.xp.crate;
+    if (CZ.quests) CZ.quests.track('crate');
     // Altınlar saçılır (az sayıda: telefon ısınmasın).
     const coins = Math.min(8, 3 + crate.def.gold);
     for (let i = 0; i < coins; i++) {
@@ -595,6 +596,7 @@ CZ.screens.gold = (function () {
     if (record) d.goldBest = g.earned;
     CZ.state.save();
     if (g.xp) CZ.progress.addXp(Math.round(g.xp));
+    if (CZ.quests) CZ.quests.track('goldRun');
     CZ.audio.music(null);
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 60]);

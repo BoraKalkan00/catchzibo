@@ -84,6 +84,7 @@ CZ.house = (function () {
     if (H.job) return 'busy';
     pay(H, cost);
     startJob(H, id);
+    if (CZ.quests) CZ.quests.track('build');
     return 'ok';
   }
 
@@ -137,6 +138,7 @@ CZ.house = (function () {
     if (H.job) return 'busy';
     if (r.cost) pay(H, r.cost);
     startJob(H, 'room.' + id);
+    if (CZ.quests) CZ.quests.track('build');
     return 'ok';
   }
 
@@ -153,6 +155,7 @@ CZ.house = (function () {
     pay(H, cost);
     H.rooms[roomId].furn[f] = (H.rooms[roomId].furn[f] || 0) + 1;
     H.freshFurn = roomId + '.' + f;
+    if (CZ.quests) CZ.quests.track('furn');
     CZ.state.save();
     if (CZ.progress) CZ.progress.addXp(4);
     return 'ok';
@@ -393,6 +396,7 @@ CZ.house = (function () {
     H.likes[id] = today;
     d().gold = (d().gold || 0) + 5;
     CZ.state.save();
+    if (CZ.quests) CZ.quests.track('like');
     return true;
   }
 

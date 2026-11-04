@@ -781,5 +781,22 @@ CZ.i18n.register('en', 'English', {
   'look.emote.cheer': 'Cheer',
   'look.emote.dance': 'Dance',
   'look.emote.dab': 'Dab',
-  'look.emote.zibo': 'Zibo dance'
+  'look.emote.zibo': 'Zibo dance',
+  'quest.title': 'Daily quests',
+  'quest.sub': '3 new quests every day. Finish them all to open the chest!',
+  'quest.go': 'Go',
+  'quest.chest': 'Quest chest',
+  'quest.chestLocked': 'Finish all 3 quests first.',
+  'quest.find': 'Find {n} items',
+  'quest.chase': 'Catch Zibo {n} time(s)',
+  'quest.perfect': 'Find {n} item with 3 stars',
+  'quest.goldRun': 'Play Gold Hunt {n} time(s)',
+  'quest.crate': 'Break {n} boxes in Gold Hunt',
+  'quest.dodge': 'Dodge {n} traps in Gold Hunt',
+  'quest.build': 'Start {n} build at your house',
+  'quest.furn': 'Buy {n} furniture for your house',
+  'quest.like': 'Like {n} neighbor',
+  'quest.wardrobe': 'Change your outfit in the Wardrobe',
+  'hub.houseBuilding': 'Building…',
+  'hub.houseNext': 'Do the next step!'
 });

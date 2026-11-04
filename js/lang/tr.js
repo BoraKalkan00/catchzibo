@@ -781,5 +781,22 @@ CZ.i18n.register('tr', 'Türkçe', {
   'look.emote.cheer': 'Sevinç',
   'look.emote.dance': 'Dans',
   'look.emote.dab': 'Dab',
-  'look.emote.zibo': 'Zibo dansı'
+  'look.emote.zibo': 'Zibo dansı',
+  'quest.title': 'Günlük görevler',
+  'quest.sub': 'Her gün 3 yeni görev. Hepsini bitir, sandığı aç!',
+  'quest.go': 'Git',
+  'quest.chest': 'Görev sandığı',
+  'quest.chestLocked': 'Önce 3 görevi de bitir.',
+  'quest.find': '{n} eşya bul',
+  'quest.chase': 'Zibo’yu {n} kez yakala',
+  'quest.perfect': '3 yıldızla {n} eşya bul',
+  'quest.goldRun': 'Altın Avı’nı {n} kez oyna',
+  'quest.crate': 'Altın Avı’nda {n} kutu kır',
+  'quest.dodge': 'Altın Avı’nda {n} tuzaktan kaç',
+  'quest.build': 'Evinde {n} inşaat başlat',
+  'quest.furn': 'Evine {n} eşya al',
+  'quest.like': '{n} komşunu beğen',
+  'quest.wardrobe': 'Gardıropta kıyafet değiştir',
+  'hub.houseBuilding': 'İnşaat sürüyor',
+  'hub.houseNext': 'Sıradaki adımı yap!'
 });

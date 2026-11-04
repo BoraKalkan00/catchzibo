@@ -816,3 +816,42 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .preset .row { margin: 0; flex-direction: column; gap: 4px; width: 100%; }
 .preset .btn { min-height: 34px; padding: 4px 6px; font-size: 13px; }
 .presets > .btn { margin-top: 12px; }
+
+/* Merkez: Evim + Görevler kartları */
+.hub-gear { width: 34px; height: 34px; border-radius: 50%; background: rgba(8, 18, 34, .72); display: grid; place-items: center; flex: none; }
+.hub-gear-img { width: 22px; height: 22px; }
+.hub-cards { position: absolute; left: 10px; right: 10px; bottom: calc(112px + var(--safe-bottom)); display: grid; grid-template-columns: 1.35fr 1fr; gap: 8px; z-index: 2; }
+.hub-card { position: relative; display: flex; align-items: center; gap: 6px; min-height: 76px; padding: 4px 8px 4px 4px; border-radius: 16px; background: rgba(253, 243, 223, .95); color: var(--ink); text-align: left; box-shadow: 0 4px 0 #c3b294; }
+.hub-card:active { transform: translateY(3px); box-shadow: 0 1px 0 #c3b294; }
+.hub-house-art { width: 82px; flex: none; }
+.hub-house-art .house-svg { width: 100%; }
+.hub-card-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.hub-card-text strong { font-size: 14px; font-weight: 900; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hub-card-text small { font-size: 12px; font-weight: 700; color: var(--muted); line-height: 1.15; }
+.quest-icon { font-size: 30px; flex: none; padding-left: 4px; }
+.quest-card.ready { box-shadow: 0 0 0 3px var(--gold), 0 4px 0 #c3b294; animation: btnpulse 1.5s ease-in-out infinite; }
+.quest-dots { display: flex; gap: 5px; align-items: center; }
+.quest-dots i { width: 14px; height: 14px; border-radius: 50%; background: #e3d5b9; border: 2px solid #c3b294; }
+.quest-dots i.ready { background: var(--gold); }
+.quest-dots i.on { background: var(--emerald); border-color: var(--emerald-dark); }
+.quest-dots i.chest { width: 18px; height: 16px; border-radius: 4px; background: #c99a2e; }
+.quest-dots i.chest.on { background: var(--emerald); }
+.hub-card .dot { position: absolute; top: 6px; right: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--red); border: 2px solid #fff; }
+/* Görev penceresi */
+.quest-modal h2 { font-size: 22px; }
+.quest-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #e3d5b9; }
+.quest-row.claimed { opacity: .6; }
+.quest-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.quest-text strong { font-size: 15px; line-height: 1.2; }
+.quest-text small { font-size: 12px; color: var(--muted); }
+.quest-bar { height: 8px; border-radius: 4px; background: #e3d5b9; overflow: hidden; }
+.quest-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f2b632, #17a868); }
+.quest-row .btn { flex: none; min-height: 40px; padding: 4px 10px; font-size: 13px; gap: 4px; }
+.q-reward { display: inline-flex; align-items: center; gap: 2px; font-weight: 900; }
+.q-reward .chip-icon { width: 18px; height: 18px; }
+.quest-check { font-size: 24px; color: var(--emerald); font-weight: 900; flex: none; }
+.quest-chest { display: flex; align-items: center; gap: 10px; margin: 12px 0 4px; padding: 8px 10px; border-radius: 14px; background: #efe3cb; }
+.quest-chest.ready { box-shadow: 0 0 0 3px var(--gold); }
+.quest-chest > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.quest-chest-img { width: 46px; }
+.quest-modal > .btn { margin-top: 12px; }

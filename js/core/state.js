@@ -87,6 +87,7 @@ CZ.state = (function () {
     if (!old.found) data.newReturn = id;
     save();
     if (CZ.progress) CZ.progress.addXp(old.found ? CZ.PROGRESS.xp.replay : CZ.PROGRESS.xp.find);
+    if (CZ.quests) { CZ.quests.track('find'); if (stars >= 3) CZ.quests.track('perfect'); }
   }
   function restUntilTomorrow(id) {
     data.rounds[id] = { lockedUntil: tomorrow() };

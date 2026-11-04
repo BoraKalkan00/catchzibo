@@ -89,27 +89,49 @@
             h('button', { class: 'hub-avatar-btn', type: 'button', 'aria-label': t('look.title'), onClick: () => { CZ.audio.sfx('button'); go('wardrobe'); } }, img('avatar.' + (state.data.avatar || 'girl'), 'hub-avatar')),
             CZ.progress.bar()),
           h('div', { class: 'hub-stats' },
-            h('div', { class: 'emeralds' }, img('ui.star', 'emerald-icon'), h('span', { text: `${game.totalStars()}/${game.rounds().length * 3}` })),
             h('div', { class: 'emeralds gold-badge' }, img('ui.gold', 'emerald-icon'), h('span', { text: state.data.gold || 0 })),
-            CZ.ui.emeralds())),
+            CZ.ui.emeralds(),
+            h('button', { class: 'hub-gear', type: 'button', 'aria-label': t('hub.settings'), onClick: () => { CZ.audio.sfx('button'); go('settings'); } }, img('ui.gear', 'hub-gear-img')))),
         zibo.el,
         h('div', { class: 'hub-center' },
           h('div', { class: 'hub-next' },
             btn(t('hub.enter'), () => CZ.ui.wipeTo('mansion'), 'primary big pulse'),
             h('span', { class: 'hub-progress', text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) }),
             h('button', { class: 'gold-hub-btn' + (CZ.screens.gold.isFree() ? ' ready' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('gold'); } },
-              img('ui.snowball', 'gold-hub-icon'),
+              img('ui.gold', 'gold-hub-icon'),
               h('span', {}, h('strong', { text: t('hub.gold') }),
                 h('small', { text: CZ.screens.gold.isFree() ? t('hub.goldReady') : CZ.screens.gold.waitText() }))))),
+        this.cards(),
         h('nav', { class: 'hub-nav' },
           nav(t('hub.village'), 'ui.house', 'house', CZ.house && CZ.house.attention()),
+          nav(t('look.title'), 'ui.wardrobe', 'wardrobe'),
           nav(t('hub.hood'), 'ui.hood', 'hood'),
           nav(t('hub.book'), 'ui.book', 'book'),
-          nav(t('hub.diary'), 'ui.diary', 'diary', game.diaryUnread()),
-          nav(t('hub.settings'), 'ui.gear', 'settings')));
+          nav(t('hub.diary'), 'ui.diary', 'diary', game.diaryUnread())));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
       this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
       if (state.data.tutorialDone && CZ.house && state.data.house) CZ.notify.askOnce();
+    },
+    // Evim (küçük resim + durum) ve günlük görevler kartı
+    cards() {
+      const H = CZ.house.ensure();
+      CZ.house.tick();
+      const lvl = CZ.house.level(H);
+      const job = H.job;
+      const status = job ? '🔨 ' + t('hub.houseBuilding') : CZ.house.attention() ? '👉 ' + t('hub.houseNext') : t('house.level') + ' ' + lvl;
+      const houseArt = h('div', { class: 'hub-house-art' });
+      houseArt.innerHTML = CZ.houseArt.exterior(H, { owner: CZ.art('avatar.' + (state.data.avatar || 'girl') + '@' + ((state.data.look || {}).emote || 'wave')) });
+      const q = CZ.quests.today();
+      const done = q.list.filter(x => x.claimed).length;
+      return h('div', { class: 'hub-cards' },
+        h('button', { class: 'hub-card house-card', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('house'); } },
+          houseArt,
+          h('div', { class: 'hub-card-text' }, h('strong', { text: CZ.house.title(H) || t('house.title') }), h('small', { text: status }))),
+        h('button', { class: 'hub-card quest-card' + (CZ.quests.ready() ? ' ready' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()); } },
+          h('b', { class: 'quest-icon', text: '📋' }),
+          h('div', { class: 'hub-card-text' }, h('strong', { text: t('quest.title') }),
+            h('div', { class: 'quest-dots' }, q.list.map(x => h('i', { class: x.claimed ? 'on' : x.have >= x.n ? 'ready' : '' })), h('i', { class: 'chest' + (q.chest ? ' on' : '') }))),
+          CZ.quests.ready() ? h('i', { class: 'dot' }) : null));
     },
     leave() {
       clearTimeout(this.helloTimer);

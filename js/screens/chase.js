@@ -351,6 +351,7 @@ CZ.screens.chase = (function () {
     CZ.progress.addXp(CZ.PROGRESS.xp.chase);
     // İntikam: Zibo dün gece altın çaldıysa, yakalayınca bir kısmı geri gelir.
     const back = CZ.house ? CZ.house.revenge() : 0;
+    if (CZ.quests) CZ.quests.track('chase');
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 40, 30, 160]);
     c.ziboImg.src = CZ.art('zibo.tantrum');
