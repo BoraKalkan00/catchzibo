@@ -53,7 +53,6 @@ CZ.ROOMS = [{
 }, {
   id: 'kitchen',
   scene: 'room_kitchen',
-  opens: '2026-12-08',
   fx: {
     size: [1536, 2048],
     fire: null,
@@ -71,7 +70,6 @@ CZ.ROOMS = [{
 }, {
   id: 'attic',
   scene: 'room_attic',
-  opens: '2026-12-15',
   fx: {
     size: [1536, 2048],
     fire: null,
@@ -88,7 +86,6 @@ CZ.ROOMS = [{
 },{
   id: 'treasure',
   scene: 'room_treasure',
-  opens: '2026-12-22',
   fx: {
     size: [1530, 2048],
     fire: null,
@@ -105,7 +102,6 @@ CZ.ROOMS = [{
 },{
   id: 'throne',
   scene: 'room_throne',
-  opens: '2026-12-31',
   fx: {
     size: [1530, 2048],
     fire: null,

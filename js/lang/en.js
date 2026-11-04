@@ -6,7 +6,7 @@ CZ.i18n.register('en', 'English', {
   'common.copied': 'Copied! Paste it to a friend.',
 
   'title.name': 'Catch Zibo!',
-  'title.tag': 'A cheeky goblin stole Christmas. Steal it back.',
+  'title.tag': 'A spoiled goblin stole winter. Get it back!',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',
@@ -15,8 +15,8 @@ CZ.i18n.register('en', 'English', {
   'avatar.boy': 'Boy',
 
   'story.skip': 'Skip',
-  'story.1': 'You just moved to Snowberry, a tiny snowy town. Boxes everywhere. Christmas is coming!',
-  'story.2': 'Then, one night… a green goblin named Zibo stole everyone’s Christmas things. Yours too!',
+  'story.1': 'You just moved to Snowbrook, a tiny snowy town. Boxes everywhere. Winter is just beginning!',
+  'story.2': 'Then one night… a green goblin named Zibo stole all the town’s winter things. Yours too!',
   'story.3': 'He hauled it all up the hill to his mansion. Spoiled? Very. Sorry? Not at all.',
   'story.4': 'So you knocked. Find what’s yours, claim it, and bring it home!',
 
@@ -27,7 +27,7 @@ CZ.i18n.register('en', 'English', {
   'hub.settings': 'Settings',
 
   'mansion.title': 'Zibo’s Mansion',
-  'mansion.event': 'Christmas event · Room 1',
+  'mansion.event': 'Winter adventure · Room 1',
   'room.living': 'Living Room',
   'mansion.progress': '{found} of {total} items back home',
   'mansion.tomorrow': 'Tomorrow',
@@ -213,7 +213,7 @@ CZ.i18n.register('en', 'English', {
   'item.ginger_bow.note': 'Somehow still not eaten. A true Christmas miracle.',
   'item.nutcracker_red.name': 'Grandpa’s Red Nutcracker',
   'item.nutcracker_red.note': 'Zibo was teaching it to salute him.',
-  'mansion.eventN': 'Christmas event · Room {n}',
+  'mansion.eventN': 'Winter adventure · Room {n}',
   'room.kitchen': 'Kitchen',
   'mansion.roomLocked': 'Opens when the {room} is cleared.',
   'mansion.nextRoom': 'Room cleared! A new room just opened below. Zibo moved your stuff there.',
@@ -298,7 +298,7 @@ CZ.i18n.register('en', 'English', {
   'mansion.opensOn': 'Opens on {date}. Zibo is still decorating.',
   'win.roomDone.attic': 'The attic is clear! Zibo ran to his treasure room crying.',
   'win.roomDone.treasure': 'The treasure room is yours! Only Zibo’s throne room is left…',
-  'win.roomDone.throne': 'You beat Zibo in his own throne room! Happy New Year! Zibo says he’ll be back…',
+  'win.roomDone.throne': 'You beat Zibo in his own throne room! But winter isn’t over… Zibo is cooking up a new plan!',
   'zibo.hello.a1': 'Choo choo! My train now. It only goes to MY station.',
   'zibo.hello.a2': 'The robot obeys ME. Beep boop, go away.',
   'zibo.hello.a3': 'I need that lantern to read my diary at night. Very secret diary.',

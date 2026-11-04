@@ -6,7 +6,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'common.copied': 'Kopyalandı! Bir arkadaşına yapıştır.',
 
   'title.name': 'Catch Zibo!',
-  'title.tag': 'Şımarık bir goblin yılbaşını çaldı. Geri al!',
+  'title.tag': 'Şımarık bir goblin kışı çaldı. Geri al!',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',
@@ -15,8 +15,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   'avatar.boy': 'Erkek',
 
   'story.skip': 'Geç',
-  'story.1': 'Küçücük, karlı bir kasaba olan Karlıdere’ye yeni taşındın. Her yer koli. Yılbaşı geliyor!',
-  'story.2': 'Derken bir gece… Zibo adında yeşil bir goblin herkesin yılbaşı eşyalarını çaldı. Seninkileri de!',
+  'story.1': 'Küçücük, karlı bir kasaba olan Karlıdere’ye yeni taşındın. Her yer koli. Kış yeni başlıyor!',
+  'story.2': 'Derken bir gece… Zibo adında yeşil bir goblin kasabanın bütün kış eşyalarını çaldı. Seninkileri de!',
   'story.3': 'Hepsini tepedeki malikanesine taşıdı. Şımarık mı? Çok. Pişman mı? Asla.',
   'story.4': 'Sen de kapısını çaldın. Eşyanı bul, “bu benim” de ve eve götür!',
 
@@ -27,7 +27,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'hub.settings': 'Ayarlar',
 
   'mansion.title': 'Zibo’nun Malikanesi',
-  'mansion.event': 'Noel etkinliği · 1. oda',
+  'mansion.event': 'Kış macerası · 1. oda',
   'room.living': 'Oturma Odası',
   'mansion.progress': '{total} eşyadan {found} tanesi evde',
   'mansion.tomorrow': 'Yarın',
@@ -213,7 +213,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'item.ginger_bow.note': 'Nasıl olduysa hâlâ yenmemiş. Tam bir yılbaşı mucizesi.',
   'item.nutcracker_red.name': 'Dedenin Kırmızı Fındıkkıranı',
   'item.nutcracker_red.note': 'Zibo ona kendisini selamlamayı öğretiyordu.',
-  'mansion.eventN': 'Noel etkinliği · {n}. oda',
+  'mansion.eventN': 'Kış macerası · {n}. oda',
   'room.kitchen': 'Mutfak',
   'mansion.roomLocked': '{room} bitince açılır.',
   'mansion.nextRoom': 'Oda bitti! Aşağıda yeni bir oda açıldı. Zibo eşyalarını oraya taşımış.',
@@ -298,7 +298,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'mansion.opensOn': '{date} tarihinde açılıyor. Zibo hâlâ süslüyor.',
   'win.roomDone.attic': 'Çatı katı temiz! Zibo ağlayarak hazine odasına koştu.',
   'win.roomDone.treasure': 'Hazine odası senin! Geriye sadece Zibo’nun taht odası kaldı…',
-  'win.roomDone.throne': 'Zibo’yu kendi taht odasında yendin! Mutlu yıllar! Zibo geri döneceğini söylüyor…',
+  'win.roomDone.throne': 'Zibo’yu kendi taht odasında yendin! Ama kış daha bitmedi… Zibo yeni bir plan kuruyor!',
   'zibo.hello.a1': 'Çuf çuf! Tren artık benim. Sadece BENİM istasyonuma gidiyor.',
   'zibo.hello.a2': 'Robot BANA itaat ediyor. Bip bop, git buradan.',
   'zibo.hello.a3': 'O fenere günlüğümü okumak için ihtiyacım var. Çok gizli günlük.',
