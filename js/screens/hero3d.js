@@ -5,6 +5,8 @@ CZ.CHARS = {
   boy: { skin: 0xf2c4a0, hair: 0x6b3f22, hat: 'beanie', hatColor: 0xc8302e, pom: 0xf4f4f4, jacket: 0x2f63c4, scarf: 0x3f8a3a, pants: 0x2b3448, boots: 0x7a4a24 },
   elf: { skin: 0xf2c4a0, hair: 0xf0c860, hat: 'elf', hatColor: 0x2f8a3a, pom: 0xe8b82a, jacket: 0x2f8a3a, scarf: 0xc8302e, pants: 0xf2f2f2, stripes: 0xd23a3a, boots: 0x2f8a3a },
   snowkid: { skin: 0xf2c4a0, hair: 0x6b3f22, hat: 'tophat', hatColor: 0x1d1d22, band: 0xc8302e, pom: 0xf08a2a, jacket: 0xf4f6fa, scarf: 0xc8302e, pants: 0xf4f6fa, boots: 0x1d1d22, chubby: 1.3 },
+  reindeer: { skin: 0xf2c4a0, hair: 0x7a4a2a, hat: 'antlers', hatColor: 0x7a4a2a, pom: 0x4a2c1a, jacket: 0x7a4a2a, scarf: 0xc8302e, pants: 0x7a4a2a, boots: 0x3e2414, chubby: 1.1 },
+  knight: { skin: 0xf2c4a0, hair: 0x6b3f22, hat: 'helmet', hatColor: 0xe0b030, pom: 0xd22a2a, jacket: 0xe0b030, scarf: 0xd22a2a, pants: 0x55555e, boots: 0x7a4a24, cape: 0xd22a2a },
   girl: { skin: 0xf2c4a0, hair: 0xa4472a, hat: 'beret', hatColor: 0xe0709e, pom: 0xf4f4f4, jacket: 0x8a4cc0, scarf: 0xf0c22e, fur: 0xf6f1ea, pants: 0x9a9ca4, boots: 0xf2f2f2, braid: true }
 };
 
@@ -77,6 +79,15 @@ CZ.hero3d = function (THREE, kind) {
     torso.add(sc);
   }
 
+  let cape = null;
+  if (C.cape) {
+    cape = pivot(0, 0.6, 0.2);
+    torso.add(cape);
+    const cloth = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.36, 0.7, 14, 1, true, -Math.PI / 2, Math.PI), new THREE.MeshLambertMaterial({ color: C.cape, side: THREE.DoubleSide }));
+    cloth.position.set(0, -0.34, -0.2);
+    cape.add(cloth);
+  }
+
   // Kollar: omuz → dirsek → el
   const arms = [-1, 1].map(side => {
     const shoulder = pivot(side * 0.27, 0.5, 0);
@@ -105,6 +116,18 @@ CZ.hero3d = function (THREE, kind) {
     cuff.rotation.x = Math.PI / 2; cuff.position.y = 0.03;
     head.add(cuff);
     head.add(sph(0.065, M.pom, 0, 0.26, 0));
+  } else if (C.hat === 'antlers') {
+    head.add(sph(0.235, M.hat, 0, 0.02, 0.02, 1.05, 1.05, 1.05));
+    [-1, 1].forEach(sd => {
+      const ant = pivot(sd * 0.12, 0.18, 0); head.add(ant);
+      const main = cap(0.03, 0.2, M.pom, 0.12); ant.add(main); ant.rotation.z = -sd * 0.45;
+      const tine = cap(0.025, 0.08, M.pom, 0.1); tine.position.set(sd * -0.06, 0.12, 0); tine.rotation.z = sd * 0.9; ant.add(tine);
+      head.add(sph(0.06, M.hat, sd * 0.22, 0.08, 0, 1.4, 0.7, 0.5));
+    });
+  } else if (C.hat === 'helmet') {
+    head.add(sph(0.225, M.hat, 0, 0.05, 0.01, 1, 0.95, 1));
+    const ridge = cap(0.03, 0.3, M.hat, 0); ridge.position.set(0, 0.24, 0.02); ridge.rotation.x = Math.PI / 2; head.add(ridge);
+    const plume = sph(0.08, M.pom, 0, 0.32, 0.04, 0.6, 1.3, 1.6); head.add(plume);
   } else if (C.hat === 'tophat') {
     const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.03, 20), M.hat);
     brim.position.y = 0.15; head.add(brim);
@@ -183,6 +206,7 @@ CZ.hero3d = function (THREE, kind) {
     body.rotation.y = state.lean * 0.25;
     // Düşme: yana devrilir
     body.rotation.x = state.dead * -1.35;
+    if (cape) cape.rotation.x = -(0.25 + run * (0.35 + Math.sin(phase * 2) * 0.12) + state.jump * 0.8 + state.slide * 0.3);
     // Saç örgüsü sallanır
     braid.forEach((b, i) => {
       b.rotation.x = (i ? -0.12 : -0.55) + Math.sin(phase - i * 0.6) * 0.16 * run - state.jump * 0.4;
