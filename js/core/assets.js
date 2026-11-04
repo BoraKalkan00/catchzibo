@@ -41,8 +41,12 @@ CZ.FOLDERS = {
   item: 'items', zibo: 'zibo', avatar: 'avatar', scene: 'scenes', story: 'story', village: 'village', ui: 'ui', gold: 'gold'
 };
 
+CZ.ITEMS3D = new Set(["bell_gold_blue", "bell_gold_green", "bell_gold_red", "bell_silver_blue", "bell_silver_red", "cane_green", "cane_red", "mitten_blue", "mitten_green", "mitten_red", "stocking_blue", "stocking_green", "stocking_green_striped", "stocking_red", "stocking_red_striped", "wreath"]);
+
 CZ.art = function (key) {
   if (CZ.OVERRIDES[key]) return CZ.OVERRIDES[key];
+  // Gemini eşya çizimleri (3D görünümlü): listede olan eşya webp'den gelir, olmayan eski SVG.
+  if (key.startsWith('item.') && CZ.ITEMS3D.has(key.slice(5))) return 'assets/items3d/' + key.slice(5) + '.webp';
   // Gemini karakter çizimleri: char.boy_front, char.girl_wave ...
   if (key.startsWith('char.')) return 'assets/chars/' + key.slice(5) + '.webp';
   // Oyuncu karakteri renk ve kostüme göre çizilir (js/core/avatar.js).
