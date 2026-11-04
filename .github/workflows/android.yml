@@ -32,7 +32,7 @@ jobs:
       - name: Oyun dosyalarını uygulamaya kopyala
         run: |
           mkdir -p www
-          rsync -a ../ www/ --exclude .git --exclude .github --exclude app --exclude '*.md'
+          rsync -a ../ www/ --exclude .git --exclude .github --exclude app --exclude cizim --exclude '*.md'
 
       - name: Capacitor kur ve Android projesini oluştur
         run: |
