@@ -41,7 +41,7 @@ CZ.FOLDERS = {
   item: 'items', zibo: 'zibo', avatar: 'avatar', scene: 'scenes', story: 'story', village: 'village', ui: 'ui', gold: 'gold'
 };
 
-CZ.ITEMS3D = new Set(["bell_gold_blue", "bell_gold_green", "bell_gold_red", "bell_silver_blue", "bell_silver_red", "cane_green", "cane_red", "mitten_blue", "mitten_green", "mitten_red", "stocking_blue", "stocking_green", "stocking_green_striped", "stocking_red", "stocking_red_striped", "wreath"]);
+CZ.ITEMS3D = new Set(["bell_gold_blue", "bell_gold_green", "bell_gold_red", "bell_silver_blue", "bell_silver_red", "cane_green", "cane_red", "globe_house", "globe_snowman", "globe_snowman_bare", "globe_star", "globe_tree", "mini_tree", "mitten_blue", "mitten_green", "mitten_red", "ornament_blue_star", "ornament_gold_star", "ornament_green_dots", "ornament_red_dots", "ornament_red_star", "ornament_red_stripes", "pinecone", "star_gold", "star_silver", "stocking_blue", "stocking_green", "stocking_green_striped", "stocking_red", "stocking_red_striped", "teddy_brown", "teddy_white", "wreath"]);
 
 CZ.art = function (key) {
   if (CZ.OVERRIDES[key]) return CZ.OVERRIDES[key];
