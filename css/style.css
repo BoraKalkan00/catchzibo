@@ -1073,3 +1073,4 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .ad-reward small { opacity: .7; }
 @keyframes recpop { 0% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); } }
 @keyframes tappulse { 50% { transform: scale(1.08); } }
+.privacy-link { display: block; margin-top: 12px; text-align: center; color: #9fb6e0; font-weight: 700; text-decoration: underline; }

@@ -111,26 +111,7 @@ CZ.screens.gold = (function () {
     CZ.ui.refresh();
   }
 
-  // Sahte reklam: gerçek reklam eklenince yalnız bu fonksiyon değişir.
-  function fakeAd(el, done) {
-    let left = 3;
-    const count = h('p', { text: t('ad.wait', { s: left }) });
-    const box = h('div', { class: 'fake-ad' },
-      h('small', { text: t('ad.label') }),
-      img('zibo.laugh', 'fake-ad-zibo'),
-      h('h2', { text: t('title.name') }),
-      h('p', { text: t('ad.fake') }),
-      count);
-    el.append(box);
-    const timer = setInterval(() => {
-      left -= 1;
-      if (left > 0) { count.textContent = t('ad.wait', { s: left }); return; }
-      clearInterval(timer);
-      box.remove();
-      done();
-    }, 1000);
-    g.adTimer = timer;
-  }
+  function fakeAd(el, done) { g.adTimer = CZ.ads.show(done); }
 
   /* ---------- Tur: 3D koşu (js/screens/runner3d.js) ---------- */
   function startRound(el, free) {

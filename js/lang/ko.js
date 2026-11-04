@@ -688,5 +688,7 @@ CZ.i18n.register('ko', '한국어', {
   'run.ad': '광고',
   'run.play': '플레이',
   'hub.adReward': '보상: 영상 보기',
-  'hub.adGot': '+{n} 골드!'
+  'hub.adGot': '+{n} 골드!',
+  'ad.none': '지금은 광고가 없어요. 잠시 후 다시 시도해요.',
+  'settings.privacy': '개인정보 처리방침'
 });

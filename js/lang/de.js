@@ -688,5 +688,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'run.ad': 'Werbung',
   'run.play': 'SPIELEN',
   'hub.adReward': 'Belohnung: Video schauen',
-  'hub.adGot': '+{n} Gold!'
+  'hub.adGot': '+{n} Gold!',
+  'ad.none': 'Gerade keine Werbung, versuch es gleich nochmal.',
+  'settings.privacy': 'Datenschutz'
 });

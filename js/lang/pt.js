@@ -688,5 +688,7 @@ CZ.i18n.register('pt', 'Português', {
   'run.ad': 'Anúncio',
   'run.play': 'JOGAR',
   'hub.adReward': 'Prêmio: assista um vídeo',
-  'hub.adGot': '+{n} de ouro!'
+  'hub.adGot': '+{n} de ouro!',
+  'ad.none': 'Sem anúncio agora, tente de novo já já.',
+  'settings.privacy': 'Política de privacidade'
 });

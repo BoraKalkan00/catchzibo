@@ -869,5 +869,7 @@ CZ.i18n.register('en', 'English', {
   'run.ad': 'Ad',
   'run.play': 'PLAY',
   'hub.adReward': 'Get rewards: watch a video',
-  'hub.adGot': '+{n} coins!'
+  'hub.adGot': '+{n} coins!',
+  'ad.none': 'No ad right now, try again soon.',
+  'settings.privacy': 'Privacy Policy'
 });

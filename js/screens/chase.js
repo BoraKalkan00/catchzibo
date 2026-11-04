@@ -347,19 +347,7 @@ CZ.screens.chase = (function () {
     say('zibo.chase.again');
   }
 
-  function adThen(done) {
-    let left = 3;
-    const count = h('p', { text: t('ad.wait', { s: left }) });
-    const box = h('div', { class: 'fake-ad' }, h('small', { text: t('ad.label') }), img('zibo.laugh', 'fake-ad-zibo'), h('h2', { text: t('title.name') }), h('p', { text: t('ad.fake') }), count);
-    c.el.append(box);
-    c.adTimer = setInterval(() => {
-      left -= 1;
-      if (left > 0) { count.textContent = t('ad.wait', { s: left }); return; }
-      clearInterval(c.adTimer);
-      box.remove();
-      done();
-    }, 1000);
-  }
+  function adThen(done) { c.adTimer = CZ.ads.show(done); }
 
   function leave() {
     if (!c) return;

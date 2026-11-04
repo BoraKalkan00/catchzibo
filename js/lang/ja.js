@@ -688,5 +688,7 @@ CZ.i18n.register('ja', '日本語', {
   'run.ad': '広告',
   'run.play': 'プレイ',
   'hub.adReward': '報酬：動画を見る',
-  'hub.adGot': '+{n}ゴールド！'
+  'hub.adGot': '+{n}ゴールド！',
+  'ad.none': '今は広告がありません。少ししてからもう一度。',
+  'settings.privacy': 'プライバシーポリシー'
 });

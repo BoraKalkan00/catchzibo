@@ -688,5 +688,7 @@ CZ.i18n.register('ar', 'العربية', {
   'run.ad': 'إعلان',
   'run.play': 'العب',
   'hub.adReward': 'مكافأة: شاهد فيديو',
-  'hub.adGot': '+{n} ذهب!'
+  'hub.adGot': '+{n} ذهب!',
+  'ad.none': 'لا يوجد إعلان الآن، حاول بعد قليل.',
+  'settings.privacy': 'سياسة الخصوصية'
 });

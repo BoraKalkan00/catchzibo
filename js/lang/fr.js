@@ -688,5 +688,7 @@ CZ.i18n.register('fr', 'Français', {
   'run.ad': 'Pub',
   'run.play': 'JOUER',
   'hub.adReward': 'Récompense : regarde une vidéo',
-  'hub.adGot': '+{n} d’or !'
+  'hub.adGot': '+{n} d’or !',
+  'ad.none': 'Pas de pub pour l’instant, réessaie bientôt.',
+  'settings.privacy': 'Confidentialité'
 });

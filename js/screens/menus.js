@@ -344,6 +344,7 @@
             text: d.notify !== false ? t('settings.on') : t('settings.off')
           })) : null,
           btn(t('settings.story'), () => go('story', { replay: true }), 'ghost-dark wide'),
+          h('a', { class: 'privacy-link', href: 'privacy.html', target: '_blank', rel: 'noopener', text: t('settings.privacy') }),
           !CZ.DEV ? null : h('div', { class: 'test-box' },
             h('h2', { text: t('settings.test') }),
             h('p', { text: t('settings.testNote') }),

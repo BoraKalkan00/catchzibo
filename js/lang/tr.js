@@ -869,5 +869,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'run.ad': 'Reklam',
   'run.play': 'OYNA',
   'hub.adReward': 'Ödül al: reklam izle',
-  'hub.adGot': '+{n} altın kazandın!'
+  'hub.adGot': '+{n} altın kazandın!',
+  'ad.none': 'Şu an reklam yok, birazdan tekrar dene.',
+  'settings.privacy': 'Gizlilik Politikası'
 });
