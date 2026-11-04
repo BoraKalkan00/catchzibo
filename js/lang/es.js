@@ -619,5 +619,7 @@ CZ.i18n.register('es', 'Español', {
   'run.meters': 'Corriste {m} metros',
   'run.power.magnet': '¡Imán!',
   'run.power.double': '¡Oro doble!',
-  'run.noGl': 'Este dispositivo no pudo abrir la carrera 3D.'
+  'run.noGl': 'Este dispositivo no pudo abrir la carrera 3D.',
+  'house.adSped': '¡Anuncio visto: {m} min menos!',
+  'house.min': 'min'
 });

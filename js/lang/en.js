@@ -829,5 +829,7 @@ CZ.i18n.register('en', 'English', {
   'run.meters': 'You ran {m} meters',
   'run.power.magnet': 'Magnet!',
   'run.power.double': 'Double gold!',
-  'run.noGl': 'This device could not open the 3D run.'
+  'run.noGl': 'This device could not open the 3D run.',
+  'house.adSped': 'Ad watched: {m} min faster!',
+  'house.min': 'min'
 });

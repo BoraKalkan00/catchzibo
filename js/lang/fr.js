@@ -619,5 +619,7 @@ CZ.i18n.register('fr', 'Français', {
   'run.meters': 'Tu as couru {m} mètres',
   'run.power.magnet': 'Aimant !',
   'run.power.double': 'Or double !',
-  'run.noGl': 'Cet appareil ne peut pas lancer la course 3D.'
+  'run.noGl': 'Cet appareil ne peut pas lancer la course 3D.',
+  'house.adSped': 'Pub regardée : {m} min de moins !',
+  'house.min': 'min'
 });

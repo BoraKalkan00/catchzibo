@@ -103,3 +103,4 @@ CZ.BUILD_TIME = {
   'room.bedroom': [120], 'room.kitchen': [240], 'room.bath': [360], 'room.play': [480]
 };
 CZ.SPEEDUP_MIN_PER_EMERALD = 10;
+CZ.SPEEDUP_AD = { minutes: 30, perJob: 3 };   // reklam izle: işi 30 dk kısalt (iş başına en fazla 3 kez)

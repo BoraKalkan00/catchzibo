@@ -213,7 +213,18 @@
             CZ.ui.toast(t('house.spent', { n: spent }));
             CZ.ui.refresh();
           }
-        }, img('ui.emerald', 'btn-icon'), cost, ' ', t('house.finish')));
+        }, img('ui.emerald', 'btn-icon'), cost, ' ', t('house.finish')),
+        HS.adsLeft(H) ? h('button', {
+          class: 'btn small ad-speed', type: 'button',
+          onClick: () => {
+            this.adTimer = CZ.ads.show(() => {
+              HS.adSpeed();
+              CZ.audio.sfx('buy');
+              CZ.ui.toast(t('house.adSped', { m: CZ.SPEEDUP_AD.minutes }));
+              CZ.ui.refresh();
+            });
+          }
+        }, '▶ -' + CZ.SPEEDUP_AD.minutes + ' ' + t('house.min'), h('small', { text: ' (' + HS.adsLeft(H) + ')' })) : null);
     },
 
     buildPanel(H) {
@@ -347,6 +358,7 @@
       clearTimeout(this.sayTimer);
       clearTimeout(this.hideTimer);
       clearInterval(this.jobTimer);
+      clearInterval(this.adTimer);
       if (this.zibo) this.zibo.stop();
     }
   };

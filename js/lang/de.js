@@ -619,5 +619,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'run.meters': 'Du bist {m} Meter gelaufen',
   'run.power.magnet': 'Magnet!',
   'run.power.double': 'Doppeltes Gold!',
-  'run.noGl': 'Dieses Gerät kann den 3D-Lauf nicht öffnen.'
+  'run.noGl': 'Dieses Gerät kann den 3D-Lauf nicht öffnen.',
+  'house.adSped': 'Werbung geschaut: {m} Min. schneller!',
+  'house.min': 'Min.'
 });

@@ -627,5 +627,7 @@ CZ.i18n.register('ko', '한국어', {
   'run.meters': '{m}미터 달렸어요',
   'run.power.magnet': '자석!',
   'run.power.double': '골드 두 배!',
-  'run.noGl': '이 기기에서는 3D 달리기를 열 수 없어요.'
+  'run.noGl': '이 기기에서는 3D 달리기를 열 수 없어요.',
+  'house.adSped': '광고 시청: {m}분 단축!',
+  'house.min': '분'
 });

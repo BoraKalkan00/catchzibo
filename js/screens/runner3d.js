@@ -494,12 +494,16 @@ CZ.runner3d = (function () {
       });
       if (!early && Math.random() < 0.5) { s.ziboPose = 0.5; }
       // Altın dizisi: geçilebilir bir şeritte, engelin önünde başlar, alçak engelin üstünden kavis çizer.
-      if (Math.random() < R.coinLineChance) {
-        const options = [0, 1, 2, 3].filter(l => kinds[l] !== 'wall' && kinds[l] !== 'crate');
-        const l = pick(options);
+      // Altın dizileri: her sırada en az bir uzun dizi, bazen ikinci bir şeritte daha.
+      const options = [0, 1, 2, 3].filter(l => kinds[l] !== 'wall' && kinds[l] !== 'crate');
+      const lines = Math.random() > R.coinLineChance ? 0 : Math.random() < R.secondLine ? 2 : 1;
+      const used = [];
+      for (let li = 0; li < lines && options.length; li++) {
+        const l = options.splice(Math.floor(Math.random() * options.length), 1)[0];
+        used.push(l);
         const n = Math.floor(rand(R.coinLine[0], R.coinLine[1] + 1));
         for (let i = 0; i < n; i++) {
-          const dz = (i - (n - 1) / 2) * 1.5;
+          const dz = (i - (n - 1) / 2) * R.coinGap;
           let y = 0.55;
           if (kinds[l] === 'low') y = 0.55 + Math.max(0, 1.5 - Math.abs(dz) * 0.32);
           if (kinds[l] === 'high' && Math.abs(dz) < 1) y = 0.35;

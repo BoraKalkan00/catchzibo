@@ -247,9 +247,9 @@ CZ.GOLD = {
     { id: 'thunder', art: 'gold.weap_thunder', dmg: 9, price: 4000, ball: '#ffe36e' }
   ],
   cocoa: { price: 60, seconds: 5, max: 3 },  // sıcak kakao: sıradaki aramaya +5 sn
-  // 3D koşu (Subway Surfers tarzı). Bir koşu ~45-90 sn, ~80-150 altın.
+  // 3D koşu (Subway Surfers tarzı). Bir koşu ~45-90 sn, ~120-250 altın.
   runner: {
-    startSpeed: 13, maxSpeed: 27, accel: 0.2,  // birim/sn
+    startSpeed: 13, maxSpeed: 28, accel: 0.26,  // birim/sn
     hearts: 3, invulnSec: 1.6,                 // 3 çarpma hakkı (ejderha kostümü +1)
     jumpV: 11.5, gravity: 34, slideSec: 0.7,
     rowGap: [10, 17],                          // sıralar arası mesafe (zamanla kısalır)
@@ -261,10 +261,10 @@ CZ.GOLD = {
       { id: 'crate', weight: 12 }   // sandık: kartopuyla kır ya da kaç
     ],
     crates: [
-      { id: 'wood', hp: 3, gold: 4, weight: 80 },
-      { id: 'gold', hp: 9, gold: 12, weight: 20 }
+      { id: 'wood', hp: 3, gold: 3, weight: 80 },
+      { id: 'gold', hp: 9, gold: 10, weight: 20 }
     ],
-    coinValue: 1, coinLine: [5, 8], coinLineChance: 0.8,
+    coinValue: 1, coinLine: [5, 8], coinGap: 1.3, secondLine: 0.15, coinLineChance: 0.8,
     emeraldFrom: 15, emeraldMax: 2, emeraldChance: 0.18,  // turda en fazla 2 elmas, zor yerde
     powerEvery: [14, 22], magnetSec: 8, doubleSec: 10
   }

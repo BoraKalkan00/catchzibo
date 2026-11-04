@@ -627,5 +627,7 @@ CZ.i18n.register('ja', '日本語', {
   'run.meters': '{m}メートル走った',
   'run.power.magnet': 'マグネット！',
   'run.power.double': 'ゴールド2倍！',
-  'run.noGl': 'この端末では3Dランを開けません。'
+  'run.noGl': 'この端末では3Dランを開けません。',
+  'house.adSped': '広告視聴：{m}分短縮！',
+  'house.min': '分'
 });

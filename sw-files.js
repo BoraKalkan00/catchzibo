@@ -248,6 +248,7 @@ self.CZ_FILES = [
  "assets/zibo/tantrum.svg",
  "assets/zibo/tongue.svg",
  "css/style.css",
+ "js/core/ads.js",
  "js/core/assets.js",
  "js/core/audio.js",
  "js/core/avatar.js",

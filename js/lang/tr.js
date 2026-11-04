@@ -829,5 +829,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'run.meters': '{m} metre koştun',
   'run.power.magnet': 'Mıknatıs!',
   'run.power.double': 'Çift altın!',
-  'run.noGl': 'Bu cihaz 3D koşuyu açamadı.'
+  'run.noGl': 'Bu cihaz 3D koşuyu açamadı.',
+  'house.adSped': 'Reklam sayesinde {m} dk kısaldı!',
+  'house.min': 'dk'
 });

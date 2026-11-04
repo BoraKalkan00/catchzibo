@@ -129,6 +129,18 @@ CZ.house = (function () {
     return 'ok';
   }
 
+  // Reklamla hızlandır: iş 30 dk kısalır, bir işte en fazla 3 kez.
+  const adsLeft = H => H.job ? Math.max(0, CZ.SPEEDUP_AD.perJob - (H.job.ads || 0)) : 0;
+  function adSpeed() {
+    const H = ensure();
+    if (!H.job || !adsLeft(H)) return 'none';
+    H.job.ads = (H.job.ads || 0) + 1;
+    H.job.end -= CZ.SPEEDUP_AD.minutes * 60000;
+    if (Date.now() >= H.job.end) applyJob(H);
+    CZ.state.save();
+    return 'ok';
+  }
+
   function addRoom(id) {
     const H = ensure();
     const r = roomDef(id);
@@ -429,6 +441,6 @@ CZ.house = (function () {
   return {
     attention, ensure, lv, partDef, roomDef, needMet, missing, nextCost, shortOf, canPay, buyMat, build, addRoom,
     furnCost, buyFurn, paint, level, defense, maxDefense, nextShell, SHELL, checkRaid, raidBox, ziboLine,
-    ustaLine, tick, jobLeft, speedCost, speedUp, revenge, neighbors, ranking, like, grow, daysSince, setName, title, NAME_PRICE
+    ustaLine, tick, jobLeft, speedCost, speedUp, adSpeed, adsLeft, revenge, neighbors, ranking, like, grow, daysSince, setName, title, NAME_PRICE
   };
 })();
