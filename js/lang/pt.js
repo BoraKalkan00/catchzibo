@@ -251,7 +251,7 @@ CZ.i18n.register('pt', 'Português', {
   'zibo.snatch': 'MEU! Me pega se puder! Rá rá!',
   'chase.introTop': 'O Zibo pegou!',
   'chase.introTitle': 'Pegue ele!',
-  'chase.introHow': 'Deslize ou toque à esquerda/direita para desviar das bombas. Quando estiver na faixa dele, lance o gancho!',
+  'chase.introHow': 'Deslize para os lados para fugir das bombas. Toque na faixa do Zibo: gancho!',
   'chase.distance': 'O Zibo está na frente',
   'chase.meters': '{n} m',
   'chase.hook': 'Gancho',

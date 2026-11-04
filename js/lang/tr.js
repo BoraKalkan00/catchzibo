@@ -268,7 +268,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'zibo.snatch': 'BENİM! Yakalayabilirsen yakala! Ha ha!',
   'chase.introTop': 'Zibo eşyayı kaptı!',
   'chase.introTitle': 'Yakala onu!',
-  'chase.introHow': 'Bombalardan kaçmak için sola/sağa kaydır ya da dokun. Onunla aynı şeritteyken kancayı at!',
+  'chase.introHow': 'Sola/sağa kaydır: bombalardan kaç. Zibo’yla aynı şeritteyken ekrana dokun: kanca!',
   'chase.distance': 'Zibo önde',
   'chase.meters': '{n} m',
   'chase.hook': 'Kanca',

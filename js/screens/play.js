@@ -50,6 +50,70 @@ CZ.screens.play = (function () {
     return centers;
   }
 
+  // Odanın saklanma noktalarını (görsel koordinatı) ekrandaki oda koordinatına çevirir.
+  // Görsel "cover" ile sığdığı için kenarlar kırpılabilir: görünmeyen ve Zibo'nun köşesindeki noktalar atılır.
+  function sceneSpots() {
+    const def = s.roomDef.spots;
+    if (!def) return null;
+    const box = s.room.getBoundingClientRect();
+    const [artW, artH] = s.roomDef.fx.size;
+    const k = artW / def.src[0];
+    const scale = Math.max(box.width / artW, box.height / artH);
+    const left = (box.width - artW * scale) / 2;
+    const top = (box.height - artH * scale) / 2;
+    const list = def.list.map(([x, y, sc]) => ({ x: (left + x * k * scale) / box.width, y: (top + y * k * scale) / box.height, s: sc }))
+      .filter(p => p.x > 0.08 && p.x < 0.92 && p.y > 0.2 && p.y < 0.95 && !(p.x > 0.6 && p.y < 0.3));
+    return list.length >= 6 ? list : null;
+  }
+
+  // Sahneye saklama: yığınlar ve tek eşyalar odanın gerçek yerlerine (raf, ağaç dibi, koltuk...) dağılır.
+  function scenePile(round, spots) {
+    const decoys = pickDecoys(round);
+    const heaps = Math.max(1, Math.min(round.heaps || 1, 4));
+    const spreadK = round.spread === undefined ? 0.55 : round.spread;
+    const box = s.room.getBoundingClientRect();
+    const baitIds = [];
+    for (let i = 1; i < heaps; i++) {
+      let at = decoys.findIndex(id => round.similar.includes(id));
+      if (at < 0) at = 0;
+      baitIds.push(decoys.splice(at, 1)[0]);
+    }
+    // Yığın yerleri: birbirinden uzak noktalar (önce büyük/yakın noktalar, orada yığın daha okunur).
+    const pool = shuffle(spots.slice());
+    const centers = [];
+    const minGap = s.itemPx * 1.4;
+    pool.slice().sort((a, b) => b.s - a.s + rand(-0.3, 0.3)).forEach(p => {
+      if (centers.length < heaps && centers.every(c => Math.hypot((c.x - p.x) * box.width, (c.y - p.y) * box.height) >= minGap)) centers.push(p);
+    });
+    while (centers.length < heaps) centers.push(pool[centers.length % pool.length]);
+    const rest = pool.filter(p => !centers.includes(p));
+    const n = decoys.length;
+    const coverCount = Math.min(n, Math.max(3 * heaps, Math.floor(n * 0.6)));
+    const covers = [];
+    for (let i = 0; i < coverCount; i++) {
+      const c = centers[i % heaps];
+      const sx = s.itemPx * spreadK * c.s / box.width, sy = s.itemPx * spreadK * c.s / box.height;
+      covers.push({ x: c.x + rand(-sx, sx), y: c.y + rand(-sy, sy), s: c.s });
+    }
+    // Kalanlar diğer noktalara: nokta yetmezse aynı noktaya küçük kümeler olur.
+    const singles = [];
+    for (let i = 0; i < n - coverCount; i++) {
+      const p = rest.length ? rest[i % rest.length] : pool[i % pool.length];
+      const j = s.itemPx * 0.35 * p.s;
+      singles.push({ x: p.x + rand(-j, j) / box.width, y: p.y + rand(-j, j) / box.height, s: p.s });
+    }
+    const wrap = (id, spot) => ({ id, x: spot.x, y: spot.y, r: rand(-24, 24), s: rand(0.92, 1.08) * spot.s });
+    const mixed = shuffle(decoys.map((id, i) => wrap(id, i < coverCount ? covers[i] : singles[i - coverCount])));
+    const t0 = centers[0];
+    const target = { id: round.target, x: t0.x, y: t0.y, r: rand(-12, 12), s: t0.s, target: true };
+    const baits = baitIds.map((id, i) => ({ id, x: centers[i + 1].x, y: centers[i + 1].y, r: rand(-12, 12), s: centers[i + 1].s, bait: true }));
+    // Uzaktaki (küçük) eşyalar arkada çizilir; yığın sırası korunur: önce dipler, sonra örtücüler.
+    const bottoms = shuffle([target].concat(baits));
+    const lone = mixed.filter(o => !covers.some(c => c.x === o.x && c.y === o.y)).sort((a, b) => a.y - b.y);
+    const coverItems = mixed.filter(o => !lone.includes(o));
+    return lone.concat(bottoms, coverItems);
+  }
+
   // Zorluğun kalbi: odada birden çok yığın olur. Biri gerçek (altında hedef), diğerleri tuzak
   // (altında hedefe benzeyen bir eşya). Oyuncu yığına bakarak hedefin yerini tahmin edemez.
   function randomPile(round) {
@@ -809,7 +873,8 @@ CZ.screens.play = (function () {
     sizeItems();
     s.resize = new ResizeObserver(sizeItems);
     s.resize.observe(s.room);
-    drawPile(tutorial ? tutorialPile(round) : randomPile(round));
+    const spots = tutorial ? null : sceneSpots();
+    drawPile(tutorial ? tutorialPile(round) : spots ? scenePile(round, spots) : randomPile(round));
     drawTime();
     s.interval = setInterval(tick, 100);
     showIntro();

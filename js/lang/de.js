@@ -251,7 +251,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'zibo.snatch': 'MEINS! Fang mich doch! Haha!',
   'chase.introTop': 'Zibo hat es geschnappt!',
   'chase.introTitle': 'Fang ihn!',
-  'chase.introHow': 'Wische oder tippe links/rechts, um Bomben auszuweichen. Bist du auf seiner Spur, wirf den Haken!',
+  'chase.introHow': 'Wische links/rechts, um Bomben auszuweichen. Tippe in Zibos Spur: Haken!',
   'chase.distance': 'Zibo ist vorne',
   'chase.meters': '{n} m',
   'chase.hook': 'Haken',

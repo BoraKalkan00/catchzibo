@@ -251,7 +251,7 @@ CZ.i18n.register('ja', '日本語', {
   'zibo.snatch': 'ぼくのだ！つかまえてみろ！ハハ！',
   'chase.introTop': 'ジボがうばった！',
   'chase.introTitle': 'つかまえろ！',
-  'chase.introHow': '左右にスワイプかタップでばくだんをよけよう。同じレーンに入ったらフックを投げろ！',
+  'chase.introHow': '左右スワイプで爆弾をよけよう。ジボと同じレーンでタップ：フック！',
   'chase.distance': 'ジボは前方',
   'chase.meters': '{n} m',
   'chase.hook': 'フック',

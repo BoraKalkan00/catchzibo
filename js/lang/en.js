@@ -268,7 +268,7 @@ CZ.i18n.register('en', 'English', {
   'zibo.snatch': 'MINE! Catch me if you can! Ha ha!',
   'chase.introTop': 'Zibo snatched it!',
   'chase.introTitle': 'Catch him!',
-  'chase.introHow': 'Swipe or tap left/right to dodge bombs. When you’re in his lane, hit the hook!',
+  'chase.introHow': 'Swipe left/right to dodge bombs. Tap when you’re in Zibo’s lane: hook!',
   'chase.distance': 'Zibo is ahead',
   'chase.meters': '{n} m',
   'chase.hook': 'Hook',

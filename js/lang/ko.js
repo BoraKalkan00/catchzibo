@@ -251,7 +251,7 @@ CZ.i18n.register('ko', '한국어', {
   'zibo.snatch': '내 거야! 잡을 수 있으면 잡아 봐! 하하!',
   'chase.introTop': '지보가 낚아챘어요!',
   'chase.introTitle': '잡아라!',
-  'chase.introHow': '좌우로 밀거나 탭해서 폭탄을 피해요. 같은 줄에 서면 갈고리를 던져요!',
+  'chase.introHow': '좌우로 스와이프해서 폭탄을 피하세요. 지보와 같은 차선에서 탭: 갈고리!',
   'chase.distance': '지보가 앞에 있어요',
   'chase.meters': '{n} m',
   'chase.hook': '갈고리',

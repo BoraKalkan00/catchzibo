@@ -251,7 +251,7 @@ CZ.i18n.register('fr', 'Français', {
   'zibo.snatch': 'À MOI ! Attrape-moi si tu peux ! Ha ha !',
   'chase.introTop': 'Zibo l’a chipé !',
   'chase.introTitle': 'Attrape-le !',
-  'chase.introHow': 'Glisse ou touche gauche/droite pour éviter les bombes. Quand tu es dans sa voie, lance le crochet !',
+  'chase.introHow': 'Glisse à gauche/droite pour éviter les bombes. Touche quand tu es dans la voie de Zibo : crochet !',
   'chase.distance': 'Zibo est devant',
   'chase.meters': '{n} m',
   'chase.hook': 'Crochet',
