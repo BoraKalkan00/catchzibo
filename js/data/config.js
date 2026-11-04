@@ -72,13 +72,10 @@ CZ.ROOMS = [{
   scene: 'room_attic',
   opens: '2026-12-15',
   fx: {
-    size: [900, 1600],
-    fire: { x: 606, y: 556, w: 130, h: 104 },
-    snow: { x: 160, y: 190, w: 200, h: 200 },
-    lights: [
-      [60, 92, '#ffd95e'], [150, 104, '#ff6b6b'], [240, 113, '#6fc3ff'], [330, 119, '#7df08a'], [420, 122, '#ffd95e'],
-      [510, 121, '#ff6b6b'], [600, 118, '#6fc3ff'], [690, 111, '#7df08a'], [780, 100, '#ffd95e'], [870, 87, '#ff6b6b']
-    ]
+    size: [1536, 2048],
+    fire: null,
+    snow: { x: 612, y: 188, w: 360, h: 330 },
+    lights: [[580, 537, '#ffd27a'], [651, 516, '#ffd27a'], [1085, 467, '#ffd27a'], [417, 679, '#ffb347'], [1231, 516, '#ffb347']]
   },
   rounds: [
     { id: 'a1', target: 'train_red', count: 28, share: 0.5, heaps: 3, spread: 0.26, seconds: 29, buzz: 1.5, similar: ['train_blue', 'train_green', 'train_yellow', 'train_red_silver'] },

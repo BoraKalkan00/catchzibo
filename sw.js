@@ -1,6 +1,6 @@
 // İnternetsiz çalışma. Önce ağı dener (yeni görseller hemen görünsün), ağ yoksa hafızadan verir.
 importScripts('sw-files.js');
-const CACHE = 'catchzibo-v24';
+const CACHE = 'catchzibo-v25';
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache =>
