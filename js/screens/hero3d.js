@@ -3,13 +3,23 @@
 // Renkler Gemini'deki karakter çizimleriyle aynı (CZ.CHARS).
 CZ.CHARS = {
   boy: { skin: 0xf2c4a0, hair: 0x6b3f22, hat: 'beanie', hatColor: 0xc8302e, pom: 0xf4f4f4, jacket: 0x2f63c4, scarf: 0x3f8a3a, pants: 0x2b3448, boots: 0x7a4a24 },
+  elf: { skin: 0xf2c4a0, hair: 0xf0c860, hat: 'elf', hatColor: 0x2f8a3a, pom: 0xe8b82a, jacket: 0x2f8a3a, scarf: 0xc8302e, pants: 0xf2f2f2, stripes: 0xd23a3a, boots: 0x2f8a3a },
   girl: { skin: 0xf2c4a0, hair: 0xa4472a, hat: 'beret', hatColor: 0xe0709e, pom: 0xf4f4f4, jacket: 0x8a4cc0, scarf: 0xf0c22e, fur: 0xf6f1ea, pants: 0x9a9ca4, boots: 0xf2f2f2, braid: true }
 };
 
 CZ.hero3d = function (THREE, kind) {
   const C = Object.assign({}, CZ.CHARS[kind] || CZ.CHARS.girl, CZ.charArt ? CZ.charArt.hexes(kind) : {});
   const mat = c => new THREE.MeshLambertMaterial({ color: c });
-  const M = { skin: mat(C.skin), hair: mat(C.hair), hat: mat(C.hatColor), pom: mat(C.pom), jacket: mat(C.jacket), scarf: mat(C.scarf), pants: mat(C.pants), boots: mat(C.boots), fur: mat(C.fur || 0xffffff) };
+  const stripeMat = () => {
+    const c = document.createElement('canvas'); c.width = 16; c.height = 64;
+    const x = c.getContext('2d');
+    x.fillStyle = '#' + C.pants.toString(16).padStart(6, '0'); x.fillRect(0, 0, 16, 64);
+    x.fillStyle = '#' + C.stripes.toString(16).padStart(6, '0');
+    for (let i = 0; i < 64; i += 16) x.fillRect(0, i, 16, 8);
+    const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1, 2);
+    return new THREE.MeshLambertMaterial({ map: tex });
+  };
+  const M = { skin: mat(C.skin), hair: mat(C.hair), hat: mat(C.hatColor), pom: mat(C.pom), jacket: mat(C.jacket), scarf: mat(C.scarf), pants: C.stripes ? stripeMat() : mat(C.pants), boots: mat(C.boots), fur: mat(C.fur || 0xffffff) };
   const sph = (r, m, x, y, z, sx, sy, sz) => {
     const o = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), m);
     o.position.set(x || 0, y || 0, z || 0);
@@ -94,6 +104,14 @@ CZ.hero3d = function (THREE, kind) {
     cuff.rotation.x = Math.PI / 2; cuff.position.y = 0.03;
     head.add(cuff);
     head.add(sph(0.065, M.pom, 0, 0.26, 0));
+  } else if (C.hat === 'elf') {
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.55, 14), M.hat);
+    cone.position.set(0, 0.3, 0.08); cone.rotation.x = 0.7;
+    head.add(cone);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.05, 8, 20), M.scarf);
+    rim.rotation.x = Math.PI / 2; rim.position.y = 0.07;
+    head.add(rim);
+    head.add(sph(0.06, M.pom, 0, 0.42, 0.38));
   } else {
     const beret = sph(0.25, M.hat, 0, 0.13, 0.02, 1, 0.42, 1);
     beret.rotation.x = -0.25;

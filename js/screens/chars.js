@@ -10,7 +10,7 @@ CZ.ROSTER = [
   { id: 'knight', room: 'treasure' },
   { id: 'santa', room: 'throne' }
 ];
-CZ.CHAR_ART = ['boy', 'girl'];               // assets/chars/<id>_front.webp ... olanlar
+CZ.CHAR_ART = ['boy', 'girl', 'elf'];               // assets/chars/<id>_front.webp ... olanlar
 // Oda ödülü artık karakter: odayı bitiren o karakteri açar.
 CZ.ROOM_PRIZES = {};
 CZ.ROSTER.forEach(c => { if (c.room) CZ.ROOM_PRIZES[c.room] = c.id; });

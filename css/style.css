@@ -1026,3 +1026,8 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .buy-bar { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px; border-radius: 14px; background: var(--paper); color: var(--ink); font-weight: 800; }
 .buy-bar span:first-child { flex: 1; }
 .chars-gold { position: absolute; top: 8px; left: 12px; }
+/* Ev ve mahalle: düz mavi yerine köy manzarası (karartılmış), boş zemin bitmemiş görünmesin */
+.screen-house, .screen-hood, .screen-visit { background: linear-gradient(rgba(10, 20, 44, .55), rgba(10, 20, 44, .82) 55%, #13213f 80%), url(../assets/scenes/hub_bg.webp) center 30% / cover no-repeat; }
+.house-stage { background: radial-gradient(ellipse at 50% 70%, rgba(255, 255, 255, .16), transparent 62%); }
+
+.shot-1 .story-hero.s1 { left: 34%; bottom: 13%; width: 30%; }
