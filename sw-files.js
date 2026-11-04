@@ -179,6 +179,7 @@ self.CZ_FILES = [
  "assets/scenes/room_living.svg",
  "assets/scenes/room_living.webp",
  "assets/scenes/room_throne.svg",
+ "assets/scenes/room_throne.webp",
  "assets/scenes/room_treasure.svg",
  "assets/scenes/room_treasure.webp",
  "assets/scenes/title.svg",
