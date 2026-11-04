@@ -852,5 +852,22 @@ CZ.i18n.register('tr', 'Türkçe', {
   'chars.bought': 'Yeni renk senin!',
   'color.yellow': 'Sarı',
   'color.black': 'Siyah',
-  'color.white': 'Beyaz'
+  'color.white': 'Beyaz',
+  'run.continue': 'Devam?',
+  'run.toBest': 'Rekoruna sadece {n} puan kaldı!',
+  'run.newBestNow': 'Rekoru geçmek üzeresin!',
+  'run.adContinue': '▶ Reklam izle, devam et',
+  'run.gemContinue': '{n} elmasla devam et',
+  'run.noThanks': 'Hayır, teşekkürler',
+  'run.newBest': 'Yeni Rekor!',
+  'run.tap': 'Devam etmek için dokun',
+  'run.score': 'Puan',
+  'run.coins': 'Altın',
+  'run.metersLabel': 'Mesafe',
+  'run.best': 'Rekor: {n}',
+  'run.doubled': 'Altınların ikiye katlandı!',
+  'run.ad': 'Reklam',
+  'run.play': 'OYNA',
+  'hub.adReward': 'Ödül al: reklam izle',
+  'hub.adGot': '+{n} altın kazandın!'
 });

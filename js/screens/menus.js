@@ -61,6 +61,27 @@
     }
   };
 
+  // Reklam izle → az altın (günde 5 kez). Sayaç her gün sıfırlanır.
+  function adRewardBar() {
+    const d = state.data;
+    const today = state.today();
+    if (!d.adGold || d.adGold.day !== today) d.adGold = { day: today, n: 0 };
+    const left = CZ.AD_REWARD.perDay - d.adGold.n;
+    if (left <= 0 || game.foundCount() < (CZ.UNLOCK.gold || 0)) return null;
+    return h('button', {
+      class: 'ad-reward', type: 'button',
+      onClick: () => CZ.ads.show(() => {
+        d.adGold.n += 1;
+        d.gold = (d.gold || 0) + CZ.AD_REWARD.gold;
+        state.save();
+        CZ.audio.sfx('buy');
+        CZ.ui.toast(t('hub.adGot', { n: CZ.AD_REWARD.gold }));
+        CZ.ui.refresh();
+      })
+    }, h('span', { class: 'ad-play', text: '▶' }), h('b', { text: t('hub.adReward') }),
+      h('span', { class: 'ad-gold' }, '+' + CZ.AD_REWARD.gold, img('ui.gold', 'mini-ico')), h('small', { text: left + '/' + CZ.AD_REWARD.perDay }));
+  }
+
   CZ.screens.hub = {
     render(el) {
       game.ensureDiary();
@@ -116,6 +137,7 @@
           h('button', { class: 'play-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
             h('b', { text: t('hub.enter') }),
             h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) })),
+          adRewardBar(),
           h('div', { class: 'hub-tiles' },
             tile('gold-tile' + (goldFree ? ' ready' : ''), img('ui.gold', 'tile-icon'), t('hub.gold'), goldFree ? t('hub.goldReady') : CZ.screens.gold.waitText(), () => CZ.ui.wipeTo('gold'), goldFree, 'gold'),
             tile('house-tile', houseArt, CZ.house.title(H) || t('house.title'), H.job ? '🔨 ' + t('hub.houseBuilding') : t('house.level') + ' ' + CZ.house.level(H), () => CZ.ui.wipeTo('house'), CZ.house.attention(), 'house'),

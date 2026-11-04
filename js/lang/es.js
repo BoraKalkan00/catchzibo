@@ -671,5 +671,22 @@ CZ.i18n.register('es', 'Español', {
   'hood.name.yuki': 'Esquiadora Yuki',
   'hood.name.noah': 'Jardinero Noah',
   'raid.attack': 'Zibo',
-  'notif.title': 'Zibo 😈'
+  'notif.title': 'Zibo 😈',
+  'run.continue': '¿Continuar?',
+  'run.toBest': '¡Solo {n} puntos para tu récord!',
+  'run.newBestNow': '¡Estás a punto de batir tu récord!',
+  'run.adContinue': '▶ Ver anuncio y seguir',
+  'run.gemContinue': 'Seguir por {n} esmeraldas',
+  'run.noThanks': 'No, gracias',
+  'run.newBest': '¡Nuevo récord!',
+  'run.tap': 'Toca para continuar',
+  'run.score': 'Puntos',
+  'run.coins': 'Oro',
+  'run.metersLabel': 'Distancia',
+  'run.best': 'Récord: {n}',
+  'run.doubled': '¡Tu oro se duplicó!',
+  'run.ad': 'Anuncio',
+  'run.play': 'JUGAR',
+  'hub.adReward': 'Premio: mira un video',
+  'hub.adGot': '¡+{n} de oro!'
 });

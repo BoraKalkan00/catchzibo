@@ -684,6 +684,7 @@ CZ.runner3d = (function () {
       s.stunT = Math.max(0, (s.stunT || 0) - dt);
       const dz = s.speed * dt;
       s.dist += dz;
+      s.score = (s.score || 0) + dz * (s.doubleT > 0 ? 2 : 1);
       // zemin kayar
       M.road.map.offset.y += dz / (200 / 24);
       M.snow.map.offset.y += dz / (200 / 30);
@@ -829,6 +830,7 @@ CZ.runner3d = (function () {
         let n = R.coinValue * (s.doubleT > 0 ? 2 : 1);
         if (opts.perk.goldMul && Math.random() < (opts.perk.goldMul - 1) * 3) n += 1;
         s.gold += n;
+        s.score = (s.score || 0) + 5 * n;
         CZ.audio.sfx('coin');
         opts.onGold(n);
       } else if (c.kind === 'gem') {
@@ -891,7 +893,7 @@ CZ.runner3d = (function () {
     }
 
     function summary() {
-      return { gold: s.gold, emeralds: s.emeralds, crates: s.crates, meters: Math.round(s.dist), seconds: Math.round(s.t) };
+      return { gold: s.gold, emeralds: s.emeralds, crates: s.crates, meters: Math.round(s.dist), seconds: Math.round(s.t), score: Math.round(s.score || 0) };
     }
 
     function onVis() { last = 0; }
@@ -924,6 +926,12 @@ CZ.runner3d = (function () {
       hurt() { s.invT = 0.8; s.shake = 0.35; s.stunT = 0.6; },
       caught() { s.ziboForce = 'dizzy'; s.ziboZ = -3.2; },
       setDead(v) { s.dead = v; },
+      // Reklam/elmasla devam: önündeki engeller temizlenir, kısa süre dokunulmazsın.
+      revive() {
+        s.objs.slice().forEach(o => { if (o.mesh.position.z > -30) { scene.remove(o.mesh); s.objs.splice(s.objs.indexOf(o), 1); } });
+        s.hearts = 1; s.dead = false; s.invT = 2.5; s.laughT = 0; s.ziboForce = null;
+        s.running = true; last = 0;
+      },
       summary,
       destroy() {
         s.alive = false;

@@ -671,5 +671,22 @@ CZ.i18n.register('ko', '한국어', {
   'hub.houseNext': '다음 단계를 해요!',
   'mansion.prize': '🎁 방을 끝내면 받는 것:',
   'mansion.prizeWon': '✓ 획득:',
-  'house.spent': '💎 에메랄드 {n}개 사용, 완료!'
+  'house.spent': '💎 에메랄드 {n}개 사용, 완료!',
+  'run.continue': '계속할까요?',
+  'run.toBest': '최고 기록까지 {n}점!',
+  'run.newBestNow': '곧 최고 기록이에요!',
+  'run.adContinue': '▶ 광고 보고 계속',
+  'run.gemContinue': '에메랄드 {n}개로 계속',
+  'run.noThanks': '괜찮아요',
+  'run.newBest': '신기록!',
+  'run.tap': '탭해서 계속',
+  'run.score': '점수',
+  'run.coins': '골드',
+  'run.metersLabel': '거리',
+  'run.best': '최고: {n}',
+  'run.doubled': '골드가 두 배가 됐어요!',
+  'run.ad': '광고',
+  'run.play': '플레이',
+  'hub.adReward': '보상: 영상 보기',
+  'hub.adGot': '+{n} 골드!'
 });

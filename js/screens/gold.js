@@ -142,10 +142,13 @@ CZ.screens.gold = (function () {
     }
     el.replaceChildren();
     const weapon = weaponDef(d.weapon);
-    Object.assign(g, { el, weapon, earned: 0, gems: 0, xp: 0, running: false, timers: [] });
+    if (g.run) { g.run.destroy(); g.run = null; }
+    (g.timers || []).forEach(clearTimeout);
+    Object.assign(g, { el, weapon, earned: 0, gems: 0, xp: 0, running: false, timers: [], ended: false, adContinued: false, gemContinues: 0, lastM: -1 });
     g.badge = goldBadge(0);
     g.gemBadge = h('div', { class: 'emeralds run-gems' }, img('ui.emerald', 'emerald-icon'), g.gemCount = h('span', { class: 'emerald-count', text: '0' }));
     g.hearts = h('div', { class: 'run-hearts' });
+    g.scoreEl = h('div', { class: 'run-score', text: '0' });
     g.meters = h('div', { class: 'run-meters', text: '0 m' });
     g.powers = h('div', { class: 'run-powers' });
     g.stage = h('div', { class: 'run-stage' });
@@ -162,7 +165,7 @@ CZ.screens.gold = (function () {
         h('div', { class: 'run-top' },
           h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.back'), onClick: () => { if (g.run && g.running) finish(g.run.summary()); else CZ.ui.go('gold'); }, text: '‹' }),
           h('div', { class: 'run-stats' }, g.badge, g.gemBadge),
-          h('div', { class: 'run-right' }, g.hearts, g.meters)),
+          h('div', { class: 'run-right' }, g.scoreEl, g.hearts, g.meters)),
         g.powers, g.floatBox, g.hint, g.count));
     drawHearts(G.runner.hearts + (perk().trapMul ? 1 : 0));
     g.count.textContent = '…';
@@ -190,11 +193,11 @@ CZ.screens.gold = (function () {
         onCrash(left) { drawHearts(left); floatText(t('gold.ouch'), 'bad'); g.el.classList.add('run-hurt'); setTimeout(() => g && g.el.classList.remove('run-hurt'), 300); },
         onTick(s) {
           const m = Math.round(s.dist);
-          if (m !== g.lastM) { g.lastM = m; g.meters.textContent = m + ' m'; }
+          if (m !== g.lastM) { g.lastM = m; g.meters.textContent = m + ' m'; g.scoreEl.textContent = Math.round(s.score || 0).toLocaleString(); }
           const p = (s.magnetT > 0 ? '🧲 ' + Math.ceil(s.magnetT) + ' ' : '') + (s.doubleT > 0 ? 'x2 ' + Math.ceil(s.doubleT) : '');
           if (p !== g.lastP) { g.lastP = p; g.powers.textContent = p; }
         },
-        onEnd: finish
+        onEnd: askContinue
       });
       g.run.ready.then(() => countdown());
     }).catch(() => {
@@ -240,14 +243,57 @@ CZ.screens.gold = (function () {
     setTimeout(() => el.remove(), 900);
   }
 
+  // Subway Surfers gibi: düşünce "Devam?" — reklamla bir kez, sonra elmasla. 6 sn içinde seçmezsen biter.
+  function askContinue(sum) {
+    if (!g || g.ended) return;
+    const d = data();
+    const best = d.runBest || 0;
+    const cost = G.runner.continueEmeralds * Math.pow(2, g.gemContinues || 0);
+    const canAd = !g.adContinued;
+    const left = best - sum.score;
+    const ring = h('i', { class: 'cont-ring' });
+    let timer = null;
+    const close = () => { clearTimeout(timer); box.remove(); };
+    const box = h('div', { class: 'cont-box' },
+      h('div', { class: 'cont-card' },
+        ring,
+        h('h2', { text: t('run.continue') }),
+        h('p', { class: 'cont-note', text: left > 0 ? t('run.toBest', { n: left.toLocaleString() }) : t('run.newBestNow') }),
+        canAd ? btn(t('run.adContinue'), () => {
+          close();
+          g.adTimer = CZ.ads.show(() => { g.adContinued = true; revive(); });
+        }, 'primary big wide cont-ad') : null,
+        btn(t('run.gemContinue', { n: cost }), () => {
+          if ((d.emeralds || 0) < cost) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('gold.gemNeed')); }
+          d.emeralds -= cost;
+          g.gemContinues = (g.gemContinues || 0) + 1;
+          CZ.state.save();
+          close();
+          revive();
+        }, 'ghost-dark wide', 'ui.emerald'),
+        h('button', { class: 'cont-skip', type: 'button', text: t('run.noThanks'), onClick: () => { close(); finish(g.run.summary()); } })));
+    g.el.append(box);
+    timer = setTimeout(() => { if (box.isConnected) { close(); finish(g.run.summary()); } }, 6000);
+    g.timers.push(timer);
+  }
+
+  function revive() {
+    if (!g || !g.run) return;
+    g.run.revive();
+    drawHearts(1);
+    CZ.audio.music('gold');
+    floatText(t('run.go'), 'power');
+  }
+
   function finish(sum) {
     if (!g || g.ended) return;
     g.ended = true;
     g.running = false;
     if (g.run) g.run.stop();
     const d = data();
-    const record = g.earned > (d.goldBest || 0);
-    if (record) d.goldBest = g.earned;
+    const record = sum.score > (d.runBest || 0);
+    if (record) d.runBest = sum.score;
+    if (g.earned > (d.goldBest || 0)) d.goldBest = g.earned;
     d.runBestM = Math.max(d.runBestM || 0, sum.meters);
     CZ.state.save();
     g.xp += sum.meters * 0.02;
@@ -256,16 +302,60 @@ CZ.screens.gold = (function () {
     CZ.audio.music(null);
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 60]);
-    const sheet = h('div', { class: 'sheet sheet-win' },
-      h('h2', { text: t('run.end') }),
-      h('p', { class: 'run-sum', text: t('run.meters', { m: sum.meters }) }),
-      h('p', { class: 'reward', 'data-fly': 'gold', 'data-n': g.earned }, img('ui.gold', 'emerald-icon'), t('gold.earned', { n: g.earned })),
-      g.gems ? h('p', { class: 'reward' }, img('ui.emerald', 'emerald-icon'), '+' + g.gems) : null,
-      record ? h('p', { class: 'gold-record', text: t('gold.record') }) : null,
-      h('p', { class: 'small-note', text: t('gold.total', { n: d.gold }) }),
-      h('div', { class: 'sheet-row' },
-        btn(t('gold.home'), () => CZ.ui.go('hub'), 'ghost-dark wide'),
-        btn(t('gold.again'), () => CZ.ui.go('gold'), 'primary wide')));
+    if (record) showRecord(sum, () => results(sum, true));
+    else results(sum, false);
+  }
+
+  // Yeni rekor: turuncu ışınlı ekranda karakterin koşar, dokununca sonuçlara geçilir.
+  function showRecord(sum, done) {
+    const me = data().avatar || 'girl';
+    const scr = h('div', { class: 'record-screen' },
+      h('h2', { text: t('run.newBest') }),
+      h('strong', { class: 'record-score', text: sum.score.toLocaleString() }),
+      CZ.charArt.img(me, 'back1', 'record-hero'),
+      h('p', { class: 'record-tap', text: t('run.tap') }));
+    const run = CZ.charArt.url(me, 'back2');
+    const hero = scr.querySelector('.record-hero');
+    const a = hero.src;
+    let f = 0;
+    const iv = setInterval(() => { f++; hero.src = f % 2 ? run : a; }, 180);
+    scr.addEventListener('pointerdown', () => { clearInterval(iv); scr.remove(); done(); }, { once: true });
+    g.el.append(scr);
+    CZ.audio.sfx('buy');
+  }
+
+  function results(sum, record) {
+    const d = data();
+    const me = d.avatar || 'girl';
+    const goldVal = h('b', { text: g.earned });
+    const doubleBtn = g.earned > 0 ? h('button', {
+      class: 'double-btn', type: 'button',
+      onClick: () => {
+        doubleBtn.disabled = true;
+        g.adTimer = CZ.ads.show(() => {
+          d.gold = (d.gold || 0) + g.earned;
+          g.earned *= 2;
+          goldVal.textContent = g.earned;
+          CZ.state.save();
+          CZ.audio.sfx('buy');
+          doubleBtn.remove();
+          CZ.ui.toast(t('run.doubled'));
+        });
+      }
+    }, h('span', { text: '+' + g.earned }), img('ui.gold', 'mini-ico'), h('em', { text: '▶ ' + t('run.ad') })) : null;
+    const sheet = h('div', { class: 'run-results' },
+      h('div', { class: 'res-top' },
+        CZ.charArt.img(me, 'front', 'res-hero'),
+        h('div', { class: 'res-boxes' },
+          h('div', { class: 'res-box' }, h('small', { text: t('run.score') }), h('strong', { text: sum.score.toLocaleString() }),
+            h('em', { text: record ? '🏆 ' + t('run.newBest') : t('run.best', { n: (d.runBest || 0).toLocaleString() }) })),
+          h('div', { class: 'res-box' }, h('small', { text: t('run.coins') }), h('strong', {}, goldVal, img('ui.gold', 'mini-ico')), doubleBtn),
+          h('div', { class: 'res-box small' }, h('small', { text: t('run.metersLabel') }), h('strong', { text: sum.meters + ' m' }),
+            g.gems ? h('em', { text: '+' + g.gems + ' 💎' }) : null))),
+      h('div', { class: 'res-actions' },
+        btn('⌂', () => CZ.ui.go('hub'), 'ghost-dark res-home'),
+        btn(t('gold.again'), () => CZ.ui.go('gold'), 'ghost-dark'),
+        btn(t('run.play'), () => { const el = g.el; startRound(el, true); }, 'primary big res-play')));
     g.el.append(sheet);
   }
 

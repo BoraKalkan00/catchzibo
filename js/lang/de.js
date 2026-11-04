@@ -671,5 +671,22 @@ CZ.i18n.register('de', 'Deutsch', {
   'hood.name.yuki': 'Skifahrerin Yuki',
   'hood.name.noah': 'Gärtner Noah',
   'raid.attack': 'Zibo',
-  'notif.title': 'Zibo 😈'
+  'notif.title': 'Zibo 😈',
+  'run.continue': 'Weiter?',
+  'run.toBest': 'Nur {n} Punkte bis zu deinem Rekord!',
+  'run.newBestNow': 'Gleich knackst du deinen Rekord!',
+  'run.adContinue': '▶ Werbung schauen, weiterlaufen',
+  'run.gemContinue': 'Für {n} Smaragde weiter',
+  'run.noThanks': 'Nein, danke',
+  'run.newBest': 'Neuer Rekord!',
+  'run.tap': 'Tippen zum Fortfahren',
+  'run.score': 'Punkte',
+  'run.coins': 'Gold',
+  'run.metersLabel': 'Strecke',
+  'run.best': 'Rekord: {n}',
+  'run.doubled': 'Dein Gold wurde verdoppelt!',
+  'run.ad': 'Werbung',
+  'run.play': 'SPIELEN',
+  'hub.adReward': 'Belohnung: Video schauen',
+  'hub.adGot': '+{n} Gold!'
 });

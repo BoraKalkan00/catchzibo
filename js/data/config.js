@@ -267,7 +267,8 @@ CZ.GOLD = {
     ],
     coinValue: 1, coinLine: [5, 8], coinGap: 1.3, secondLine: 0.15, coinLineChance: 0.8,
     emeraldFrom: 15, emeraldMax: 2, emeraldChance: 0.18,  // turda en fazla 2 elmas, zor yerde
-    powerEvery: [14, 22], magnetSec: 8, doubleSec: 10
+    powerEvery: [14, 22], magnetSec: 8, doubleSec: 10,
+    continueEmeralds: 10                       // elmasla devam: 10, sonra 20, 40... (reklamla 1 kez bedava)
   }
 };
 
@@ -288,6 +289,8 @@ CZ.ZIBO_LINES = {
 CZ.GOBLIN = ['nak', 'zib', 'gruk', 'bli', 'hee', 'ozz', 'mek', 'tik', 'wub', 'krik', 'yap', 'dro', 'snik', 'pfft', 'glo', 'zub'];
 
 // Merkezdeki bölümler, bulunan eşya sayısına göre açılır (yeni oyuncu boğulmasın).
+// Merkezde "Reklam izle, altın al": küçük ödül, günde en fazla 5 kez.
+CZ.AD_REWARD = { gold: 25, perDay: 5 };
 CZ.UNLOCK = { house: 1, gold: 2, quests: 2, hood: 3, book: 3, diary: 3 };
 // Test araçları yalnız ?dev=1 ile açılır (bir kez açınca bu cihazda hatırlanır, ?dev=0 kapatır).
 CZ.DEV = (function () {

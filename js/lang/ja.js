@@ -671,5 +671,22 @@ CZ.i18n.register('ja', '日本語', {
   'hub.houseNext': '次のステップへ！',
   'mansion.prize': '🎁 部屋をクリアでもらえる：',
   'mansion.prizeWon': '✓ ゲット：',
-  'house.spent': '💎 エメラルド{n}個使用、完了！'
+  'house.spent': '💎 エメラルド{n}個使用、完了！',
+  'run.continue': '続ける？',
+  'run.toBest': 'ベストまであと{n}点！',
+  'run.newBestNow': 'ベスト更新目前！',
+  'run.adContinue': '▶ 広告を見て続ける',
+  'run.gemContinue': 'エメラルド{n}個で続ける',
+  'run.noThanks': 'やめておく',
+  'run.newBest': 'ハイスコア更新！',
+  'run.tap': 'タップして続ける',
+  'run.score': 'スコア',
+  'run.coins': 'ゴールド',
+  'run.metersLabel': '距離',
+  'run.best': 'ベスト：{n}',
+  'run.doubled': 'ゴールドが2倍に！',
+  'run.ad': '広告',
+  'run.play': 'プレイ',
+  'hub.adReward': '報酬：動画を見る',
+  'hub.adGot': '+{n}ゴールド！'
 });

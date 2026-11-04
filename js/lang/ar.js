@@ -671,5 +671,22 @@ CZ.i18n.register('ar', 'العربية', {
   'hub.houseNext': 'نفّذ الخطوة التالية!',
   'mansion.prize': '🎁 أنهِ الغرفة واربح:',
   'mansion.prizeWon': '✓ ربحت:',
-  'house.spent': '💎 أُنفقت {n} زمردة، تم!'
+  'house.spent': '💎 أُنفقت {n} زمردة، تم!',
+  'run.continue': 'متابعة؟',
+  'run.toBest': '{n} نقطة فقط لتحطيم رقمك!',
+  'run.newBestNow': 'أنت على وشك رقم قياسي!',
+  'run.adContinue': '▶ شاهد إعلانًا وتابع',
+  'run.gemContinue': 'تابع مقابل {n} زمردة',
+  'run.noThanks': 'لا شكرًا',
+  'run.newBest': 'رقم قياسي جديد!',
+  'run.tap': 'انقر للمتابعة',
+  'run.score': 'النقاط',
+  'run.coins': 'الذهب',
+  'run.metersLabel': 'المسافة',
+  'run.best': 'الأفضل: {n}',
+  'run.doubled': 'تضاعف ذهبك!',
+  'run.ad': 'إعلان',
+  'run.play': 'العب',
+  'hub.adReward': 'مكافأة: شاهد فيديو',
+  'hub.adGot': '+{n} ذهب!'
 });

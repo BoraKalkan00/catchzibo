@@ -852,5 +852,22 @@ CZ.i18n.register('en', 'English', {
   'chars.bought': 'New color unlocked!',
   'color.yellow': 'Yellow',
   'color.black': 'Black',
-  'color.white': 'White'
+  'color.white': 'White',
+  'run.continue': 'Continue?',
+  'run.toBest': 'Only {n} points to beat your best!',
+  'run.newBestNow': 'You’re about to set a new best!',
+  'run.adContinue': '▶ Watch ad to continue',
+  'run.gemContinue': 'Continue for {n} emeralds',
+  'run.noThanks': 'No thanks',
+  'run.newBest': 'New High Score!',
+  'run.tap': 'Tap to continue',
+  'run.score': 'Score',
+  'run.coins': 'Coins',
+  'run.metersLabel': 'Distance',
+  'run.best': 'Best: {n}',
+  'run.doubled': 'Your coins were doubled!',
+  'run.ad': 'Ad',
+  'run.play': 'PLAY',
+  'hub.adReward': 'Get rewards: watch a video',
+  'hub.adGot': '+{n} coins!'
 });
