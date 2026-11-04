@@ -4,6 +4,7 @@
 CZ.CHARS = {
   boy: { skin: 0xf2c4a0, hair: 0x6b3f22, hat: 'beanie', hatColor: 0xc8302e, pom: 0xf4f4f4, jacket: 0x2f63c4, scarf: 0x3f8a3a, pants: 0x2b3448, boots: 0x7a4a24 },
   elf: { skin: 0xf2c4a0, hair: 0xf0c860, hat: 'elf', hatColor: 0x2f8a3a, pom: 0xe8b82a, jacket: 0x2f8a3a, scarf: 0xc8302e, pants: 0xf2f2f2, stripes: 0xd23a3a, boots: 0x2f8a3a },
+  snowkid: { skin: 0xf2c4a0, hair: 0x6b3f22, hat: 'tophat', hatColor: 0x1d1d22, band: 0xc8302e, pom: 0xf08a2a, jacket: 0xf4f6fa, scarf: 0xc8302e, pants: 0xf4f6fa, boots: 0x1d1d22, chubby: 1.3 },
   girl: { skin: 0xf2c4a0, hair: 0xa4472a, hat: 'beret', hatColor: 0xe0709e, pom: 0xf4f4f4, jacket: 0x8a4cc0, scarf: 0xf0c22e, fur: 0xf6f1ea, pants: 0x9a9ca4, boots: 0xf2f2f2, braid: true }
 };
 
@@ -56,7 +57,7 @@ CZ.hero3d = function (THREE, kind) {
   const torso = pivot(0, 0.02, 0);
   hips.add(torso);
   const jacket = cap(0.23, 0.3, M.jacket, 0.3);
-  jacket.scale.set(1.12, 1, 0.92);
+  jacket.scale.set(1.12 * (C.chubby || 1), 1, 0.92 * (C.chubby || 1));
   torso.add(jacket);
   [0.2, 0.36].forEach(y => {
     const ring = new THREE.Mesh(new THREE.TorusGeometry(0.235, 0.03, 8, 20), M.jacket);
@@ -104,6 +105,14 @@ CZ.hero3d = function (THREE, kind) {
     cuff.rotation.x = Math.PI / 2; cuff.position.y = 0.03;
     head.add(cuff);
     head.add(sph(0.065, M.pom, 0, 0.26, 0));
+  } else if (C.hat === 'tophat') {
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.03, 20), M.hat);
+    brim.position.y = 0.15; head.add(brim);
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.26, 20), M.hat);
+    crown.position.y = 0.29; head.add(crown);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(0.175, 0.175, 0.06, 20), mat(C.band || 0xc8302e));
+    band.position.y = 0.2; head.add(band);
+    head.add(sph(0.04, M.pom, 0.17, 0.21, 0, 1.6, 0.7, 0.7));
   } else if (C.hat === 'elf') {
     const cone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.55, 14), M.hat);
     cone.position.set(0, 0.3, 0.08); cone.rotation.x = 0.7;
