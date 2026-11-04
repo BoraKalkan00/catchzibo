@@ -32,7 +32,7 @@ CZ.screens.chase = (function () {
     // Yol: üstte dar (uzak), altta geniş. Şerit merkezleri altta %20 / %50 / %80.
     c.road = h('div', { class: 'chase-road' });
     c.road.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none">'
-      + '<polygon points="46,0 54,0 95,100 5,100" fill="url(#rg)"/>'
+      + '<polygon class="road-fill" points="46,0 54,0 95,100 5,100" fill="url(#rg)"/>'
       + '<defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3d6e6"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient></defs>'
       + '<line class="lane-dash" x1="48.67" y1="0" x2="35" y2="100"/><line class="lane-dash" x1="51.33" y1="0" x2="65" y2="100"/>'
       + '<line x1="46" y1="0" x2="5" y2="100" stroke="#9fb6cc" stroke-width=".8" vector-effect="non-scaling-stroke"/><line x1="54" y1="0" x2="95" y2="100" stroke="#9fb6cc" stroke-width=".8" vector-effect="non-scaling-stroke"/>'
@@ -46,7 +46,7 @@ CZ.screens.chase = (function () {
     c.zibo = h('div', { class: 'chase-zibo' }, c.bubble, c.loot, c.ziboImg);
     c.chain = h('i', { class: 'chase-chain' });
     c.field = h('div', { class: 'chase-field', onPointerDown: onDown, onPointerUp: onUp, onPointerCancel: () => { c.touch = null; } },
-      img('scene.town', 'chase-sky'), c.road, ...c.warns, c.chain, c.zibo, c.player);
+      img('scene.road', 'road-bg chase-bg'), c.road, ...c.warns, c.chain, c.zibo, c.player);
 
     c.gapText = h('strong', { text: '' });
     c.gapBar = h('i', {});

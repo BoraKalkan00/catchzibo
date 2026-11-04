@@ -949,3 +949,8 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .hub-actor .bubble { max-width: 54vw; font-size: 14px; }
 .title-bg::after { background: linear-gradient(180deg, rgba(8, 16, 36, .75) 0%, rgba(8, 16, 36, .35) 28%, transparent 45%, transparent 62%, rgba(8, 16, 36, .7) 88%, rgba(8, 16, 36, .9) 100%); }
 .title-bg .hub-bg-img { object-position: 50% 40%; }
+/* Gemini yol görseli: ufuk noktası (görselin %50'si) oyunun ufuk çizgisine oturur. */
+.road-bg { position: absolute; left: 50%; top: -28%; height: 128%; width: auto; min-width: 100%; max-width: none; object-fit: cover; transform: translateX(-50%); pointer-events: none; }
+.road-bg.chase-bg { top: -40%; height: 140%; }
+.road-fill { display: none; }
+.road-bg ~ .chase-road .lane-dash { stroke: rgba(255, 255, 255, .55); }

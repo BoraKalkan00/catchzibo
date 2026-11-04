@@ -57,7 +57,7 @@ CZ.screens.gold = (function () {
         }, 'ghost wide', 'ui.emerald'));
 
     el.append(
-      img('scene.town', 'scene-bg'),
+      img('scene.road', 'scene-bg'),
       snow(),
       h('header', { class: 'topbar gold-top' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.back'), onClick: () => { CZ.audio.sfx('button'); CZ.ui.go('hub'); }, text: '‹' }),
@@ -168,7 +168,7 @@ CZ.screens.gold = (function () {
     }
     g.road.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none">'
       + '<defs><linearGradient id="grg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9cde0"/><stop offset="1" stop-color="#eef5fb"/></linearGradient></defs>'
-      + '<polygon points="44,0 56,0 98,100 2,100" fill="url(#grg)"/>' + dashes + '</svg>';
+      + '<polygon points="44,0 56,0 98,100 2,100" fill="url(#grg)" class="road-fill"/>' + dashes + '</svg>';
     // Oyuncu: arkadan koşar, silahı elinde.
     g.meImg = img('avatar.' + avatar + '_run1', 'me-body');
     g.meWeapon = img(weapon.art, 'me-weapon');
@@ -177,7 +177,7 @@ CZ.screens.gold = (function () {
     g.zibo = img('zibo.run1', 'runner-zibo');
     g.flash = h('div', { class: 'hurt-flash' });
     g.field = h('div', { class: 'gold-field runner', onPointerDown: onDown, onPointerUp: onUp },
-      img('scene.town', 'chase-sky'), g.road, g.zibo, g.comboEl, g.me, g.flash);
+      img('scene.road', 'road-bg'), g.road, g.zibo, g.comboEl, g.me, g.flash);
     g.hint = h('p', { class: 'play-hint coach', text: t('gold.tap') });
     const move = dir => h('button', { class: 'btn ghost lane-btn', type: 'button', onPointerDown: e => { e.preventDefault(); moveLane(dir); }, text: dir < 0 ? '◀' : '▶' });
     el.append(
