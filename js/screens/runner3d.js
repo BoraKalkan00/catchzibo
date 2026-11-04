@@ -367,7 +367,8 @@ CZ.runner3d = (function () {
 
     /* Oyuncu ve Zibo: düz görseller (sprite) */
     // Oyuncu: eklemli 3D karakter (akıcı koşu animasyonu)
-    const hero = CZ.hero3d(THREE, opts.avatar);
+    // Çizimi olan karakter kendi Gemini çizimleriyle koşar; yoksa 3D parça karakter.
+    const hero = CZ.chars && CZ.chars.hasArt(opts.avatar) ? CZ.heroSprite(THREE, opts.avatar) : CZ.hero3d(THREE, opts.avatar);
     scene.add(hero.root);
     const pShadow = mesh(GEO.circle, M.shadow, 1.1, 0.7, 1, 0, 0.02, 0);
     pShadow.rotation.x = -Math.PI / 2;

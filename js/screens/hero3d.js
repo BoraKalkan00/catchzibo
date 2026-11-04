@@ -220,3 +220,79 @@ CZ.hero3d = function (THREE, kind) {
 
   return { root, update, weaponSlot, setOpacity, dispose() { Object.values(M).forEach(m => m.dispose()); } };
 };
+
+// Gemini çizimleriyle koşucu (2B kâğıt değil: adımlara göre yaylanır, eğilir, pozlar arasında yumuşak geçer).
+// Karakterin kendi çizimleri kullanıldığı için oyundaki karakter birebir Gemini'deki karakter olur.
+// İleride 8 karelik koşu sayfası gelirse CZ.RUN_FRAMES[kind] listesine eklenir, otomatik kullanılır.
+CZ.RUN_FRAMES = {};
+CZ.heroSprite = function (THREE, kind) {
+  const root = new THREE.Group();
+  const body = new THREE.Group();
+  root.add(body);
+  const mat = new THREE.SpriteMaterial({ transparent: true });
+  const sp = new THREE.Sprite(mat);
+  sp.center.set(0.5, 0);
+  body.add(sp);
+  const weaponSlot = new THREE.Group();
+  weaponSlot.position.set(0.42, 0.95, 0.05);
+  body.add(weaponSlot);
+  const tex = {};
+  const runFrames = CZ.RUN_FRAMES[kind] || ['back1', 'back2'];
+  const poses = Array.from(new Set(runFrames.concat(['jump', 'slide'])));
+  poses.forEach(p => {
+    const im = new Image();
+    im.onload = () => {
+      const c = document.createElement('canvas');
+      const hh = 512, r = im.naturalWidth / im.naturalHeight;
+      c.height = hh; c.width = Math.round(hh * r);
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      const t = new THREE.CanvasTexture(c);
+      t.userData = { ratio: r };
+      tex[p] = t;
+    };
+    im.src = CZ.charArt ? CZ.charArt.url(kind, p) : CZ.art('char.' + kind + '_' + p);
+  });
+  let phase = 0, cur = null, squash = 0, lastFrame = -1;
+  const st = { jump: 0, slide: 0, lean: 0, dead: 0 };
+  const lerp = (a, b, k) => a + (b - a) * k;
+  function show(p, height) {
+    const t = tex[p];
+    if (!t) return;
+    if (cur !== p) { mat.map = t; mat.needsUpdate = true; cur = p; }
+    sp.scale.set(height * t.userData.ratio, height, 1);
+  }
+  function update(dt, info) {
+    st.jump = lerp(st.jump, info.jumping ? 1 : 0, Math.min(1, dt * 14));
+    st.slide = lerp(st.slide, info.sliding ? 1 : 0, Math.min(1, dt * 18));
+    st.lean = lerp(st.lean, info.lean || 0, Math.min(1, dt * 12));
+    st.dead = lerp(st.dead, info.dead ? 1 : 0, Math.min(1, dt * 5));
+    const running = !info.idle && !info.dead;
+    phase += dt * (running ? 7 + (info.speed || 13) * 0.3 : 2);
+    const H = 1.85;
+    if (info.sliding) {
+      show('slide', H * 0.62);
+      body.position.y = 0;
+      body.rotation.z = 0;
+    } else if (info.jumping) {
+      show('jump', H * 1.05);
+      body.rotation.z = st.lean * -0.25;
+    } else {
+      // Koşu: kareler adım hızında değişir; her adımda gövde yaylanır ve hafifçe sallanır.
+      const n = runFrames.length;
+      const f = Math.floor((phase / Math.PI) * (n / 2)) % n;
+      if (f !== lastFrame) { lastFrame = f; squash = 1; }
+      show(runFrames[f], H);
+      squash = Math.max(0, squash - dt * 9);
+      const step = Math.abs(Math.sin(phase));
+      body.position.y = running ? step * 0.09 : 0;
+      body.rotation.z = (running ? Math.sin(phase) * 0.035 : 0) + st.lean * -0.3;
+      sp.scale.y *= 1 - squash * 0.05;
+      sp.scale.x *= 1 + squash * 0.04;
+    }
+    // Düşme: yana devrilir
+    if (st.dead > 0.01) body.rotation.z = st.dead * 1.3;
+    weaponSlot.visible = !info.sliding;
+  }
+  function setOpacity(o) { mat.opacity = o; }
+  return { root, update, weaponSlot, setOpacity, dispose() { Object.values(tex).forEach(t => t.dispose()); mat.dispose(); } };
+};
