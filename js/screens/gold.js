@@ -267,6 +267,7 @@ CZ.screens.gold = (function () {
     const el = h('div', { class: 'crate runner-crate trap trap-' + def.id }, img(def.art, 'crate-img'));
     g.field.insertBefore(el, g.me);
     g.traps.push({ def, el, sx: g.ziboLane, z: 0.04, alive: true, trap: true, hp: 1 });
+    g.poseUntil = performance.now() + 380;
     g.zibo.classList.remove('drop');
     void g.zibo.offsetWidth;
     g.zibo.classList.add('drop');
@@ -301,7 +302,7 @@ CZ.screens.gold = (function () {
     // Koşu kareleri: bacaklar sırayla.
     const f = 'avatar.' + g.avatar + (Math.floor(g.frame * 6.6) % 2 ? '_run2' : '_run1');
     if (g.meImg.dataset.f !== f) { g.meImg.dataset.f = f; g.meImg.src = CZ.art(f); }
-    const zf = Math.floor(g.frame * 6) % 2 ? 'zibo.run2' : 'zibo.run1';
+    const zf = t < (g.poseUntil || 0) ? 'zibo.throw' : Math.floor(g.frame * 6) % 2 ? 'zibo.run2' : 'zibo.run1';
     if (g.zibo.dataset.f !== zf) { g.zibo.dataset.f = zf; g.zibo.src = CZ.art(zf); }
     // Ayak tozu
     if (t >= g.nextDust) {

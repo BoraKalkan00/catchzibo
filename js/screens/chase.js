@@ -124,7 +124,8 @@ CZ.screens.chase = (function () {
     c.bombs.slice().forEach(b => { if (now >= b.at) explode(b); });
 
     // Koşu karesi: bacaklar sırayla.
-    const runFrame = Math.floor(c.frame * 6) % 2 ? 'zibo.run2' : 'zibo.run1';
+    // Bomba atarken kısa bir an dönüp atar, sonra koşmaya devam eder.
+    const runFrame = now < (c.poseUntil || 0) ? 'zibo.throw' : Math.floor(c.frame * 6) % 2 ? 'zibo.run2' : 'zibo.run1';
     if (c.ziboImg.dataset.f !== runFrame) { c.ziboImg.dataset.f = runFrame; c.ziboImg.src = CZ.art(runFrame); }
     const me = 'avatar.' + (CZ.state.data.avatar || 'girl') + (Math.floor(c.frame * 6.6) % 2 ? '_run2' : '_run1');
     if (c.player.dataset.f !== me) { c.player.dataset.f = me; c.player.src = CZ.art(me); }
@@ -171,6 +172,7 @@ CZ.screens.chase = (function () {
   /* ---------- Bombalar ---------- */
   function throwBomb(now) {
     c.nextBomb = now + byLevel(C.bombEveryMs) * rand(0.8, 1.2);
+    c.poseUntil = now + 420;
     // Çoğunlukla oyuncunun şeridine atar: kaçmak zorunda kalsın.
     let lanes = [Math.random() < 0.7 ? c.lane : Math.floor(Math.random() * 3)];
     if (level() >= C.doubleBombLevel && Math.random() < 0.45) {
@@ -354,8 +356,8 @@ CZ.screens.chase = (function () {
     if (CZ.quests) CZ.quests.track('chase');
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 40, 30, 160]);
-    c.ziboImg.src = CZ.art('zibo.tantrum');
-    c.ziboImg.dataset.f = 'tantrum';
+    c.ziboImg.src = CZ.art('zibo.dizzy');
+    c.ziboImg.dataset.f = 'dizzy';
     c.zibo.classList.add('caught');
     say('zibo.chase.caught');
     const mine = h('div', { class: 'mine-pop show', text: t('chase.caught') });

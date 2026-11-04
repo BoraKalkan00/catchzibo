@@ -148,7 +148,7 @@ CZ.game = (function () {
 
   // Oyunun açılışında tüm Zibo pozlarını hazır et, poz değişirken görüntü titremesin.
   function preloadZibo() {
-    ['idle', 'blink', 'smug', 'laugh', 'mad', 'nervous', 'tantrum', 'tongue', 'run1', 'run2'].forEach(p => { new Image().src = CZ.art('zibo.' + p); });
+    ['idle', 'blink', 'smug', 'laugh', 'mad', 'nervous', 'tantrum', 'tongue', 'run1', 'run2', 'dizzy', 'throw', 'sack'].forEach(p => { new Image().src = CZ.art('zibo.' + p); });
   }
 
   const formatSeconds = n => n.toLocaleString(CZ.i18n.current, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
