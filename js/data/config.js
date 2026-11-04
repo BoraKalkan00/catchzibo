@@ -27,18 +27,17 @@ CZ.CONFIG = {
 //   buzz:    titreşim gücü çarpanı. Tur ilerledikçe kalp atışı ve kayıp titreşimi sertleşir.
 // Odalar sırayla açılır: bir oda tamamen bulununca sıradaki gelir.
 // scene: assets/scenes içindeki oda görseli. fx: odanın canlı katmanı (alev, kar, ışıklar);
-// koordinatlar oda görselinin (900x1600) üzerinde. İstemiyorsan listeleri boşalt, fire ve snow'u null yap.
+// koordinatlar oda görselinin (1530x2048) üzerinde. İstemiyorsan listeleri boşalt, fire ve snow'u null yap.
 CZ.ROOMS = [{
   id: 'living',
   scene: 'room_living',
   fx: {
-    size: [900, 1600],
-    fire: { x: 545, y: 496, w: 200, h: 200 },
-    snow: { x: 70, y: 110, w: 270, h: 272 },
+    size: [1530, 2048],
+    fire: { x: 690, y: 780, w: 170, h: 170 },
+    snow: { x: 600, y: 130, w: 330, h: 350 },
     lights: [
-      [122, 560, '#ffd95e'], [190, 610, '#ff6b6b'], [250, 640, '#6fc3ff'], [95, 680, '#ffd95e'], [165, 720, '#ff6b6b'],
-      [255, 745, '#6fc3ff'], [70, 800, '#ffd95e'], [140, 830, '#ff6b6b'], [215, 850, '#6fc3ff'], [292, 825, '#ffd95e'],
-      [185, 462, '#fff3a8']
+      [84, 464, '#ffd95e'], [200, 590, '#ff6b6b'], [110, 676, '#6fc3ff'], [60, 850, '#ffd95e'], [320, 770, '#ff6b6b'],
+      [194, 1120, '#ffd95e'], [360, 1010, '#6fc3ff'], [34, 1096, '#ffd95e'], [256, 864, '#fff3a8']
     ]
   },
   rounds: [
