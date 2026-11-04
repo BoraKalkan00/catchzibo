@@ -798,5 +798,9 @@ CZ.i18n.register('en', 'English', {
   'quest.like': 'Like {n} neighbor',
   'quest.wardrobe': 'Change your outfit in the Wardrobe',
   'hub.houseBuilding': 'Building…',
-  'hub.houseNext': 'Do the next step!'
+  'hub.houseNext': 'Do the next step!',
+  'mansion.prize': '🎁 Finish the room to win:',
+  'mansion.prizeWon': '✓ You won:',
+  'ward.unlock.room': 'Finish the {room} ({have}/{n})',
+  'win.prize': 'Prize unlocked: {item}! It’s waiting in your Wardrobe.'
 });

@@ -21,6 +21,11 @@ CZ.closet = (function () {
     if (!it.unlock) return null;
     const s = d();
     const k = Object.keys(it.unlock)[0], need = it.unlock[k];
+    if (k === 'room') {
+      const room = CZ.ROOMS.find(r => r.id === need);
+      const total = room.rounds.length, have = room.rounds.filter(r => CZ.state.isFound(r.id)).length;
+      return { key: k, need: total, have, done: have >= total, room: CZ.t('room.' + need) };
+    }
     const have = k === 'chase' ? (s.chaseWins || 0) : k === 'house' ? (s.house && CZ.house ? CZ.house.level(s.house) : 0) : (s.goldBest || 0);
     return { key: k, need, have, done: have >= need };
   }
@@ -98,6 +103,7 @@ CZ.closet = (function () {
 })();
 
 CZ.screens.wardrobe = {
+  music: 'home',
   render(el, params) {
     const { h, img, btn } = CZ.ui;
     const t = CZ.t;
@@ -134,7 +140,7 @@ CZ.screens.wardrobe = {
       const headCats = ['face', 'eyes', 'brows', 'nose', 'mouth', 'beard', 'makeup', 'hair', 'hat', 'glasses', 'earrings'];
       const pic = h('img', { class: 'ward-pic' + (headCats.includes(cat) ? ' head' : ''), src: CZ.avatarArt.url(kind, look, cat === 'emote' ? it.id : ''), alt: '', loading: 'lazy' });
       const lock = it.unlock ? C.unlockState(it) : null;
-      const cost = owned ? null : lock ? h('small', { class: 'lock' }, '🔒 ' + t('ward.unlock.' + lock.key, { n: lock.need, have: lock.have })) : h('small', {}, img('ui.emerald', 'swatch-gold'), String(C.price(cat, it.id)));
+      const cost = owned ? null : lock ? h('small', { class: 'lock' }, '🔒 ' + t('ward.unlock.' + lock.key, { n: lock.need, have: lock.have, room: lock.room })) : h('small', {}, img('ui.emerald', 'swatch-gold'), String(C.price(cat, it.id)));
       return h('button', {
         class: `ward-item rar-${it.r}` + (on ? ' on' : '') + (trying ? ' trying' : '') + (o.shop ? ' shop' : ''), type: 'button',
         onClick: () => {
@@ -194,7 +200,7 @@ CZ.screens.wardrobe = {
       buyBar = h('div', { class: 'ward-buy rar-' + it.r },
         h('span', {}, h('b', { text: t('look.' + cat + '.' + id) }), h('small', { text: t('ward.rarity.' + it.r) })),
         btn(t('common.cancel'), () => CZ.ui.refresh(), 'small ghost'),
-        lock ? h('span', { class: 'lock', text: '🔒 ' + t('ward.unlock.' + lock.key, { n: lock.need, have: lock.have }) })
+        lock ? h('span', { class: 'lock', text: '🔒 ' + t('ward.unlock.' + lock.key, { n: lock.need, have: lock.have, room: lock.room }) })
           : h('button', {
             class: 'btn small primary', type: 'button',
             onClick: () => {

@@ -103,7 +103,7 @@ CZ.quests = (function () {
               h('div', { class: 'quest-bar' }, h('i', { style: `width:${item.have / item.n * 100}%` })),
               h('small', { text: `${item.have}/${item.n}` })),
             item.claimed ? h('span', { class: 'quest-check', text: '✓' })
-              : done ? h('button', { class: 'btn small primary pulse', type: 'button', onClick: () => { claim(i); CZ.audio.sfx('buy'); CZ.audio.vibrate(30); draw(); } }, chips(rewardOf(item)))
+              : done ? h('button', { class: 'btn small primary pulse', type: 'button', onClick: e => { const r = claim(i); if (r) { if (r.gold) CZ.ui.fly(e.currentTarget, 'gold', r.gold); if (r.emeralds) CZ.ui.fly(e.currentTarget, 'emeralds', r.emeralds); } CZ.audio.sfx('buy'); CZ.audio.vibrate(30); draw(); } }, chips(rewardOf(item)))
                 : h('button', { class: 'btn small ghost-dark', type: 'button', onClick: () => { wrap.remove(); CZ.ui.wipeTo(GO[item.id]); } }, t('quest.go'), chips(rewardOf(item))));
         }),
         h('div', { class: 'quest-chest' + (all && !q.chest ? ' ready' : '') },
@@ -111,7 +111,9 @@ CZ.quests = (function () {
           h('div', {}, h('strong', { text: t('quest.chest') }), chips(CZ.QUEST_CHEST)),
           q.chest ? h('span', { class: 'quest-check', text: '✓' })
             : btn(t('daily.claim'), () => {
+              const box = wrap.querySelector('.quest-chest');
               if (!claimChest()) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('quest.chestLocked')); }
+              CZ.ui.fly(box, 'gold', CZ.QUEST_CHEST.gold); CZ.ui.fly(box, 'emeralds', CZ.QUEST_CHEST.emeralds);
               CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]); draw();
             }, all ? 'small primary pulse' : 'small ghost-dark')),
         btn(t('common.continue'), () => { wrap.remove(); if (onClose) onClose(); }, 'primary wide')));

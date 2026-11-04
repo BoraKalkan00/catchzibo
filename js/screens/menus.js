@@ -170,6 +170,15 @@
         const rFound = room.rounds.filter(r => state.isFound(r.id)).length;
         const isOpen = game.roomOpen(room);
         const prev = CZ.ROOMS[index - 1];
+        // Oda ödülü: karakterin o eşyayla küçük resmi
+        const prize = (room, done) => {
+          const pz = CZ.ROOM_PRIZES[room.id];
+          if (!pz) return null;
+          const look = Object.assign({}, state.data.look || {}, { [pz[0]]: pz[1] });
+          return h('div', { class: 'room-prize' + (done ? ' won' : '') },
+            h('img', { src: CZ.avatarArt.url(state.data.avatar || 'girl', look), alt: '' }),
+            h('span', {}, h('small', { text: done ? t('mansion.prizeWon') : t('mansion.prize') }), h('b', { text: t('look.' + pz[0] + '.' + pz[1]) })));
+        };
         return h('section', { class: 'room-block' + (isOpen ? '' : ' room-locked') },
           h('div', { class: 'room-card' },
             img('scene.' + room.scene, 'room-thumb'),
@@ -179,7 +188,8 @@
               h('p', { text: isOpen ? t('mansion.progress', { found: rFound, total: room.rounds.length })
                 : game.dateLocked(room) ? t('mansion.opensOn', { date: game.formatDate(room.opens) })
                 : t('mansion.roomLocked', { room: t('room.' + prev.id) }) }),
-              isOpen ? h('div', { class: 'meter' }, h('i', { style: `width:${rFound / room.rounds.length * 100}%` })) : img('ui.lock', 'room-lock-icon'))),
+              isOpen ? h('div', { class: 'meter' }, h('i', { style: `width:${rFound / room.rounds.length * 100}%` })) : img('ui.lock', 'room-lock-icon'),
+              prize(room, rFound === room.rounds.length))),
           isOpen ? h('div', { class: 'tile-grid' }, room.rounds.map(tile)) : null);
       };
       const allFound = found === list.length;

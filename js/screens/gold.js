@@ -200,7 +200,7 @@ CZ.screens.gold = (function () {
     g.nextTrap = g.last + (G.trapsFromSecond + (g.perk.trapDelay || 0)) * 1000;
     g.ziboNext = g.last + 1500;
     g.loop = requestAnimationFrame(loop);
-    CZ.audio.music('play');
+    CZ.audio.music('gold');
     CZ.audio.sfx('drop');
   }
 
@@ -602,7 +602,7 @@ CZ.screens.gold = (function () {
     CZ.audio.vibrate([40, 30, 60]);
     const sheet = h('div', { class: 'sheet sheet-win' },
       h('h2', { text: t('gold.end') }),
-      h('p', { class: 'reward' }, img('ui.gold', 'emerald-icon'), t('gold.earned', { n: g.earned })),
+      h('p', { class: 'reward', 'data-fly': 'gold', 'data-n': g.earned }, img('ui.gold', 'emerald-icon'), t('gold.earned', { n: g.earned })),
       record ? h('p', { class: 'gold-record', text: t('gold.record') }) : null,
       h('p', { class: 'small-note', text: t('gold.total', { n: d.gold }) }),
       h('div', { class: 'sheet-row' },

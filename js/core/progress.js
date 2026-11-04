@@ -102,7 +102,10 @@ CZ.progress = (function () {
         h('p', { class: 'small-note', text: info.broken ? t('daily.broken') : t('daily.sub') }),
         h('div', { class: 'day-grid' }, tiles),
         btn(t('daily.claim'), () => {
+          const tile = wrap.querySelector('.day-tile.today');
           const r = claimDaily();
+          if (r && r.gold) CZ.ui.fly(tile, 'gold', r.gold);
+          if (r && r.emeralds) CZ.ui.fly(tile, 'emeralds', r.emeralds);
           CZ.audio.sfx(r && r.big ? 'win' : 'buy');
           CZ.audio.vibrate([30, 30, 60]);
           wrap.querySelector('.day-tile.today').classList.add('claimed');
@@ -124,7 +127,12 @@ CZ.progress = (function () {
         img('zibo.laugh', 'level-zibo'),
         h('p', { class: 'level-line', text: '“' + t(line) + '”' }),
         rewardChips(next.reward),
-        btn(t('common.continue'), () => { wrap.remove(); if (!levelBox(root, onDone) && onDone) onDone(); }, 'primary wide')));
+        btn(t('common.continue'), () => {
+          const chips = wrap.querySelector('.chips');
+          if (next.reward.gold) CZ.ui.fly(chips, 'gold', next.reward.gold);
+          if (next.reward.emeralds) CZ.ui.fly(chips, 'emeralds', next.reward.emeralds);
+          wrap.remove(); if (!levelBox(root, onDone) && onDone) onDone();
+        }, 'primary wide')));
     root.append(wrap);
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 40, 30, 120]);

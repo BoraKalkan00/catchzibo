@@ -31,20 +31,23 @@ CZ.CATALOG = {
     { id: 'pixie', r: 'C', g: 'girl' }, { id: 'buns', r: 'C', g: 'girl' }, { id: 'braids', r: 'R', g: 'girl' }, { id: 'curly', r: 'R', g: 'girl' },
     { id: 'side', r: 'R', g: 'girl' }, { id: 'twintails', r: 'E', g: 'girl' }],
   // Kıyafet
-  top: [{ id: 'tshirt', r: 'F' }, { id: 'hoodie', r: 'F' }, { id: 'sweater', r: 'C' }, { id: 'puffer', r: 'C' }, { id: 'shirt', r: 'C' }, { id: 'jersey', r: 'R' }, { id: 'xmas', r: 'R' }, { id: 'leather', r: 'E' }],
+  top: [{ id: 'tshirt', r: 'F' }, { id: 'hoodie', r: 'F' }, { id: 'sweater', r: 'C' }, { id: 'puffer', r: 'C' }, { id: 'shirt', r: 'C' }, { id: 'jersey', r: 'R' }, { id: 'xmas', r: 'R', unlock: { room: 'living' } }, { id: 'leather', r: 'E' }],
   bottom: [{ id: 'jeans', r: 'F' }, { id: 'joggers', r: 'F' }, { id: 'shorts', r: 'C' }, { id: 'skirt', r: 'C', g: 'girl' }, { id: 'cargo', r: 'R' }],
-  shoes: [{ id: 'sneakers', r: 'F' }, { id: 'boots', r: 'F' }, { id: 'hightops', r: 'C' }, { id: 'snow', r: 'R' }, { id: 'gold', r: 'L' }],
-  costume: [{ id: 'none', r: 'F' }, { id: 'raven', r: 'E' }, { id: 'santa', r: 'E' }, { id: 'dragon', r: 'L' }, { id: 'zibo', r: 'L', unlock: { chase: 25 } }],
+  shoes: [{ id: 'sneakers', r: 'F' }, { id: 'boots', r: 'F' }, { id: 'hightops', r: 'C' }, { id: 'snow', r: 'R' }, { id: 'gold', r: 'L', unlock: { room: 'treasure' } }],
+  costume: [{ id: 'none', r: 'F' }, { id: 'raven', r: 'E' }, { id: 'santa', r: 'E', unlock: { room: 'throne' } }, { id: 'dragon', r: 'L' }, { id: 'zibo', r: 'L', unlock: { chase: 25 } }],
   // Aksesuar
   hat: [{ id: 'none', r: 'F' }, { id: 'beanie', r: 'F' }, { id: 'cap', r: 'C' }, { id: 'backcap', r: 'C' }, { id: 'hijab', r: 'F', g: 'girl' }, { id: 'catears', r: 'R' },
-    { id: 'headphones', r: 'R' }, { id: 'santa', r: 'R' }, { id: 'crown', r: 'L', unlock: { house: 60 } }],
+    { id: 'headphones', r: 'R' }, { id: 'santa', r: 'R', unlock: { room: 'kitchen' } }, { id: 'crown', r: 'L', unlock: { house: 60 } }],
   glasses: [{ id: 'none', r: 'F' }, { id: 'round', r: 'C' }, { id: 'square', r: 'C' }, { id: 'sun', r: 'R' }, { id: 'star', r: 'E' }, { id: 'ski', r: 'R' }],
   earrings: [{ id: 'none', r: 'F' }, { id: 'studs', r: 'C' }, { id: 'hoops', r: 'C' }],
   neck: [{ id: 'none', r: 'F' }, { id: 'scarf', r: 'F' }, { id: 'chain', r: 'R' }, { id: 'medal', r: 'L', unlock: { goldBest: 200 } }],
-  back: [{ id: 'none', r: 'F' }, { id: 'backpack', r: 'C' }, { id: 'cape', r: 'E' }, { id: 'wings', r: 'L' }],
+  back: [{ id: 'none', r: 'F' }, { id: 'backpack', r: 'C' }, { id: 'cape', r: 'E' }, { id: 'wings', r: 'L', unlock: { room: 'attic' } }],
   // Hareketler
   emote: [{ id: 'idle', r: 'F' }, { id: 'wave', r: 'F' }, { id: 'cheer', r: 'C' }, { id: 'dance', r: 'R' }, { id: 'dab', r: 'E' }, { id: 'zibo', r: 'L', unlock: { chase: 10 } }]
 };
+
+// Malikane odası ödülleri: odayı bitiren bu eşyayı kazanır (parayla alınamaz).
+CZ.ROOM_PRIZES = { living: ['top', 'xmas'], kitchen: ['hat', 'santa'], attic: ['back', 'wings'], treasure: ['shoes', 'gold'], throne: ['costume', 'santa'] };
 
 // Renk seçilebilen eşyalar: katalog anahtarı → renk anahtarı
 CZ.COLOR_OF = { hair: 'hairColor', top: 'topColor', bottom: 'bottomColor', shoes: 'shoeColor', skin: 'skin', eyes: 'eyeColor' };

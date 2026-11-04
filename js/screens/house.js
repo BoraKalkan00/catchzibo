@@ -72,6 +72,7 @@
 
   /* ================= EVİM ================= */
   CZ.screens.house = {
+    music: 'home',
     render(el, params) {
       const H = HS.ensure();
       const tab = params.tab || this.tab || 'build';
@@ -304,6 +305,7 @@
 
   /* ================= ODA İÇİ ================= */
   CZ.screens.room = {
+    music: 'home',
     render(el, params) {
       const H = HS.ensure();
       const ids = CZ.HROOMS.map(r => r.id).filter(id => H.rooms[id]);
@@ -387,6 +389,7 @@
 
   /* ================= MAHALLE ================= */
   CZ.screens.hood = {
+    music: 'home',
     render(el, params) {
       const H = HS.ensure();
       const tab = params.tab || this.tab || 'map';
@@ -433,6 +436,7 @@
   };
 
   CZ.screens.visit = {
+    music: 'home',
     render(el, params) {
       const n = HS.neighbors().find(x => x.id === params.id);
       if (!n) return go('hood');

@@ -855,3 +855,21 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .quest-chest > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .quest-chest-img { width: 46px; }
 .quest-modal > .btn { margin-top: 12px; }
+/* Hikâye v2: 3D Zibo + oyuncunun karakteri */
+.story-hero.s1 { left: 8%; bottom: 22%; width: 34%; }
+.story-hero.s4 { left: 50%; bottom: 17%; width: 34%; transform: translateX(-50%); animation: none; }
+.story-zibo { position: absolute; pointer-events: none; }
+.story-zibo.s2 { left: 34%; top: 44%; width: 46%; animation: zibosneak 3.6s linear forwards; }
+@keyframes zibosneak { from { transform: translateX(80%) rotate(4deg); } to { transform: translateX(-70%) rotate(-4deg); } }
+.story-zibo.s3 { left: 50%; top: 40%; width: 26%; transform: translateX(-50%); animation: heroin .5s .4s cubic-bezier(.3, 1.5, .5, 1) backwards; }
+.story-zibo.s4 { left: 50%; top: 13%; width: 20%; transform: translateX(-50%); animation: peek 1.4s .3s ease-out backwards; }
+@keyframes peek { from { transform: translate(-50%, 30%); opacity: 0; } }
+.fly-icon { position: fixed; left: 0; top: 0; width: 28px; height: 28px; z-index: 999; pointer-events: none; will-change: transform; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .35)); }
+.emeralds.bump { animation: bump .25s ease-out; }
+.room-prize { display: flex; align-items: center; gap: 6px; margin-top: 6px; padding: 3px 8px 3px 3px; border-radius: 12px; background: rgba(242, 182, 50, .22); border: 2px dashed var(--gold); }
+.room-prize img { width: 34px; height: 42px; object-fit: contain; }
+.room-prize span { display: flex; flex-direction: column; line-height: 1.1; }
+.room-prize small { font-size: 11px; font-weight: 800; opacity: .8; }
+.room-prize b { font-size: 13px; }
+.room-prize.won { background: rgba(23, 168, 104, .25); border-style: solid; border-color: var(--emerald); }
+.reward.prize { color: #b5640e; font-weight: 800; }

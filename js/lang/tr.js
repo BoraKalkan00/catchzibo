@@ -798,5 +798,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   'quest.like': '{n} komşunu beğen',
   'quest.wardrobe': 'Gardıropta kıyafet değiştir',
   'hub.houseBuilding': 'İnşaat sürüyor',
-  'hub.houseNext': 'Sıradaki adımı yap!'
+  'hub.houseNext': 'Sıradaki adımı yap!',
+  'mansion.prize': '🎁 Odayı bitir, kazan:',
+  'mansion.prizeWon': '✓ Kazandın:',
+  'ward.unlock.room': '{room} odasını bitir ({have}/{n})',
+  'win.prize': 'Ödül kazandın: {item}! Gardıropta seni bekliyor.'
 });
