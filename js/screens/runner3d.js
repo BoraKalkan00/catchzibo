@@ -363,17 +363,16 @@ CZ.runner3d = (function () {
     scene.add(snowPts);
 
     /* Oyuncu ve Zibo: düz görseller (sprite) */
-    const playerMat = new THREE.SpriteMaterial({ transparent: true });
-    const player = new THREE.Sprite(playerMat);
-    player.center.set(0.5, 0);
-    scene.add(player);
+    // Oyuncu: eklemli 3D karakter (akıcı koşu animasyonu)
+    const hero = CZ.hero3d(THREE, opts.avatar);
+    scene.add(hero.root);
     const pShadow = mesh(GEO.circle, M.shadow, 1.1, 0.7, 1, 0, 0.02, 0);
     pShadow.rotation.x = -Math.PI / 2;
     scene.add(pShadow);
     const weaponMat = new THREE.SpriteMaterial({ transparent: true });
     const weaponSp = new THREE.Sprite(weaponMat);
     weaponSp.center.set(0.3, 0.1);
-    scene.add(weaponSp);
+    hero.weaponSlot.add(weaponSp);
     const ziboMat = new THREE.SpriteMaterial({ transparent: true });
     const zibo = new THREE.Sprite(ziboMat);
     zibo.center.set(0.5, 0);
@@ -388,20 +387,13 @@ CZ.runner3d = (function () {
 
     const T = {};
     const loads = [
-      ...['_run1', '_run2'].map(f => imageTex(CZ.art('avatar.' + opts.avatar + f), 512).then(x => { T['me' + f] = x; })),
       ...['run1', 'run2', 'laugh', 'throw'].map(f => imageTex(CZ.art('zibo.' + f), 384).then(x => { T['z_' + f] = x; })),
       imageTex(CZ.art(opts.weaponArt), 256).then(x => { T.weapon = x; })
     ];
     const ready = Promise.all(loads).then(() => {
-      setPlayerFrame('_run1');
       setZiboFrame('run1');
       if (T.weapon) { weaponMat.map = T.weapon; weaponMat.needsUpdate = true; weaponSp.scale.set(0.5 * T.weapon.userData.ratio, 0.5, 1); }
     });
-    function setPlayerFrame(f) {
-      const tex = T['me' + f];
-      if (!tex || playerMat.map === tex) return;
-      playerMat.map = tex; playerMat.needsUpdate = true;
-    }
     function setZiboFrame(f) {
       const tex = T['z_' + f] || T.z_run1;
       if (!tex || ziboMat.map === tex) return;
@@ -605,6 +597,7 @@ CZ.runner3d = (function () {
     }
     function idle(dt) {
       s.frame += dt;
+      hero.update(dt, { speed: 0, idle: !s.dead, dead: !!s.dead });
       animateSnow(dt, 4);
     }
     function animateSnow(dt, v) {
@@ -654,15 +647,10 @@ CZ.runner3d = (function () {
       s.magnetT = Math.max(0, s.magnetT - dt);
       s.doubleT = Math.max(0, s.doubleT - dt);
       const sliding = s.slideT > 0 && !s.jumping;
-      const H = 1.75;
-      const ratio = playerMat.map ? playerMat.map.userData.ratio : 0.7;
-      player.scale.set(H * ratio * (sliding ? 1.18 : 1), H * (sliding ? 0.5 : 1), 1);
-      player.position.set(s.px, s.py, 0);
-      const lean = (tx - s.px) * 0.15;
-      playerMat.rotation = -lean;
-      setPlayerFrame(s.jumping || sliding ? '_run2' : Math.floor(s.frame * 7) % 2 ? '_run2' : '_run1');
-      playerMat.opacity = s.invT > 0 ? (Math.floor(s.t * 14) % 2 ? 0.35 : 1) : 1;
-      weaponSp.position.set(s.px + 0.32, s.py + (sliding ? 0.35 : 0.85), 0.05);
+      const lean = (tx - s.px) * 0.6;
+      hero.root.position.set(s.px, s.py, 0);
+      hero.update(dt, { speed: s.speed, jumping: s.jumping, sliding, lean, dead: false });
+      hero.setOpacity(s.invT > 0 ? (Math.floor(s.t * 14) % 2 ? 0.35 : 1) : 1);
       weaponSp.visible = !sliding;
       pShadow.position.x = s.px;
       const sh = Math.max(0.4, 1 - s.py * 0.25);
@@ -825,8 +813,8 @@ CZ.runner3d = (function () {
       opts.onCrash(s.hearts);
       if (s.hearts <= 0) {
         s.running = false;
-        playerMat.rotation = 1.3;
-        player.position.y = 0;
+        s.dead = true;
+        hero.setOpacity(1);
         setZiboFrame('laugh');
         setTimeout(() => { if (s.alive) opts.onEnd(summary()); }, 1100);
       }

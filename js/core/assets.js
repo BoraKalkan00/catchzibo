@@ -43,6 +43,8 @@ CZ.FOLDERS = {
 
 CZ.art = function (key) {
   if (CZ.OVERRIDES[key]) return CZ.OVERRIDES[key];
+  // Gemini karakter çizimleri: char.boy_front, char.girl_wave ...
+  if (key.startsWith('char.')) return 'assets/chars/' + key.slice(5) + '.webp';
   // Oyuncu karakteri renk ve kostüme göre çizilir (js/core/avatar.js).
   if (key.startsWith('avatar.') && CZ.avatarArt) return CZ.avatarArt.url(key.slice(7));
   const dot = key.indexOf('.');

@@ -50,7 +50,7 @@
         class: 'avatar-card' + (state.data.avatar === kind ? ' selected' : ''),
         type: 'button',
         onClick: () => { CZ.audio.sfx('button'); pick(kind); }
-      }, img('avatar.' + kind, 'avatar-img'), h('span', { text: t('avatar.' + kind) }));
+      }, img('char.' + kind + '_front', 'avatar-img'), h('span', { text: t('avatar.' + kind) }));
 
       el.append(
         snow(),
@@ -105,7 +105,7 @@
         h('button', { class: 'mansion-hot', type: 'button', 'aria-label': t('hub.enter'), onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } }),
         h('div', { class: 'hub-top glass-bar' },
           h('div', { class: 'hub-me' },
-            h('button', { class: 'hub-avatar-btn', type: 'button', 'aria-label': t('look.title'), onClick: () => { CZ.audio.sfx('button'); go('wardrobe'); } }, img('avatar.' + (state.data.avatar || 'girl'), 'hub-avatar')),
+            h('button', { class: 'hub-avatar-btn', type: 'button', 'aria-label': t('look.title'), onClick: () => { CZ.audio.sfx('button'); go('wardrobe'); } }, img('char.' + (state.data.avatar || 'girl') + '_front', 'hub-avatar')),
             CZ.progress.bar()),
           h('div', { class: 'hub-stats' },
             h('div', { class: 'emeralds gold-badge' }, img('ui.gold', 'emerald-icon'), h('span', { text: state.data.gold || 0 })),
@@ -312,7 +312,7 @@
               text: l.name
             })))),
           row(t('settings.avatar'), h('div', { class: 'set-avatar' },
-            img('avatar.' + (d.avatar || 'girl'), 'set-avatar-img'),
+            img('char.' + (d.avatar || 'girl') + '_front', 'set-avatar-img'),
             btn(t('settings.change'), () => go('wardrobe', { returnTo: 'settings' }), 'small ghost-dark'))),
           row(t('settings.sound'), toggle('sound')),
           row(t('settings.music'), toggle('music')),

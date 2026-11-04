@@ -989,3 +989,4 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .penalty-pop { position: absolute; z-index: 90; transform: translate(-50%, -50%); padding: 4px 12px; border-radius: 12px; background: #e23b3b; color: #fff; font-weight: 900; font-size: 22px; pointer-events: none; animation: runfloat 1s ease-out forwards; box-shadow: 0 4px 10px rgba(0, 0, 0, .4); }
 .hub-tile.locked { filter: grayscale(.85); opacity: .72; }
 .hub-tile.locked .tile-icon { width: 34px; height: 34px; }
+.hub-avatar, .set-avatar-img { object-position: 50% 4%; }
