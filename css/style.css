@@ -990,3 +990,6 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .hub-tile.locked { filter: grayscale(.85); opacity: .72; }
 .hub-tile.locked .tile-icon { width: 34px; height: 34px; }
 .hub-avatar, .set-avatar-img { object-position: 50% 4%; }
+.chase-field3d { position: relative; flex: 1; min-height: 0; overflow: hidden; touch-action: none; background: #1d2f6b; }
+.chase-field3d .chase-bubble { top: 8%; right: 6%; left: auto; transform-origin: top right; }
+.chase-field3d .chase-bubble::after { display: none; }

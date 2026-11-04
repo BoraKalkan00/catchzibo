@@ -9,9 +9,7 @@ CZ.screens.chase = (function () {
 
   const rand = (a, b) => a + Math.random() * (b - a);
   const lerp = (a, b, k) => a + (b - a) * k;
-  const LANE_X = [0.2, 0.5, 0.8];   // oyuncunun sırasında şerit merkezleri
-  const ROAD_TOP = 0.3;              // yolun ekrandaki başladığı yer (ufuk)
-
+  
   function level() {
     return Math.min(C.maxLevel, CZ.state.data.chaseWins || 0);
   }
@@ -29,24 +27,21 @@ CZ.screens.chase = (function () {
       timers: [], bombs: [], frame: 0
     };
 
-    // Yol: üstte dar (uzak), altta geniş. Şerit merkezleri altta %20 / %50 / %80.
-    c.road = h('div', { class: 'chase-road' });
-    c.road.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none">'
-      + '<polygon class="road-fill" points="46,0 54,0 95,100 5,100" fill="url(#rg)"/>'
-      + '<defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3d6e6"/><stop offset="1" stop-color="#f4f9fd"/></linearGradient></defs>'
-      + '<line class="lane-dash" x1="48.67" y1="0" x2="35" y2="100"/><line class="lane-dash" x1="51.33" y1="0" x2="65" y2="100"/>'
-      + '<line x1="46" y1="0" x2="5" y2="100" stroke="#9fb6cc" stroke-width=".8" vector-effect="non-scaling-stroke"/><line x1="54" y1="0" x2="95" y2="100" stroke="#9fb6cc" stroke-width=".8" vector-effect="non-scaling-stroke"/>'
-      + '</svg>';
-    c.warns = [0, 1, 2].map(i => h('i', { class: 'lane-warn w' + i }));
-    c.player = img('avatar.' + (CZ.state.data.avatar || 'girl') + '_run1', 'chase-player');
-    ['_run1', '_run2'].forEach(f => { new Image().src = CZ.art('avatar.' + (CZ.state.data.avatar || 'girl') + f); });
-    c.ziboImg = img('zibo.run1', 'chase-zibo-img');
-    c.loot = img('item.' + round.target, 'chase-loot');
+    // 3D sokak: Altın Avı ile aynı motor (runner3d), 3 şerit.
+    c.stage = h('div', { class: 'run-stage chase-stage' });
     c.bubble = h('div', { class: 'bubble chase-bubble' }, h('em', { class: 'bubble-goblin' }), h('span', { class: 'bubble-line' }));
-    c.zibo = h('div', { class: 'chase-zibo' }, c.bubble, c.loot, c.ziboImg);
-    c.chain = h('i', { class: 'chase-chain' });
-    c.field = h('div', { class: 'chase-field', onPointerDown: onDown, onPointerUp: onUp, onPointerCancel: () => { c.touch = null; } },
-      img('scene.road', 'road-bg chase-bg'), c.road, ...c.warns, c.chain, c.zibo, c.player);
+    c.floats = h('div', { class: 'run-floats' });
+    c.field = h('div', { class: 'chase-field3d' }, c.stage, c.bubble, c.floats);
+    c.readyP = CZ.runner3d.load().then(() => {
+      if (!c || c.el !== el) return;
+      c.run = CZ.runner3d.start(c.stage, {
+        mode: 'chase', lanes: 3, speed: 17, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
+        onTap: () => hook(), onSwipeUp: () => hook(),
+        onGold() {}, onEmerald() {}, onPower() {}, onCrate() {}, onDodge() {}, onCrash() {}, onEnd() {}
+      });
+      c.run.state.lane = 1; c.run.state.px = 0;
+      return c.run.ready;
+    });
 
     c.gapText = h('strong', { text: '' });
     c.gapBar = h('i', {});
@@ -68,7 +63,7 @@ CZ.screens.chase = (function () {
 
     drawHearts();
     layout();
-    intro();
+    c.readyP.then(() => intro()).catch(() => CZ.ui.toast(t('run.noGl')));
   }
 
   function intro() {
@@ -91,6 +86,7 @@ CZ.screens.chase = (function () {
   function start() {
     if (!c || c.running) return;
     c.running = true;
+    if (c.run) c.run.go();
     c.last = performance.now();
     c.loop = requestAnimationFrame(loop);
     c.nextSwitch = performance.now() + byLevel(C.laneSwitchMs);
@@ -119,16 +115,10 @@ CZ.screens.chase = (function () {
     c.gap = Math.max(0, Math.min(C.startGap * 1.4, c.gap - close * dt));
     c.hookReady = Math.max(0, c.hookReady - dt);
 
+    if (c.run) c.lane = c.run.state.lane;
     if (now >= c.nextSwitch) switchLane();
     if (now >= c.nextBomb) throwBomb(now);
     c.bombs.slice().forEach(b => { if (now >= b.at) explode(b); });
-
-    // Koşu karesi: bacaklar sırayla.
-    // Bomba atarken kısa bir an dönüp atar, sonra koşmaya devam eder.
-    const runFrame = now < (c.poseUntil || 0) ? 'zibo.throw' : Math.floor(c.frame * 6) % 2 ? 'zibo.run2' : 'zibo.run1';
-    if (c.ziboImg.dataset.f !== runFrame) { c.ziboImg.dataset.f = runFrame; c.ziboImg.src = CZ.art(runFrame); }
-    const me = 'avatar.' + (CZ.state.data.avatar || 'girl') + (Math.floor(c.frame * 6.6) % 2 ? '_run2' : '_run1');
-    if (c.player.dataset.f !== me) { c.player.dataset.f = me; c.player.src = CZ.art(me); }
 
     layout();
     const shown = Math.max(0, Math.ceil(c.timeLeft));
@@ -144,17 +134,7 @@ CZ.screens.chase = (function () {
 
   // Perspektif: Zibo uzaktayken yolun üst kısmında ve küçük, yaklaştıkça büyür ve aşağı iner.
   function layout() {
-    const near = 1 - Math.min(1, c.gap / C.startGap);
-    const y = lerp(0.3, 0.6, near);
-    const scale = lerp(0.55, 1.0, near);
-    // Zibo'nun şeridi yolun o yükseklikteki genişliğine göre: uzakta yol dar.
-    const f = Math.max(0, (y - ROAD_TOP) / (1 - ROAD_TOP));
-    const half = 0.04 + f * 0.41;
-    const x = 0.5 + (c.ziboLane - 1) * half * (2 / 3);
-    c.zibo.style.left = x * 100 + '%';
-    c.zibo.style.top = y * 100 + '%';
-    c.zibo.style.setProperty('--s', scale);
-    c.player.style.left = LANE_X[c.lane] * 100 + '%';
+    if (c.run) c.run.setZibo(c.ziboLane, -(3.6 + c.gap * 0.22));
     c.gapText.textContent = t('chase.meters', { n: Math.ceil(c.gap) });
     c.gapBar.style.width = Math.max(0, 100 - c.gap / C.startGap * 100) + '%';
     c.hookBtn.classList.toggle('cool', c.hookReady > 0);
@@ -172,7 +152,7 @@ CZ.screens.chase = (function () {
   /* ---------- Bombalar ---------- */
   function throwBomb(now) {
     c.nextBomb = now + byLevel(C.bombEveryMs) * rand(0.8, 1.2);
-    c.poseUntil = now + 420;
+    if (c.run) c.run.ziboThrow();
     // Çoğunlukla oyuncunun şeridine atar: kaçmak zorunda kalsın.
     let lanes = [Math.random() < 0.7 ? c.lane : Math.floor(Math.random() * 3)];
     if (level() >= C.doubleBombLevel && Math.random() < 0.45) {
@@ -182,8 +162,6 @@ CZ.screens.chase = (function () {
     lanes.forEach(lane => {
       const b = { lane, at: now + C.warnMs };
       c.bombs.push(b);
-      const warn = c.warns[lane];
-      warn.classList.add('on');
       // Bip sesi düşme anına yaklaştıkça sıklaşır.
       const beep = gap => {
         if (!c || !c.running || !c.bombs.includes(b)) return;
@@ -192,38 +170,13 @@ CZ.screens.chase = (function () {
         if (left > 120) b.beep = setTimeout(() => beep(Math.max(90, gap * 0.72)), Math.min(gap, left - 60));
       };
       beep(380);
-      // Bomba Zibo'dan şeride uçar.
-      const box = c.field.getBoundingClientRect();
-      const from = c.zibo.getBoundingClientRect();
-      const bomb = h('i', { class: 'bomb' });
-      c.field.append(bomb);
-      const sx = from.left + from.width / 2 - box.left;
-      const sy = from.top + from.height * 0.3 - box.top;
-      const ex = LANE_X[lane] * box.width;
-      const ey = box.height * 0.84;
-      bomb.style.left = sx + 'px';
-      bomb.style.top = sy + 'px';
-      b.el = bomb;
-      bomb.animate([
-        { transform: 'translate(-50%, -50%) scale(.5)' },
-        { transform: `translate(calc(-50% + ${(ex - sx) * 0.5}px), calc(-50% + ${(ey - sy) * 0.5 - 120}px)) scale(1)`, offset: 0.5 },
-        { transform: `translate(calc(-50% + ${ex - sx}px), calc(-50% + ${ey - sy}px)) scale(1.3)` }
-      ], { duration: C.warnMs, easing: 'linear', fill: 'forwards' });
+      if (c.run) c.run.bomb(lane, C.warnMs / 1000);
     });
-    c.ziboImg.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-14deg)' }, { transform: 'rotate(0)' }], { duration: 300 });
   }
 
   function explode(b) {
     c.bombs.splice(c.bombs.indexOf(b), 1);
     clearTimeout(b.beep);
-    if (!c.bombs.some(o => o.lane === b.lane)) c.warns[b.lane].classList.remove('on');
-    if (b.el) b.el.remove();
-    const box = c.field.getBoundingClientRect();
-    const boom = h('i', { class: 'boom' });
-    boom.style.left = LANE_X[b.lane] * 100 + '%';
-    boom.style.top = '84%';
-    c.field.append(boom);
-    setTimeout(() => boom.remove(), 500);
     CZ.audio.sfx('crack');
     if (b.lane === c.lane && c.stun <= 0) {
       c.lives -= 1;
@@ -232,42 +185,22 @@ CZ.screens.chase = (function () {
       drawHearts();
       CZ.audio.sfx('wrong');
       CZ.audio.vibrate([80, 40, 120]);
-      c.field.classList.remove('shake-hard');
-      void c.field.offsetWidth;
-      c.field.classList.add('shake-hard');
-      c.player.classList.add('hurt');
-      setTimeout(() => c && c.player.classList.remove('hurt'), 600);
+      if (c.run) c.run.hurt();
+      floatText(t('gold.ouch'), 'bad');
       say('zibo.chase.hit');
       if (c.lives <= 0) escaped('lives');
     } else {
       CZ.audio.vibrate(15);
     }
-    void box;
   }
 
   /* ---------- Kontroller ---------- */
   function move(dir) {
-    if (!c || !c.running) return;
-    const next = Math.max(0, Math.min(2, c.lane + dir));
-    if (next === c.lane) return;
-    c.lane = next;
-    CZ.audio.sfx('throw');
+    if (!c || !c.running || !c.run) return;
+    c.run.move(dir);
+    c.lane = c.run.state.lane;
     CZ.audio.vibrate(6);
     layout();
-  }
-
-  function onDown(e) {
-    c.touch = { x: e.clientX, y: e.clientY, at: performance.now() };
-  }
-  function onUp(e) {
-    if (!c.touch) return;
-    const dx = e.clientX - c.touch.x;
-    const dy = e.clientY - c.touch.y;
-    c.touch = null;
-    if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) return move(dx > 0 ? 1 : -1);
-    if (Math.abs(dy) > 40 && dy < 0) return hook();          // yukarı kaydır = kanca
-    const box = c.field.getBoundingClientRect();
-    move(e.clientX - box.left < box.width / 2 ? -1 : 1);       // dokunma: sol/sağ yarı
   }
 
   // Kanca: Zibo aynı şeritteyse çeker ama tamamen değil; sonra Zibo hızlanır.
@@ -275,40 +208,23 @@ CZ.screens.chase = (function () {
     if (!c || !c.running || c.hookReady > 0) return;
     c.hookReady = C.hookCooldown;
     const hit = c.lane === c.ziboLane;
-    const box = c.field.getBoundingClientRect();
-    const zr = c.zibo.getBoundingClientRect();
-    const px = LANE_X[c.lane] * box.width;
-    const py = box.height * 0.82;
-    const tx = hit ? zr.left + zr.width / 2 - box.left : px;
-    const ty = hit ? zr.top + zr.height * 0.55 - box.top : box.height * 0.3;
-    const len = Math.hypot(tx - px, ty - py);
-    const ang = Math.atan2(ty - py, tx - px) * 180 / Math.PI;
-    c.chain.style.left = px + 'px';
-    c.chain.style.top = py + 'px';
-    c.chain.style.width = len + 'px';
-    c.chain.style.transform = `rotate(${ang}deg)`;
-    c.chain.classList.remove('fire');
-    void c.chain.offsetWidth;
-    c.chain.classList.add('fire');
+    if (c.run) c.run.hook(hit);
     CZ.audio.sfx('lift', 4);
     if (hit) {
       c.gap = Math.max(0, c.gap - C.hookPull);
       c.burst = 1;
       CZ.audio.vibrate([20, 30, 40]);
-      c.zibo.animate([{ transform: 'translate(-50%, -100%) scale(var(--s)) rotate(0)' }, { transform: 'translate(-50%, -100%) scale(var(--s)) rotate(10deg)' }, { transform: 'translate(-50%, -100%) scale(var(--s)) rotate(0)' }], { duration: 300 });
       say(pick(['zibo.chase.ouch', 'zibo.chase.hooked']));
-      floatText(tx, ty, t('chase.pulled', { n: C.hookPull }));
+      floatText(t('chase.pulled', { n: C.hookPull }), 'gold');
     } else {
-      floatText(px, box.height * 0.5, t('chase.miss'));
+      floatText(t('chase.miss'), 'bad');
     }
     layout();
   }
 
-  function floatText(x, y, text) {
-    const el = h('b', { class: 'gold-float', text });
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    c.field.append(el);
+  function floatText(text, kind) {
+    const el = h('div', { class: 'run-float ' + (kind || ''), text });
+    c.floats.append(el);
     setTimeout(() => el.remove(), 900);
   }
 
@@ -333,9 +249,9 @@ CZ.screens.chase = (function () {
   function stop() {
     c.running = false;
     cancelAnimationFrame(c.loop);
-    c.bombs.forEach(b => { clearTimeout(b.beep); if (b.el) b.el.remove(); });
+    c.bombs.forEach(b => clearTimeout(b.beep));
     c.bombs = [];
-    c.warns.forEach(w => w.classList.remove('on'));
+    if (c.run) c.run.stop();
     CZ.audio.setTempo(1);
     CZ.audio.music(null);
   }
@@ -356,12 +272,11 @@ CZ.screens.chase = (function () {
     if (CZ.quests) CZ.quests.track('chase');
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 40, 30, 160]);
-    c.ziboImg.src = CZ.art('zibo.dizzy');
-    c.ziboImg.dataset.f = 'dizzy';
-    c.zibo.classList.add('caught');
+    if (c.run) c.run.caught();
     say('zibo.chase.caught');
     const mine = h('div', { class: 'mine-pop good show', text: '🎉 ' + t('chase.caught') });
     c.field.append(mine);
+    if (c.run) { c.run.state.running = false; }
     const roomDef = CZ.game.roomOf(p.roundId);
     if (d.roomDoneSeen === true) d.roomDoneSeen = ['living'];
     if (!Array.isArray(d.roomDoneSeen)) d.roomDoneSeen = [];
@@ -392,8 +307,7 @@ CZ.screens.chase = (function () {
     stop();
     CZ.audio.sfx('lose');
     CZ.audio.vibrate([120, 60, 200]);
-    c.ziboImg.src = CZ.art('zibo.tongue');
-    c.ziboImg.dataset.f = 'tongue';
+    if (c.run) c.run.ziboPose('tongue');
     say('zibo.chase.escaped');
     const d = CZ.state.data;
     const canAd = c.continues < 1;
@@ -422,7 +336,7 @@ CZ.screens.chase = (function () {
     c.timeLeft = Math.max(c.timeLeft, 0) + C.continueSeconds;
     c.lives = Math.max(c.lives, 1);
     drawHearts();
-    c.ziboImg.src = CZ.art('zibo.run1');
+    if (c.run) { c.run.ziboPose(null); c.run.go(); }
     c.running = true;
     c.last = performance.now();
     c.nextBomb = performance.now() + 1200;
@@ -453,6 +367,7 @@ CZ.screens.chase = (function () {
     clearInterval(c.adTimer);
     clearTimeout(c.sayTimer);
     c.timers.forEach(clearTimeout);
+    if (c.run) c.run.destroy();
     c = null;
   }
 

@@ -169,14 +169,17 @@ CZ.runner3d = (function () {
   /* ---------- Oyun ---------- */
   function start(host, opts) {
     const R = CZ.GOLD.runner;
+    const CHASE = opts.mode === 'chase';
+    const LANES = opts.lanes || 4;
+    const laneX = l => (l - (LANES - 1) / 2) * LANE_W;
     const s = {
       alive: true, running: false, t: 0, dist: 0, speed: R.startSpeed,
       lane: 1, px: laneX(1), py: 0, vy: 0, jumping: false, slideT: 0, invT: 0,
-      hearts: R.hearts + (opts.perk.trapMul ? 1 : 0), gold: 0, emeralds: 0, crates: 0,
-      magnetT: (opts.perk.bonusSeconds || 0) * 2, doubleT: 0,
+      hearts: R.hearts + ((opts.perk || {}).trapMul ? 1 : 0), gold: 0, emeralds: 0, crates: 0,
+      magnetT: ((opts.perk || {}).bonusSeconds || 0) * 2, doubleT: 0,
       nextRow: 25, nextPower: rand(12, 18), objs: [], coins: [], shots: [], fx: [],
-      obstaclesFrom: R.obstaclesFrom + (opts.perk.trapDelay || 0), lastThrow: 0, frame: 0,
-      ziboLane: 2, ziboX: laneX(2), ziboNext: 1.5, ziboPose: 0, shake: 0
+      obstaclesFrom: R.obstaclesFrom + ((opts.perk || {}).trapDelay || 0), lastThrow: 0, frame: 0,
+      ziboLane: Math.min(2, LANES - 1), ziboX: 0, ziboZ: -17, ziboNext: 1.5, ziboPose: 0, ziboForce: null, shake: 0, bombs: [], hookFx: 0
     };
 
     const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'low-power' });
@@ -372,11 +375,12 @@ CZ.runner3d = (function () {
     const weaponMat = new THREE.SpriteMaterial({ transparent: true });
     const weaponSp = new THREE.Sprite(weaponMat);
     weaponSp.center.set(0.3, 0.1);
+    weaponSp.visible = false;
     hero.weaponSlot.add(weaponSp);
     const ziboMat = new THREE.SpriteMaterial({ transparent: true });
     const zibo = new THREE.Sprite(ziboMat);
     zibo.center.set(0.5, 0);
-    zibo.position.set(laneX(2), 0, -17);
+    zibo.position.set(0, 0, -17);
     scene.add(zibo);
     const ballMat = new THREE.SpriteMaterial({ map: glowTex(opts.ball || '#f4fbff'), transparent: true, depthWrite: false });
     const powerMats = {
@@ -387,8 +391,9 @@ CZ.runner3d = (function () {
 
     const T = {};
     const loads = [
-      ...['run1', 'run2', 'laugh', 'throw'].map(f => imageTex(CZ.art('zibo.' + f), 384).then(x => { T['z_' + f] = x; })),
-      imageTex(CZ.art(opts.weaponArt), 256).then(x => { T.weapon = x; })
+      ...['run1', 'run2', 'laugh', 'throw', 'dizzy', 'tongue'].map(f => imageTex(CZ.art('zibo.' + f), 384).then(x => { T['z_' + f] = x; })),
+      opts.weaponArt ? imageTex(CZ.art(opts.weaponArt), 256).then(x => { T.weapon = x; }) : null,
+      opts.loot ? imageTex(CZ.art(opts.loot), 256).then(x => { T.loot = x; }) : null
     ];
     const ready = Promise.all(loads).then(() => {
       setZiboFrame('run1');
@@ -399,6 +404,66 @@ CZ.runner3d = (function () {
       if (!tex || ziboMat.map === tex) return;
       ziboMat.map = tex; ziboMat.needsUpdate = true;
       zibo.scale.set(1.7 * tex.userData.ratio, 1.7, 1);
+    }
+
+    /* ---------- Kovalamaca yardımcıları: bomba, uyarı şeridi, kanca ---------- */
+    let lootSp = null;
+    ready.then(() => {
+      if (!T.loot) return;
+      lootSp = new THREE.Sprite(new THREE.SpriteMaterial({ map: T.loot }));
+      lootSp.scale.set(0.7 * T.loot.userData.ratio, 0.7, 1);
+      scene.add(lootSp);
+    });
+    const warnMat = new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0, depthWrite: false });
+    const warns = [];
+    if (CHASE) for (let l = 0; l < LANES; l++) {
+      const w = mesh(GEO.plane, warnMat.clone(), LANE_W * 0.92, 9, 1, laneX(l), 0.02, -1.5);
+      w.rotation.x = -Math.PI / 2;
+      scene.add(w);
+      warns.push(w);
+    }
+    const bombTex = CHASE ? canvasTex(128, 128, (x) => {
+      x.fillStyle = '#22252e'; x.beginPath(); x.arc(64, 72, 46, 0, 7); x.fill();
+      x.fillStyle = 'rgba(255,255,255,.35)'; x.beginPath(); x.arc(48, 56, 12, 0, 7); x.fill();
+      x.strokeStyle = '#8a6a3a'; x.lineWidth = 8; x.beginPath(); x.moveTo(64, 28); x.quadraticCurveTo(76, 10, 92, 14); x.stroke();
+      x.fillStyle = '#ffcf3a'; x.beginPath(); x.arc(94, 14, 9, 0, 7); x.fill();
+    }) : null;
+    const chainMat = new THREE.MeshBasicMaterial({ color: 0xd8dde8 });
+    const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1, 6), chainMat);
+    chain.visible = false;
+    scene.add(chain);
+    function chaseFx(dt) {
+      warns.forEach((w, l) => {
+        const on = s.bombs.some(b => b.lane === l);
+        w.material.opacity = on ? 0.25 + Math.abs(Math.sin(s.frame * 12)) * 0.3 : Math.max(0, w.material.opacity - dt * 3);
+      });
+      for (let i = s.bombs.length - 1; i >= 0; i--) {
+        const b = s.bombs[i];
+        b.t += dt;
+        const k = Math.min(1, b.t / b.dur);
+        const x = b.x0 + (laneX(b.lane) - b.x0) * k;
+        const z = b.z0 + (-1.2 - b.z0) * k;
+        const y = b.y0 * (1 - k) + Math.sin(k * Math.PI) * 4 + 0.3 * k;
+        b.sp.position.set(x, y, z);
+        b.sp.material.rotation += dt * 6;
+        if (k >= 1) {
+          scene.remove(b.sp);
+          s.bombs.splice(i, 1);
+          sparks(new THREE.Vector3(laneX(b.lane), 0.6, -1.2), 10, '#ff8a3a');
+          sparks(new THREE.Vector3(laneX(b.lane), 0.6, -1.2), 6, '#ffe27a');
+        }
+      }
+      if (s.hookFx > 0) {
+        s.hookFx -= dt;
+        const from = new THREE.Vector3(s.px + 0.25, s.py + 1.3, -0.2);
+        const to = s.hookHit ? new THREE.Vector3(zibo.position.x, 0.9, zibo.position.z) : new THREE.Vector3(s.px, 1.4, -14);
+        const mid = from.clone().add(to).multiplyScalar(0.5);
+        chain.position.copy(mid);
+        chain.scale.set(1, from.distanceTo(to) * Math.min(1, (0.3 - s.hookFx) * 8 + 0.2), 1);
+        chain.lookAt(to);
+        chain.rotateX(Math.PI / 2);
+        chain.visible = true;
+      } else chain.visible = false;
     }
 
     /* ---------- Engeller ve toplanacaklar ---------- */
@@ -558,15 +623,15 @@ CZ.runner3d = (function () {
       const dx = e.clientX - down.x, dy = e.clientY - down.y;
       if (Math.max(Math.abs(dx), Math.abs(dy)) < 26) return;
       down.used = true;
-      if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 1 : -1); else if (dy < 0) jump(); else slide();
+      if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 1 : -1); else if (dy < 0) { if (opts.onSwipeUp) opts.onSwipeUp(); else jump(); } else slide();
     }
-    function onUp() { if (!down.used && down.t && performance.now() - down.t < 350) shoot(); down.t = 0; }
+    function onUp() { if (!down.used && down.t && performance.now() - down.t < 350) { if (opts.onTap) opts.onTap(); else shoot(); } down.t = 0; }
     cv.addEventListener('pointerdown', onDown);
     cv.addEventListener('pointermove', onMove);
     cv.addEventListener('pointerup', onUp);
     cv.addEventListener('pointercancel', () => { down.t = 0; });
     function onKey(e) {
-      const map = { ArrowLeft: () => move(-1), ArrowRight: () => move(1), ArrowUp: jump, ArrowDown: slide, ' ': shoot };
+      const map = { ArrowLeft: () => move(-1), ArrowRight: () => move(1), ArrowUp: opts.onSwipeUp || jump, ArrowDown: slide, ' ': opts.onTap || shoot };
       if (map[e.key]) { e.preventDefault(); map[e.key](); }
     }
     window.addEventListener('keydown', onKey);
@@ -614,7 +679,8 @@ CZ.runner3d = (function () {
     function step(dt) {
       s.t += dt;
       s.frame += dt;
-      s.speed = Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 ? 0.55 : 1);
+      s.speed = CHASE ? (opts.speed || 16) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 ? 0.55 : 1);
+      s.stunT = Math.max(0, (s.stunT || 0) - dt);
       const dz = s.speed * dt;
       s.dist += dz;
       // zemin kayar
@@ -629,7 +695,7 @@ CZ.runner3d = (function () {
 
       // sıra doğar
       s.nextRow -= dz;
-      if (s.nextRow <= 0) {
+      if (!CHASE && s.nextRow <= 0) {
         spawnRow();
         s.nextRow = Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
       }
@@ -651,7 +717,7 @@ CZ.runner3d = (function () {
       hero.root.position.set(s.px, s.py, 0);
       hero.update(dt, { speed: s.speed, jumping: s.jumping, sliding, lean, dead: false });
       hero.setOpacity(s.invT > 0 ? (Math.floor(s.t * 14) % 2 ? 0.35 : 1) : 1);
-      weaponSp.visible = !sliding;
+      weaponSp.visible = !sliding && !!T.weapon;
       pShadow.position.x = s.px;
       const sh = Math.max(0.4, 1 - s.py * 0.25);
       pShadow.scale.set(1.1 * sh, 0.7 * sh, 1);
@@ -663,12 +729,15 @@ CZ.runner3d = (function () {
 
       // Zibo önde koşar
       s.ziboNext -= dt;
-      if (s.ziboNext <= 0) { s.ziboLane = Math.floor(Math.random() * LANES); s.ziboNext = rand(1.2, 2.4); }
+      if (!CHASE && s.ziboNext <= 0) { s.ziboLane = Math.floor(Math.random() * LANES); s.ziboNext = rand(1.2, 2.4); }
+      zibo.position.z += (s.ziboZ - zibo.position.z) * Math.min(1, dt * 5);
+      if (lootSp) { lootSp.position.set(zibo.position.x + 0.35, zibo.position.y + 1.25, zibo.position.z + 0.05); }
+      chaseFx(dt);
       s.ziboX += (laneX(s.ziboLane) - s.ziboX) * Math.min(1, dt * 3);
       s.ziboPose = Math.max(0, s.ziboPose - dt);
       zibo.position.x = s.ziboX;
       zibo.position.y = Math.abs(Math.sin(s.frame * 9)) * 0.12;
-      setZiboFrame(s.laughT > 0 ? 'laugh' : s.ziboPose > 0 ? 'throw' : Math.floor(s.frame * 7) % 2 ? 'run2' : 'run1');
+      setZiboFrame(s.ziboForce || (s.laughT > 0 ? 'laugh' : s.ziboPose > 0 ? 'throw' : Math.floor(s.frame * 7) % 2 ? 'run2' : 'run1'));
       s.laughT = Math.max(0, (s.laughT || 0) - dt);
 
       // engeller
@@ -834,7 +903,26 @@ CZ.runner3d = (function () {
       state: s,
       go() { s.running = true; last = 0; },
       move, jump, slide, shoot,
-      stop() { s.running = false; },
+      stop() {
+        s.running = false;
+        s.bombs.forEach(b => scene.remove(b.sp));
+        s.bombs = [];
+        warns.forEach(w => { w.material.opacity = 0; });
+      },
+      // Kovalamaca API
+      setZibo(lane, z) { s.ziboLane = lane; s.ziboZ = z; },
+      ziboPose(p) { s.ziboForce = p || null; },
+      ziboThrow() { s.ziboPose = 0.45; },
+      bomb(lane, sec) {
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: bombTex }));
+        sp.scale.set(0.7, 0.7, 1);
+        scene.add(sp);
+        s.bombs.push({ lane, sp, t: 0, dur: sec, x0: zibo.position.x, y0: 1.2, z0: zibo.position.z });
+      },
+      hook(hit) { s.hookFx = 0.3; s.hookHit = hit; },
+      hurt() { s.invT = 0.8; s.shake = 0.35; s.stunT = 0.6; },
+      caught() { s.ziboForce = 'dizzy'; s.ziboZ = -3.2; },
+      setDead(v) { s.dead = v; },
       summary,
       destroy() {
         s.alive = false;
