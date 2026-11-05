@@ -157,7 +157,7 @@ CZ.screens.gold = (function () {
     CZ.runner3d.load().then(() => {
       if (!g || g.el !== el) return;
       g.run = CZ.runner3d.start(g.stage, {
-        avatar: d.avatar || 'girl', weaponArt: weapon.art, ball: weapon.ball, dmg: weapon.dmg, perk: perk(),
+        avatar: d.avatar || 'girl', weaponArt: weapon.art, weaponId: weapon.id, ball: weapon.ball, dmg: weapon.dmg, perk: perk(),
         onGold(n, big) {
           g.earned += n;
           d.gold = (d.gold || 0) + n;

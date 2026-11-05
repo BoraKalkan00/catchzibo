@@ -391,7 +391,21 @@ CZ.runner3d = (function () {
     zibo.center.set(0.5, 0);
     zibo.position.set(0, 0, -17);
     scene.add(zibo);
-    const ballMat = new THREE.SpriteMaterial({ map: glowTex(opts.ball || '#f4fbff'), transparent: true, depthWrite: false });
+    // Her silahın kendi mermisi: kartopu, buz topu, dönen şeker kamışı, kar tanesi, yıldırım.
+    const W = opts.weaponId || 'snowball';
+    const SHOT = {
+      snowball: { tex: null, size: 0.45, color: '#f4fbff', trail: '#ffffff', spin: 0 },
+      sling: { tex: null, size: 0.4, color: '#f4fbff', trail: '#ffffff', spin: 0, speed: 1.4 },
+      candy: { tex: 'weapon', size: 0.6, color: '#ff6b6b', trail: '#ff8a8a', spin: 14 },
+      ice: { tex: null, size: 0.6, color: '#9fe0ff', trail: '#9fe0ff', spin: 0, glow: true },
+      staff: { tex: 'flake', size: 0.65, color: '#c9e8ff', trail: '#bfe4ff', spin: 6, glow: true },
+      thunder: { tex: 'bolt', size: 0.7, color: '#ffe36e', trail: '#ffe36e', spin: 0, glow: true, flash: true }
+    }[W] || { size: 0.45, color: '#f4fbff', trail: '#fff' };
+    const flakeTex = () => canvasTex(64, 64, (x) => { x.strokeStyle = '#eaf6ff'; x.lineWidth = 6; x.lineCap = 'round'; for (let a = 0; a < 6; a++) { x.save(); x.translate(32, 32); x.rotate(a * Math.PI / 3); x.beginPath(); x.moveTo(0, 0); x.lineTo(0, -26); x.moveTo(0, -14); x.lineTo(-8, -20); x.moveTo(0, -14); x.lineTo(8, -20); x.stroke(); x.restore(); } });
+    const boltTex = () => canvasTex(64, 64, (x) => { x.fillStyle = '#ffe36e'; x.strokeStyle = '#a86a00'; x.lineWidth = 3; x.beginPath(); x.moveTo(36, 2); x.lineTo(14, 36); x.lineTo(30, 36); x.lineTo(22, 62); x.lineTo(50, 24); x.lineTo(34, 24); x.lineTo(44, 2); x.closePath(); x.fill(); x.stroke(); });
+    const ballMat = new THREE.SpriteMaterial({ map: SHOT.tex === 'flake' ? flakeTex() : SHOT.tex === 'bolt' ? boltTex() : glowTex(SHOT.color), transparent: true, depthWrite: false, blending: SHOT.glow && !SHOT.tex ? THREE.AdditiveBlending : THREE.NormalBlending });
+    if (SHOT.tex === 'weapon' && opts.weaponArt) imageTex(CZ.art(opts.weaponArt), 128).then(tx => { if (tx) { ballMat.map = tx; ballMat.needsUpdate = true; } });
+    const haloMat = SHOT.glow ? new THREE.SpriteMaterial({ map: glowTex(SHOT.color), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }) : null;
     const powerMats = {
       magnet: new THREE.SpriteMaterial({ map: labelTex('🧲', '#d63a3a', '#fff') }),
       double: new THREE.SpriteMaterial({ map: labelTex('x2', '#f2b51e', '#5a2d00') })
@@ -684,8 +698,10 @@ CZ.runner3d = (function () {
       s.lastThrow = now;
       const target = s.objs.filter(o => o.type === 'crate' && o.lane === s.lane && o.mesh.position.z < -1 && o.mesh.position.z > -42)
         .sort((a, b) => b.mesh.position.z - a.mesh.position.z)[0];
-      const ball = new THREE.Sprite(ballMat);
-      ball.scale.set(0.45, 0.45, 1);
+      const ball = new THREE.Sprite(ballMat.clone());
+      ball.scale.set(SHOT.size, SHOT.size, 1);
+      if (haloMat) { const hl = new THREE.Sprite(haloMat); hl.scale.set(2.2, 2.2, 1); ball.add(hl); }
+      if (SHOT.flash) { s.shake = Math.max(s.shake, 0.06); }
       ball.position.set(s.px + 0.3, s.py + 1.1, -0.3);
       scene.add(ball);
       s.shots.push({ mesh: ball, target, life: 0.6 });
@@ -884,12 +900,16 @@ CZ.runner3d = (function () {
       for (let i = s.shots.length - 1; i >= 0; i--) {
         const b = s.shots[i];
         b.life -= dt;
+        if (SHOT.spin) b.mesh.material.rotation += dt * SHOT.spin;
+        // iz: arkasında küçük parıltılar
+        b.trailT = (b.trailT || 0) - dt;
+        if (b.trailT <= 0) { b.trailT = 0.03; sparks(b.mesh.position, 1, SHOT.trail, 0.18); }
         const tgt = b.target && !b.target.dead ? b.target.mesh.position : null;
         if (tgt) {
           const dir = new THREE.Vector3(tgt.x - b.mesh.position.x, 0.55 - b.mesh.position.y, tgt.z - b.mesh.position.z);
           const dist = dir.length();
           if (dist < 0.6) { hitCrate(b.target); scene.remove(b.mesh); s.shots.splice(i, 1); continue; }
-          dir.normalize().multiplyScalar(Math.min(dist, 60 * dt));
+          dir.normalize().multiplyScalar(Math.min(dist, 60 * (SHOT.speed || 1) * dt));
           b.mesh.position.add(dir);
         } else {
           b.mesh.position.z -= 50 * dt;
@@ -911,15 +931,17 @@ CZ.runner3d = (function () {
       if (opts.onTick) opts.onTick(s);
     }
 
-    function sparks(pos, n, color) {
+    function sparks(pos, n, color, size) {
       for (let i = 0; i < n; i++) {
         const mat = sparkMat.clone();
         if (color) mat.color = new THREE.Color(color);
         const sp = new THREE.Sprite(mat);
-        sp.scale.set(0.35, 0.35, 1);
+        const sz = size || 0.35;
+        sp.scale.set(sz, sz, 1);
         sp.position.copy(pos);
         scene.add(sp);
-        s.fx.push({ mesh: sp, v: new THREE.Vector3(rand(-3, 3), rand(3, 6), rand(-2, 2)), life: 0.55, max: 0.55 });
+        const trail = !!size;
+        s.fx.push({ mesh: sp, v: trail ? new THREE.Vector3(rand(-.4, .4), rand(-.2, .4), rand(1, 3)) : new THREE.Vector3(rand(-3, 3), rand(3, 6), rand(-2, 2)), life: trail ? 0.25 : 0.55, max: trail ? 0.25 : 0.55 });
       }
     }
 
@@ -951,6 +973,7 @@ CZ.runner3d = (function () {
       if (o.dead) return;
       o.hp -= opts.dmg;
       o.hitFlash = 0.08;
+      sparks(new THREE.Vector3(o.mesh.position.x, 0.7, o.mesh.position.z + 0.4), SHOT.glow ? 6 : 3, SHOT.trail);
       CZ.audio.sfx('hit');
       CZ.audio.vibrate(8);
       if (o.hp > 0) return;
