@@ -255,8 +255,10 @@ CZ.GOLD = {
       { id: 'low', weight: 34 },    // hediye kutuları: zıpla
       { id: 'high', weight: 24 },   // çelenkli pankart: eğil
       { id: 'wall', weight: 30 },   // hediyeli kızak: şerit değiştir
-      { id: 'crate', weight: 12 }   // sandık: kartopuyla kır ya da kaç
+      { id: 'crate', weight: 12 },  // sandık: kartopuyla kır ya da kaç
+      { id: 'train', weight: 16 }   // kızak treni: rampadan çık ya da üstüne zıpla, tepesinde koş
     ],
+    trainsFrom: 10, rampChance: 0.6,
     crates: [
       { id: 'wood', hp: 3, gold: 3, weight: 80 },
       { id: 'gold', hp: 9, gold: 10, weight: 20 }

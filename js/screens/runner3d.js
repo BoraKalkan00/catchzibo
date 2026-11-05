@@ -226,6 +226,14 @@ CZ.runner3d = (function () {
       wood: new THREE.MeshLambertMaterial({ map: woodTex(false) }),
       goldChest: new THREE.MeshLambertMaterial({ color: 0xf3c33c, emissive: 0x5a3d00 }),
       sled: new THREE.MeshLambertMaterial({ color: 0xb8262e }),
+      wagonA: new THREE.MeshLambertMaterial({ color: 0xc23a2e }),
+      wagonB: new THREE.MeshLambertMaterial({ color: 0x2f7a4a }),
+      trim: new THREE.MeshLambertMaterial({ color: 0xe8b830 }),
+      roofSnowT: new THREE.MeshLambertMaterial({ color: 0xdfe8f6 }),
+      ramp: new THREE.MeshLambertMaterial({ map: woodTex(false) }),
+      snowman: new THREE.MeshLambertMaterial({ color: 0xf6f9ff }),
+      coal: new THREE.MeshLambertMaterial({ color: 0x222228 }),
+      carrot: new THREE.MeshLambertMaterial({ color: 0xf08a2a }),
       runnerMetal: new THREE.MeshLambertMaterial({ color: 0xd9c38a }),
       banner: new THREE.MeshLambertMaterial({ color: 0x2f7a3a, side: THREE.DoubleSide }),
       shadow: new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.28, depthWrite: false })
@@ -486,6 +494,60 @@ CZ.runner3d = (function () {
       g.position.x = laneX(lane);
       return addObj({ type: 'low', lane, len: 0.7, top: 0.75, mesh: g });
     }
+    function snowman(lane) {         // alçak (ama daha yüksek): kardan adam → ZIPLA
+      const g = new THREE.Group();
+      g.add(mesh(GEO.cyl, M.snowman, 0.42, 0.01, 0.42, 0, 0.005, 0));
+      const b1 = new THREE.Mesh(new THREE.SphereGeometry(0.42, 14, 10), M.snowman); b1.position.y = 0.4; g.add(b1);
+      const b2 = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 10), M.snowman); b2.position.y = 0.95; g.add(b2);
+      [0.38, 0.55, 0.72].forEach(y => g.add(mesh(GEO.box, M.coal, 0.07, 0.07, 0.07, 0, y, 0.4)));
+      g.add(mesh(GEO.cone, M.carrot, 0.05, 0.25, 0.05, 0, 0.97, 0.36).rotateX(Math.PI / 2));
+      g.add(mesh(GEO.cyl, M.coal, 0.22, 0.04, 0.22, 0, 1.2, 0));
+      g.add(mesh(GEO.cyl, M.coal, 0.15, 0.24, 0.15, 0, 1.34, 0));
+      g.add(mesh(GEO.box, M.bow, 0.5, 0.1, 0.1, 0, 0.78, 0.12));
+      g.position.x = laneX(lane);
+      return addObj({ type: 'low', lane, len: 0.8, top: 1.15, mesh: g });
+    }
+    // Kızak treni: üstüne zıplanır ya da önündeki rampadan çıkılır, tepesinde koşulur (Subway'deki tren gibi).
+    const TRAIN_TOP = 1.35;
+    function train(lane, ramp) {
+      const g = new THREE.Group();
+      const wagons = 3, wl = 3.6, gap = 0.25, rampLen = ramp ? 3 : 0;
+      const bodyLen = wagons * wl + (wagons - 1) * gap;
+      const len = bodyLen + rampLen;
+      const z0 = -len / 2;
+      for (let w = 0; w < wagons; w++) {
+        const zc = z0 + w * (wl + gap) + wl / 2;
+        g.add(mesh(GEO.box, w % 2 ? M.wagonB : M.wagonA, 1.2, TRAIN_TOP - 0.25, wl, 0, 0.25 + (TRAIN_TOP - 0.25) / 2, zc));
+        g.add(mesh(GEO.box, M.trim, 1.24, 0.1, wl + 0.04, 0, TRAIN_TOP - 0.05, zc));
+        g.add(mesh(GEO.box, M.roofSnowT, 1.12, 0.06, wl - 0.1, 0, TRAIN_TOP + 0.03, zc));
+        g.add(mesh(GEO.box, M.trim, 1.24, 0.08, wl, 0, 0.55, zc));
+        [-1, 1].forEach(k => g.add(mesh(GEO.box, M.runnerMetal, 0.08, 0.14, wl, k * 0.52, 0.1, zc)));
+        // pencere ışıkları
+        [-1, 1].forEach(k => g.add(mesh(GEO.box, M.window, 0.02, 0.35, 0.6, k * 0.61, 0.9, zc - 0.8)));
+        [-1, 1].forEach(k => g.add(mesh(GEO.box, M.window, 0.02, 0.35, 0.6, k * 0.61, 0.9, zc + 0.8)));
+      }
+      if (ramp) {
+        const rz = z0 + bodyLen + rampLen / 2;
+        const slope = Math.atan2(TRAIN_TOP, rampLen);
+        const r = mesh(GEO.box, M.ramp, 1.1, 0.1, Math.hypot(rampLen, TRAIN_TOP), 0, TRAIN_TOP / 2, rz);
+        r.rotation.x = slope;
+        g.add(r);
+        [-1, 1].forEach(k => g.add(mesh(GEO.box, M.beam, 0.08, TRAIN_TOP * 0.5, 0.08, k * 0.5, TRAIN_TOP * 0.25, rz - rampLen * 0.25)));
+      }
+      g.position.x = laneX(lane);
+      const o = addObj({ type: 'train', lane, len, top: TRAIN_TOP, ramp, rampLen, mesh: g });
+      // tepesinde altın dizisi
+      for (let z = z0 + 0.8; z < z0 + bodyLen - 0.4; z += R.coinGap) coin(lane, SPAWN_Z + z, TRAIN_TOP + 0.55);
+      return o;
+    }
+    // Trenin üstündeki zemin yüksekliği (oyuncunun z=0 noktasında). Rampada eğimli artar.
+    function floorOf(o) {
+      const lz = -o.mesh.position.z;          // oyuncunun trene göre yerel konumu
+      const half = o.len / 2;
+      if (lz < -half || lz > half) return 0;
+      if (o.ramp && lz > half - o.rampLen) return o.top * (half - lz) / o.rampLen;
+      return o.top;
+    }
     function banner(lane) {          // yüksek: çelenkli pankart → EĞİL
       const g = new THREE.Group();
       [-1, 1].forEach(k => g.add(mesh(GEO.cyl, M.pole, 0.06, 2.3, 0.06, k * 0.6, 1.15, 0)));
@@ -551,18 +613,23 @@ CZ.runner3d = (function () {
         let crateUsed = false;
         lanes.forEach(l => {
           let kind = pickW(R.obstacles).id;
+          if (kind === 'train' && s.t < R.trainsFrom) kind = 'wall';
           if (kind === 'crate') { if (crateUsed) kind = 'low'; crateUsed = true; }
           kinds[l] = kind;
         });
-        if (kinds.filter(k2 => k2 === 'wall' || k2 === 'crate').length >= 3) kinds[lanes[0]] = 'low';
+        if (kinds.filter(k2 => k2 === 'wall' || k2 === 'crate' || k2 === 'train').length >= 3) kinds[lanes[0]] = 'low';
       }
+      // Tren geçen şeride, tren bitene kadar yeni engel konmaz.
+      s.busy = s.busy || [0, 0, 0, 0];
+      kinds.forEach((k2, l) => { if (k2 && s.busy[l] > s.dist) kinds[l] = null; });
       kinds.forEach((k2, l) => {
-        if (k2 === 'low') hurdle(l); else if (k2 === 'high') banner(l); else if (k2 === 'wall') sled(l); else if (k2 === 'crate') crate(l);
+        if (k2 === 'train') { const o = train(l, Math.random() < R.rampChance); s.busy[l] = s.dist + o.len + 4; return; }
+        if (k2 === 'low') { if (Math.random() < 0.35) snowman(l); else hurdle(l); } else if (k2 === 'high') banner(l); else if (k2 === 'wall') sled(l); else if (k2 === 'crate') crate(l);
       });
       if (!early && Math.random() < 0.5) { s.ziboPose = 0.5; }
       // Altın dizisi: geçilebilir bir şeritte, engelin önünde başlar, alçak engelin üstünden kavis çizer.
       // Altın dizileri: her sırada en az bir uzun dizi, bazen ikinci bir şeritte daha.
-      const options = [0, 1, 2, 3].filter(l => kinds[l] !== 'wall' && kinds[l] !== 'crate');
+      const options = [0, 1, 2, 3].filter(l => kinds[l] !== 'wall' && kinds[l] !== 'crate' && kinds[l] !== 'train' && !(s.busy[l] > s.dist));
       const lines = Math.random() > R.coinLineChance ? 0 : Math.random() < R.secondLine ? 2 : 1;
       const used = [];
       for (let li = 0; li < lines && options.length; li++) {
@@ -714,10 +781,15 @@ CZ.runner3d = (function () {
       // oyuncu
       const tx = laneX(s.lane);
       s.px += (tx - s.px) * Math.min(1, dt * 16);
+      const floor = s.floor || 0;
       if (s.jumping) {
         s.vy -= R.gravity * dt;
         s.py += s.vy * dt;
-        if (s.py <= 0) { s.py = 0; s.vy = 0; s.jumping = false; }
+        if (s.py <= floor && s.vy <= 0) { s.py = floor; s.vy = 0; s.jumping = false; }
+      } else if (s.py < floor) {
+        s.py = floor;                                   // rampadan yukarı çıkış
+      } else if (s.py > floor + 0.05) {
+        s.jumping = true; s.vy = 0;                     // trenin ucundan düşüş
       }
       s.slideT = Math.max(0, s.slideT - dt);
       s.invT = Math.max(0, s.invT - dt);
@@ -730,12 +802,15 @@ CZ.runner3d = (function () {
       hero.setOpacity(s.invT > 0 ? (Math.floor(s.t * 14) % 2 ? 0.35 : 1) : 1);
       weaponSp.visible = !sliding && !!T.weapon;
       pShadow.position.x = s.px;
-      const sh = Math.max(0.4, 1 - s.py * 0.25);
+      pShadow.position.y = (s.floor || 0) + 0.02;
+      const sh = Math.max(0.4, 1 - (s.py - (s.floor || 0)) * 0.25);
       pShadow.scale.set(1.1 * sh, 0.7 * sh, 1);
 
       // kamera hafifçe oyuncuyu izler, çarpınca sallanır
       camera.position.x += (s.px * 0.55 - camera.position.x) * Math.min(1, dt * 6);
-      camera.position.y = camBase.y + s.py * 0.25;
+      // Trenin üstündeyken kamera da yükselir (zemin), zıplarken biraz izler.
+      s.camFloor = (s.camFloor || 0) + (((s.floor || 0)) - (s.camFloor || 0)) * Math.min(1, dt * 5);
+      camera.position.y = camBase.y + s.camFloor * 0.85 + (s.py - (s.floor || 0)) * 0.25;
       if (s.shake > 0) { s.shake -= dt; camera.position.x += rand(-0.12, 0.12); camera.position.y += rand(-0.08, 0.08); }
 
       // Zibo önde koşar
@@ -753,6 +828,7 @@ CZ.runner3d = (function () {
       s.laughT = Math.max(0, (s.laughT || 0) - dt);
 
       // engeller
+      let nextFloor = 0;
       for (let i = s.objs.length - 1; i >= 0; i--) {
         const o = s.objs[i];
         o.mesh.position.z += dz;
@@ -765,6 +841,14 @@ CZ.runner3d = (function () {
           if (z > half && !o.passed) { o.passed = true; if (o.type !== 'crate' && Math.abs(s.px - laneX(o.lane)) < 0.7) dodged(o); }
           continue;
         }
+        if (o.type === 'train') {
+          // Tren: şeridindeysen ya üstündesin (zemin) ya da yan/ön yüzüne çarparsın.
+          if (Math.abs(s.px - laneX(o.lane)) > 0.62) continue;
+          const f = floorOf(o);
+          if (s.py >= f - 0.45) { nextFloor = Math.max(nextFloor, f); continue; }
+          if (s.invT <= 0) { o.passed = true; crash(o); }
+          continue;
+        }
         if (Math.abs(s.px - laneX(o.lane)) > 0.62) continue;
         let hit = false;
         if (o.type === 'low' || o.type === 'crate') hit = s.py < o.top - 0.05;
@@ -773,6 +857,7 @@ CZ.runner3d = (function () {
         if (hit && s.invT <= 0) { o.passed = true; crash(o); }
       }
 
+      s.floor = nextFloor;
       // altın, elmas, güç
       const magnet = s.magnetT > 0;
       for (let i = s.coins.length - 1; i >= 0; i--) {
