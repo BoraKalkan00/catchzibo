@@ -51,14 +51,32 @@
       CZ.ui.toast(t('house.noGold'));
       return;
     }
-    const list = Object.keys(plan.packs).map(k => `${plan.packs[k] * CZ.MATS.find(m => m.id === k).pack} ${t('mat.' + k)}`).join(', ');
-    CZ.ui.confirmBox(t('house.topUp', { list, gold: plan.gold }), t('house.topUpYes'), t('common.cancel'), () => {
-      Object.keys(plan.packs).forEach(k => { for (let i = 0; i < plan.packs[k]; i++) HS.buyMat(k); });
-      doIt();
-      onDone();
+    // Usta malzemeyi pazardan getirir: ne alındığı, fiyatı ve kalan altın açıkça görünür.
+    const total = plan.gold + (cost.gold || 0);
+    const have = d().gold || 0;
+    const chips = Object.keys(plan.packs).map(k => {
+      const n = plan.packs[k] * CZ.MATS.find(m => m.id === k).pack;
+      const c = h('span', { class: 'buy-chip' }); c.innerHTML = art.matIcon(k); c.append(' ' + n + ' ' + t('mat.' + k));
+      return c;
     });
-    const yes = document.querySelector('.modal-wrap .btn.danger');
-    if (yes) yes.classList.replace('danger', 'primary');
+    const box = h('div', { class: 'modal-wrap buy-wrap' },
+      h('div', { class: 'modal buy-modal' },
+        h('img', { class: 'buy-usta', src: CZ.art('usta.talk'), alt: '' }),
+        h('p', { class: 'buy-title', text: t('house.topUp2') }),
+        h('div', { class: 'buy-chips' }, chips),
+        h('p', { class: 'buy-bal' }, img('ui.gold', 'mini-ico'), ' ' + t('house.balance', { a: have, b: have - total })),
+        h('button', {
+          class: 'btn primary big wide buy-yes', type: 'button',
+          onClick: () => {
+            box.remove();
+            CZ.audio.sfx('buy');
+            Object.keys(plan.packs).forEach(k => { for (let i = 0; i < plan.packs[k]; i++) HS.buyMat(k); });
+            doIt();
+            onDone();
+          }
+        }, img('ui.gold', 'btn-icon'), h('span', { text: total + ' · ' + t('house.topUpYes') })),
+        h('button', { class: 'buy-no', type: 'button', text: t('house.notNow'), onClick: () => { CZ.audio.sfx('button'); box.remove(); } })));
+    document.getElementById('app').append(box);
   }
 
   function stats(H) {

@@ -361,7 +361,7 @@ CZ.i18n.register('es', 'Español', {
   'house.roomSub': 'Tu casa se hace más grande',
   'house.noGold': 'No tienes suficiente oro. ¡Juega a la Caza de oro!',
   'house.topUp': 'Te faltan {list}. ¿Comprarlos por {gold} de oro y construir?',
-  'house.topUpYes': 'Comprar y construir',
+  'house.topUpYes': 'Traer y construir',
   'house.z.empty': '¿Un terreno vacío? ¡Ja! ¿Dónde vas a dormir?',
   'house.z.building': '¡Media casa! Puedo entrar tan tranquilo.',
   'house.z.weak': 'Tu casa no es nada segura. ¡Esta noche entro! ¡Hazla más fuerte!',
@@ -690,5 +690,8 @@ CZ.i18n.register('es', 'Español', {
   'hub.adReward': 'Premio: mira un video',
   'hub.adGot': '¡+{n} de oro!',
   'ad.none': 'No hay anuncio ahora, inténtalo pronto.',
-  'settings.privacy': 'Política de privacidad'
+  'settings.privacy': 'Política de privacidad',
+  'house.topUp2': '¡El Castor lo trae del mercado y empieza ya!',
+  'house.balance': 'Tu oro: {a} → {b}',
+  'house.notNow': 'Ahora no'
 });

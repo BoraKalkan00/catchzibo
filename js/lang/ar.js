@@ -361,7 +361,7 @@ CZ.i18n.register('ar', 'العربية', {
   'house.roomSub': 'بيتك يكبر',
   'house.noGold': 'الذهب لا يكفي. العب صيد الذهب!',
   'house.topUp': 'ينقصك {list}. هل تشتريها بـ {gold} ذهب وتبني؟',
-  'house.topUpYes': 'اشترِ وابنِ',
+  'house.topUpYes': 'اجلب وابنِ',
   'house.z.empty': 'أرض فارغة؟ ها! أين ستنام؟',
   'house.z.building': 'نصف بيت! سأدخل بكل سهولة.',
   'house.z.weak': 'بيتك غير آمن أبدًا. سأدخل الليلة! قوِّه!',
@@ -690,5 +690,8 @@ CZ.i18n.register('ar', 'العربية', {
   'hub.adReward': 'مكافأة: شاهد فيديو',
   'hub.adGot': '+{n} ذهب!',
   'ad.none': 'لا يوجد إعلان الآن، حاول بعد قليل.',
-  'settings.privacy': 'سياسة الخصوصية'
+  'settings.privacy': 'سياسة الخصوصية',
+  'house.topUp2': 'القندس يجلبها من السوق ويبدأ فورًا!',
+  'house.balance': 'ذهبك: {a} ← {b}',
+  'house.notNow': 'ليس الآن'
 });

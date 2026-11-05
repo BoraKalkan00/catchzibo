@@ -690,5 +690,8 @@ CZ.i18n.register('ko', '한국어', {
   'hub.adReward': '보상: 영상 보기',
   'hub.adGot': '+{n} 골드!',
   'ad.none': '지금은 광고가 없어요. 잠시 후 다시 시도해요.',
-  'settings.privacy': '개인정보 처리방침'
+  'settings.privacy': '개인정보 처리방침',
+  'house.topUp2': '비버 아저씨가 시장에서 사 와서 바로 시작해요!',
+  'house.balance': '골드: {a} → {b}',
+  'house.notNow': '나중에'
 });

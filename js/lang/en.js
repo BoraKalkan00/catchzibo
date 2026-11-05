@@ -378,7 +378,7 @@ CZ.i18n.register('en', 'English', {
   'house.roomSub': 'Your house gets bigger',
   'house.noGold': 'Not enough gold. Play Gold Hunt!',
   'house.topUp': 'You’re missing {list}. Buy them for {gold} gold and build?',
-  'house.topUpYes': 'Buy & build',
+  'house.topUpYes': 'Fetch & build',
   'house.z.empty': 'An empty lot? Hah! Where will you even sleep?',
   'house.z.building': 'Half a house! I could walk right in.',
   'house.z.weak': 'Your house isn’t safe at all. Tonight I’m coming in! Make it stronger!',
@@ -871,5 +871,8 @@ CZ.i18n.register('en', 'English', {
   'hub.adReward': 'Get rewards: watch a video',
   'hub.adGot': '+{n} coins!',
   'ad.none': 'No ad right now, try again soon.',
-  'settings.privacy': 'Privacy Policy'
+  'settings.privacy': 'Privacy Policy',
+  'house.topUp2': 'Beaver can fetch these from the market and start right away!',
+  'house.balance': 'Your gold: {a} → {b}',
+  'house.notNow': 'Not now'
 });

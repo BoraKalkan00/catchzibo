@@ -361,7 +361,7 @@ CZ.i18n.register('ja', '日本語', {
   'house.roomSub': '家が大きくなる',
   'house.noGold': 'ゴールドが足りない。ゴールドハントであそぼう！',
   'house.topUp': '{list}が足りないよ。{gold}ゴールドで買ってたてる？',
-  'house.topUpYes': '買ってたてる',
+  'house.topUpYes': '買って建てる',
   'house.z.empty': '空き地？ハハ！どこでねるの？',
   'house.z.building': '半分の家！すいすい入れちゃう。',
   'house.z.weak': 'きみの家、ぜんぜん安全じゃない。今夜入っちゃうよ！強くして！',
@@ -690,5 +690,8 @@ CZ.i18n.register('ja', '日本語', {
   'hub.adReward': '報酬：動画を見る',
   'hub.adGot': '+{n}ゴールド！',
   'ad.none': '今は広告がありません。少ししてからもう一度。',
-  'settings.privacy': 'プライバシーポリシー'
+  'settings.privacy': 'プライバシーポリシー',
+  'house.topUp2': 'ビーバー親方が市場から買ってすぐ始めるよ！',
+  'house.balance': 'ゴールド：{a} → {b}',
+  'house.notNow': 'あとで'
 });

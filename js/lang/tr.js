@@ -378,7 +378,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'house.roomSub': 'Evin büyür',
   'house.noGold': 'Altın yetmiyor. Altın Avı’nı oyna!',
   'house.topUp': '{list} eksik. {gold} altına alıp yapalım mı?',
-  'house.topUpYes': 'Al ve yap',
+  'house.topUpYes': 'Getir ve yap',
   'house.z.empty': 'Boş arsa mı? Hah! Nerede uyuyacaksın?',
   'house.z.building': 'Yarım ev! Elini kolunu sallayarak girerim.',
   'house.z.weak': 'Evin hiç güvenli değil! Bu gece gelirim. Geliştir!',
@@ -871,5 +871,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   'hub.adReward': 'Ödül al: reklam izle',
   'hub.adGot': '+{n} altın kazandın!',
   'ad.none': 'Şu an reklam yok, birazdan tekrar dene.',
-  'settings.privacy': 'Gizlilik Politikası'
+  'settings.privacy': 'Gizlilik Politikası',
+  'house.topUp2': 'Kunduz Usta pazardan getirsin, hemen başlasın!',
+  'house.balance': 'Altının: {a} → {b}',
+  'house.notNow': 'Şimdi değil'
 });

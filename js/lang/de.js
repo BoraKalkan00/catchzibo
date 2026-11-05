@@ -361,7 +361,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'house.roomSub': 'Dein Haus wird größer',
   'house.noGold': 'Nicht genug Gold. Spiel die Goldjagd!',
   'house.topUp': 'Dir fehlen {list}. Für {gold} Gold kaufen und bauen?',
-  'house.topUpYes': 'Kaufen & bauen',
+  'house.topUpYes': 'Holen & bauen',
   'house.z.empty': 'Ein leeres Grundstück? Ha! Wo willst du schlafen?',
   'house.z.building': 'Ein halbes Haus! Da spaziere ich einfach rein.',
   'house.z.weak': 'Dein Haus ist gar nicht sicher. Heute Nacht komme ich! Mach es stärker!',
@@ -690,5 +690,8 @@ CZ.i18n.register('de', 'Deutsch', {
   'hub.adReward': 'Belohnung: Video schauen',
   'hub.adGot': '+{n} Gold!',
   'ad.none': 'Gerade keine Werbung, versuch es gleich nochmal.',
-  'settings.privacy': 'Datenschutz'
+  'settings.privacy': 'Datenschutz',
+  'house.topUp2': 'Biber holt das vom Markt und legt sofort los!',
+  'house.balance': 'Dein Gold: {a} → {b}',
+  'house.notNow': 'Jetzt nicht'
 });
