@@ -662,19 +662,19 @@ CZ.runner3d = (function () {
       const n = Math.max(0, Math.min(LANES - 1, s.lane + dir));
       if (n === s.lane) { bump(); return; }
       s.lane = n;
-      CZ.audio.sfx('button');
+      CZ.audio.sfx('swish');
     }
     function jump() {
       if (!s.running) return;
       if (s.jumping) return;
       s.jumping = true; s.vy = R.jumpV; s.slideT = 0;
-      CZ.audio.sfx('throw');
+      CZ.audio.sfx('jump');
     }
     function slide() {
       if (!s.running) return;
       if (s.jumping) { s.vy = -R.jumpV * 1.4; }      // havadaysan hızla in
       s.slideT = R.slideSec;
-      CZ.audio.sfx('drop');
+      CZ.audio.sfx('slide');
     }
     function bump() { s.shake = 0.12; CZ.audio.vibrate(10); }
     function shoot() {
@@ -782,10 +782,13 @@ CZ.runner3d = (function () {
       const tx = laneX(s.lane);
       s.px += (tx - s.px) * Math.min(1, dt * 16);
       const floor = s.floor || 0;
+      // Ayak sesi: her adımda (adım hızı koşu hızıyla artar)
+      s.stepT = (s.stepT || 0) - dt;
+      if (s.stepT <= 0 && !s.jumping && !(s.slideT > 0)) { s.stepT = 3.4 / (8 + s.speed * 0.32); s.stepSide = !s.stepSide; CZ.audio.sfx('step', s.stepSide ? 1 : 0); }
       if (s.jumping) {
         s.vy -= R.gravity * dt;
         s.py += s.vy * dt;
-        if (s.py <= floor && s.vy <= 0) { s.py = floor; s.vy = 0; s.jumping = false; }
+        if (s.py <= floor && s.vy <= 0) { s.py = floor; s.vy = 0; s.jumping = false; CZ.audio.sfx('land'); }
       } else if (s.py < floor) {
         s.py = floor;                                   // rampadan yukarı çıkış
       } else if (s.py > floor + 0.05) {

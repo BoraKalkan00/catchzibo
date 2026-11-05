@@ -191,6 +191,12 @@ CZ.audio = (function () {
     buy: t => [67, 72, 76, 79].forEach((n, i) => tone(midi(n), t + i * 0.06, 0.3, { gain: 0.09 })),
     // Kartopu savaşı
     throw: t => noise(t, 0.12, { gain: 0.06, freq: 1800, to: 600, q: 0.7 }),
+    // Koşu sesleri: karda ayak sesi, zıplama, kayma, iniş, şerit değiştirme
+    step: (t, side = 0) => noise(t, 0.07, { gain: 0.035, freq: side ? 900 : 750, to: 300, q: 0.8, type: 'lowpass' }),
+    jump: t => { noise(t, 0.18, { gain: 0.07, freq: 500, to: 2600, q: 0.6 }); tone(330, t, 0.16, { gain: 0.05, to: 660, type: 'triangle' }); },
+    slide: t => noise(t, 0.32, { gain: 0.09, freq: 2600, to: 400, q: 0.5 }),
+    land: t => { noise(t, 0.09, { gain: 0.09, freq: 600, to: 200, q: 0.7, type: 'lowpass' }); tone(110, t, 0.08, { gain: 0.08, to: 70 }); },
+    swish: t => noise(t, 0.1, { gain: 0.05, freq: 1400, to: 3000, q: 0.9 }),
     hit: t => {
       noise(t, 0.08, { gain: 0.16, freq: 700, to: 300, q: 0.9 });
       tone(160, t, 0.08, { gain: 0.12, to: 90 });
