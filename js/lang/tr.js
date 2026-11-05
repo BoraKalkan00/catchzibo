@@ -874,5 +874,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   'settings.privacy': 'Gizlilik Politikası',
   'house.topUp2': 'Kunduz Usta pazardan getirsin, hemen başlasın!',
   'house.balance': 'Altının: {a} → {b}',
-  'house.notNow': 'Şimdi değil'
+  'house.notNow': 'Şimdi değil',
+  'gold.buyWeapon': '{n} altına al'
 });

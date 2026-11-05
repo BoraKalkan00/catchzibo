@@ -693,5 +693,6 @@ CZ.i18n.register('fr', 'Français', {
   'settings.privacy': 'Confidentialité',
   'house.topUp2': 'Castor va chercher ça au marché et commence tout de suite !',
   'house.balance': 'Ton or : {a} → {b}',
-  'house.notNow': 'Pas maintenant'
+  'house.notNow': 'Pas maintenant',
+  'gold.buyWeapon': 'Acheter pour {n}'
 });

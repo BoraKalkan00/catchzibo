@@ -693,5 +693,6 @@ CZ.i18n.register('de', 'Deutsch', {
   'settings.privacy': 'Datenschutz',
   'house.topUp2': 'Biber holt das vom Markt und legt sofort los!',
   'house.balance': 'Dein Gold: {a} → {b}',
-  'house.notNow': 'Jetzt nicht'
+  'house.notNow': 'Jetzt nicht',
+  'gold.buyWeapon': 'Für {n} kaufen'
 });

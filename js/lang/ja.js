@@ -693,5 +693,6 @@ CZ.i18n.register('ja', '日本語', {
   'settings.privacy': 'プライバシーポリシー',
   'house.topUp2': 'ビーバー親方が市場から買ってすぐ始めるよ！',
   'house.balance': 'ゴールド：{a} → {b}',
-  'house.notNow': 'あとで'
+  'house.notNow': 'あとで',
+  'gold.buyWeapon': '{n}で買う'
 });

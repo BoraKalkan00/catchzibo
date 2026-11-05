@@ -26,57 +26,67 @@ CZ.screens.gold = (function () {
   }
 
   /* ---------- Lobi: silah seç, dükkân, başla ---------- */
+  // Lobi (Subway tarzı): ortada karakterin, solda silahlar, sağda karakterler; ikisi de aşağı kaydırılır.
+  let peekWeapon = null;
   function lobby(el) {
     const d = data();
     if (!d.weapons || !d.weapons.length) d.weapons = ['snowball'];
-    const weaponCard = w => {
+    const me = d.avatar || 'girl';
+    const showW = weaponDef(peekWeapon || d.weapon);
+    const ownedW = d.weapons.includes(showW.id);
+    const wTile = w => {
       const owned = d.weapons.includes(w.id);
-      const selected = d.weapon === w.id;
-      const action = owned
-        ? (selected
-          ? h('span', { class: 'gold-tag', text: t('gold.owned') })
-          : btn(t('gold.pick'), () => { d.weapon = w.id; CZ.state.save(); CZ.ui.refresh(); }, 'small ghost-dark'))
-        : btn(String(w.price), () => buyWeapon(w), 'small gold-buy', 'ui.gold');
-      return h('div', { class: 'gold-card' + (selected ? ' selected' : '') + (owned ? '' : ' locked') },
-        img(w.art, 'gold-card-img'),
-        h('strong', { text: t('weapon.' + w.id) }),
-        h('small', { text: t('gold.dmg', { n: w.dmg }) }),
-        action);
+      return h('button', {
+        class: 'rail-tile' + (w.id === showW.id ? ' on' : '') + (owned ? '' : ' locked'), type: 'button',
+        onClick: () => {
+          CZ.audio.sfx('button');
+          if (owned) { peekWeapon = null; d.weapon = w.id; CZ.state.save(); } else peekWeapon = w.id;
+          CZ.ui.refresh();
+        }
+      }, img(w.art, 'rail-img'),
+      owned ? (d.weapon === w.id ? h('i', { class: 'rail-ok', text: '✓' }) : null)
+        : h('small', { class: 'rail-price' }, img('ui.gold', 'mini-ico'), String(w.price)));
     };
-    const cocoaFull = d.cocoa >= G.cocoa.max;
-    const startRow = isFree()
-      ? btn(t('gold.start'), () => startRound(el, true), 'primary big pulse wide')
-      : h('div', { class: 'gold-wait' },
-        h('p', { text: t('gold.wait', { t: waitText() }) }),
-        btn(t('gold.adPlay'), () => fakeAd(el, () => startRound(el, false)), 'primary wide'),
-        btn(t('gold.gemPlay', { n: G.skipEmeralds }), () => {
-          if ((d.emeralds || 0) < G.skipEmeralds) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('gold.gemNeed')); }
-          d.emeralds -= G.skipEmeralds;
-          CZ.state.save();
-          startRound(el, false);
-        }, 'ghost wide', 'ui.emerald'));
+    const cTile = c => {
+      const st = CZ.chars.state(c);
+      return h('button', {
+        class: 'rail-tile char' + (c.id === me ? ' on' : '') + (st === 'open' ? '' : ' locked'), type: 'button',
+        onClick: () => {
+          if (st !== 'open') { CZ.audio.sfx('wrong'); return CZ.ui.toast(st === 'soon' ? t('chars.soonNote') : t('chars.finishRoom', { room: t('room.' + c.room) })); }
+          CZ.audio.sfx('button'); d.avatar = c.id; CZ.state.save(); CZ.ui.refresh();
+        }
+      }, st === 'open' ? CZ.charArt.img(c.id, 'front', 'rail-img') : h('img', { class: 'rail-img', src: CZ.chars.front(c.id), alt: '' }),
+      st !== 'open' ? h('i', { class: 'rail-lock', text: '🔒' }) : null);
+    };
+    const cocoaFull = (d.cocoa || 0) >= G.cocoa.max;
+    const cocoa = h('button', {
+      class: 'rail-tile cocoa' + (cocoaFull ? ' full' : ''), type: 'button',
+      onClick: () => { if (cocoaFull) return CZ.ui.toast(t('gold.cocoaFull')); buyCocoa(); }
+    }, img('item.mug_red', 'rail-img'), h('small', { class: 'rail-price' }, cocoaFull ? '✓' : [img('ui.gold', 'mini-ico'), String(G.cocoa.price)]));
+
+    const action = ownedW
+      ? btn(t('gold.start'), () => startRound(el, true), 'primary big pulse wide lobby-go')
+      : btn(t('gold.buyWeapon', { n: showW.price }), () => { buyWeapon(showW); peekWeapon = null; }, 'big wide lobby-buy', 'ui.gold');
 
     el.append(
       img('scene.road', 'scene-bg'),
       snow(),
       h('header', { class: 'topbar gold-top' },
-        h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.back'), onClick: () => { CZ.audio.sfx('button'); CZ.ui.go('hub'); }, text: '‹' }),
+        h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.back'), onClick: () => { CZ.audio.sfx('button'); peekWeapon = null; CZ.ui.go('hub'); }, text: '‹' }),
         h('h1', { text: t('hub.gold') }),
         goldBadge()),
-      h('div', { class: 'scroll gold-lobby' },
-        h('p', { class: 'gold-sub', text: t('gold.sub') }),
-        d.goldBest ? h('p', { class: 'gold-best', text: t('gold.best', { n: d.goldBest }) }) : null,
-        startRow,
-        h('h2', { class: 'gold-head', text: t('gold.weapons') }),
-        h('div', { class: 'gold-grid' }, G.weapons.map(weaponCard)),
-        h('div', { class: 'gold-card cocoa' },
-          img('item.mug_red', 'gold-card-img'),
-          h('div', { class: 'cocoa-text' },
-            h('strong', { text: t('gold.cocoa') }),
-            h('small', { text: t('gold.cocoaNote', { s: G.cocoa.seconds, n: d.cocoa || 0, max: G.cocoa.max }) })),
-          cocoaFull
-            ? h('span', { class: 'gold-tag', text: t('gold.cocoaFull') })
-            : btn(String(G.cocoa.price), buyCocoa, 'small gold-buy', 'ui.gold'))));
+      h('div', { class: 'lobby' },
+        h('div', { class: 'rail left' }, h('small', { class: 'rail-head', text: t('gold.weapons') }), G.weapons.map(wTile), cocoa),
+        h('div', { class: 'lobby-stage' },
+          d.runBest ? h('p', { class: 'lobby-best' }, '🏆 ', t('run.best', { n: (d.runBest || 0).toLocaleString() })) : null,
+          h('div', { class: 'lobby-hero' },
+            CZ.charArt.img(me, 'front', 'lobby-char'),
+            img(showW.art, 'lobby-weapon' + (ownedW ? '' : ' peek'))),
+          h('div', { class: 'lobby-info' },
+            h('strong', { text: t('weapon.' + showW.id) }),
+            h('small', {}, t('gold.dmg', { n: showW.dmg }), ' · ', h('span', { class: 'dmg-bar' }, h('i', { style: `width:${showW.dmg / 9 * 100}%` }))))),
+        h('div', { class: 'rail right' }, h('small', { class: 'rail-head', text: t('chars.title') }), CZ.ROSTER.map(cTile))),
+      h('div', { class: 'lobby-bottom' }, action));
   }
 
   function spend(price) {

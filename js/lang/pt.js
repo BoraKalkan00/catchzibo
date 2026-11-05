@@ -693,5 +693,6 @@ CZ.i18n.register('pt', 'Português', {
   'settings.privacy': 'Política de privacidade',
   'house.topUp2': 'O Castor busca no mercado e começa já!',
   'house.balance': 'Seu ouro: {a} → {b}',
-  'house.notNow': 'Agora não'
+  'house.notNow': 'Agora não',
+  'gold.buyWeapon': 'Comprar por {n}'
 });

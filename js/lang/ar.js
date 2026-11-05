@@ -693,5 +693,6 @@ CZ.i18n.register('ar', 'العربية', {
   'settings.privacy': 'سياسة الخصوصية',
   'house.topUp2': 'القندس يجلبها من السوق ويبدأ فورًا!',
   'house.balance': 'ذهبك: {a} ← {b}',
-  'house.notNow': 'ليس الآن'
+  'house.notNow': 'ليس الآن',
+  'gold.buyWeapon': 'اشترِ بـ {n}'
 });

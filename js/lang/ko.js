@@ -693,5 +693,6 @@ CZ.i18n.register('ko', '한국어', {
   'settings.privacy': '개인정보 처리방침',
   'house.topUp2': '비버 아저씨가 시장에서 사 와서 바로 시작해요!',
   'house.balance': '골드: {a} → {b}',
-  'house.notNow': '나중에'
+  'house.notNow': '나중에',
+  'gold.buyWeapon': '{n}에 구매'
 });
