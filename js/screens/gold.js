@@ -175,6 +175,12 @@ CZ.screens.gold = (function () {
         onPower(kind) { floatText(t('run.power.' + kind), 'power'); },
         onCrate() { if (CZ.quests) CZ.quests.track('crate'); },
         onDodge() { if (CZ.quests) CZ.quests.track('dodge'); },
+        onSwipe(combo, near, gold) {
+          if (near) floatText(t('run.nearMiss', { n: gold }), 'gold');
+          else if (combo >= 3) floatText(t('run.combo', { n: combo }), 'gold');
+          const dd = CZ.state.data;
+          if (combo > (dd.bestCombo || 0)) { dd.bestCombo = combo; if (combo >= 5) floatText(t('run.comboRecord', { n: combo }), 'gold'); }
+        },
         onCrash(left) { drawHearts(left); floatText(t('gold.ouch'), 'bad'); g.el.classList.add('run-hurt'); setTimeout(() => g && g.el.classList.remove('run-hurt'), 300); },
         onTick(s) {
           const m = Math.round(s.dist);

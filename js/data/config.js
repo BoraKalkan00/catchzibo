@@ -191,9 +191,9 @@ CZ.CHASE = {
   seconds: 30,
   startGap: 60,            // metre
   closeRate: 1.7,          // oyuncu her saniye bu kadar yaklaşır
-  hookPull: 10,            // isabetli kanca bu kadar çeker
-  hookCooldown: 2.4,       // sn
-  hookBurst: 3,            // kancadan sonra Zibo hızlanır, 1 sn'de bu kadar açar
+  hookPull: 8,             // isabetli kanca bu kadar çeker
+  hookCooldown: 2.2,       // sn
+  hookBurst: 0,            // kancadan sonra Zibo hızlanır, 1 sn'de bu kadar açar
   bombHit: 9,              // bomba yiyince mesafe açılır
   lives: 3,
   warnMs: 1800,            // bomba düşmeden önceki uyarı süresi

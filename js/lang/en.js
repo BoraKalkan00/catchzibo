@@ -45,9 +45,9 @@ CZ.i18n.register('en', 'English', {
   'play.introYours': 'This one is yours!',
   'play.howto': 'Tap: lift · Hold: “it’s mine!”',
   'play.mine': 'It’s mine!',
-  'play.leave': 'Leave the room? The item stays in the mansion.',
-  'play.leaveYes': 'Leave',
-  'play.leaveNo': 'Stay',
+  'play.leave': 'If you leave, you lose today’s try: Zibo hides the item until tomorrow.',
+  'play.leaveYes': 'Leave (lose your try)',
+  'play.leaveNo': 'Stay and finish now',
 
   'tut.lift': 'That’s your stocking! It’s buried. TAP the item on top to lift it away.',
   'tut.lift2': 'Nice! TAP one more to clear the way.',
@@ -268,7 +268,7 @@ CZ.i18n.register('en', 'English', {
   'zibo.snatch': 'MINE! Catch me if you can! Ha ha!',
   'chase.introTop': 'Zibo snatched it!',
   'chase.introTitle': 'Catch him!',
-  'chase.introHow': 'Swipe to switch lanes, jump and slide. Tap in Zibo’s lane: hook!',
+  'chase.introHow': 'Swipe to switch lanes, jump and slide. Tap in Zibo’s lane: throw your weapon!',
   'chase.distance': 'Zibo is ahead',
   'chase.meters': '{n} m',
   'chase.hook': 'Hook',
@@ -881,5 +881,14 @@ CZ.i18n.register('en', 'English', {
   'house.toVillage': 'Back to village',
   'notif.stole2': 'Hehehe! I stole something again tonight. Find it if you can! 😈',
   'notif.rival2': 'Still holding your record? I’m faster than you! 🏃‍♂️',
-  'chase.nice': 'Nice!'
+  'chase.nice': 'Nice!',
+  'play.leaveFree': 'Leave the room?',
+  'play.leaveYesFree': 'Leave',
+  'mansion.restingAd': 'Zibo is hiding this until tomorrow. Watch a short ad and search again right now!',
+  'mansion.watchRetry': 'Watch & search again',
+  'mansion.waitTomorrow': 'I’ll wait',
+  'chase.throw': 'Throw!',
+  'run.nearMiss': 'Close call! +{n}',
+  'run.combo': 'x{n} Combo!',
+  'run.comboRecord': 'New record: {n} combo!'
 });

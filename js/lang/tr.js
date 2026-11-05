@@ -45,9 +45,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   'play.introYours': 'Bu senin eşyan!',
   'play.howto': 'Dokun: kaldır · Basılı tut: “bu benim!”',
   'play.mine': 'Bu benim!',
-  'play.leave': 'Odadan çıkılsın mı? Eşya malikanede kalır.',
-  'play.leaveYes': 'Çık',
-  'play.leaveNo': 'Kal',
+  'play.leave': 'Çıkarsan bugünkü hakkın gider: Zibo eşyayı yarına kadar saklar.',
+  'play.leaveYes': 'Çık (hakkın gider)',
+  'play.leaveNo': 'Kal ve şimdi tamamla',
 
   'tut.lift': 'İşte senin çorabın! Eşyaların altında kalmış. Üstteki eşyaya DOKUN ve kaldır.',
   'tut.lift2': 'Harika! Yolu açmak için bir tanesine daha DOKUN.',
@@ -268,7 +268,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'zibo.snatch': 'BENİM! Yakalayabilirsen yakala! Ha ha!',
   'chase.introTop': 'Zibo eşyayı kaptı!',
   'chase.introTitle': 'Yakala onu!',
-  'chase.introHow': 'Kaydır: şerit değiştir, zıpla, eğil. Zibo’yla aynı şeritteyken dokun: kanca!',
+  'chase.introHow': 'Kaydır: şerit değiştir, zıpla, eğil. Zibo’yla aynı şeritteyken dokun: silahını at!',
   'chase.distance': 'Zibo önde',
   'chase.meters': '{n} m',
   'chase.hook': 'Kanca',
@@ -881,5 +881,14 @@ CZ.i18n.register('tr', 'Türkçe', {
   'house.toVillage': 'Köyüme dön',
   'notif.stole2': 'Hehehe! Bu gece yine bir şey çaldım. Bul bakalım! 😈',
   'notif.rival2': 'Rekorun duruyor mu? Ben senden hızlıyım! 🏃‍♂️',
-  'chase.nice': 'Süper!'
+  'chase.nice': 'Süper!',
+  'play.leaveFree': 'Odadan çıkılsın mı?',
+  'play.leaveYesFree': 'Çık',
+  'mansion.restingAd': 'Zibo bunu yarına kadar saklıyor. Kısa bir reklam izle, hemen tekrar ara!',
+  'mansion.watchRetry': 'İzle ve tekrar ara',
+  'mansion.waitTomorrow': 'Yarını beklerim',
+  'chase.throw': 'At!',
+  'run.nearMiss': 'Kıl payı! +{n}',
+  'run.combo': 'x{n} Kombo!',
+  'run.comboRecord': 'Yeni rekor: {n} kombo!'
 });

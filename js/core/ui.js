@@ -91,13 +91,13 @@ CZ.ui = (function () {
     setTimeout(() => el.remove(), 2200);
   }
 
-  function confirmBox(text, yes, no, onYes) {
+  function confirmBox(text, yes, no, onYes, yesCls) {
     const box = h('div', { class: 'modal-wrap' },
       h('div', { class: 'modal' },
         h('p', { text }),
         h('div', { class: 'row' },
           btn(no, () => box.remove(), 'ghost'),
-          btn(yes, () => { box.remove(); onYes(); }, 'danger'))));
+          btn(yes, () => { box.remove(); onYes(); }, yesCls || 'danger'))));
     root.append(box);
   }
 

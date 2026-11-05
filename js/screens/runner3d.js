@@ -677,8 +677,20 @@ CZ.runner3d = (function () {
       if (!s.running) return;
       const n = Math.max(0, Math.min(LANES - 1, s.lane + dir));
       if (n === s.lane) { bump(); return; }
+      const old = s.lane;
       s.lane = n;
       CZ.audio.sfx('swish');
+      // Kaç kombosu: arka arkaya hızlı kaçışlar kombo yapar. Hemen önündeki engelden/bombadan
+      // son anda kaçarsan "Kıl payı!" bonusu (kombo ile katlanır).
+      s.combo = s.t - (s.lastSwipe || -9) < 0.9 ? (s.combo || 0) + 1 : 1;
+      s.lastSwipe = s.t;
+      s.bestCombo = Math.max(s.bestCombo || 0, s.combo);
+      const near = s.objs.some(o => o.lane === old && !o.passed && !o.dead && o.type !== 'crate' && o.mesh.position.z < 0 && o.mesh.position.z > -s.speed * 0.4 - o.len / 2)
+        || s.bombs.some(b => b.lane === old && b.t / b.dur > 0.55);
+      const gold = (near ? 3 * Math.min(s.combo, 5) : 0) + (s.combo >= 3 ? 1 : 0);
+      if (gold) { s.gold += gold; opts.onGold(gold); }
+      if (near) { s.nearMiss = (s.nearMiss || 0) + 1; CZ.audio.sfx('coin', 6); sparks(new THREE.Vector3(laneX(old), 1, -0.6), 5, '#ffe27a'); }
+      if (opts.onSwipe) opts.onSwipe(s.combo, near, gold);
     }
     function jump() {
       if (!s.running) return;
@@ -910,7 +922,8 @@ CZ.runner3d = (function () {
       // Zibo önde koşar
       s.ziboNext -= dt;
       if (!CHASE && s.ziboNext <= 0) { s.ziboLane = Math.floor(Math.random() * LANES); s.ziboNext = rand(1.2, 2.4); }
-      zibo.position.z += (s.ziboZ - zibo.position.z) * Math.min(1, dt * 5);
+      s.ziboKick = Math.max(0, (s.ziboKick || 0) - dt * 3);
+      zibo.position.z += (s.ziboZ + s.ziboKick - zibo.position.z) * Math.min(1, dt * 7);
       if (lootSp) { lootSp.position.set(zibo.position.x + 0.35, zibo.position.y + 1.25, zibo.position.z + 0.05); }
       chaseFx(dt);
       s.ziboX += (laneX(s.ziboLane) - s.ziboX) * Math.min(1, dt * 3);
@@ -920,6 +933,7 @@ CZ.runner3d = (function () {
       // Koşu: Viggle videosundan 8 kare (saniyede 20 kare)
       setZiboFrame(s.ziboForce || (s.laughT > 0 ? 'laugh' : s.ziboPose > 0 ? 'throw' : 'vrun' + (Math.floor(s.frame * 20) % 8)));
       s.laughT = Math.max(0, (s.laughT || 0) - dt);
+      if (s.ziboHitT > 0) { s.ziboHitT -= dt; zibo.material.rotation = Math.sin(s.ziboHitT * 30) * 0.18; if (s.ziboHitT <= 0) { s.ziboForce = null; zibo.material.rotation = 0; } }
 
       // engeller
       let nextFloor = 0;
@@ -981,9 +995,13 @@ CZ.runner3d = (function () {
         if (b.trailT <= 0) { b.trailT = 0.03; sparks(b.mesh.position, 1, SHOT.trail, 0.18); }
         const tgt = b.target && !b.target.dead ? b.target.mesh.position : null;
         if (tgt) {
-          const dir = new THREE.Vector3(tgt.x - b.mesh.position.x, 0.55 - b.mesh.position.y, tgt.z - b.mesh.position.z);
+          const ty = b.target.zibo ? tgt.y + 1.1 : 0.55;
+          const dir = new THREE.Vector3(tgt.x - b.mesh.position.x, ty - b.mesh.position.y, tgt.z - b.mesh.position.z);
           const dist = dir.length();
-          if (dist < 0.6) { hitCrate(b.target); scene.remove(b.mesh); s.shots.splice(i, 1); continue; }
+          if (dist < 0.6) {
+            if (b.target.zibo) { ziboHit(); if (b.target.onHit) b.target.onHit(); } else hitCrate(b.target);
+            scene.remove(b.mesh); s.shots.splice(i, 1); continue;
+          }
           dir.normalize().multiplyScalar(Math.min(dist, 60 * (SHOT.speed || 1) * dt));
           b.mesh.position.add(dir);
         } else {
@@ -1067,6 +1085,23 @@ CZ.runner3d = (function () {
       opts.onCrate();
     }
 
+    // Kovalamaca: silahını Zibo'ya at. İsabet: Zibo sendeler, yıldızlar uçuşur, bir an yavaşlar.
+    function throwAt(hit, onHit) {
+      const ball = new THREE.Sprite(ballMat.clone());
+      ball.scale.set(SHOT.size * 1.3, SHOT.size * 1.3, 1);
+      if (haloMat) { const hl = new THREE.Sprite(haloMat); hl.scale.set(2.2, 2.2, 1); ball.add(hl); }
+      ball.position.set(s.px + 0.3, s.py + 1.1, -0.3);
+      scene.add(ball);
+      s.shots.push({ mesh: ball, target: hit ? { zibo: true, mesh: zibo, onHit } : null, life: hit ? 1.2 : 0.6 });
+      s.throwPose = 0.2;
+      CZ.audio.sfx('throw');
+    }
+    function ziboHit() {
+      const p = zibo.position.clone(); p.y += 1.3;
+      sparks(p, 10, '#ffe27a'); sparks(p, 6, '#ffffff');
+      s.ziboForce = 'dizzy'; s.ziboHitT = 0.55; s.shake = 0.15; s.ziboKick = 2.6;
+      CZ.audio.sfx('hit'); CZ.audio.vibrate([20, 30, 40]);
+    }
     function dodged(o) {
       if (o.type === 'low' && s.py > 0.2) opts.onDodge();
       else if (o.type === 'high' && s.slideT > 0) opts.onDodge();
@@ -1092,7 +1127,7 @@ CZ.runner3d = (function () {
     }
 
     function summary() {
-      return { gold: s.gold, emeralds: s.emeralds, crates: s.crates, meters: Math.round(s.dist), seconds: Math.round(s.t), score: Math.round(s.score || 0) };
+      return { bestCombo: s.bestCombo || 0, nearMiss: s.nearMiss || 0, gold: s.gold, emeralds: s.emeralds, crates: s.crates, meters: Math.round(s.dist), seconds: Math.round(s.t), score: Math.round(s.score || 0) };
     }
 
     function onVis() { last = 0; }
@@ -1122,6 +1157,7 @@ CZ.runner3d = (function () {
         s.bombs.push({ lane, sp, t: 0, dur: sec, x0: zibo.position.x, y0: 1.2, z0: zibo.position.z });
       },
       hook(hit) { s.hookFx = 0.3; s.hookHit = hit; },
+      throwAt,
       hurt() { s.invT = 0.8; s.shake = 0.35; s.stunT = 0.6; },
       // Bu şeritte, sec saniye sonra oyuncunun hizasında hangi engel olacak?
       obstacleAt(lane, sec) {

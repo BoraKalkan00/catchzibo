@@ -211,7 +211,13 @@
       const tile = (r, index) => {
         const st = game.status(r.id);
         const open = () => {
-          if (st === 'resting') return CZ.ui.toast(t('mansion.resting'));
+          if (st === 'resting') {
+            return CZ.ui.confirmBox(t('mansion.restingAd'), '▶ ' + t('mansion.watchRetry'), t('mansion.waitTomorrow'), () => CZ.ads.show(() => {
+              delete state.data.rounds[r.id];
+              state.save();
+              CZ.ui.wipeTo('play', { roundId: r.id });
+            }), 'primary');
+          }
           if (st === 'locked') return CZ.ui.toast(t('mansion.locked'));
           CZ.ui.wipeTo('play', { roundId: r.id });
         };

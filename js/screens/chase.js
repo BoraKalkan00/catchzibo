@@ -32,15 +32,17 @@ CZ.screens.chase = (function () {
     c.bubble = h('div', { class: 'bubble chase-bubble' }, h('em', { class: 'bubble-goblin' }), h('span', { class: 'bubble-line' }));
     c.floats = h('div', { class: 'run-floats' });
     c.field = h('div', { class: 'chase-field3d' }, c.stage, c.bubble, c.floats);
+    const W = CZ.GOLD.weapons.find(w => w.id === CZ.state.data.weapon) || CZ.GOLD.weapons[0];
     c.readyP = CZ.runner3d.load().then(() => {
       if (!c || c.el !== el) return;
       c.run = CZ.runner3d.start(c.stage, {
         mode: 'chase', lanes: 3, speed: 17, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
-        perk: {}, dmg: 1, weaponId: CZ.state.data.weapon,
+        perk: {}, dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball,
         onTap: () => hook(),
         onGold(n) { c.gold += n; c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
         onEmerald() {}, onPower() {}, onCrate() {},
         onDodge() { floatText(t('chase.nice'), 'gold'); },
+        onSwipe(combo, near, gold) { swipeText(combo, near, gold); },
         onCrash() { hurt(); }, onEnd() {}
       });
       c.run.state.lane = 1; c.run.state.px = 0;
@@ -53,7 +55,7 @@ CZ.screens.chase = (function () {
     c.hearts = h('div', { class: 'chase-hearts' });
     c.clock = h('div', { class: 'clock', text: C.seconds });
     c.hookBtn = h('button', { class: 'hook-btn', type: 'button', onPointerDown: e => { e.stopPropagation(); hook(); } },
-      img('ui.hook', 'hook-ico'), h('span', { text: t('chase.hook') }), h('i', { class: 'hook-cool' }));
+      img(W.art, 'hook-ico'), h('span', { text: t('chase.throw') }), h('i', { class: 'hook-cool' }));
 
     el.append(
       h('div', { class: 'play-top chase-top' },
@@ -111,14 +113,15 @@ CZ.screens.chase = (function () {
     c.timeLeft -= dt;
     c.frame += dt;
     // Oyuncu hep yaklaşır; sersemlikte durur. Kancadan sonra Zibo bir an kaçar.
-    let close = c.stun > 0 ? 0 : C.closeRate;
+    let close = c.stun > 0 ? 0 : byLevel([C.closeRate, C.closeRate * 0.55]);
     if (c.burst > 0) { close -= C.hookBurst; c.burst -= dt; }
     c.stun = Math.max(0, c.stun - dt);
     c.gap = Math.max(0, Math.min(C.startGap * 1.4, c.gap - close * dt));
     c.hookReady = Math.max(0, c.hookReady - dt);
 
     if (c.run) c.lane = c.run.state.lane;
-    if (now >= c.nextSwitch) switchLane();
+    c.ziboStun = Math.max(0, (c.ziboStun || 0) - dt);
+    if (now >= c.nextSwitch && c.ziboStun <= 0) switchLane();
     if (now >= c.nextBomb) throwBomb(now);
     c.bombs.slice().forEach(b => { if (now >= b.at) explode(b); });
 
@@ -136,7 +139,7 @@ CZ.screens.chase = (function () {
 
   // Perspektif: Zibo uzaktayken yolun üst kısmında ve küçük, yaklaştıkça büyür ve aşağı iner.
   function layout() {
-    if (c.run) c.run.setZibo(c.ziboLane, -(2.8 + c.gap * 0.1));
+    if (c.run) c.run.setZibo(c.ziboLane, -(3 + c.gap * 0.17));
     c.gapText.textContent = t('chase.meters', { n: Math.ceil(c.gap) });
     c.gapBar.style.width = Math.max(0, 100 - c.gap / C.startGap * 100) + '%';
     c.hookBtn.classList.toggle('cool', c.hookReady > 0);
@@ -228,18 +231,24 @@ CZ.screens.chase = (function () {
     if (!c || !c.running || c.hookReady > 0) return;
     c.hookReady = C.hookCooldown;
     const hit = c.lane === c.ziboLane;
-    if (c.run) c.run.hook(hit);
-    CZ.audio.sfx('lift', 4);
-    if (hit) {
-      c.gap = Math.max(0, c.gap - C.hookPull);
-      c.burst = 1;
-      CZ.audio.vibrate([20, 30, 40]);
+    if (c.run) c.run.throwAt(hit, () => {
+      if (!c || !c.running) return;
+      // İsabet: Zibo sendeler ve gözle görülür şekilde geri düşer.
+      c.gap = Math.max(0, c.gap - Math.round(byLevel([C.hookPull + 1, C.hookPull - 2])));
+      c.ziboStun = 0.55;
       say(pick(['zibo.chase.ouch', 'zibo.chase.hooked']));
-      floatText(t('chase.pulled', { n: C.hookPull }), 'gold');
-    } else {
-      floatText(t('chase.miss'), 'bad');
-    }
+      floatText(t('chase.pulled', { n: Math.round(byLevel([C.hookPull + 1, C.hookPull - 2])) }), 'gold');
+      layout();
+    });
+    if (!hit) floatText(t('chase.miss'), 'bad');
     layout();
+  }
+
+  function swipeText(combo, near, gold) {
+    if (near) floatText(t('run.nearMiss', { n: gold }), 'gold');
+    else if (combo >= 3) floatText(t('run.combo', { n: combo }), 'gold');
+    const d = CZ.state.data;
+    if (combo > (d.bestCombo || 0)) { d.bestCombo = combo; if (combo >= 5) floatText(t('run.comboRecord', { n: combo }), 'gold'); }
   }
 
   function floatText(text, kind) {

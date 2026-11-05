@@ -799,13 +799,16 @@ CZ.screens.play = (function () {
     s.running = false;
     endPress();
     openSheet('leave',
-      h('p', { text: t('play.leave') }),
+      h('p', { text: t(s.tutorial || CZ.state.isFound(s.round.id) ? 'play.leaveFree' : 'play.leave') }),
       btn(t('play.leaveNo'), () => {
         closeSheet();
         s.last = performance.now();
         s.running = true;
       }, 'primary wide'),
-      btn(t('play.leaveYes'), () => CZ.ui.go('mansion'), 'ghost-dark wide'));
+      btn(t(s.tutorial ? 'play.leaveYesFree' : 'play.leaveYes'), () => {
+        if (!s.tutorial && !CZ.state.isFound(s.round.id)) CZ.state.restUntilTomorrow(s.round.id);
+        CZ.ui.go('mansion');
+      }, 'ghost-dark wide'));
   }
 
   /* ---------- Eğitim ---------- */
