@@ -189,16 +189,16 @@ CZ.CHASE = {
   enabled: true,
   onlyFirstFind: true,     // yalnız eşyayı ilk bulduğunda kovalamaca (tekrar oynayışlarda yok)
   seconds: 30,
-  startGap: 100,           // metre
-  closeRate: 2.4,          // oyuncu her saniye bu kadar yaklaşır
-  hookPull: 16,            // isabetli kanca bu kadar çeker
+  startGap: 60,            // metre
+  closeRate: 1.7,          // oyuncu her saniye bu kadar yaklaşır
+  hookPull: 10,            // isabetli kanca bu kadar çeker
   hookCooldown: 2.4,       // sn
-  hookBurst: 5,            // kancadan sonra Zibo hızlanır, 1 sn'de bu kadar açar
-  bombHit: 15,             // bomba yiyince mesafe açılır
+  hookBurst: 3,            // kancadan sonra Zibo hızlanır, 1 sn'de bu kadar açar
+  bombHit: 9,              // bomba yiyince mesafe açılır
   lives: 3,
   warnMs: 1800,            // bomba düşmeden önceki uyarı süresi
   laneSwitchMs: [2600, 1500],   // Zibo'nun şerit değiştirme aralığı: ilk seviye → en zor
-  bombEveryMs: [2700, 1400],
+  bombEveryMs: [3800, 2300],
   doubleBombLevel: 3,      // bu seviyeden sonra bazen iki şeride birden bomba
   maxLevel: 8,
   pocketBase: 5,           // yakalayınca ceplerinden çıkan zümrüt (+seviye ve kalan süre bonusu)

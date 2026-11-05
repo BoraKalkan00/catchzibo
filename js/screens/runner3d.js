@@ -426,7 +426,7 @@ CZ.runner3d = (function () {
       const tex = T['z_' + f] || T.z_run1;
       if (!tex || ziboMat.map === tex) return;
       ziboMat.map = tex; ziboMat.needsUpdate = true;
-      zibo.scale.set((CHASE ? 2.1 : 1.7) * tex.userData.ratio, CHASE ? 2.1 : 1.7, 1);
+      zibo.scale.set((CHASE ? 2.5 : 1.7) * tex.userData.ratio, CHASE ? 2.5 : 1.7, 1);
     }
 
     /* ---------- Kovalamaca yardımcıları: bomba, uyarı şeridi, kanca ---------- */
@@ -620,21 +620,23 @@ CZ.runner3d = (function () {
     // Bir sıra: her şeride engel ya da boşluk. En az bir şerit hep geçilebilir.
     function spawnRow() {
       const early = s.t < s.obstaclesFrom;
-      const kinds = [null, null, null, null];
+      const ALL = Array.from({ length: LANES }, (_, i) => i);
+      const kinds = ALL.map(() => null);
       if (!early) {
         const k = s.t < s.obstaclesFrom + 10 ? 1 : s.t < s.obstaclesFrom + 30 ? pick([1, 2, 2]) : pick([1, 2, 3, 3]);
-        const lanes = [0, 1, 2, 3].sort(() => Math.random() - 0.5).slice(0, k);
+        const lanes = ALL.slice().sort(() => Math.random() - 0.5).slice(0, CHASE ? Math.min(k, 1 + (Math.random() < 0.35 ? 1 : 0)) : k);
         let crateUsed = false;
         lanes.forEach(l => {
           let kind = pickW(R.obstacles).id;
+          if (CHASE && (kind === 'crate' || kind === 'train')) kind = pick(['low', 'low', 'high', 'wall']);
           if (kind === 'train' && s.t < R.trainsFrom) kind = 'wall';
           if (kind === 'crate') { if (crateUsed) kind = 'low'; crateUsed = true; }
           kinds[l] = kind;
         });
-        if (kinds.filter(k2 => k2 === 'wall' || k2 === 'crate' || k2 === 'train').length >= 3) kinds[lanes[0]] = 'low';
+        if (kinds.filter(k2 => k2 === 'wall' || k2 === 'crate' || k2 === 'train').length >= LANES - 1) kinds[lanes[0]] = 'low';
       }
       // Tren geçen şeride, tren bitene kadar yeni engel konmaz.
-      s.busy = s.busy || [0, 0, 0, 0];
+      s.busy = s.busy || ALL.map(() => 0);
       kinds.forEach((k2, l) => { if (k2 && s.busy[l] > s.dist) kinds[l] = null; });
       kinds.forEach((k2, l) => {
         if (k2 === 'train') { const o = train(l, Math.random() < R.rampChance); s.busy[l] = s.dist + o.len + 4; return; }
@@ -643,7 +645,7 @@ CZ.runner3d = (function () {
       if (!early && Math.random() < 0.5) { s.ziboPose = 0.5; }
       // Altın dizisi: geçilebilir bir şeritte, engelin önünde başlar, alçak engelin üstünden kavis çizer.
       // Altın dizileri: her sırada en az bir uzun dizi, bazen ikinci bir şeritte daha.
-      const options = [0, 1, 2, 3].filter(l => kinds[l] !== 'wall' && kinds[l] !== 'crate' && kinds[l] !== 'train' && !(s.busy[l] > s.dist));
+      const options = ALL.filter(l => kinds[l] !== 'wall' && kinds[l] !== 'crate' && kinds[l] !== 'train' && !(s.busy[l] > s.dist));
       const lines = Math.random() > R.coinLineChance ? 0 : Math.random() < R.secondLine ? 2 : 1;
       const used = [];
       for (let li = 0; li < lines && options.length; li++) {
@@ -664,7 +666,7 @@ CZ.runner3d = (function () {
         }
       }
       if (s.t >= s.nextPower) {
-        const free = [0, 1, 2, 3].filter(l => !kinds[l]);
+        const free = ALL.filter(l => !kinds[l]);
         if (free.length) { power(pick(free), SPAWN_Z - 6, Math.random() < 0.5 ? 'magnet' : 'double'); s.nextPower = s.t + rand(R.powerEvery[0], R.powerEvery[1]); }
       }
     }
@@ -750,8 +752,54 @@ CZ.runner3d = (function () {
       const dt = Math.min(0.05, (now - (last || now)) / 1000);
       last = now;
       if (s.running) step(dt);
+      else if (s.catching) catchStep(dt);
       else idle(dt);
       renderer.render(scene, camera);
+    }
+    // Yakalama sahnesi: ağır çekim, kahraman Zibo'nun üstüne atlar, eşya havaya fırlar, kamera yaklaşır.
+    function catchStep(dt) {
+      const t0 = s.catching;
+      s.catching += dt;
+      const t = s.catching;
+      s.frame += dt;
+      const zx = zibo.position.x, zz = zibo.position.z;
+      const k = Math.min(1, t / 0.7);
+      const e = k < 1 ? 1 - Math.pow(1 - k, 3) : 1;
+      // kahraman sıçrar
+      s.px += (zx - s.px) * Math.min(1, dt * 6);
+      const hz = (zz + 0.9) * e;
+      s.py = k < 1 ? Math.sin(k * Math.PI) * 1.3 + 0.4 * k : 0.4;
+      hero.root.position.set(s.px, s.py, hz);
+      hero.update(dt * (k < 1 ? 0.35 : 1), { speed: k < 1 ? 4 : 0, jumping: k < 1, idle: k >= 1, dead: false, vy: k < 0.5 ? 5 : -5, jumpV: R.jumpV });
+      pShadow.position.set(s.px, 0.02, hz);
+      // Zibo yere yuvarlanır, döner
+      zibo.position.z += (-3.4 - zibo.position.z) * Math.min(1, dt * 4);
+      if (t > 0.55) zibo.material.rotation = Math.sin(t * 14) * 0.15 * Math.max(0, 1.6 - t);
+      // eşya havaya fırlar ve kameraya döner
+      if (lootSp) {
+        const lk = Math.max(0, Math.min(1, (t - 0.45) / 0.9));
+        const ex = camera.position.x, ey = camera.position.y + 0.15, ez = camera.position.z - 3.4;
+        lootSp.position.set(zx + (ex - zx) * lk, 1.3 + (ey - 1.3) * lk + Math.sin(lk * Math.PI) * 1.4, zz + (ez - zz) * lk);
+        const sc = 0.7 + lk * 0.35;
+        lootSp.scale.set(sc * T.loot.userData.ratio, sc, 1);
+        lootSp.material.rotation = lk < 1 ? lk * Math.PI * 4 : 0;
+        if (t0 < 0.45 && t >= 0.45) { sparks(lootSp.position.clone(), 14, '#ffe27a'); sparks(lootSp.position.clone(), 10, '#ffffff'); s.shake = 0.3; }
+      }
+      // kamera yaklaşır
+      const cz = camBase.z - Math.min(1, t / 1.2) * 2.4;
+      camera.position.x += (zx * 0.7 - camera.position.x) * Math.min(1, dt * 3);
+      camera.position.y += (camBase.y - 0.5 - camera.position.y) * Math.min(1, dt * 3);
+      camera.position.z += (cz - camera.position.z) * Math.min(1, dt * 3);
+      camera.lookAt(zx * 0.6, 1.1, zz - 4);
+      if (s.shake > 0) { s.shake -= dt; camera.position.x += rand(-0.15, 0.15); camera.position.y += rand(-0.1, 0.1); }
+      for (let i = s.fx.length - 1; i >= 0; i--) {
+        const f = s.fx[i];
+        f.life -= dt; f.mesh.position.addScaledVector(f.v, dt); f.v.y -= 9 * dt;
+        f.mesh.material.opacity = Math.max(0, f.life / f.max);
+        if (f.life <= 0) { scene.remove(f.mesh); f.mesh.material.dispose(); s.fx.splice(i, 1); }
+      }
+      setZiboFrame('dizzy');
+      animateSnow(dt, 2);
     }
     function idle(dt) {
       s.frame += dt;
@@ -789,9 +837,9 @@ CZ.runner3d = (function () {
 
       // sıra doğar
       s.nextRow -= dz;
-      if (!CHASE && s.nextRow <= 0) {
+      if (s.nextRow <= 0 && !s.catching) {
         spawnRow();
-        s.nextRow = Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
+        s.nextRow = CHASE ? rand(17, 23) : Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
       }
 
       // oyuncu
@@ -998,6 +1046,7 @@ CZ.runner3d = (function () {
     }
 
     function crash(o) {
+      if (CHASE) { s.invT = 1.1; s.shake = 0.35; s.laughT = 1.2; s.slideT = 0; s.stunT = 0.6; CZ.audio.sfx('wrong'); CZ.audio.vibrate([60, 40, 80]); opts.onCrash(); return; }
       s.hearts -= 1;
       s.invT = R.invulnSec;
       s.shake = 0.35;
@@ -1047,7 +1096,7 @@ CZ.runner3d = (function () {
       },
       hook(hit) { s.hookFx = 0.3; s.hookHit = hit; },
       hurt() { s.invT = 0.8; s.shake = 0.35; s.stunT = 0.6; },
-      caught() { s.ziboForce = 'dizzy'; s.ziboZ = -3.2; },
+      caught() { s.catching = 0.0001; s.ziboForce = 'dizzy'; s.running = false; s.objs.forEach(o => scene.remove(o.mesh)); s.objs = []; },
       setDead(v) { s.dead = v; },
       // Reklam/elmasla devam: önündeki engeller temizlenir, kısa süre dokunulmazsın.
       revive() {

@@ -251,7 +251,7 @@ CZ.i18n.register('pt', 'Português', {
   'zibo.snatch': 'MEU! Me pega se puder! Rá rá!',
   'chase.introTop': 'O Zibo pegou!',
   'chase.introTitle': 'Pegue ele!',
-  'chase.introHow': 'Deslize para os lados para fugir das bombas. Toque na faixa do Zibo: gancho!',
+  'chase.introHow': 'Deslize para trocar de faixa, pular e abaixar. Toque na faixa do Zibo: gancho!',
   'chase.distance': 'O Zibo está na frente',
   'chase.meters': '{n} m',
   'chase.hook': 'Gancho',
@@ -699,5 +699,6 @@ CZ.i18n.register('pt', 'Português', {
   'cocoa.note': 'Adiciona +{s} segundos à sua próxima busca.',
   'house.toVillage': 'Voltar à vila',
   'notif.stole2': 'Hehehe! Roubei algo de novo hoje. Ache se puder! 😈',
-  'notif.rival2': 'Ainda segura seu recorde? Sou mais rápido! 🏃‍♂️'
+  'notif.rival2': 'Ainda segura seu recorde? Sou mais rápido! 🏃‍♂️',
+  'chase.nice': 'Boa!'
 });

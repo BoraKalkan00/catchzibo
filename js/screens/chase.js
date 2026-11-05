@@ -23,7 +23,7 @@ CZ.screens.chase = (function () {
       el, round, params,
       gap: C.startGap, timeLeft: C.seconds, lives: C.lives,
       lane: 1, ziboLane: 1, running: false, last: performance.now(),
-      hookReady: 0, burst: 0, stun: 0, continues: 0,
+      hookReady: 0, burst: 0, stun: 0, continues: 0, gold: 0,
       timers: [], bombs: [], frame: 0
     };
 
@@ -36,14 +36,19 @@ CZ.screens.chase = (function () {
       if (!c || c.el !== el) return;
       c.run = CZ.runner3d.start(c.stage, {
         mode: 'chase', lanes: 3, speed: 17, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
-        onTap: () => hook(), onSwipeUp: () => hook(),
-        onGold() {}, onEmerald() {}, onPower() {}, onCrate() {}, onDodge() {}, onCrash() {}, onEnd() {}
+        perk: {}, dmg: 1, weaponId: CZ.state.data.weapon,
+        onTap: () => hook(),
+        onGold(n) { c.gold += n; c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
+        onEmerald() {}, onPower() {}, onCrate() {},
+        onDodge() { floatText(t('chase.nice'), 'gold'); },
+        onCrash() { hurt(); }, onEnd() {}
       });
       c.run.state.lane = 1; c.run.state.px = 0;
       return c.run.ready;
     });
 
     c.gapText = h('strong', { text: '' });
+    c.goldText = h('b', { text: '0' });
     c.gapBar = h('i', {});
     c.hearts = h('div', { class: 'chase-hearts' });
     c.clock = h('div', { class: 'clock', text: C.seconds });
@@ -55,11 +60,8 @@ CZ.screens.chase = (function () {
         h('div', { class: 'chase-gap' }, h('small', { text: t('chase.distance') }), c.gapText, h('div', { class: 'chase-meter' }, c.gapBar)),
         c.hearts,
         c.clock),
-      c.field,
-      h('div', { class: 'chase-controls' },
-        btn('◀', () => move(-1), 'ghost lane-btn'),
-        c.hookBtn,
-        btn('▶', () => move(1), 'ghost lane-btn')));
+      c.field);
+    c.field.append(h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), c.goldText), c.hookBtn);
 
     drawHearts();
     layout();
@@ -134,7 +136,7 @@ CZ.screens.chase = (function () {
 
   // Perspektif: Zibo uzaktayken yolun üst kısmında ve küçük, yaklaştıkça büyür ve aşağı iner.
   function layout() {
-    if (c.run) c.run.setZibo(c.ziboLane, -(3.2 + c.gap * 0.15));
+    if (c.run) c.run.setZibo(c.ziboLane, -(2.8 + c.gap * 0.1));
     c.gapText.textContent = t('chase.meters', { n: Math.ceil(c.gap) });
     c.gapBar.style.width = Math.max(0, 100 - c.gap / C.startGap * 100) + '%';
     c.hookBtn.classList.toggle('cool', c.hookReady > 0);
@@ -179,19 +181,25 @@ CZ.screens.chase = (function () {
     clearTimeout(b.beep);
     CZ.audio.sfx('crack');
     if (b.lane === c.lane && c.stun <= 0) {
-      c.lives -= 1;
-      c.gap = Math.min(C.startGap * 1.4, c.gap + C.bombHit);
-      c.stun = 0.6;
-      drawHearts();
       CZ.audio.sfx('wrong');
       CZ.audio.vibrate([80, 40, 120]);
       if (c.run) c.run.hurt();
-      floatText(t('gold.ouch'), 'bad');
-      say('zibo.chase.hit');
-      if (c.lives <= 0) escaped('lives');
+      hurt();
     } else {
       CZ.audio.vibrate(15);
     }
+  }
+
+  // Bomba ya da engel: bir can gider, Zibo biraz açılır.
+  function hurt() {
+    if (!c || !c.running || c.stun > 0) return;
+    c.lives -= 1;
+    c.gap = Math.min(C.startGap * 1.4, c.gap + C.bombHit);
+    c.stun = 0.6;
+    drawHearts();
+    floatText(t('gold.ouch'), 'bad');
+    say('zibo.chase.hit');
+    if (c.lives <= 0) escaped('lives');
   }
 
   /* ---------- Kontroller ---------- */
@@ -273,6 +281,7 @@ CZ.screens.chase = (function () {
     CZ.audio.sfx('win');
     CZ.audio.vibrate([40, 30, 40, 30, 160]);
     if (c.run) c.run.caught();
+    c.hookBtn.style.display = 'none';
     say('zibo.chase.caught');
     const mine = h('div', { class: 'mine-pop good show', text: '🎉 ' + t('chase.caught') });
     c.field.append(mine);
@@ -295,11 +304,12 @@ CZ.screens.chase = (function () {
         h('h2', { text: t(`item.${c.round.target}.name`) }),
         h('p', { text: firstClear ? t(roomDef.id === 'living' ? 'win.roomDone' : 'win.roomDone.' + roomDef.id) : t('chase.winNote') }),
         firstClear && CZ.ROOM_PRIZES[roomDef.id] ? h('p', { class: 'reward prize' }, '🎁 ', t('win.prize', { item: t('char.' + CZ.ROOM_PRIZES[roomDef.id]) })) : null,
+        c.gold ? h('p', { class: 'reward', 'data-fly': 'gold', 'data-n': c.gold }, img('ui.gold', 'emerald-icon'), '+' + c.gold) : null,
         h('p', { class: 'reward', 'data-fly': 'emeralds', 'data-n': base + pocket }, img('ui.emerald', 'emerald-icon'), t('chase.reward', { n: base, p: pocket })),
         back ? h('p', { class: 'reward revenge', 'data-fly': 'gold', 'data-n': back }, img('ui.gold', 'emerald-icon'), t('raid.revenge', { n: back })) : null,
         h('div', { class: 'sheet-row' }, actions)));
       void before;
-    }, 1300);
+    }, 2300);
     c.timers.push(id);
   }
 
@@ -352,6 +362,7 @@ CZ.screens.chase = (function () {
   function leave() {
     if (!c) return;
     stop();
+    if (c.gold) { CZ.state.data.gold = (CZ.state.data.gold || 0) + c.gold; CZ.state.save(); }
     clearInterval(c.adTimer);
     clearTimeout(c.sayTimer);
     c.timers.forEach(clearTimeout);

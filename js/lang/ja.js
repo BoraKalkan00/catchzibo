@@ -251,7 +251,7 @@ CZ.i18n.register('ja', '日本語', {
   'zibo.snatch': 'ぼくのだ！つかまえてみろ！ハハ！',
   'chase.introTop': 'ジボがうばった！',
   'chase.introTitle': 'つかまえろ！',
-  'chase.introHow': '左右スワイプで爆弾をよけよう。ジボと同じレーンでタップ：フック！',
+  'chase.introHow': 'スワイプでレーン変更・ジャンプ・スライド。ジボと同じレーンでタップ：フック！',
   'chase.distance': 'ジボは前方',
   'chase.meters': '{n} m',
   'chase.hook': 'フック',
@@ -699,5 +699,6 @@ CZ.i18n.register('ja', '日本語', {
   'cocoa.note': '次のアイテム探しに+{s}秒。',
   'house.toVillage': '村へ戻る',
   'notif.stole2': 'へへへ！今夜もまた盗んだよ。見つけてみな！😈',
-  'notif.rival2': '記録はまだ守れてる？ぼくの方が速いよ！🏃‍♂️'
+  'notif.rival2': '記録はまだ守れてる？ぼくの方が速いよ！🏃‍♂️',
+  'chase.nice': 'ナイス！'
 });

@@ -1209,3 +1209,9 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .v-tag b { display: grid; place-items: center; min-width: 18px; height: 18px; border-radius: 6px; background: #f2b51e; color: #3a2400; font-size: 11px; }
 .v-lot.me .v-tag { background: #2ecc71; }
 .tile-char { object-fit: contain; object-position: 50% 10%; }
+/* Kovalamaca = koşu: tam ekran, kanca yüzen buton, altın sayacı */
+.chase-field3d .hook-btn { position: absolute; right: 14px; bottom: calc(18px + var(--safe-bottom)); width: 86px; height: 86px; min-height: 0; border-radius: 50%; flex: none; font-size: 13px; z-index: 6; box-shadow: 0 5px 0 #a87a14, 0 8px 22px rgba(0,0,0,.4); }
+.chase-gold { position: absolute; left: 12px; top: 10px; z-index: 5; display: flex; align-items: center; gap: 6px; padding: 5px 12px 5px 6px; border-radius: 999px; background: rgba(10,16,40,.6); color: #ffe27a; font-weight: 900; font-size: 18px; }
+.chase-gold .mini-ico { width: 24px; height: 24px; }
+.chase-gold.bump { animation: goldbump .25s ease-out; }
+@keyframes goldbump { 50% { transform: scale(1.18); } }

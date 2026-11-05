@@ -251,7 +251,7 @@ CZ.i18n.register('es', 'Español', {
   'zibo.snatch': '¡MÍO! ¡Atrápame si puedes! ¡Ja, ja!',
   'chase.introTop': '¡Zibo lo agarró!',
   'chase.introTitle': '¡Atrápalo!',
-  'chase.introHow': 'Desliza a izq./der. para esquivar bombas. Toca cuando estés en el carril de Zibo: ¡gancho!',
+  'chase.introHow': 'Desliza para cambiar de carril, saltar y agacharte. Toca en el carril de Zibo: ¡gancho!',
   'chase.distance': 'Zibo va delante',
   'chase.meters': '{n} m',
   'chase.hook': 'Gancho',
@@ -699,5 +699,6 @@ CZ.i18n.register('es', 'Español', {
   'cocoa.note': 'Añade +{s} segundos a tu próxima búsqueda.',
   'house.toVillage': 'Volver al pueblo',
   'notif.stole2': '¡Jejeje! Esta noche robé algo otra vez. ¡Encuéntralo! 😈',
-  'notif.rival2': '¿Sigues con tu récord? ¡Soy más rápido! 🏃‍♂️'
+  'notif.rival2': '¿Sigues con tu récord? ¡Soy más rápido! 🏃‍♂️',
+  'chase.nice': '¡Bien!'
 });

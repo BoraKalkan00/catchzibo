@@ -268,7 +268,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'zibo.snatch': 'BENİM! Yakalayabilirsen yakala! Ha ha!',
   'chase.introTop': 'Zibo eşyayı kaptı!',
   'chase.introTitle': 'Yakala onu!',
-  'chase.introHow': 'Sola/sağa kaydır: bombalardan kaç. Zibo’yla aynı şeritteyken ekrana dokun: kanca!',
+  'chase.introHow': 'Kaydır: şerit değiştir, zıpla, eğil. Zibo’yla aynı şeritteyken dokun: kanca!',
   'chase.distance': 'Zibo önde',
   'chase.meters': '{n} m',
   'chase.hook': 'Kanca',
@@ -880,5 +880,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   'cocoa.note': 'Sıradaki eşya aramana otomatik +{s} saniye ekler.',
   'house.toVillage': 'Köyüme dön',
   'notif.stole2': 'Hehehe! Bu gece yine bir şey çaldım. Bul bakalım! 😈',
-  'notif.rival2': 'Rekorun duruyor mu? Ben senden hızlıyım! 🏃‍♂️'
+  'notif.rival2': 'Rekorun duruyor mu? Ben senden hızlıyım! 🏃‍♂️',
+  'chase.nice': 'Süper!'
 });

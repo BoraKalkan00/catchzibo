@@ -251,7 +251,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'zibo.snatch': 'MEINS! Fang mich doch! Haha!',
   'chase.introTop': 'Zibo hat es geschnappt!',
   'chase.introTitle': 'Fang ihn!',
-  'chase.introHow': 'Wische links/rechts, um Bomben auszuweichen. Tippe in Zibos Spur: Haken!',
+  'chase.introHow': 'Wische zum Spurwechsel, Springen und Ducken. Tippe in Zibos Spur: Haken!',
   'chase.distance': 'Zibo ist vorne',
   'chase.meters': '{n} m',
   'chase.hook': 'Haken',
@@ -699,5 +699,6 @@ CZ.i18n.register('de', 'Deutsch', {
   'cocoa.note': 'Gibt deiner nächsten Suche +{s} Sekunden.',
   'house.toVillage': 'Zurück ins Dorf',
   'notif.stole2': 'Hehehe! Heute Nacht hab ich wieder was geklaut. Finde es! 😈',
-  'notif.rival2': 'Hältst du noch deinen Rekord? Ich bin schneller! 🏃‍♂️'
+  'notif.rival2': 'Hältst du noch deinen Rekord? Ich bin schneller! 🏃‍♂️',
+  'chase.nice': 'Super!'
 });

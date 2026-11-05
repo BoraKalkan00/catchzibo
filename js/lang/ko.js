@@ -251,7 +251,7 @@ CZ.i18n.register('ko', '한국어', {
   'zibo.snatch': '내 거야! 잡을 수 있으면 잡아 봐! 하하!',
   'chase.introTop': '지보가 낚아챘어요!',
   'chase.introTitle': '잡아라!',
-  'chase.introHow': '좌우로 스와이프해서 폭탄을 피하세요. 지보와 같은 차선에서 탭: 갈고리!',
+  'chase.introHow': '스와이프로 차선 변경, 점프, 슬라이드. 지보와 같은 차선에서 탭: 갈고리!',
   'chase.distance': '지보가 앞에 있어요',
   'chase.meters': '{n} m',
   'chase.hook': '갈고리',
@@ -699,5 +699,6 @@ CZ.i18n.register('ko', '한국어', {
   'cocoa.note': '다음 물건 찾기에 +{s}초.',
   'house.toVillage': '마을로',
   'notif.stole2': '히히! 오늘 밤 또 훔쳤지. 찾아봐! 😈',
-  'notif.rival2': '아직 기록 지키고 있어? 내가 더 빨라! 🏃‍♂️'
+  'notif.rival2': '아직 기록 지키고 있어? 내가 더 빨라! 🏃‍♂️',
+  'chase.nice': '좋아!'
 });

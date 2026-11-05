@@ -268,7 +268,7 @@ CZ.i18n.register('en', 'English', {
   'zibo.snatch': 'MINE! Catch me if you can! Ha ha!',
   'chase.introTop': 'Zibo snatched it!',
   'chase.introTitle': 'Catch him!',
-  'chase.introHow': 'Swipe left/right to dodge bombs. Tap when you’re in Zibo’s lane: hook!',
+  'chase.introHow': 'Swipe to switch lanes, jump and slide. Tap in Zibo’s lane: hook!',
   'chase.distance': 'Zibo is ahead',
   'chase.meters': '{n} m',
   'chase.hook': 'Hook',
@@ -880,5 +880,6 @@ CZ.i18n.register('en', 'English', {
   'cocoa.note': 'Adds +{s} seconds to your next item search.',
   'house.toVillage': 'Back to village',
   'notif.stole2': 'Hehehe! I stole something again tonight. Find it if you can! 😈',
-  'notif.rival2': 'Still holding your record? I’m faster than you! 🏃‍♂️'
+  'notif.rival2': 'Still holding your record? I’m faster than you! 🏃‍♂️',
+  'chase.nice': 'Nice!'
 });
