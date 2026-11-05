@@ -198,7 +198,7 @@ CZ.CHASE = {
   lives: 3,
   warnMs: 1800,            // bomba düşmeden önceki uyarı süresi
   laneSwitchMs: [2600, 1500],   // Zibo'nun şerit değiştirme aralığı: ilk seviye → en zor
-  bombEveryMs: [3800, 2300],
+  bombEveryMs: [4300, 2600],
   doubleBombLevel: 3,      // bu seviyeden sonra bazen iki şeride birden bomba
   maxLevel: 8,
   pocketBase: 5,           // yakalayınca ceplerinden çıkan zümrüt (+seviye ve kalan süre bonusu)

@@ -156,10 +156,19 @@ CZ.screens.chase = (function () {
     c.nextBomb = now + byLevel(C.bombEveryMs) * rand(0.8, 1.2);
     if (c.run) c.run.ziboThrow();
     // Çoğunlukla oyuncunun şeridine atar: kaçmak zorunda kalsın.
-    let lanes = [Math.random() < 0.7 ? c.lane : Math.floor(Math.random() * 3)];
+    // Adil olsun: bomba, o anda pankart ya da kızak gelecek şeride düşmez (zıplayarak kaçılabilsin),
+    // ve her zaman engelsiz, bombasız en az bir şerit kalır.
+    const sec = C.warnMs / 1000;
+    const busy = l => c.run ? c.run.obstacleAt(l, sec) : [];
+    const ok = l => !busy(l).some(k => k === 'high' || k === 'wall') && !c.bombs.some(b => b.lane === l);
+    const cands = [0, 1, 2].filter(ok);
+    if (!cands.length) { c.nextBomb = now + 700; return; }
+    let lanes = [cands.includes(c.lane) && Math.random() < 0.7 ? c.lane : cands[Math.floor(Math.random() * cands.length)]];
     if (level() >= C.doubleBombLevel && Math.random() < 0.45) {
-      const other = [0, 1, 2].filter(l => l !== lanes[0]);
-      lanes.push(other[Math.floor(Math.random() * 2)]);
+      const other = cands.filter(l => l !== lanes[0]);
+      const second = other[Math.floor(Math.random() * other.length)];
+      const clear = [0, 1, 2].filter(l => l !== lanes[0] && l !== second && busy(l).length === 0 && !c.bombs.some(x => x.lane === l));
+      if (second !== undefined && clear.length) lanes.push(second);
     }
     lanes.forEach(lane => {
       const b = { lane, at: now + C.warnMs };
@@ -180,7 +189,10 @@ CZ.screens.chase = (function () {
     c.bombs.splice(c.bombs.indexOf(b), 1);
     clearTimeout(b.beep);
     CZ.audio.sfx('crack');
-    if (b.lane === c.lane && c.stun <= 0) {
+    if (b.lane === c.lane && c.stun <= 0 && c.run && c.run.airborne()) {
+      floatText(t('chase.nice'), 'gold');
+      CZ.audio.vibrate(15);
+    } else if (b.lane === c.lane && c.stun <= 0) {
       CZ.audio.sfx('wrong');
       CZ.audio.vibrate([80, 40, 120]);
       if (c.run) c.run.hurt();

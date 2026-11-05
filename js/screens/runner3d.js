@@ -426,7 +426,7 @@ CZ.runner3d = (function () {
       const tex = T['z_' + f] || T.z_run1;
       if (!tex || ziboMat.map === tex) return;
       ziboMat.map = tex; ziboMat.needsUpdate = true;
-      zibo.scale.set((CHASE ? 2.5 : 1.7) * tex.userData.ratio, CHASE ? 2.5 : 1.7, 1);
+      zibo.scale.set((CHASE ? 2.5 : 1.7) * tex.userData.ratio, (CHASE ? 2.5 : 1.7) * (zibo.userData.sy || 1), 1);
     }
 
     /* ---------- Kovalamaca yardımcıları: bomba, uyarı şeridi, kanca ---------- */
@@ -757,12 +757,39 @@ CZ.runner3d = (function () {
       renderer.render(scene, camera);
     }
     // Yakalama sahnesi: ağır çekim, kahraman Zibo'nun üstüne atlar, eşya havaya fırlar, kamera yaklaşır.
+    // Zibo da engelleri aşar: alçak/kızak → zıplar, pankart → eğilir. Önündeki engel ortasından geçerken zirvede olur.
+    function ziboHurdles(dt) {
+      if (!s.zj) {
+        for (const o of s.objs) {
+          if (o.ziboDone || Math.abs(laneX(o.lane) - zibo.position.x) > 0.7) continue;
+          const dur = Math.max(0.5, (2.4 + o.len) / Math.max(1, s.speed));
+          const d = o.mesh.position.z - zibo.position.z;           // < 0: Zibo'nun önünde
+          if (d < -(dur * s.speed) / 2 - 0.2 || d > o.len / 2) continue;
+          o.ziboDone = true;
+          s.zj = { t: 0, dur, duck: o.type === 'high', h: o.type === 'wall' ? 2.1 : 1.35 };
+          if (!s.zj.duck) CZ.audio.sfx('jump');
+          break;
+        }
+      }
+      let y = 0, sy = 1;
+      if (s.zj) {
+        s.zj.t += dt;
+        const k = Math.min(1, s.zj.t / s.zj.dur);
+        if (s.zj.duck) sy = 1 - Math.sin(k * Math.PI) * 0.4;
+        else y = Math.sin(k * Math.PI) * s.zj.h;
+        if (k >= 1) s.zj = null;
+      }
+      zibo.position.y = y;
+      zibo.userData.sy = sy;
+      if (ziboMat.map) zibo.scale.y = (CHASE ? 2.5 : 1.7) * sy;
+    }
     function catchStep(dt) {
       const t0 = s.catching;
       s.catching += dt;
       const t = s.catching;
       s.frame += dt;
       const zx = zibo.position.x, zz = zibo.position.z;
+      zibo.position.y += (0 - zibo.position.y) * Math.min(1, dt * 10); zibo.userData.sy = 1;
       const k = Math.min(1, t / 0.7);
       const e = k < 1 ? 1 - Math.pow(1 - k, 3) : 1;
       // kahraman sıçrar
@@ -839,7 +866,7 @@ CZ.runner3d = (function () {
       s.nextRow -= dz;
       if (s.nextRow <= 0 && !s.catching) {
         spawnRow();
-        s.nextRow = CHASE ? rand(17, 23) : Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
+        s.nextRow = CHASE ? rand(22, 30) : Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
       }
 
       // oyuncu
@@ -889,7 +916,7 @@ CZ.runner3d = (function () {
       s.ziboX += (laneX(s.ziboLane) - s.ziboX) * Math.min(1, dt * 3);
       s.ziboPose = Math.max(0, s.ziboPose - dt);
       zibo.position.x = s.ziboX;
-      zibo.position.y = 0;
+      ziboHurdles(dt);
       // Koşu: Viggle videosundan 8 kare (saniyede 20 kare)
       setZiboFrame(s.ziboForce || (s.laughT > 0 ? 'laugh' : s.ziboPose > 0 ? 'throw' : 'vrun' + (Math.floor(s.frame * 20) % 8)));
       s.laughT = Math.max(0, (s.laughT || 0) - dt);
@@ -1096,6 +1123,12 @@ CZ.runner3d = (function () {
       },
       hook(hit) { s.hookFx = 0.3; s.hookHit = hit; },
       hurt() { s.invT = 0.8; s.shake = 0.35; s.stunT = 0.6; },
+      // Bu şeritte, sec saniye sonra oyuncunun hizasında hangi engel olacak?
+      obstacleAt(lane, sec) {
+        return s.objs.filter(o => o.lane === lane && !o.dead).map(o => ({ o, z: o.mesh.position.z + s.speed * sec }))
+          .filter(x => x.z > -1.6 - x.o.len / 2 - 1.5 && x.z < 1.2 + x.o.len / 2 + 1.5).map(x => x.o.type);
+      },
+      airborne() { return s.py - (s.floor || 0) > 0.3 || s.invT > 0; },
       caught() { s.catching = 0.0001; s.ziboForce = 'dizzy'; s.running = false; s.objs.forEach(o => scene.remove(o.mesh)); s.objs = []; },
       setDead(v) { s.dead = v; },
       // Reklam/elmasla devam: önündeki engeller temizlenir, kısa süre dokunulmazsın.
