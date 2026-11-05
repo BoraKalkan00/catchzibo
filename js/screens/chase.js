@@ -32,17 +32,18 @@ CZ.screens.chase = (function () {
     c.bubble = h('div', { class: 'bubble chase-bubble' }, h('em', { class: 'bubble-goblin' }), h('span', { class: 'bubble-line' }));
     c.floats = h('div', { class: 'run-floats' });
     c.field = h('div', { class: 'chase-field3d' }, c.stage, c.bubble, c.floats);
-    const W = CZ.GOLD.weapons.find(w => w.id === CZ.state.data.weapon) || CZ.GOLD.weapons[0];
+    const W = c.W = CZ.GOLD.weapons.find(w => w.id === CZ.state.data.weapon) || CZ.GOLD.weapons[0];
     c.readyP = CZ.runner3d.load().then(() => {
       if (!c || c.el !== el) return;
       c.run = CZ.runner3d.start(c.stage, {
         mode: 'chase', lanes: 3, speed: 17, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
-        perk: {}, dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball,
+        perk: {}, dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
+        onDash(lvl) { if (!c || !c.running) return; const n = 6 + lvl * 2; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
         onTap: () => hook(),
-        onGold(n) { c.gold += n; c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
+        onGold(n) { c.gold += n; if (c.gold >= (c.goldSay || 25)) { c.goldSay = c.gold + 40; if (!speaking()) say('zibo.chase.gold'); } c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
         onEmerald() {}, onPower() {}, onCrate() {},
         onDodge() { floatText(t('chase.nice'), 'gold'); },
-        onSwipe(combo, near, gold) { swipeText(combo, near, gold); },
+        onSwipe(combo, near, gold) { swipeText(combo, near, gold); if (near && Math.random() < 0.35 && !speaking()) say('zibo.chase.nearMiss'); },
         onCrash() { hurt(); }, onEnd() {}
       });
       c.run.state.lane = 1; c.run.state.px = 0;
@@ -226,6 +227,9 @@ CZ.screens.chase = (function () {
     layout();
   }
 
+  // Silah gücü: kartopu 1 → yıldırım 9. Güçlü silah Zibo'yu daha çok yaklaştırır.
+  const pull = () => Math.round(byLevel([C.hookPull + 1, C.hookPull - 2]) + (c.W.dmg - 1) * 0.6);
+
   // Kanca: Zibo aynı şeritteyse çeker ama tamamen değil; sonra Zibo hızlanır.
   function hook() {
     if (!c || !c.running || c.hookReady > 0) return;
@@ -234,10 +238,10 @@ CZ.screens.chase = (function () {
     if (c.run) c.run.throwAt(hit, () => {
       if (!c || !c.running) return;
       // İsabet: Zibo sendeler ve gözle görülür şekilde geri düşer.
-      c.gap = Math.max(0, c.gap - Math.round(byLevel([C.hookPull + 1, C.hookPull - 2])));
-      c.ziboStun = 0.55;
+      c.gap = Math.max(0, c.gap - pull());
+      c.ziboStun = 0.45 + c.W.dmg * 0.06;
       say(pick(['zibo.chase.ouch', 'zibo.chase.hooked']));
-      floatText(t('chase.pulled', { n: Math.round(byLevel([C.hookPull + 1, C.hookPull - 2])) }), 'gold');
+      floatText(t('chase.pulled', { n: pull() }), 'gold');
       layout();
     });
     if (!hit) floatText(t('chase.miss'), 'bad');

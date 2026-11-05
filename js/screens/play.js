@@ -938,15 +938,19 @@ CZ.screens.play = (function () {
     s.last = performance.now();
     s.running = true;
     if (s.tutorial) tutorialStep();
-    // Sıcak kakao: altınla alınır, sıradaki aramaya ek süre verir.
-    const d = CZ.state.data;
-    if (!s.tutorial && d.cocoa > 0 && CZ.GOLD) {
-      d.cocoa -= 1;
-      CZ.state.save();
-      s.timeLeft += CZ.GOLD.cocoa.seconds;
-      s.total += CZ.GOLD.cocoa.seconds;
-      drawTime();
-      CZ.ui.toast(t('play.cocoa', { s: CZ.GOLD.cocoa.seconds }));
+    // Yükseltmeler: kakao = ek süre, büyüteç = eşya bir an parlar.
+    if (!s.tutorial) {
+      const extra = CZ.upLevel('cocoa');
+      if (extra) { s.timeLeft += extra; s.total += extra; drawTime(); }
+      const lens = CZ.upLevel('lens');
+      const target = s.items.find(it => it.target);
+      if (lens && target) {
+        later(() => {
+          target.el.classList.add('lens-glow');
+          CZ.audio.sfx('lift', 6);
+          later(() => target.el.classList.remove('lens-glow'), (0.6 + lens * 0.35) * 1000);
+        }, 450);
+      }
     }
     const hello = s.tutorial ? 'zibo.catch' : (CZ.state.isFound(s.round.id) ? 'zibo.hello' : 'zibo.hello.' + s.round.id);
     s.zibo.say(CZ.i18n.keys('en').includes(hello) ? hello : 'zibo.hello', 'smug');

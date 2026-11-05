@@ -83,6 +83,22 @@
   }
 
   // Sıcak kakao: eşya aramasından önce alınır, sıradaki aramaya otomatik +5 sn ekler.
+  // Hakkı biten eşya: reklam izle ya da 5 elmasla hemen tekrar ara (ya da yarını bekle).
+  function retryBox(r) {
+    const d = state.data;
+    const again = () => { delete d.rounds[r.id]; state.save(); CZ.ui.wipeTo('play', { roundId: r.id }); };
+    const box = h('div', { class: 'modal-wrap' },
+      h('div', { class: 'modal' },
+        h('p', { text: t('mansion.restingAd') }),
+        btn('▶ ' + t('mansion.watchRetry'), () => { box.remove(); CZ.ads.show(again); }, 'primary wide'),
+        btn(t('mansion.gemRetry', { n: CZ.RETRY_GEMS }), () => {
+          if ((d.emeralds || 0) < CZ.RETRY_GEMS) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.gemShort', { n: CZ.RETRY_GEMS - (d.emeralds || 0) })); }
+          d.emeralds -= CZ.RETRY_GEMS; box.remove(); again();
+        }, 'ghost-dark wide', 'ui.emerald'),
+        btn(t('mansion.waitTomorrow'), () => box.remove(), 'ghost wide')));
+    document.querySelector('.screen').append(box);
+  }
+
   function cocoaBar() {
     const d = state.data, C = CZ.GOLD.cocoa;
     const n = d.cocoa || 0, full = n >= C.max;
@@ -211,13 +227,7 @@
       const tile = (r, index) => {
         const st = game.status(r.id);
         const open = () => {
-          if (st === 'resting') {
-            return CZ.ui.confirmBox(t('mansion.restingAd'), '▶ ' + t('mansion.watchRetry'), t('mansion.waitTomorrow'), () => CZ.ads.show(() => {
-              delete state.data.rounds[r.id];
-              state.save();
-              CZ.ui.wipeTo('play', { roundId: r.id });
-            }), 'primary');
-          }
+          if (st === 'resting') return retryBox(r);
           if (st === 'locked') return CZ.ui.toast(t('mansion.locked'));
           CZ.ui.wipeTo('play', { roundId: r.id });
         };
@@ -269,7 +279,7 @@
         header(t('mansion.title'), () => go('hub')),
         h('div', { class: 'scroll' },
           h('p', { class: 'section-note', text: note }),
-          cocoaBar(),
+
           ordered));
     }
   };

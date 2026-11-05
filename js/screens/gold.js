@@ -52,7 +52,8 @@ CZ.screens.gold = (function () {
       return h('button', {
         class: 'rail-tile char' + (c.id === me ? ' on' : '') + (st === 'open' ? '' : ' locked'), type: 'button',
         onClick: () => {
-          if (st !== 'open') { CZ.audio.sfx('wrong'); return CZ.ui.toast(st === 'soon' ? t('chars.soonNote') : t('chars.finishRoom', { room: t('room.' + c.room) })); }
+          if (st === 'locked') return CZ.chars.buy(c, () => CZ.ui.refresh());
+          if (st !== 'open') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.soonNote')); }
           CZ.audio.sfx('button'); d.avatar = c.id; CZ.state.save(); CZ.ui.refresh();
         }
       }, st === 'open' ? CZ.charArt.img(c.id, 'front', 'rail-img') : h('img', { class: 'rail-img', src: CZ.chars.front(c.id), alt: '' }),
@@ -80,7 +81,45 @@ CZ.screens.gold = (function () {
             h('strong', { text: t('weapon.' + showW.id) }),
             h('small', {}, t('gold.dmg', { n: showW.dmg }), ' · ', h('span', { class: 'dmg-bar' }, h('i', { style: `width:${showW.dmg / 9 * 100}%` }))))),
         h('div', { class: 'rail right' }, h('small', { class: 'rail-head', text: t('chars.title') }), CZ.ROSTER.map(cTile))),
-      h('div', { class: 'lobby-bottom' }, action));
+      h('div', { class: 'lobby-bottom' },
+        btn('⬆ ' + t('up.title'), () => upgradesSheet(el), 'ghost-dark wide lobby-up'),
+        action));
+    if (showUps) upgradesSheet(el);
+  }
+
+  // Yükseltmeler: büyüteç, kakao, kızak. Her seviye daha pahalı.
+  let showUps = false;
+  function upgradesSheet(el) {
+    showUps = true;
+    const d = data();
+    d.up = d.up || {};
+    const old = el.querySelector('.up-sheet-wrap');
+    if (old) old.remove();
+    const row = u => {
+      const lvl = CZ.upLevel(u.id);
+      const max = u.start + u.prices.length;
+      const price = lvl < max ? u.prices[lvl - u.start] : 0;
+      return h('div', { class: 'up-row' },
+        h('span', { class: 'up-icon', text: u.icon }),
+        h('div', { class: 'up-text' },
+          h('strong', { text: t('up.' + u.id) }),
+          h('small', { text: t('up.' + u.id + '.desc') }),
+          h('div', { class: 'up-dots' }, Array.from({ length: max }, (_, i) => h('i', { class: i < lvl ? 'on' : '' })))),
+        lvl >= max ? h('b', { class: 'up-max', text: t('up.max') })
+          : btn(String(price), () => {
+            if (!spend(price)) return;
+            d.up[u.id] = lvl + 1;
+            CZ.state.save();
+            CZ.audio.sfx('buy'); CZ.audio.vibrate(30);
+            CZ.ui.refresh();
+          }, 'primary small', 'ui.gold'));
+    };
+    const wrap = h('div', { class: 'up-sheet-wrap', onClick: e => { if (e.target === wrap) { showUps = false; wrap.remove(); } } },
+      h('div', { class: 'sheet up-sheet' },
+        h('h2', { text: t('up.title') }),
+        CZ.UPGRADES.map(row),
+        btn(t('up.close'), () => { showUps = false; wrap.remove(); }, 'ghost-dark wide')));
+    el.append(wrap);
   }
 
   function spend(price) {
@@ -151,13 +190,29 @@ CZ.screens.gold = (function () {
           h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.back'), onClick: () => { if (g.run && g.running) finish(g.run.summary()); else CZ.ui.go('gold'); }, text: '‹' }),
           h('div', { class: 'run-stats' }, g.badge, g.gemBadge),
           h('div', { class: 'run-right' }, g.scoreEl, g.hearts, g.meters)),
-        g.powers, g.floatBox, g.hint, g.count));
+        g.powers, g.floatBox, g.bubble = h('div', { class: 'bubble chase-bubble run-bubble' }, h('em', { class: 'bubble-goblin' }), h('span', { class: 'bubble-line' })), g.hint, g.count));
     drawHearts(G.runner.hearts + (perk().trapMul ? 1 : 0));
     g.count.textContent = '…';
     CZ.runner3d.load().then(() => {
       if (!g || g.el !== el) return;
       g.run = CZ.runner3d.start(g.stage, {
         avatar: d.avatar || 'girl', weaponArt: weapon.art, weaponId: weapon.id, ball: weapon.ball, dmg: weapon.dmg, perk: perk(),
+        sledLvl: CZ.upLevel('sled'),
+        onZiboHit(hits, need) {
+          floatText('🎯 ' + hits + '/' + need, 'gold');
+          if (hits === 1 || Math.random() < 0.3) say('zibo.hunt.hit');
+        },
+        onZiboCaught() {
+          const bonus = 8 + weapon.dmg * 2;
+          g.earned += bonus; d.gold = (d.gold || 0) + bonus;
+          g.badge.count.textContent = g.earned;
+          floatText(t('hunt.sackEmpty', { n: bonus }), 'gold');
+          CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]);
+          say('zibo.hunt.caught');
+          g.xp += CZ.PROGRESS.xp.crate * 4;
+          if (CZ.quests) CZ.quests.track('crate');
+        },
+        onDash() { floatText(t('run.sledGo'), 'power'); say('zibo.chase.dash'); },
         onGold(n, big) {
           g.earned += n;
           d.gold = (d.gold || 0) + n;
@@ -176,12 +231,12 @@ CZ.screens.gold = (function () {
         onCrate() { if (CZ.quests) CZ.quests.track('crate'); },
         onDodge() { if (CZ.quests) CZ.quests.track('dodge'); },
         onSwipe(combo, near, gold) {
-          if (near) floatText(t('run.nearMiss', { n: gold }), 'gold');
+          if (near) { floatText(t('run.nearMiss', { n: gold }), 'gold'); if (Math.random() < 0.3) say('zibo.chase.nearMiss'); }
           else if (combo >= 3) floatText(t('run.combo', { n: combo }), 'gold');
           const dd = CZ.state.data;
           if (combo > (dd.bestCombo || 0)) { dd.bestCombo = combo; if (combo >= 5) floatText(t('run.comboRecord', { n: combo }), 'gold'); }
         },
-        onCrash(left) { drawHearts(left); floatText(t('gold.ouch'), 'bad'); g.el.classList.add('run-hurt'); setTimeout(() => g && g.el.classList.remove('run-hurt'), 300); },
+        onCrash(left) { if (left > 0 && Math.random() < 0.6) say('zibo.hunt.laugh'); drawHearts(left); floatText(t('gold.ouch'), 'bad'); g.el.classList.add('run-hurt'); setTimeout(() => g && g.el.classList.remove('run-hurt'), 300); },
         onTick(s) {
           const m = Math.round(s.dist);
           if (m !== g.lastM) { g.lastM = m; g.meters.textContent = m + ' m'; g.scoreEl.textContent = Math.round(s.score || 0).toLocaleString(); }
@@ -213,6 +268,7 @@ CZ.screens.gold = (function () {
         g.count.className = 'run-count go';
         g.running = true;
         g.run.go();
+        say('zibo.hunt.start');
         g.timers.push(setTimeout(() => { if (g) g.count.textContent = ''; }, 600));
         g.timers.push(setTimeout(() => { if (g) g.hint.classList.add('hide'); }, 4500));
         return;
@@ -226,6 +282,17 @@ CZ.screens.gold = (function () {
       g.timers.push(setTimeout(tick, 700));
     };
     tick();
+  }
+
+  function say(key) {
+    if (!g || !g.bubble) return;
+    const gib = CZ.game.gibberish(key);
+    g.bubble.querySelector('em').textContent = gib;
+    g.bubble.querySelector('span').textContent = t(key);
+    g.bubble.classList.add('show');
+    CZ.audio.speak(gib);
+    clearTimeout(g.sayTimer);
+    g.sayTimer = setTimeout(() => g && g.bubble && g.bubble.classList.remove('show'), 1700);
   }
 
   function floatText(text, kind) {
@@ -343,7 +410,8 @@ CZ.screens.gold = (function () {
             h('em', { text: record ? '🏆 ' + t('run.newBest') : t('run.best', { n: (d.runBest || 0).toLocaleString() }) })),
           h('div', { class: 'res-box' }, h('small', { text: t('run.coins') }), h('strong', {}, goldVal, img('ui.gold', 'mini-ico')), doubleBtn),
           h('div', { class: 'res-box small' }, h('small', { text: t('run.metersLabel') }), h('strong', { text: sum.meters + ' m' }),
-            g.gems ? h('em', { text: '+' + g.gems + ' 💎' }) : null))),
+            g.gems ? h('em', { text: '+' + g.gems + ' 💎' }) : null,
+            sum.bestCombo >= 3 ? h('em', { text: t('run.bestCombo', { n: sum.bestCombo }) }) : null))),
       h('div', { class: 'res-actions' },
         btn('⌂', () => CZ.ui.go('hub'), 'ghost-dark res-home'),
         btn(t('gold.again'), () => CZ.ui.go('gold'), 'ghost-dark'),

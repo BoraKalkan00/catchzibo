@@ -4,11 +4,11 @@
 CZ.ROSTER = [
   { id: 'boy' },
   { id: 'girl' },
-  { id: 'elf', room: 'living' },
-  { id: 'snowkid', room: 'kitchen' },
-  { id: 'reindeer', room: 'attic' },
-  { id: 'knight', room: 'treasure' },
-  { id: 'santa', room: 'throne' }
+  { id: 'elf', room: 'living', gems: 60 },
+  { id: 'snowkid', room: 'kitchen', gems: 90 },
+  { id: 'reindeer', room: 'attic', gems: 130 },
+  { id: 'knight', room: 'treasure', gems: 180 },
+  { id: 'santa', room: 'throne', gems: 250 }
 ];
 CZ.CHAR_ART = ['boy', 'girl', 'elf', 'snowkid', 'reindeer', 'knight', 'santa'];               // assets/chars/<id>_front.webp ... olanlar
 // Oda ödülü artık karakter: odayı bitiren o karakteri açar.
@@ -19,12 +19,26 @@ CZ.chars = (function () {
   const hasArt = id => CZ.CHAR_ART.includes(id);
   function state(c) {
     if (!c.room) return 'open';
+    if ((CZ.state.data.boughtChars || []).includes(c.id)) return hasArt(c.id) ? 'open' : 'soon';
     const room = CZ.ROOMS.find(r => r.id === c.room);
     if (!room || !CZ.game.roomDone(room)) return 'locked';
     return hasArt(c.id) ? 'open' : 'soon';
   }
   const front = id => hasArt(id) ? CZ.art('char.' + id + '_front') : CZ.art('char.boy_front');
-  return { state, hasArt, front };
+  // Odayı bitirmeyi beklemek istemeyen elmasla hemen açar.
+  function buy(c, done) {
+    const d = CZ.state.data;
+    CZ.ui.confirmBox(CZ.t('chars.buyAsk', { room: CZ.t('room.' + c.room), n: c.gems }), '💎 ' + c.gems, CZ.t('common.no'), () => {
+      if ((d.emeralds || 0) < c.gems) { CZ.audio.sfx('wrong'); return CZ.ui.toast(CZ.t('chars.gemShort', { n: c.gems - (d.emeralds || 0) })); }
+      d.emeralds -= c.gems;
+      d.boughtChars = (d.boughtChars || []).concat(c.id);
+      d.avatar = c.id;
+      CZ.state.save();
+      CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]);
+      if (done) done();
+    }, 'primary');
+  }
+  return { state, hasArt, front, buy };
 })();
 // Kostüm bonusları eski gardıroptandı; karakterlerin bonusu şimdilik yok.
 if (CZ.closet) CZ.closet.perk = () => ({});
@@ -101,11 +115,11 @@ CZ.screens.chars = {
       const selected = c.id === me;
       const label = st === 'open' ? t('char.' + c.id)
         : st === 'soon' ? t('chars.soon')
-          : t('chars.finishRoom', { room: t('room.' + c.room) });
+          : '💎 ' + c.gems;
       return h('button', {
         class: 'char-card ' + st + (selected ? ' selected' : ''), type: 'button',
         onClick: () => {
-          if (st === 'locked') { CZ.audio.sfx('wrong'); return CZ.ui.toast(label); }
+          if (st === 'locked') { CZ.audio.sfx('button'); return CZ.chars.buy(c, () => CZ.ui.refresh()); }
           if (st === 'soon') { CZ.audio.sfx('button'); return CZ.ui.toast(t('chars.soonNote')); }
           if (selected) return;
           d.avatar = c.id;

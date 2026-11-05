@@ -179,7 +179,7 @@ CZ.runner3d = (function () {
       magnetT: ((opts.perk || {}).bonusSeconds || 0) * 2, doubleT: 0,
       nextRow: 25, nextPower: rand(12, 18), objs: [], coins: [], shots: [], fx: [],
       obstaclesFrom: R.obstaclesFrom + ((opts.perk || {}).trapDelay || 0), lastThrow: 0, frame: 0,
-      ziboLane: Math.min(2, LANES - 1), ziboX: 0, ziboZ: -17, ziboNext: 1.5, ziboPose: 0, ziboForce: null, shake: 0, bombs: [], hookFx: 0
+      ziboLane: Math.min(2, LANES - 1), ziboX: 0, ziboZ: CHASE ? -17 : -11, ziboHp: 0, ziboHits: 0, sled: 0, dashT: 0, ziboNext: 1.5, ziboPose: 0, ziboForce: null, shake: 0, bombs: [], hookFx: 0
     };
 
     const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'low-power' });
@@ -236,6 +236,8 @@ CZ.runner3d = (function () {
       carrot: new THREE.MeshLambertMaterial({ color: 0xf08a2a }),
       runnerMetal: new THREE.MeshLambertMaterial({ color: 0xd9c38a }),
       banner: new THREE.MeshLambertMaterial({ color: 0x2f7a3a, side: THREE.DoubleSide }),
+      soldier: new THREE.MeshLambertMaterial({ color: 0xc8242e }),
+      skin: new THREE.MeshLambertMaterial({ color: 0xf2c9a0 }),
       shadow: new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.28, depthWrite: false })
     };
     const GEO = {
@@ -416,7 +418,7 @@ CZ.runner3d = (function () {
     const loads = [
       ...['run1', 'run2', 'laugh', 'throw', 'dizzy', 'tongue', 'vrun0', 'vrun1', 'vrun2', 'vrun3', 'vrun4', 'vrun5', 'vrun6', 'vrun7'].map(f => imageTex(CZ.art('zibo.' + f), 384).then(x => { T['z_' + f] = x; })),
       opts.weaponArt ? imageTex(CZ.art(opts.weaponArt), 256).then(x => { T.weapon = x; }) : null,
-      opts.loot ? imageTex(CZ.art(opts.loot), 256).then(x => { T.loot = x; }) : null
+      (opts.loot || (!CHASE && 'gold.chest_gold')) ? imageTex(CZ.art(opts.loot || 'gold.chest_gold'), 256).then(x => { T.loot = x; }) : null
     ];
     const ready = Promise.all(loads).then(() => {
       setZiboFrame('run1');
@@ -562,6 +564,23 @@ CZ.runner3d = (function () {
       if (o.ramp && lz > half - o.rampLen) return o.top * (half - lz) / o.rampLen;
       return o.top;
     }
+    // Oyuncak askerler: Zibo'nun yola dizdiği kurmalı askerler (alçak → ZIPLA), hafifçe sallanırlar.
+    function soldiers(lane) {
+      const g = new THREE.Group();
+      [-0.36, 0, 0.36].forEach((x, i) => {
+        const u = new THREE.Group();
+        u.add(mesh(GEO.box, M.soldier, 0.24, 0.42, 0.2, 0, 0.36, 0));
+        u.add(mesh(GEO.box, M.coal, 0.24, 0.22, 0.2, 0, 0.06, 0));
+        u.add(mesh(GEO.box, M.skin, 0.18, 0.16, 0.16, 0, 0.66, 0));
+        u.add(mesh(GEO.cyl, M.coal, 0.1, 0.24, 0.1, 0, 0.86, 0));
+        u.add(mesh(GEO.box, M.trim, 0.26, 0.05, 0.22, 0, 0.5, 0));
+        u.position.x = x; u.userData.wob = i * 1.3;
+        g.add(u);
+      });
+      g.position.x = laneX(lane);
+      g.userData.wobble = true;
+      return addObj({ type: 'low', lane, len: 0.5, top: 1.0, mesh: g });
+    }
     function banner(lane) {          // yüksek: çelenkli pankart → EĞİL
       const g = new THREE.Group();
       [-1, 1].forEach(k => g.add(mesh(GEO.cyl, M.pole, 0.06, 2.3, 0.06, k * 0.6, 1.15, 0)));
@@ -628,24 +647,26 @@ CZ.runner3d = (function () {
         let crateUsed = false;
         lanes.forEach(l => {
           let kind = pickW(R.obstacles).id;
-          if (CHASE && (kind === 'crate' || kind === 'train')) kind = pick(['low', 'low', 'high', 'wall']);
+          if (kind === 'crate' || kind === 'train') kind = pick(['low', 'low', 'soldier', 'high', 'wall']);
           if (kind === 'train' && s.t < R.trainsFrom) kind = 'wall';
           if (kind === 'crate') { if (crateUsed) kind = 'low'; crateUsed = true; }
           kinds[l] = kind;
         });
-        if (kinds.filter(k2 => k2 === 'wall' || k2 === 'crate' || k2 === 'train').length >= LANES - 1) kinds[lanes[0]] = 'low';
+        // Adalet: bir sırada en fazla bir kızak (duvar); kalanlar zıplanır/eğilinir.
+        let walls = 0;
+        kinds.forEach((k2, l) => { if (k2 === 'wall' && ++walls > 1) kinds[l] = pick(['low', 'soldier', 'high']); });
       }
       // Tren geçen şeride, tren bitene kadar yeni engel konmaz.
       s.busy = s.busy || ALL.map(() => 0);
       kinds.forEach((k2, l) => { if (k2 && s.busy[l] > s.dist) kinds[l] = null; });
       kinds.forEach((k2, l) => {
         if (k2 === 'train') { const o = train(l, Math.random() < R.rampChance); s.busy[l] = s.dist + o.len + 4; return; }
-        if (k2 === 'low') { if (Math.random() < 0.35) snowman(l); else hurdle(l); } else if (k2 === 'high') banner(l); else if (k2 === 'wall') sled(l); else if (k2 === 'crate') crate(l);
+        if (k2 === 'soldier') soldiers(l); else if (k2 === 'low') { if (Math.random() < 0.35) snowman(l); else hurdle(l); } else if (k2 === 'high') banner(l); else if (k2 === 'wall') sled(l); else if (k2 === 'crate') crate(l);
       });
       if (!early && Math.random() < 0.5) { s.ziboPose = 0.5; }
       // Altın dizisi: geçilebilir bir şeritte, engelin önünde başlar, alçak engelin üstünden kavis çizer.
       // Altın dizileri: her sırada en az bir uzun dizi, bazen ikinci bir şeritte daha.
-      const options = ALL.filter(l => kinds[l] !== 'wall' && kinds[l] !== 'crate' && kinds[l] !== 'train' && !(s.busy[l] > s.dist));
+      const options = ALL.filter(l => kinds[l] !== 'soldier' && kinds[l] !== 'wall' && kinds[l] !== 'crate' && kinds[l] !== 'train' && !(s.busy[l] > s.dist));
       const lines = Math.random() > R.coinLineChance ? 0 : Math.random() < R.secondLine ? 2 : 1;
       const used = [];
       for (let li = 0; li < lines && options.length; li++) {
@@ -708,10 +729,10 @@ CZ.runner3d = (function () {
     function shoot() {
       if (!s.running) return;
       const now = s.t;
-      if (now - s.lastThrow < 0.12) return;
+      if (now - s.lastThrow < (CHASE ? 0.35 : 0.6)) return;
       s.lastThrow = now;
-      const target = s.objs.filter(o => o.type === 'crate' && o.lane === s.lane && o.mesh.position.z < -1 && o.mesh.position.z > -42)
-        .sort((a, b) => b.mesh.position.z - a.mesh.position.z)[0];
+      // Zibo'yla aynı şeritteysen silah ona gider: her isabette çuvalından altın saçılır.
+      const target = !CHASE && s.ziboLane === s.lane && s.ziboRun !== false ? { zibo: true, mesh: zibo, onHit: huntHit } : null;
       const ball = new THREE.Sprite(ballMat.clone());
       ball.scale.set(SHOT.size, SHOT.size, 1);
       if (haloMat) { const hl = new THREE.Sprite(haloMat); hl.scale.set(2.2, 2.2, 1); ball.add(hl); }
@@ -859,8 +880,11 @@ CZ.runner3d = (function () {
     function step(dt) {
       s.t += dt;
       s.frame += dt;
-      s.speed = CHASE ? (opts.speed || 16) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 ? 0.55 : 1);
+      s.speed = CHASE ? (opts.speed || 16) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 && !(s.dashT > 0) ? 0.55 : 1);
       s.stunT = Math.max(0, (s.stunT || 0) - dt);
+      if (s.dashT > 0) { s.dashT -= dt; s.speed *= 1.6; if (s.dashT <= 0) drawSled(); if (Math.random() < 0.5) sparks(new THREE.Vector3(s.px + rand(-0.4, 0.4), 0.15, 0.6), 1, '#bfe4ff', 0.25); }
+      const fov = s.dashT > 0 ? 72 : 62;
+      if (Math.abs(camera.fov - fov) > 0.1) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 6); camera.updateProjectionMatrix(); }
       const dz = s.speed * dt;
       s.dist += dz;
       s.score = (s.score || 0) + dz * (s.doubleT > 0 ? 2 : 1);
@@ -923,6 +947,7 @@ CZ.runner3d = (function () {
       s.ziboNext -= dt;
       if (!CHASE && s.ziboNext <= 0) { s.ziboLane = Math.floor(Math.random() * LANES); s.ziboNext = rand(1.2, 2.4); }
       s.ziboKick = Math.max(0, (s.ziboKick || 0) - dt * 3);
+      if (s.ziboCaughtT > 0) { s.ziboCaughtT -= dt; s.ziboZ = -11 - Math.sin(Math.min(1, (3 - s.ziboCaughtT) / 3) * Math.PI) * 14; }
       zibo.position.z += (s.ziboZ + s.ziboKick - zibo.position.z) * Math.min(1, dt * 7);
       if (lootSp) { lootSp.position.set(zibo.position.x + 0.35, zibo.position.y + 1.25, zibo.position.z + 0.05); }
       chaseFx(dt);
@@ -942,6 +967,7 @@ CZ.runner3d = (function () {
         o.mesh.position.z += dz;
         const z = o.mesh.position.z;
         if (z > KILL_Z) { scene.remove(o.mesh); s.objs.splice(i, 1); continue; }
+        if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
         if (o.hitFlash) { o.hitFlash -= dt; o.mesh.scale.setScalar(o.hitFlash > 0 ? 1.08 : 1); }
         if (o.passed || o.dead) continue;
         const half = o.len / 2 + 0.3;
@@ -1048,6 +1074,7 @@ CZ.runner3d = (function () {
         s.lastCoinT = s.t;
         CZ.audio.sfx('coin', s.coinStreak);
         opts.onGold(n);
+        fillSled(1);
       } else if (c.kind === 'gem') {
         s.emeralds += 1;
         CZ.audio.sfx('win');
@@ -1062,6 +1089,35 @@ CZ.runner3d = (function () {
       }
     }
 
+    // KIZAK ATAĞI: altın topladıkça dolar; dolunca düğmeye bas → kızakla öne fırla (dokunulmaz, altınları çeker).
+    const SLED_LVL = opts.sledLvl || 1;
+    const sledBtn = document.createElement('button');
+    sledBtn.type = 'button';
+    sledBtn.className = 'sled-btn';
+    sledBtn.innerHTML = '<i></i><b>🛷</b><span>' + CZ.t('run.sled') + '</span>';
+    host.append(sledBtn);
+    sledBtn.addEventListener('pointerdown', e => { e.stopPropagation(); dash(); });
+    function fillSled(n) {
+      if (s.dashT > 0) return;
+      s.sled = Math.min(1, s.sled + n / Math.max(10, 30 - SLED_LVL * 4));
+      drawSled();
+    }
+    function drawSled() {
+      sledBtn.style.setProperty('--fill', s.sled);
+      sledBtn.classList.toggle('ready', s.sled >= 1 && s.dashT <= 0);
+      sledBtn.classList.toggle('on', s.dashT > 0);
+    }
+    function dash() {
+      if (!s.running || s.sled < 1 || s.dashT > 0) return;
+      s.sled = 0;
+      s.dashT = 1.1 + SLED_LVL * 0.3;
+      s.invT = Math.max(s.invT, s.dashT + 0.3);
+      s.magnetT = Math.max(s.magnetT, s.dashT);
+      s.shake = 0.2;
+      CZ.audio.sfx('buy'); CZ.audio.vibrate([30, 20, 60]);
+      drawSled();
+      if (opts.onDash) opts.onDash(SLED_LVL);
+    }
     function hitCrate(o) {
       if (o.dead) return;
       o.hp -= opts.dmg;
@@ -1095,6 +1151,21 @@ CZ.runner3d = (function () {
       s.shots.push({ mesh: ball, target: hit ? { zibo: true, mesh: zibo, onHit } : null, life: hit ? 1.2 : 0.6 });
       s.throwPose = 0.2;
       CZ.audio.sfx('throw');
+    }
+    // Kaç isabette çuval tamamen boşalır: güçlü silah = daha az isabet.
+    const hitsNeeded = () => Math.max(2, Math.ceil(12 / ((opts.dmg || 1) + 2)));
+    function huntHit() {
+      s.ziboHits += 1;
+      const spill = 1;
+      for (let i = 0; i < spill; i++) coin(Math.max(0, Math.min(LANES - 1, s.ziboLane + Math.floor(rand(-1, 2)))), zibo.position.z + 2 + i * 1.1, 0.55);
+      if (opts.onZiboHit) opts.onZiboHit(s.ziboHits, hitsNeeded());
+      if (s.ziboHits >= hitsNeeded()) {
+        s.ziboHits = 0;
+        s.ziboCaughtT = 3;
+        s.ziboKick = 4;
+        for (let i = 0; i < 3; i++) coin(s.ziboLane, zibo.position.z + 1 + i * 0.8, 0.55 + Math.sin(i) * 0.3);
+        if (opts.onZiboCaught) opts.onZiboCaught();
+      }
     }
     function ziboHit() {
       const p = zibo.position.clone(); p.y += 1.3;
@@ -1157,7 +1228,7 @@ CZ.runner3d = (function () {
         s.bombs.push({ lane, sp, t: 0, dur: sec, x0: zibo.position.x, y0: 1.2, z0: zibo.position.z });
       },
       hook(hit) { s.hookFx = 0.3; s.hookHit = hit; },
-      throwAt,
+      throwAt, dash,
       hurt() { s.invT = 0.8; s.shake = 0.35; s.stunT = 0.6; },
       // Bu şeritte, sec saniye sonra oyuncunun hizasında hangi engel olacak?
       obstacleAt(lane, sec) {
@@ -1185,6 +1256,7 @@ CZ.runner3d = (function () {
         renderer.dispose();
         renderer.forceContextLoss();
         renderer.domElement.remove();
+        sledBtn.remove();
       }
     };
   }

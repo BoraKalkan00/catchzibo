@@ -1215,3 +1215,26 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .chase-gold .mini-ico { width: 24px; height: 24px; }
 .chase-gold.bump { animation: goldbump .25s ease-out; }
 @keyframes goldbump { 50% { transform: scale(1.18); } }
+/* Kızak atağı düğmesi (koşu ekranına runner3d ekler) */
+.sled-btn { --fill: 0; position: absolute; left: 14px; bottom: calc(18px + var(--safe-bottom)); z-index: 6; width: 74px; height: 74px; border-radius: 50%; border: 3px solid rgba(255,255,255,.5); background: rgba(10,16,40,.55); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; font-weight: 900; font-size: 11px; opacity: .75; }
+.sled-btn i { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--fill) * 100%); background: linear-gradient(#6fc3ff, #2f6fd6); transition: height .2s; }
+.sled-btn b, .sled-btn span { position: relative; }
+.sled-btn b { font-size: 26px; line-height: 1; }
+.sled-btn.ready { opacity: 1; border-color: #ffe27a; animation: btnpulse .7s ease-in-out infinite; box-shadow: 0 0 18px #6fc3ff; }
+.sled-btn.on { opacity: 1; border-color: #fff; }
+.pile-item.lens-glow { filter: drop-shadow(0 0 10px #fff27a) drop-shadow(0 0 22px #ffd23a) brightness(1.25); animation: lensglow .35s ease-in-out infinite alternate; }
+@keyframes lensglow { to { filter: drop-shadow(0 0 4px #fff27a) drop-shadow(0 0 30px #ffd23a) brightness(1.45); } }
+.run-wrap .run-bubble { position: absolute; top: 15%; right: 6%; left: auto; z-index: 7; transform-origin: top right; }
+.run-wrap .run-bubble::after { display: none; }
+.lobby-bottom { display: flex; flex-direction: column; gap: 8px; }
+.up-sheet-wrap { position: fixed; inset: 0; z-index: 60; background: rgba(5,10,30,.55); display: flex; align-items: flex-end; }
+.up-sheet { width: 100%; animation: sheetup .25s ease-out; }
+@keyframes sheetup { from { transform: translateY(100%); } }
+.up-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-bottom: 1px solid rgba(0,0,0,.08); text-align: left; }
+.up-icon { flex: none; width: 52px; height: 52px; border-radius: 16px; background: #fff3d6; display: grid; place-items: center; font-size: 30px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.08); }
+.up-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.up-text small { opacity: .7; font-size: 12px; }
+.up-dots { display: flex; gap: 4px; margin-top: 3px; }
+.up-dots i { width: 16px; height: 7px; border-radius: 4px; background: rgba(0,0,0,.12); }
+.up-dots i.on { background: #2fbf5b; }
+.up-max { color: #2fbf5b; font-weight: 900; }
