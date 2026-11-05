@@ -510,17 +510,23 @@
       let body;
       if (tab === 'map') {
         // Haritada sıra sabit: komşular yerinde durur, sen ortadasın.
-        const order = ['mia', 'leo', 'me', 'elif', 'can', 'yuki', 'noah'].map(k => list.find(x => x.id === k));
-        body = h('div', { class: 'hood-map' }, order.map((n, i) => {
-          const card = h('button', {
-            class: 'plot' + (n.me ? ' me' : ''), type: 'button', style: `animation-delay:${i * 0.05}s`,
+        // Tek parça köy haritası: her ev kendi arsasında. Senin evin ortadaki büyük arsada.
+        const LOTS = { mia: [30, 24], leo: [71.5, 25], elif: [15.5, 40], me: [52.3, 53], can: [85, 44], yuki: [26, 78], noah: [75, 82] };
+        const map = h('div', { class: 'village' }, h('img', { class: 'village-bg', src: 'assets/scenes/village_map.webp', alt: '' }));
+        list.forEach(n => {
+          const pos = LOTS[n.id === 'me' || n.me ? 'me' : n.id];
+          if (!pos) return;
+          const st = n.me ? art.stage(n.house) : 0;
+          const src = n.me ? (st ? 'assets/house/stage' + st + '.webp' : null) : 'assets/village/house_' + CZ.NEIGHBOR_HOUSE[n.id] + '.webp';
+          const lot = h('button', {
+            class: 'v-lot' + (n.me ? ' me' : ''), type: 'button', style: `left:${pos[0]}%;top:${pos[1]}%`,
             onClick: () => { CZ.audio.sfx('button'); n.me ? CZ.ui.wipeTo('house') : CZ.ui.wipeTo('visit', { id: n.id }); }
-          });
-          const pic = !n.me && CZ.NEIGHBOR_HOUSE[n.id];
-          card.append(pic ? h('div', { class: 'plot-art plot-pic' }, h('img', { src: 'assets/village/house_' + pic + '.webp', alt: '' })) : html('plot-art', art.view(n.house, { owner: n.me ? CZ.charArt.url(n.kind, 'front') : CZ.avatarArt.url(n.kind, n.look, 'idle') })),
-            h('div', { class: 'plot-tag' }, h('b', { class: 'plot-lv', text: n.level }), h('span', { text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) })));
-          return card;
-        }));
+          },
+          src ? h('img', { class: 'v-house', src, alt: '' }) : h('div', { class: 'v-empty', text: '🔨' }),
+          h('span', { class: 'v-tag' }, h('b', { text: n.level }), n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.name.' + n.id)));
+          map.append(lot);
+        });
+        body = h('div', { class: 'village-wrap' }, map);
       } else if (tab === 'gold') {
         const myRank = list.findIndex(x => x.me) + 1;
         body = h('div', {},

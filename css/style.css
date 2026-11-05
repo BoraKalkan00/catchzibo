@@ -1195,3 +1195,16 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .yard-lot { position: absolute; left: 30%; top: 40%; width: 44%; height: 20%; border: 3px dashed #f2b51e; border-radius: 8px; transform: skewX(-8deg); opacity: .9; }
 .yard-owner { position: absolute; left: 33%; bottom: 23%; width: 9%; filter: drop-shadow(0 4px 4px rgba(0,0,0,.35)); }
 .screen-house .usta-box { z-index: 4; }
+
+/* Mahalle: tek parça köy haritası */
+.village-wrap { padding: 0 0 20px; }
+.village { position: relative; width: 100%; aspect-ratio: 765 / 1024; border-radius: 18px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+.village-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.v-lot { position: absolute; width: 26%; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; background: none; padding: 0; }
+.v-lot.me { width: 32%; }
+.v-house { width: 100%; filter: drop-shadow(0 6px 5px rgba(0,0,40,.4)); transition: transform .15s; }
+.v-lot:active .v-house { transform: scale(.94); }
+.v-empty { width: 60%; aspect-ratio: 1.4; border: 3px dashed #f2b51e; border-radius: 10px; display: grid; place-items: center; font-size: 22px; }
+.v-tag { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 4px; margin-top: -6px; padding: 2px 8px 2px 2px; border-radius: 10px; background: rgba(8,16,36,.82); color: #fff; font-size: 10.5px; font-weight: 800; white-space: nowrap; }
+.v-tag b { display: grid; place-items: center; min-width: 18px; height: 18px; border-radius: 6px; background: #f2b51e; color: #3a2400; font-size: 11px; }
+.v-lot.me .v-tag { background: #2ecc71; }
