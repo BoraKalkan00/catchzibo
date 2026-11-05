@@ -1106,3 +1106,22 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 @keyframes hspop { 0% { transform: scale(.85) translateY(10px); } 100% { transform: scale(1); } }
 .hs-owner { position: absolute; right: -2%; bottom: 4%; width: 13%; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .35)); }
 .house-mini .hs-owner, .tile-art .hs-owner { display: none; }
+
+/* Ev ekranı: ev büyük, listeler alttan açılan pencerede */
+.screen-house .house-stage { flex: 1; min-height: 0; max-height: none; display: flex; align-items: center; justify-content: center; }
+.screen-house .house-stage .house-view { max-width: 96%; width: 96%; max-height: 100%; cursor: pointer; }
+.screen-house .house-view .hs-wrap { max-height: 46vh; }
+.house-dock { flex: none; display: flex; gap: 8px; padding: 6px 10px calc(10px + var(--safe-bottom)); }
+.dock-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 16px; background: var(--paper); color: var(--ink); font-weight: 800; font-size: 14px; box-shadow: 0 4px 0 #c3b294; }
+.dock-btn b { font-size: 24px; line-height: 1; }
+.house-sheet { position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end; }
+.sheet-back { position: absolute; inset: 0; background: rgba(8, 16, 36, .5); animation: fade .2s; }
+.sheet-panel { position: relative; max-height: 72%; display: flex; flex-direction: column; border-radius: 24px 24px 0 0; background: #1c3358; box-shadow: 0 -8px 30px rgba(0, 0, 0, .45); padding-bottom: var(--safe-bottom); animation: sheetup .25s cubic-bezier(.2, .9, .3, 1); }
+.house-sheet.still .sheet-panel, .house-sheet.still .sheet-back { animation: none; }
+.house-sheet.out .sheet-panel { transform: translateY(100%); transition: transform .18s ease-in; }
+@keyframes sheetup { from { transform: translateY(100%); } }
+.sheet-head { display: flex; align-items: center; gap: 6px; padding: 10px 10px 6px; }
+.sheet-tabs { flex: 1; display: flex; gap: 6px; }
+.sheet-tabs .tab { flex: 1; }
+.sheet-x { width: 38px; height: 38px; border-radius: 12px; background: rgba(255, 255, 255, .14); color: #fff; font-size: 18px; font-weight: 900; }
+.house-sheet .house-scroll { padding: 4px 10px 14px; }

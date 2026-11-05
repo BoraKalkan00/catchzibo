@@ -115,12 +115,32 @@
         CZ.MATS.map(m => { const s = h('span', { class: 'mat' }); s.innerHTML = art.matIcon(m.id); s.append(String(H.mats[m.id] || 0)); return s; }),
         h('b', { class: 'mat-plus', text: '+' }));
 
-      const tabs = h('div', { class: 'tabs' }, ['build', 'rooms', 'paint'].map(id => h('button', {
-        class: 'tab' + (id === tab ? ' on' : ''), type: 'button',
-        onClick: () => { CZ.audio.sfx('button'); this.tab = id; CZ.ui.refresh(); }
-      }, t('house.tab.' + id))));
-
-      const panel = tab === 'build' ? this.buildPanel(H) : tab === 'rooms' ? this.roomsPanel(H) : this.paintPanel(H);
+      // Clash of Clans / Hay Day gibi: ev ekranı kaplar, listeler alttaki düğmelerden açılan pencerede.
+      // Yenileme (aynı params) değilse pencere kapalı başlar; yenilemede açık pencere kıpırdamaz.
+      const isRefresh = this.lastParams === params;
+      this.lastParams = params;
+      if (!isRefresh) this.sheet = false;
+      const open = id => { CZ.audio.sfx('button'); this.tab = id; this.sheet = true; CZ.ui.refresh(); };
+      const ICON = { build: '🔨', rooms: '🛋️', paint: '🎨' };
+      const tabs = h('div', { class: 'house-dock' }, ['build', 'rooms', 'paint'].map(id => h('button', {
+        class: 'dock-btn', type: 'button', onClick: () => open(id)
+      }, h('b', { text: ICON[id] }), h('span', { text: t('house.tab.' + id) }))));
+      view.addEventListener('click', () => open('build'));
+      let sheet = null;
+      if (this.sheet) {
+        const panel = tab === 'build' ? this.buildPanel(H) : tab === 'rooms' ? this.roomsPanel(H) : this.paintPanel(H);
+        const close = () => { this.sheet = false; CZ.audio.sfx('button'); sheet.classList.add('out'); setTimeout(() => CZ.ui.refresh(), 180); };
+        sheet = h('div', { class: 'house-sheet' + (isRefresh && this.sheetShown ? ' still' : '') },
+          h('div', { class: 'sheet-back', onClick: close }),
+          h('div', { class: 'sheet-panel' },
+            h('div', { class: 'sheet-head' },
+              h('div', { class: 'sheet-tabs' }, ['build', 'rooms', 'paint'].map(id => h('button', {
+                class: 'tab' + (id === tab ? ' on' : ''), type: 'button',
+                onClick: () => { CZ.audio.sfx('button'); this.tab = id; CZ.ui.refresh(); }
+              }, ICON[id] + ' ' + t('house.tab.' + id)))),
+              h('button', { class: 'sheet-x', type: 'button', text: '✕', onClick: close })),
+            h('div', { class: 'scroll house-scroll' }, panel)));
+      }
 
       el.append(
         topbar(HS.title(H) || t('house.title'), () => go('hub')),
@@ -128,8 +148,8 @@
           h('button', { class: 'hood-btn', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('hood'); } }, '🏘️ ', t('hood.title'))),
         h('div', { class: 'house-stage' }, view, zibo.el),
         job ? this.jobBar(H) : this.nextButton(H),
-        mats, tabs,
-        h('div', { class: 'scroll house-scroll' }, panel));
+        mats, tabs, sheet || '');
+      this.sheetShown = !!sheet;
     },
 
     // Hangi ipucu sırada (bir kez gösterilir; 'start' temel atılana kadar kalır)

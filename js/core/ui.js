@@ -58,6 +58,7 @@ CZ.ui = (function () {
   }
 
   function go(name, params) {
+    params = params || {};
     if (active && active.screen.leave) active.screen.leave();
     const screen = CZ.screens[name];
     active = { name, params, screen };
