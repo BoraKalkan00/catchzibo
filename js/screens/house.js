@@ -107,7 +107,7 @@
       const job = H.job;
       const ghost = job ? (HS.SHELL.includes(job.id) ? job.id : null) : HS.nextShell(H);
 
-      const view = html('house-view' + (job ? ' building' : ''), art.view(H, { fresh, ghost, owner: CZ.charArt.url(d().avatar || 'girl', 'front') }));
+      const view = html('house-view' + (job ? ' building' : ''), art.view(H, { yard: true, fresh, ghost, owner: CZ.charArt.url(d().avatar || 'girl', 'front') }));
       if (fresh) {
         CZ.audio.sfx('build');
         CZ.audio.vibrate([20, 40, 20, 40, 60]);
@@ -170,11 +170,13 @@
       el.append(
         topbar(HS.title(H) || t('house.title'), () => go('hub')),
         h('div', { class: 'house-top' }, stats(H),
-          h('button', { class: 'hood-btn', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('hood'); } }, '🏘️ ', t('hood.title'))),
+          h('button', { class: 'hood-btn', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('hood'); } }, '🏘️ ', t('house.toVillage'))),
         h('div', { class: 'house-stage' }, view, zibo.el),
         job ? this.jobBar(H) : this.nextButton(H),
         mats, tabs, sheet || '');
       this.sheetShown = !!sheet;
+      const st = el.querySelector('.house-stage');
+      if (st) requestAnimationFrame(() => st.style.setProperty('--sh', st.clientHeight + 'px'));
     },
 
     // Hangi ipucu sırada (bir kez gösterilir; 'start' temel atılana kadar kalır)

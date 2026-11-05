@@ -696,5 +696,6 @@ CZ.i18n.register('ko', '한국어', {
   'house.notNow': '나중에',
   'gold.buyWeapon': '{n}에 구매',
   'run.gemShort': '에메랄드가 부족해요 ({n}/{c}). 광고 보고 계속해요!',
-  'cocoa.note': '다음 물건 찾기에 +{s}초.'
+  'cocoa.note': '다음 물건 찾기에 +{s}초.',
+  'house.toVillage': '마을로'
 });

@@ -696,5 +696,6 @@ CZ.i18n.register('ar', 'العربية', {
   'house.notNow': 'ليس الآن',
   'gold.buyWeapon': 'اشترِ بـ {n}',
   'run.gemShort': 'الزمرد غير كافٍ ({n}/{c}). شاهد إعلانًا للمتابعة!',
-  'cocoa.note': 'يضيف +{s} ثوانٍ إلى بحثك القادم.'
+  'cocoa.note': 'يضيف +{s} ثوانٍ إلى بحثك القادم.',
+  'house.toVillage': 'إلى القرية'
 });

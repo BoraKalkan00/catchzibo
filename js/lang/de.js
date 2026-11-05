@@ -696,5 +696,6 @@ CZ.i18n.register('de', 'Deutsch', {
   'house.notNow': 'Jetzt nicht',
   'gold.buyWeapon': 'Für {n} kaufen',
   'run.gemShort': 'Nicht genug Smaragde ({n}/{c}). Schau Werbung zum Weiterlaufen!',
-  'cocoa.note': 'Gibt deiner nächsten Suche +{s} Sekunden.'
+  'cocoa.note': 'Gibt deiner nächsten Suche +{s} Sekunden.',
+  'house.toVillage': 'Zurück ins Dorf'
 });

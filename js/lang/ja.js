@@ -696,5 +696,6 @@ CZ.i18n.register('ja', '日本語', {
   'house.notNow': 'あとで',
   'gold.buyWeapon': '{n}で買う',
   'run.gemShort': 'エメラルドが足りない（{n}/{c}）。広告を見て続けよう！',
-  'cocoa.note': '次のアイテム探しに+{s}秒。'
+  'cocoa.note': '次のアイテム探しに+{s}秒。',
+  'house.toVillage': '村へ戻る'
 });

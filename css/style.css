@@ -1182,3 +1182,16 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .next-cost i.short { color: #ffd0c8; text-decoration: line-through; text-decoration-thickness: 2px; }
 .next-cost .cost-eq { margin: 0 4px; }
 .mat { position: relative; flex-direction: column; } .mat-price { display: block; font-size: 9.5px; opacity: .75; font-weight: 700; white-space: nowrap; }
+
+/* Bahçe: yard resmi sahneyi kaplar, ev ortadaki arsada */
+.screen-house { background: #1a2238; }
+.screen-house .house-stage { overflow: hidden; margin: 0; background: none; }
+.screen-house .house-stage .house-view { position: absolute; inset: 0; width: auto; max-width: none; }
+.yard { position: absolute; left: 50%; top: 50%; aspect-ratio: 765 / 1024; width: max(100%, calc(var(--sh, 600px) * .747)); transform: translate(-51.9%, -52%); }
+.yard-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.yard-house { position: absolute; left: 51.9%; bottom: 33%; transform: translateX(-50%); filter: drop-shadow(0 10px 8px rgba(0,0,40,.35)); }
+.yard-house.pop { animation: yardpop .55s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes yardpop { 0% { transform: translateX(-50%) scale(.8) translateY(14px); } 100% { transform: translateX(-50%) scale(1); } }
+.yard-lot { position: absolute; left: 30%; top: 40%; width: 44%; height: 20%; border: 3px dashed #f2b51e; border-radius: 8px; transform: skewX(-8deg); opacity: .9; }
+.yard-owner { position: absolute; left: 33%; bottom: 23%; width: 9%; filter: drop-shadow(0 4px 4px rgba(0,0,0,.35)); }
+.screen-house .usta-box { z-index: 4; }

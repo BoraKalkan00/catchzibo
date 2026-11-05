@@ -696,5 +696,6 @@ CZ.i18n.register('fr', 'Français', {
   'house.notNow': 'Pas maintenant',
   'gold.buyWeapon': 'Acheter pour {n}',
   'run.gemShort': 'Pas assez d’émeraudes ({n}/{c}). Regarde une pub pour continuer !',
-  'cocoa.note': 'Ajoute +{s} secondes à ta prochaine recherche.'
+  'cocoa.note': 'Ajoute +{s} secondes à ta prochaine recherche.',
+  'house.toVillage': 'Retour au village'
 });

@@ -273,6 +273,7 @@ self.CZ_FILES = [
  "assets/scenes/title.svg",
  "assets/scenes/town.svg",
  "assets/scenes/village.svg",
+ "assets/scenes/yard.webp",
  "assets/story/1.svg",
  "assets/story/2.svg",
  "assets/story/3.svg",

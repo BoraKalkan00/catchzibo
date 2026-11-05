@@ -571,9 +571,11 @@ CZ.houseArt = (function () {
     });
   }
   // Ev görünümü: HTML. Temel yoksa eski boş ada çizimi; varsa Gemini aşaması.
+  const STAGE_W = { 1: 212, 2: 239, 3: 244, 4: 253, 5: 253, 6: 250, 7: 297, 8: 289 };
   function view(H, opts) {
     opts = opts || {};
     const st = stage(H);
+    if (opts.yard) return yard(H, st, opts);
     if (!st) return exterior(H, opts);
     const src = 'assets/house/stage' + st + '.webp';
     const color = (H.paint && H.paint.roof) || 'red';
@@ -584,6 +586,24 @@ CZ.houseArt = (function () {
     const first = plain ? src : (cache.get(k) || src);
     const owner = opts.owner ? `<img class="hs-owner" src="${opts.owner}" alt="">` : '';
     return `<div class="hs-wrap${opts.fresh ? ' pop' : ''}"><img id="${id}" class="hs-img" src="${first}" alt="">${owner}</div>`;
+  }
+  // Bahçe: Gemini bahçe resmi, ev ortadaki boş arsada. Hepsi aynı ölçekte (ayaklar arsanın ortasında).
+  function yard(H, st, opts) {
+    const color = (H.paint && H.paint.roof) || 'red';
+    let houseHtml = '';
+    if (st) {
+      const src = 'assets/house/stage' + st + '.webp';
+      const id = 'hs' + Math.random().toString(36).slice(2, 8);
+      const plain = !HUE[color] || st < 4;
+      if (!plain) recolor(src, color).then(u => { const el = document.getElementById(id); if (el) el.src = u; });
+      const first = plain ? src : (cache.get(src + '|' + color) || src);
+      const w = (STAGE_W[st] / 290 * 78).toFixed(1);
+      houseHtml = `<img id="${id}" class="yard-house${opts.fresh ? ' pop' : ''}" style="width:${w}%" src="${first}" alt="">`;
+    } else {
+      houseHtml = '<div class="yard-lot"></div>';
+    }
+    const owner = opts.owner ? `<img class="yard-owner" src="${opts.owner}" alt="">` : '';
+    return `<div class="yard"><img class="yard-bg" src="assets/scenes/yard.webp" alt="">${houseHtml}${owner}</div>`;
   }
   return { exterior, interior, matIcon, furnIcon, SLOTS, shade, stage, view };
 })();
