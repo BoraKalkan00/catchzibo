@@ -392,7 +392,7 @@ CZ.runner3d = (function () {
 
     const T = {};
     const loads = [
-      ...['run1', 'run2', 'laugh', 'throw', 'dizzy', 'tongue'].map(f => imageTex(CZ.art('zibo.' + f), 384).then(x => { T['z_' + f] = x; })),
+      ...['run1', 'run2', 'laugh', 'throw', 'dizzy', 'tongue', 'vrun0', 'vrun1', 'vrun2', 'vrun3', 'vrun4', 'vrun5', 'vrun6', 'vrun7'].map(f => imageTex(CZ.art('zibo.' + f), 384).then(x => { T['z_' + f] = x; })),
       opts.weaponArt ? imageTex(CZ.art(opts.weaponArt), 256).then(x => { T.weapon = x; }) : null,
       opts.loot ? imageTex(CZ.art(opts.loot), 256).then(x => { T.loot = x; }) : null
     ];
@@ -747,8 +747,9 @@ CZ.runner3d = (function () {
       s.ziboX += (laneX(s.ziboLane) - s.ziboX) * Math.min(1, dt * 3);
       s.ziboPose = Math.max(0, s.ziboPose - dt);
       zibo.position.x = s.ziboX;
-      zibo.position.y = Math.abs(Math.sin(s.frame * 9)) * 0.12;
-      setZiboFrame(s.ziboForce || (s.laughT > 0 ? 'laugh' : s.ziboPose > 0 ? 'throw' : Math.floor(s.frame * 7) % 2 ? 'run2' : 'run1'));
+      zibo.position.y = 0;
+      // Koşu: Viggle videosundan 8 kare (saniyede 20 kare)
+      setZiboFrame(s.ziboForce || (s.laughT > 0 ? 'laugh' : s.ziboPose > 0 ? 'throw' : 'vrun' + (Math.floor(s.frame * 20) % 8)));
       s.laughT = Math.max(0, (s.laughT || 0) - dt);
 
       // engeller
