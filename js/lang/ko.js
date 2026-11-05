@@ -72,7 +72,7 @@ CZ.i18n.register('ko', '한국어', {
   'win.record': '새 기록: {s}초!',
   'win.roomDone': '거실을 전부 되찾았어요! 지보가 화났어요. 부엌이 열렸어요!',
   'win.next': '다음 물건',
-  'win.toVillage': '집으로',
+  'win.toVillage': '광장으로',
   'win.toMansion': '저택으로 돌아가기',
   'village.title': '너의 마을',
   'village.returned': '집으로 돌아온 것',
@@ -697,5 +697,7 @@ CZ.i18n.register('ko', '한국어', {
   'gold.buyWeapon': '{n}에 구매',
   'run.gemShort': '에메랄드가 부족해요 ({n}/{c}). 광고 보고 계속해요!',
   'cocoa.note': '다음 물건 찾기에 +{s}초.',
-  'house.toVillage': '마을로'
+  'house.toVillage': '마을로',
+  'notif.stole2': '히히! 오늘 밤 또 훔쳤지. 찾아봐! 😈',
+  'notif.rival2': '아직 기록 지키고 있어? 내가 더 빨라! 🏃‍♂️'
 });

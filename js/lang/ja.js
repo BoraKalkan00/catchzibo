@@ -72,7 +72,7 @@ CZ.i18n.register('ja', '日本語', {
   'win.record': '新記録：{s}秒！',
   'win.roomDone': 'リビングを全部取りもどした！ジボはカンカン。キッチンがひらいたよ！',
   'win.next': '次のアイテム',
-  'win.toVillage': 'おうちへ',
+  'win.toVillage': '広場へ',
   'win.toMansion': '屋敷にもどる',
   'village.title': 'きみの村',
   'village.returned': '家にもどった物',
@@ -697,5 +697,7 @@ CZ.i18n.register('ja', '日本語', {
   'gold.buyWeapon': '{n}で買う',
   'run.gemShort': 'エメラルドが足りない（{n}/{c}）。広告を見て続けよう！',
   'cocoa.note': '次のアイテム探しに+{s}秒。',
-  'house.toVillage': '村へ戻る'
+  'house.toVillage': '村へ戻る',
+  'notif.stole2': 'へへへ！今夜もまた盗んだよ。見つけてみな！😈',
+  'notif.rival2': '記録はまだ守れてる？ぼくの方が速いよ！🏃‍♂️'
 });

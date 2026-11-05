@@ -154,13 +154,11 @@
           adRewardBar(),
           h('div', { class: 'hub-tiles' },
             tile('gold-tile' + (goldFree ? ' ready' : ''), img('ui.gold', 'tile-icon'), t('hub.gold'), goldFree ? t('hub.goldReady') : CZ.screens.gold.waitText(), () => CZ.ui.wipeTo('gold'), goldFree, 'gold'),
-            tile('house-tile', houseArt, CZ.house.title(H) || t('house.title'), H.job ? '🔨 ' + t('hub.houseBuilding') : t('house.level') + ' ' + CZ.house.level(H), () => CZ.ui.wipeTo('house'), CZ.house.attention(), 'house'),
+            tile('chars-tile', CZ.charArt.img(state.data.avatar || 'girl', 'front', 'tile-icon tile-char'), t('chars.title'), t('char.' + (state.data.avatar || 'girl')), () => CZ.ui.wipeTo('chars'), false),
             tile('quest-tile', h('div', { class: 'tile-art quest-art' }, h('span', { text: '📋' }), h('div', { class: 'quest-dots' }, q.list.map(x => h('i', { class: x.claimed ? 'on' : x.have >= x.n ? 'ready' : '' })), h('i', { class: 'chest' + (q.chest ? ' on' : '') }))),
               t('quest.short'), `${q.list.filter(x => x.claimed).length}/3`, () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), CZ.quests.ready(), 'quests'))),
         h('nav', { class: 'hub-nav glass-bar' },
-          open('house') ? nav(t('hub.village'), 'ui.house', 'house') : null,
           nav(t('chars.title'), 'ui.wardrobe', 'chars'),
-          open('hood') ? nav(t('hub.hood'), 'ui.hood', 'hood') : null,
           open('book') ? nav(t('hub.bookShort'), 'ui.book', 'book') : null,
           open('diary') ? nav(t('hub.diaryShort'), 'ui.diary', 'diary', game.diaryUnread()) : null));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
@@ -168,7 +166,7 @@
       state.data.hubVisits = (state.data.hubVisits || 0) + 1;
       state.save();
       if (state.data.hubVisits > 1) this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
-      if (state.data.tutorialDone && CZ.house && state.data.house) CZ.notify.askOnce();
+      if (state.data.tutorialDone && game.foundCount() >= 2) CZ.notify.askOnce();
     },
     // Evim (küçük resim + durum) ve günlük görevler kartı
     cards() {

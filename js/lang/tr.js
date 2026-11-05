@@ -82,7 +82,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'win.record': 'Yeni rekor: {s} saniye!',
   'win.roomDone': 'Bütün oturma odası yeniden senin! Zibo küplere bindi. Mutfak açıldı!',
   'win.next': 'Sıradaki eşya',
-  'win.toVillage': 'Evime git',
+  'win.toVillage': 'Merkeze dön',
   'win.toMansion': 'Malikaneye dön',
 
   'village.title': 'Köyün',
@@ -878,5 +878,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'gold.buyWeapon': '{n} altına al',
   'run.gemShort': 'Elmasın yetmiyor ({n}/{c}). Reklamla devam edebilirsin!',
   'cocoa.note': 'Sıradaki eşya aramana otomatik +{s} saniye ekler.',
-  'house.toVillage': 'Köyüme dön'
+  'house.toVillage': 'Köyüme dön',
+  'notif.stole2': 'Hehehe! Bu gece yine bir şey çaldım. Bul bakalım! 😈',
+  'notif.rival2': 'Rekorun duruyor mu? Ben senden hızlıyım! 🏃‍♂️'
 });

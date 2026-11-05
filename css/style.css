@@ -1208,3 +1208,4 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .v-tag { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 4px; margin-top: -6px; padding: 2px 8px 2px 2px; border-radius: 10px; background: rgba(8,16,36,.82); color: #fff; font-size: 10.5px; font-weight: 800; white-space: nowrap; }
 .v-tag b { display: grid; place-items: center; min-width: 18px; height: 18px; border-radius: 6px; background: #f2b51e; color: #3a2400; font-size: 11px; }
 .v-lot.me .v-tag { background: #2ecc71; }
+.tile-char { object-fit: contain; object-position: 50% 10%; }

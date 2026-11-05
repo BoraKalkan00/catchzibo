@@ -72,7 +72,7 @@ CZ.i18n.register('fr', 'Français', {
   'win.record': 'Nouveau record : {s} secondes !',
   'win.roomDone': 'Tout le salon est de nouveau à toi ! Zibo est furieux. La cuisine vient d’ouvrir !',
   'win.next': 'Objet suivant',
-  'win.toVillage': 'À la maison',
+  'win.toVillage': 'Retour',
   'win.toMansion': 'Retour au manoir',
   'village.title': 'Ton village',
   'village.returned': 'De retour',
@@ -697,5 +697,7 @@ CZ.i18n.register('fr', 'Français', {
   'gold.buyWeapon': 'Acheter pour {n}',
   'run.gemShort': 'Pas assez d’émeraudes ({n}/{c}). Regarde une pub pour continuer !',
   'cocoa.note': 'Ajoute +{s} secondes à ta prochaine recherche.',
-  'house.toVillage': 'Retour au village'
+  'house.toVillage': 'Retour au village',
+  'notif.stole2': 'Hihihi ! J’ai encore volé un truc cette nuit. Trouve-le ! 😈',
+  'notif.rival2': 'Tu tiens toujours ton record ? Je suis plus rapide ! 🏃‍♂️'
 });

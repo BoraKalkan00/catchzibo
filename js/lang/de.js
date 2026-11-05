@@ -72,7 +72,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'win.record': 'Neuer Rekord: {s} Sekunden!',
   'win.roomDone': 'Das ganze Wohnzimmer gehört wieder dir! Zibo tobt. Die Küche ist jetzt offen!',
   'win.next': 'Nächstes Teil',
-  'win.toVillage': 'Zu meinem Haus',
+  'win.toVillage': 'Zum Dorfplatz',
   'win.toMansion': 'Zurück zur Villa',
   'village.title': 'Dein Dorf',
   'village.returned': 'Wieder daheim',
@@ -697,5 +697,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'gold.buyWeapon': 'Für {n} kaufen',
   'run.gemShort': 'Nicht genug Smaragde ({n}/{c}). Schau Werbung zum Weiterlaufen!',
   'cocoa.note': 'Gibt deiner nächsten Suche +{s} Sekunden.',
-  'house.toVillage': 'Zurück ins Dorf'
+  'house.toVillage': 'Zurück ins Dorf',
+  'notif.stole2': 'Hehehe! Heute Nacht hab ich wieder was geklaut. Finde es! 😈',
+  'notif.rival2': 'Hältst du noch deinen Rekord? Ich bin schneller! 🏃‍♂️'
 });

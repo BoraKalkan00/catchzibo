@@ -72,7 +72,7 @@ CZ.i18n.register('es', 'Español', {
   'win.record': '¡Nuevo récord: {s} segundos!',
   'win.roomDone': '¡Todo el salón vuelve a ser tuyo! Zibo está furioso. ¡La cocina acaba de abrir!',
   'win.next': 'Siguiente objeto',
-  'win.toVillage': 'Ir a mi casa',
+  'win.toVillage': 'Volver',
   'win.toMansion': 'Volver a la mansión',
   'village.title': 'Tu pueblo',
   'village.returned': 'De vuelta en casa',
@@ -697,5 +697,7 @@ CZ.i18n.register('es', 'Español', {
   'gold.buyWeapon': 'Comprar por {n}',
   'run.gemShort': 'No tienes esmeraldas suficientes ({n}/{c}). ¡Mira un anuncio para seguir!',
   'cocoa.note': 'Añade +{s} segundos a tu próxima búsqueda.',
-  'house.toVillage': 'Volver al pueblo'
+  'house.toVillage': 'Volver al pueblo',
+  'notif.stole2': '¡Jejeje! Esta noche robé algo otra vez. ¡Encuéntralo! 😈',
+  'notif.rival2': '¿Sigues con tu récord? ¡Soy más rápido! 🏃‍♂️'
 });

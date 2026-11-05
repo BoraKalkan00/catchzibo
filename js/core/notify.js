@@ -16,38 +16,9 @@ CZ.notify = (function () {
   const available = () => !!plugin();
 
   // Evin durumuna göre Zibo'nun mesajları. Her gün farklısı seçilir.
-  function messages() {
-    const d = CZ.state.data;
-    const H = d.house;
-    const HS = CZ.house;
-    const list = [];
-    if (!H || !HS.lv(H, 'found')) list.push('notif.empty');
-    else if (HS.nextShell(H)) list.push('notif.half', 'notif.inside');
-    else {
-      if (HS.lv(H, 'door') < 3) list.push('notif.door');
-      if (HS.defense(H) < HS.maxDefense() / 2) list.push('notif.weak');
-      if (H.raids && H.raids[0] && !H.raids[0].won) list.push('notif.stole');
-      const rank = HS.ranking();
-      const me = rank.findIndex(x => x.me);
-      if (me > 0) list.push('notif.rival');
-      list.push('notif.room');
-    }
-    list.push('notif.gift', 'notif.gold');
-    return list;
-  }
-
-  function text(key) {
-    const H = CZ.state.data.house;
-    const params = {};
-    if (key === 'notif.stole') params.n = H.raids[0].gold;
-    if (key === 'notif.rival') {
-      const rank = CZ.house.ranking();
-      const i = rank.findIndex(x => x.me);
-      params.name = rank[i - 1].name;
-      params.n = rank[i - 1].level - rank[i].level;
-    }
-    return CZ.t(key, params);
-  }
+  // Zibo'nun günlük mesajları (ev sistemi kaldırıldı).
+  function messages() { return ['notif.stole2', 'notif.gift', 'notif.gold', 'notif.room', 'notif.rival2']; }
+  const text = key => CZ.t(key);
 
   async function schedule() {
     const ln = plugin();
@@ -65,13 +36,6 @@ CZ.notify = (function () {
         at.setHours(HOUR, Math.floor(Math.random() * 20), 0, 0);
         return { id, title: CZ.t('notif.title'), body: text(pool[(start + i) % pool.length]), schedule: { at, allowWhileIdle: true } };
       });
-      // İnşaat bitince ayrıca haber ver.
-      const H = CZ.state.data.house;
-      if (H && H.job && H.job.end > Date.now() + 30000) {
-        const id = H.job.id;
-        const name = id.startsWith('room.') ? CZ.t(id) : CZ.t('part.' + id);
-        notifications.push({ id: JOB_ID, title: CZ.t('usta.name') + ' 🦫', body: CZ.t('notif.job', { name }), schedule: { at: new Date(H.job.end), allowWhileIdle: true } });
-      }
       await ln.schedule({ notifications });
     } catch (e) {
       console.warn('Bildirim kurulamadı.', e);

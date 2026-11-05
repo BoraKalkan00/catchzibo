@@ -82,7 +82,7 @@ CZ.i18n.register('en', 'English', {
   'win.record': 'New record: {s} seconds!',
   'win.roomDone': 'The whole living room is yours again! Zibo is furious. The kitchen just opened!',
   'win.next': 'Next item',
-  'win.toVillage': 'Go home',
+  'win.toVillage': 'Back to town',
   'win.toMansion': 'Back to mansion',
 
   'village.title': 'Your Village',
@@ -878,5 +878,7 @@ CZ.i18n.register('en', 'English', {
   'gold.buyWeapon': 'Buy for {n}',
   'run.gemShort': 'Not enough emeralds ({n}/{c}). Watch an ad to continue!',
   'cocoa.note': 'Adds +{s} seconds to your next item search.',
-  'house.toVillage': 'Back to village'
+  'house.toVillage': 'Back to village',
+  'notif.stole2': 'Hehehe! I stole something again tonight. Find it if you can! 😈',
+  'notif.rival2': 'Still holding your record? I’m faster than you! 🏃‍♂️'
 });

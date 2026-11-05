@@ -686,8 +686,8 @@ CZ.screens.play = (function () {
     const next = CZ.game.nextOpen();
     const actions = next
         ? [btn(t('win.next'), () => CZ.ui.wipeTo('play', { roundId: next.id }), 'primary wide'),
-          btn(t('win.toVillage'), () => CZ.ui.go('house'), 'ghost-dark wide')]
-        : [btn(t('win.toVillage'), () => CZ.ui.go('house'), 'primary wide'),
+          btn(t('win.toVillage'), () => CZ.ui.go('hub'), 'ghost-dark wide')]
+        : [btn(t('win.toVillage'), () => CZ.ui.go('hub'), 'primary wide'),
           btn(t('win.toMansion'), () => CZ.ui.go('mansion'), 'ghost-dark wide')];
     const starRow = h('div', { class: 'star-row' }, [0, 1, 2].map(i => {
       const earned = i < s.result.stars;

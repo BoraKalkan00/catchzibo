@@ -8,12 +8,9 @@ CZ.QUESTS = [
   { id: 'goldRun', n: 2, reward: { gold: 60 } },
   { id: 'crate', n: 25, reward: { gold: 80 } },
   { id: 'dodge', n: 5, reward: { gold: 60 } },
-  { id: 'build', n: 1, reward: { gold: 50 } },
-  { id: 'furn', n: 1, reward: { emeralds: 10 } },
-  { id: 'like', n: 1, reward: { gold: 30 } },
   { id: 'wardrobe', n: 1, reward: { emeralds: 5 } }
 ];
-CZ.QUEST_FIRST_DAY = [{ id: 'build', n: 1 }, { id: 'goldRun', n: 1 }, { id: 'wardrobe', n: 1 }];
+CZ.QUEST_FIRST_DAY = [{ id: 'find', n: 2 }, { id: 'goldRun', n: 1 }, { id: 'wardrobe', n: 1 }];
 CZ.QUEST_CHEST = { emeralds: 25, gold: 100 };
 
 CZ.quests = (function () {
@@ -88,7 +85,7 @@ CZ.quests = (function () {
     const t = CZ.t;
     const wrap = h('div', { class: 'modal-wrap' });
     const chips = r => h('span', { class: 'q-reward' }, r.gold ? [img('ui.gold', 'chip-icon'), '+' + r.gold] : null, r.emeralds ? [img('ui.emerald', 'chip-icon'), '+' + r.emeralds] : null);
-    const GO = { find: 'mansion', chase: 'mansion', perfect: 'mansion', goldRun: 'gold', crate: 'gold', dodge: 'gold', build: 'house', furn: 'house', like: 'hood', wardrobe: 'chars' };
+    const GO = { find: 'mansion', chase: 'mansion', perfect: 'mansion', goldRun: 'gold', crate: 'gold', dodge: 'gold', wardrobe: 'chars' };
     const draw = () => {
       const q = today();
       const all = q.list.every(x => x.claimed);
