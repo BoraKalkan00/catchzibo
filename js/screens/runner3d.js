@@ -726,7 +726,7 @@ CZ.runner3d = (function () {
       const sliding = s.slideT > 0 && !s.jumping;
       const lean = (tx - s.px) * 0.6;
       hero.root.position.set(s.px, s.py, 0);
-      hero.update(dt, { speed: s.speed, jumping: s.jumping, sliding, lean, dead: false });
+      hero.update(dt, { speed: s.speed, jumping: s.jumping, sliding, lean, dead: false, vy: s.vy, jumpV: R.jumpV });
       hero.setOpacity(s.invT > 0 ? (Math.floor(s.t * 14) % 2 ? 0.35 : 1) : 1);
       weaponSp.visible = !sliding && !!T.weapon;
       pShadow.position.x = s.px;

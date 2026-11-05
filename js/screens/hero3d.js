@@ -224,7 +224,9 @@ CZ.hero3d = function (THREE, kind) {
 // Gemini çizimleriyle koşucu (2B kâğıt değil: adımlara göre yaylanır, eğilir, pozlar arasında yumuşak geçer).
 // Karakterin kendi çizimleri kullanıldığı için oyundaki karakter birebir Gemini'deki karakter olur.
 // İleride 8 karelik koşu sayfası gelirse CZ.RUN_FRAMES[kind] listesine eklenir, otomatik kullanılır.
-CZ.RUN_FRAMES = {};
+// Videodan çıkarılmış kareler (Kling yeşil ekran): koşu döngüsü ve zıplama dizisi.
+CZ.RUN_FRAMES = { knight: ['run00', 'run01', 'run02', 'run03', 'run04', 'run05', 'run06', 'run07', 'run08', 'run09', 'run10', 'run11', 'run12'] };
+CZ.JUMP_FRAMES = { knight: ['jmp00', 'jmp01', 'jmp02', 'jmp03', 'jmp04', 'jmp05', 'jmp06', 'jmp07', 'jmp08', 'jmp09', 'jmp10', 'jmp11', 'jmp12', 'jmp13'] };
 CZ.heroSprite = function (THREE, kind) {
   const root = new THREE.Group();
   const body = new THREE.Group();
@@ -237,8 +239,10 @@ CZ.heroSprite = function (THREE, kind) {
   weaponSlot.position.set(0.42, 0.95, 0.05);
   body.add(weaponSlot);
   const tex = {};
+  const video = !!CZ.RUN_FRAMES[kind];
   const runFrames = CZ.RUN_FRAMES[kind] || ['back1', 'back2'];
-  const poses = Array.from(new Set(runFrames.concat(['jump', 'slide'])));
+  const jumpFrames = CZ.JUMP_FRAMES[kind] || ['jump'];
+  const poses = Array.from(new Set(runFrames.concat(jumpFrames, ['jump', 'slide'])));
   poses.forEach(p => {
     const im = new Image();
     im.onload = () => {
@@ -274,17 +278,21 @@ CZ.heroSprite = function (THREE, kind) {
       body.position.y = 0;
       body.rotation.z = 0;
     } else if (info.jumping) {
-      show('jump', H * 1.05);
+      // Zıplama: yükselirken → tepede → inerken kareleri sırayla
+      const k = info.jumpV ? Math.min(1, Math.max(0, (info.jumpV - (info.vy || 0)) / (2 * info.jumpV))) : 0.5;
+      const jf = jumpFrames[Math.min(jumpFrames.length - 1, Math.floor(k * jumpFrames.length))];
+      show(jf, video ? H * 1.25 : H * 1.05);
+      body.position.y = 0;
       body.rotation.z = st.lean * -0.25;
     } else {
       // Koşu: kareler adım hızında değişir; her adımda gövde yaylanır ve hafifçe sallanır.
       const n = runFrames.length;
       const f = Math.floor((phase / Math.PI) * (n / 2)) % n;
       if (f !== lastFrame) { lastFrame = f; squash = 1; }
-      show(runFrames[f], H);
-      squash = Math.max(0, squash - dt * 9);
+      show(runFrames[f], video ? H * 1.25 : H);
+      squash = video ? 0 : Math.max(0, squash - dt * 9);
       const step = Math.abs(Math.sin(phase));
-      body.position.y = running ? step * 0.09 : 0;
+      body.position.y = running && !video ? step * 0.09 : 0;
       body.rotation.z = (running ? Math.sin(phase) * 0.035 : 0) + st.lean * -0.3;
       sp.scale.y *= 1 - squash * 0.05;
       sp.scale.x *= 1 + squash * 0.04;
