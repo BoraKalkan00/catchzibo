@@ -24,7 +24,14 @@
       c.innerHTML = art.matIcon(k);
       c.append(String(cost[k]));
       return c;
-    }));
+    }), goldEq(H, cost));
+  }
+  // Malzeme eksikse altın karşılığı: "= 🪙 60" (malzemeyi Usta bu fiyata getirir).
+  function goldEq(H, cost) {
+    const short = HS.shortOf(H, cost);
+    if (!Object.keys(short).some(k => k !== 'gold')) return null;
+    const plan = topUp(H, cost);
+    return h('span', { class: 'cost-eq' }, '= ', img('ui.gold', 'mini-ico'), String(plan.gold + (cost.gold || 0)));
   }
 
   // Eksik malzemeyi altınla tamamla: kaç paket, kaç altın.
@@ -130,7 +137,7 @@
       const zibo = { el: usta };
 
       const mats = h('button', { class: 'mat-bar', type: 'button', onClick: () => { CZ.audio.sfx('button'); this.shop(el, H); } },
-        CZ.MATS.map(m => { const s = h('span', { class: 'mat' }); s.innerHTML = art.matIcon(m.id); s.append(String(H.mats[m.id] || 0)); return s; }),
+        CZ.MATS.map(m => { const s = h('span', { class: 'mat' }); s.innerHTML = art.matIcon(m.id); s.append(String(H.mats[m.id] || 0)); s.append(h('small', { class: 'mat-price', text: m.pack + '=' + m.price + '🪙' })); return s; }),
         h('b', { class: 'mat-plus', text: '+' }));
 
       // Clash of Clans / Hay Day gibi: ev ekranı kaplar, listeler alttaki düğmelerden açılan pencerede.
@@ -195,7 +202,8 @@
       if (!partId) return '';
       const cost = HS.nextCost(H, partId);
       const lvl = HS.lv(H, partId);
-      const chips = h('span', { class: 'next-cost' }, Object.keys(cost).map(k => { const c = h('i', {}); c.innerHTML = art.matIcon(k); c.append(String(cost[k])); return c; }), '⏱ ' + this.mins(partId, lvl));
+      const short = HS.shortOf(H, cost);
+      const chips = h('span', { class: 'next-cost' }, Object.keys(cost).map(k => { const c = h('i', { class: short[k] ? 'short' : '' }); c.innerHTML = art.matIcon(k); c.append(String(cost[k])); return c; }), goldEq(H, cost), '⏱ ' + this.mins(partId, lvl));
       const label = (lvl ? t('house.upgradeX', { name: t('part.' + partId) }) : t('house.buildX', { name: t('part.' + partId) }));
       return h('button', {
         class: 'next-btn pulse', type: 'button',

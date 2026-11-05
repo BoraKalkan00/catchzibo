@@ -1177,3 +1177,8 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .cocoa-ico { width: 44px; height: 44px; }
 .cocoa-txt { flex: 1; display: flex; flex-direction: column; }
 .cocoa-txt small { color: var(--muted); font-size: 12.5px; }
+
+.cost-eq { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px; border-radius: 10px; background: #ffe27a; color: #4a2c00; font-weight: 900; font-size: 13px; }
+.next-cost i.short { color: #ffd0c8; text-decoration: line-through; text-decoration-thickness: 2px; }
+.next-cost .cost-eq { margin: 0 4px; }
+.mat { position: relative; flex-direction: column; } .mat-price { display: block; font-size: 9.5px; opacity: .75; font-weight: 700; white-space: nowrap; }
