@@ -369,7 +369,7 @@ CZ.i18n.register('pt', 'Português', {
   'house.z.ok': 'Hmm… está ficando difícil. Mas vou achar um jeito.',
   'house.z.strong': 'Essa casa é uma fortaleza! …Não estou com medo. Nem um pouco.',
   'paint.ext': 'Cor da casa',
-  'paint.roof': 'Cor do telhado',
+  'paint.roof': 'Cor da porta e janelas',
   'paint.wall': 'Cor da parede',
   'paint.floor': 'Piso',
   'color.brick': 'Tijolo',

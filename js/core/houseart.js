@@ -522,5 +522,68 @@ CZ.houseArt = (function () {
     return `<svg class="furn-icon" viewBox="-110 -170 220 180" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
   };
 
-  return { exterior, interior, matIcon, furnIcon, SLOTS, shade };
+  /* ================= GEMINI EV AŞAMALARI ================= */
+  // Ev 8 aşamalı Gemini çiziminden gösterilir; kapı ve panjur rengi (H.paint.roof) kodla değiştirilir.
+  function stage(H) {
+    const lv = id => H.parts[id] || 0;
+    if (!lv('found')) return 0;
+    const walls = ['wall1', 'wall2', 'wall3', 'wall4'].filter(w => lv(w)).length;
+    if (walls < 4) return walls ? 2 : 1;
+    if (!lv('roof')) return 3;
+    if (!lv('door') && !lv('win')) return 4;
+    if (!(lv('door') && lv('win'))) return 5;
+    if (!lv('chimney')) return 6;
+    if (!lv('fence') && !lv('lights')) return 7;
+    return 8;
+  }
+  const HUE = { red: null, blue: 214, green: 135, brown: 25, purple: 280, gold: 44 };
+  const cache = new Map();
+  function recolor(src, color) {
+    const k = src + '|' + color;
+    if (cache.has(k)) return Promise.resolve(cache.get(k));
+    return new Promise(ok => {
+      const im = new Image();
+      im.onload = () => {
+        const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+        const x = c.getContext('2d'); x.drawImage(im, 0, 0);
+        const d = x.getImageData(0, 0, c.width, c.height), p = d.data, th = HUE[color];
+        for (let i = 0; i < p.length; i += 4) {
+          if (p[i + 3] < 10) continue;
+          const R = p[i] / 255, G = p[i + 1] / 255, B = p[i + 2] / 255, mx = Math.max(R, G, B), mn = Math.min(R, G, B), dd = mx - mn;
+          if (dd < 0.2 || mx !== R) continue;
+          let hh = ((G - B) / dd) * 60; if (hh < 0) hh += 360;
+          if (!(hh < 14 || hh > 340)) continue;
+          const l = (mx + mn) / 2, s = dd / (1 - Math.abs(2 * l - 1) + 1e-6);
+          if (s < 0.5) continue;
+          const nl = color === 'gold' ? Math.min(0.8, l * 1.4) : color === 'brown' ? l * 0.85 : l;
+          const ns = color === 'brown' ? s * 0.6 : s;
+          const cc = (1 - Math.abs(2 * nl - 1)) * Math.min(1, ns), hp = th / 60, xx = cc * (1 - Math.abs(hp % 2 - 1)), m = nl - cc / 2;
+          let r = 0, g = 0, b = 0;
+          if (hp < 1) { r = cc; g = xx; } else if (hp < 2) { r = xx; g = cc; } else if (hp < 3) { g = cc; b = xx; } else if (hp < 4) { g = xx; b = cc; } else if (hp < 5) { r = xx; b = cc; } else { r = cc; b = xx; }
+          p[i] = (r + m) * 255; p[i + 1] = (g + m) * 255; p[i + 2] = (b + m) * 255;
+        }
+        x.putImageData(d, 0, 0);
+        const url = c.toDataURL('image/webp', 0.9);
+        cache.set(k, url); ok(url);
+      };
+      im.onerror = () => ok(src);
+      im.src = src;
+    });
+  }
+  // Ev görünümü: HTML. Temel yoksa eski boş ada çizimi; varsa Gemini aşaması.
+  function view(H, opts) {
+    opts = opts || {};
+    const st = stage(H);
+    if (!st) return exterior(H, opts);
+    const src = 'assets/house/stage' + st + '.webp';
+    const color = (H.paint && H.paint.roof) || 'red';
+    const id = 'hs' + Math.random().toString(36).slice(2, 8);
+    const plain = !HUE[color] || st < 5;
+    if (!plain) recolor(src, color).then(u => { const el = document.getElementById(id); if (el) el.src = u; });
+    const k = src + '|' + color;
+    const first = plain ? src : (cache.get(k) || src);
+    const owner = opts.owner ? `<img class="hs-owner" src="${opts.owner}" alt="">` : '';
+    return `<div class="hs-wrap${opts.fresh ? ' pop' : ''}"><img id="${id}" class="hs-img" src="${first}" alt="">${owner}</div>`;
+  }
+  return { exterior, interior, matIcon, furnIcon, SLOTS, shade, stage, view };
 })();

@@ -369,7 +369,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'house.z.ok': 'Hmm… wird schwieriger. Aber ich finde einen Weg.',
   'house.z.strong': 'Das Haus ist eine Festung! …Ich hab keine Angst. Gar nicht.',
   'paint.ext': 'Hausfarbe',
-  'paint.roof': 'Dachfarbe',
+  'paint.roof': 'Tür- und Ladenfarbe',
   'paint.wall': 'Wandfarbe',
   'paint.floor': 'Boden',
   'color.brick': 'Ziegel',

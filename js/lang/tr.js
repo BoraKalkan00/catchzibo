@@ -386,7 +386,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'house.z.ok': 'Hmm… zorlaşıyor. Ama bir yolunu bulurum.',
   'house.z.strong': 'Bu ev kale gibi! …Korkmadım. Hiç korkmadım.',
   'paint.ext': 'Ev rengi',
-  'paint.roof': 'Çatı rengi',
+  'paint.roof': 'Kapı ve panjur rengi',
   'paint.wall': 'Duvar rengi',
   'paint.floor': 'Zemin',
   'color.brick': 'Tuğla',

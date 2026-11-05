@@ -107,7 +107,7 @@
       CZ.house.tick();
       const q = CZ.quests.today();
       const houseArt = h('div', { class: 'tile-art house-mini' });
-      houseArt.innerHTML = CZ.houseArt.exterior(H, {});
+      houseArt.innerHTML = CZ.houseArt.view(H, {});
       // Yeni oyuncu her şeyi birden görmesin: bölümler buldukça açılır.
       const found = game.foundCount();
       const open = key => found >= (CZ.UNLOCK[key] || 0);
@@ -164,7 +164,7 @@
       const job = H.job;
       const status = job ? '🔨 ' + t('hub.houseBuilding') : CZ.house.attention() ? '👉 ' + t('hub.houseNext') : t('house.level') + ' ' + lvl;
       const houseArt = h('div', { class: 'hub-house-art' });
-      houseArt.innerHTML = CZ.houseArt.exterior(H, { owner: CZ.charArt.url(state.data.avatar || 'girl', 'front') });
+      houseArt.innerHTML = CZ.houseArt.view(H, { owner: CZ.charArt.url(state.data.avatar || 'girl', 'front') });
       const q = CZ.quests.today();
       const done = q.list.filter(x => x.claimed).length;
       return h('div', { class: 'hub-cards' },

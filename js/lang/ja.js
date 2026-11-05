@@ -369,7 +369,7 @@ CZ.i18n.register('ja', '日本語', {
   'house.z.ok': 'うーん…手ごわくなってきた。でも入る方法を見つけるさ。',
   'house.z.strong': 'この家、まるでおしろ！…こわくないよ。ぜんぜん。',
   'paint.ext': '家の色',
-  'paint.roof': '屋根の色',
+  'paint.roof': 'ドアとよろい戸の色',
   'paint.wall': 'かべの色',
   'paint.floor': 'ゆか',
   'color.brick': 'レンガ',

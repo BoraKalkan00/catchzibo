@@ -369,7 +369,7 @@ CZ.i18n.register('fr', 'Français', {
   'house.z.ok': 'Hmm… ça devient dur. Mais je trouverai un moyen.',
   'house.z.strong': 'Cette maison est une forteresse ! …J’ai pas peur. Pas du tout.',
   'paint.ext': 'Couleur de la maison',
-  'paint.roof': 'Couleur du toit',
+  'paint.roof': 'Couleur porte et volets',
   'paint.wall': 'Couleur des murs',
   'paint.floor': 'Sol',
   'color.brick': 'Brique',

@@ -369,7 +369,7 @@ CZ.i18n.register('ko', '한국어', {
   'house.z.ok': '흠… 어려워지는데. 그래도 방법을 찾을 거야.',
   'house.z.strong': '이 집은 요새야! …안 무서워. 하나도.',
   'paint.ext': '집 색',
-  'paint.roof': '지붕 색',
+  'paint.roof': '문과 덧창 색',
   'paint.wall': '벽 색',
   'paint.floor': '바닥',
   'color.brick': '벽돌',

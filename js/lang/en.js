@@ -386,7 +386,7 @@ CZ.i18n.register('en', 'English', {
   'house.z.ok': 'Hmm… getting tougher. But I’ll find a way in.',
   'house.z.strong': 'This house is a fortress! …I’m not scared. Not at all.',
   'paint.ext': 'House color',
-  'paint.roof': 'Roof color',
+  'paint.roof': 'Door & shutter color',
   'paint.wall': 'Wall color',
   'paint.floor': 'Floor',
   'color.brick': 'Brick',

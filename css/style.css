@@ -1099,3 +1099,10 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .album-stars i.on { color: #f2b51e; }
 .plot-pic { display: grid; place-items: center; }
 .plot-pic img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
+
+.hs-wrap { position: relative; width: 100%; aspect-ratio: 1.05; display: grid; place-items: center; }
+.hs-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 10px rgba(0, 0, 0, .35)); }
+.hs-wrap.pop .hs-img { animation: hspop .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes hspop { 0% { transform: scale(.85) translateY(10px); } 100% { transform: scale(1); } }
+.hs-owner { position: absolute; right: -2%; bottom: 4%; width: 13%; filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .35)); }
+.house-mini .hs-owner, .tile-art .hs-owner { display: none; }

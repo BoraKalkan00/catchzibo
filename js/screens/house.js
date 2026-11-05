@@ -82,7 +82,7 @@
       const job = H.job;
       const ghost = job ? (HS.SHELL.includes(job.id) ? job.id : null) : HS.nextShell(H);
 
-      const view = html('house-view' + (job ? ' building' : ''), art.exterior(H, { fresh, ghost, owner: CZ.charArt.url(d().avatar || 'girl', 'front') }));
+      const view = html('house-view' + (job ? ' building' : ''), art.view(H, { fresh, ghost, owner: CZ.charArt.url(d().avatar || 'girl', 'front') }));
       if (fresh) {
         CZ.audio.sfx('build');
         CZ.audio.vibrate([20, 40, 20, 40, 60]);
@@ -283,7 +283,7 @@
     },
 
     paintPanel(H) {
-      const group = kind => h('div', {},
+      const group = kind => kind === 'ext' ? null :  h('div', {},
         h('h2', { class: 'section-title', text: t('paint.' + kind) }),
         h('div', { class: 'swatches' }, CZ.PAINTS[kind].map(p => {
           const owned = H.owned[kind].includes(p.id);
@@ -469,7 +469,7 @@
             onClick: () => { CZ.audio.sfx('button'); n.me ? CZ.ui.wipeTo('house') : CZ.ui.wipeTo('visit', { id: n.id }); }
           });
           const pic = !n.me && CZ.NEIGHBOR_HOUSE[n.id];
-          card.append(pic ? h('div', { class: 'plot-art plot-pic' }, h('img', { src: 'assets/village/house_' + pic + '.webp', alt: '' })) : html('plot-art', art.exterior(n.house, { owner: n.me ? CZ.charArt.url(n.kind, 'front') : CZ.avatarArt.url(n.kind, n.look, 'idle') })),
+          card.append(pic ? h('div', { class: 'plot-art plot-pic' }, h('img', { src: 'assets/village/house_' + pic + '.webp', alt: '' })) : html('plot-art', art.view(n.house, { owner: n.me ? CZ.charArt.url(n.kind, 'front') : CZ.avatarArt.url(n.kind, n.look, 'idle') })),
             h('div', { class: 'plot-tag' }, h('b', { class: 'plot-lv', text: n.level }), h('span', { text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) })));
           return card;
         }));
