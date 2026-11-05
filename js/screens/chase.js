@@ -22,7 +22,7 @@ CZ.screens.chase = (function () {
     c = {
       el, round, params,
       gap: C.startGap, timeLeft: C.seconds, lives: C.lives,
-      lane: 1, ziboLane: 1, running: false, last: performance.now(),
+      lane: 1, ziboLane: 1, running: false, last: performance.now(), sim: 0,
       hookReady: 0, burst: 0, stun: 0, continues: 0, gold: 0,
       timers: [], bombs: [], frame: 0
     };
@@ -38,7 +38,7 @@ CZ.screens.chase = (function () {
       c.run = CZ.runner3d.start(c.stage, {
         mode: 'chase', lanes: 3, speed: 17, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
         perk: {}, dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
-        onDash(lvl) { if (!c || !c.running) return; const n = 6 + lvl * 2; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
+        onDash(lvl) { if (!c || !c.running) return; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
         onTap: () => hook(),
         onGold(n) { c.gold += n; if (c.gold >= (c.goldSay || 25)) { c.goldSay = c.gold + 40; if (!speaking()) say('zibo.chase.gold'); } c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
         onEmerald() {}, onPower() {}, onCrate() {},
@@ -94,8 +94,8 @@ CZ.screens.chase = (function () {
     if (c.run) c.run.go();
     c.last = performance.now();
     c.loop = requestAnimationFrame(loop);
-    c.nextSwitch = performance.now() + byLevel(C.laneSwitchMs);
-    c.nextBomb = performance.now() + 1500;
+    c.nextSwitch = c.sim + byLevel(C.laneSwitchMs);
+    c.nextBomb = c.sim + 1500;
     CZ.audio.music('play');
     CZ.audio.setTempo(1.3);
     say('zibo.chase.start');
@@ -104,9 +104,10 @@ CZ.screens.chase = (function () {
   /* ---------- Döngü ---------- */
   function loop(now) {
     if (!c || !c.running) return;
-    const dt = Math.min(now - c.last, 60) / 1000;
+    // Oyun saati: 3D motorla aynı sınır (50 ms). Yavaş telefonda bomba görüntüsü ile patlama ayrışmaz.
+    const dt = Math.min(now - c.last, 50) / 1000;
     c.last = now;
-    if (!document.hidden) step(dt, now);
+    if (!document.hidden) { c.sim += dt * 1000; step(dt, c.sim); }
     c.loop = requestAnimationFrame(loop);
   }
 
@@ -151,7 +152,7 @@ CZ.screens.chase = (function () {
   function switchLane() {
     const options = [0, 1, 2].filter(l => l !== c.ziboLane && Math.abs(l - c.ziboLane) <= (Math.random() < 0.25 ? 2 : 1));
     c.ziboLane = options[Math.floor(Math.random() * options.length)];
-    c.nextSwitch = performance.now() + byLevel(C.laneSwitchMs) * rand(0.75, 1.25);
+    c.nextSwitch = c.sim + byLevel(C.laneSwitchMs) * rand(0.75, 1.25);
     if (Math.random() < 0.35 && !speaking()) say(pick(['zibo.chase.slow', 'zibo.chase.tongue', 'zibo.chase.mine']));
   }
 
@@ -181,7 +182,7 @@ CZ.screens.chase = (function () {
       const beep = gap => {
         if (!c || !c.running || !c.bombs.includes(b)) return;
         CZ.audio.sfx('tick');
-        const left = b.at - performance.now();
+        const left = b.at - c.sim;
         if (left > 120) b.beep = setTimeout(() => beep(Math.max(90, gap * 0.72)), Math.min(gap, left - 60));
       };
       beep(380);
@@ -374,8 +375,8 @@ CZ.screens.chase = (function () {
     if (c.run) { c.run.ziboPose(null); c.run.go(); }
     c.running = true;
     c.last = performance.now();
-    c.nextBomb = performance.now() + 1200;
-    c.nextSwitch = performance.now() + 900;
+    c.nextBomb = c.sim + 1200;
+    c.nextSwitch = c.sim + 900;
     CZ.audio.music('play');
     CZ.audio.setTempo(1.3);
     c.loop = requestAnimationFrame(loop);
