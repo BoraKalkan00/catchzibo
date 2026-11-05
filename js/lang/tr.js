@@ -876,5 +876,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   'house.balance': 'Altının: {a} → {b}',
   'house.notNow': 'Şimdi değil',
   'gold.buyWeapon': '{n} altına al',
-  'run.gemShort': 'Elmasın yetmiyor ({n}/{c}). Reklamla devam edebilirsin!'
+  'run.gemShort': 'Elmasın yetmiyor ({n}/{c}). Reklamla devam edebilirsin!',
+  'cocoa.note': 'Sıradaki eşya aramana otomatik +{s} saniye ekler.'
 });

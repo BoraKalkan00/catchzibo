@@ -695,5 +695,6 @@ CZ.i18n.register('fr', 'Français', {
   'house.balance': 'Ton or : {a} → {b}',
   'house.notNow': 'Pas maintenant',
   'gold.buyWeapon': 'Acheter pour {n}',
-  'run.gemShort': 'Pas assez d’émeraudes ({n}/{c}). Regarde une pub pour continuer !'
+  'run.gemShort': 'Pas assez d’émeraudes ({n}/{c}). Regarde une pub pour continuer !',
+  'cocoa.note': 'Ajoute +{s} secondes à ta prochaine recherche.'
 });

@@ -58,12 +58,6 @@ CZ.screens.gold = (function () {
       }, st === 'open' ? CZ.charArt.img(c.id, 'front', 'rail-img') : h('img', { class: 'rail-img', src: CZ.chars.front(c.id), alt: '' }),
       st !== 'open' ? h('i', { class: 'rail-lock', text: '🔒' }) : null);
     };
-    const cocoaFull = (d.cocoa || 0) >= G.cocoa.max;
-    const cocoa = h('button', {
-      class: 'rail-tile cocoa' + (cocoaFull ? ' full' : ''), type: 'button',
-      onClick: () => { if (cocoaFull) return CZ.ui.toast(t('gold.cocoaFull')); buyCocoa(); }
-    }, img('item.mug_red', 'rail-img'), h('small', { class: 'rail-price' }, cocoaFull ? '✓' : [img('ui.gold', 'mini-ico'), String(G.cocoa.price)]));
-
     const action = ownedW
       ? btn(t('gold.start'), () => startRound(el, true), 'primary big pulse wide lobby-go')
       : btn(t('gold.buyWeapon', { n: showW.price }), () => { buyWeapon(showW); peekWeapon = null; }, 'big wide lobby-buy', 'ui.gold');
@@ -76,12 +70,12 @@ CZ.screens.gold = (function () {
         h('h1', { text: t('hub.gold') }),
         goldBadge()),
       h('div', { class: 'lobby' },
-        h('div', { class: 'rail left' }, h('small', { class: 'rail-head', text: t('gold.weapons') }), G.weapons.map(wTile), cocoa),
+        h('div', { class: 'rail left' }, h('small', { class: 'rail-head', text: t('gold.weapons') }), G.weapons.map(wTile)),
         h('div', { class: 'lobby-stage' },
           d.runBest ? h('p', { class: 'lobby-best' }, '🏆 ', t('run.best', { n: (d.runBest || 0).toLocaleString() })) : null,
           h('div', { class: 'lobby-hero' },
             CZ.charArt.img(me, 'front', 'lobby-char'),
-            img(showW.art, 'lobby-weapon' + (ownedW ? '' : ' peek'))),
+            h('div', { class: 'lobby-wbadge' + (ownedW ? '' : ' peek') }, img(showW.art, 'lobby-weapon'))),
           h('div', { class: 'lobby-info' },
             h('strong', { text: t('weapon.' + showW.id) }),
             h('small', {}, t('gold.dmg', { n: showW.dmg }), ' · ', h('span', { class: 'dmg-bar' }, h('i', { style: `width:${showW.dmg / 9 * 100}%` }))))),

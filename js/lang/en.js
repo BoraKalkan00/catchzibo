@@ -876,5 +876,6 @@ CZ.i18n.register('en', 'English', {
   'house.balance': 'Your gold: {a} → {b}',
   'house.notNow': 'Not now',
   'gold.buyWeapon': 'Buy for {n}',
-  'run.gemShort': 'Not enough emeralds ({n}/{c}). Watch an ad to continue!'
+  'run.gemShort': 'Not enough emeralds ({n}/{c}). Watch an ad to continue!',
+  'cocoa.note': 'Adds +{s} seconds to your next item search.'
 });

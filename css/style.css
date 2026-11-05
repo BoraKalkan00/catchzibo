@@ -1168,3 +1168,12 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .btn.gem-short, .btn.disabled { opacity: .55; filter: grayscale(.6); }
 .btn.shake { animation: shakehard .35s; }
 .toast { z-index: 200; }
+
+.lobby-wbadge { position: absolute; right: -22%; top: 30%; width: 52%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, rgba(255,240,180,.95) 0 45%, rgba(255,200,80,.6) 60%, rgba(255,200,80,0) 72%); animation: wfloat 2.4s ease-in-out infinite; }
+.lobby-wbadge .lobby-weapon { position: static; width: 74%; transform: rotate(-12deg); filter: drop-shadow(0 4px 4px rgba(0,0,0,.35)); }
+.lobby-wbadge.peek { background: radial-gradient(circle, rgba(255,255,255,.95) 0 45%, rgba(120,200,255,.6) 60%, rgba(120,200,255,0) 72%); }
+@keyframes wfloat { 50% { transform: translateY(-8px); } }
+.cocoa-bar { display: flex; align-items: center; gap: 10px; margin: 0 12px 12px; padding: 10px 12px; border-radius: 16px; background: var(--paper); color: var(--ink); }
+.cocoa-ico { width: 44px; height: 44px; }
+.cocoa-txt { flex: 1; display: flex; flex-direction: column; }
+.cocoa-txt small { color: var(--muted); font-size: 12.5px; }

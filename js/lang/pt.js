@@ -695,5 +695,6 @@ CZ.i18n.register('pt', 'Português', {
   'house.balance': 'Seu ouro: {a} → {b}',
   'house.notNow': 'Agora não',
   'gold.buyWeapon': 'Comprar por {n}',
-  'run.gemShort': 'Esmeraldas insuficientes ({n}/{c}). Veja um anúncio para continuar!'
+  'run.gemShort': 'Esmeraldas insuficientes ({n}/{c}). Veja um anúncio para continuar!',
+  'cocoa.note': 'Adiciona +{s} segundos à sua próxima busca.'
 });

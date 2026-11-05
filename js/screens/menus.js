@@ -82,6 +82,20 @@
       h('span', { class: 'ad-gold' }, '+' + CZ.AD_REWARD.gold, img('ui.gold', 'mini-ico')), h('small', { text: left + '/' + CZ.AD_REWARD.perDay }));
   }
 
+  // Sıcak kakao: eşya aramasından önce alınır, sıradaki aramaya otomatik +5 sn ekler.
+  function cocoaBar() {
+    const d = state.data, C = CZ.GOLD.cocoa;
+    const n = d.cocoa || 0, full = n >= C.max;
+    return h('div', { class: 'cocoa-bar' },
+      img('item.mug_red', 'cocoa-ico'),
+      h('div', { class: 'cocoa-txt' }, h('strong', { text: t('gold.cocoa') + ' (' + n + '/' + C.max + ')' }), h('small', { text: t('cocoa.note', { s: C.seconds }) })),
+      full ? h('span', { class: 'gold-tag', text: t('gold.cocoaFull') })
+        : btn(String(C.price), () => {
+          if ((d.gold || 0) < C.price) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('gold.need')); }
+          d.gold -= C.price; d.cocoa = n + 1; state.save(); CZ.audio.sfx('buy'); CZ.ui.refresh();
+        }, 'small gold-buy', 'ui.gold'));
+  }
+
   CZ.screens.hub = {
     render(el) {
       game.ensureDiary();
@@ -251,6 +265,7 @@
         header(t('mansion.title'), () => go('hub')),
         h('div', { class: 'scroll' },
           h('p', { class: 'section-note', text: note }),
+          cocoaBar(),
           ordered));
     }
   };
