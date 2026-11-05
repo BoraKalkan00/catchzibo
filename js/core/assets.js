@@ -25,6 +25,13 @@ CZ.OVERRIDES = {
   'zibo.run2': 'assets/zibo/png/back2.webp',
   'zibo.back': 'assets/zibo/png/back1.webp',
   'scene.hub_bg': 'assets/scenes/hub_bg.webp',
+  'gold.weap_snowball': 'assets/gold/weap_snowball.webp',
+  'gold.weap_sling': 'assets/gold/weap_sling.webp',
+  'gold.weap_candy': 'assets/gold/weap_candy.webp',
+  'gold.weap_ice': 'assets/gold/weap_ice.webp',
+  'gold.weap_staff': 'assets/gold/weap_staff.webp',
+  'gold.weap_thunder': 'assets/gold/weap_thunder.webp',
+
   'zibo.vrun0': 'assets/zibo/png/vrun0.webp',
   'zibo.vrun1': 'assets/zibo/png/vrun1.webp',
   'zibo.vrun2': 'assets/zibo/png/vrun2.webp',

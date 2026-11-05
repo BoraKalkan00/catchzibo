@@ -8,6 +8,7 @@
   "background_color": "#14233c",
   "theme_color": "#14233c",
   "icons": [
-    { "src": "assets/ui/emerald.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "assets/ui/icon192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/ui/icon512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }

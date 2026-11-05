@@ -468,7 +468,8 @@
             class: 'plot' + (n.me ? ' me' : ''), type: 'button', style: `animation-delay:${i * 0.05}s`,
             onClick: () => { CZ.audio.sfx('button'); n.me ? CZ.ui.wipeTo('house') : CZ.ui.wipeTo('visit', { id: n.id }); }
           });
-          card.append(html('plot-art', art.exterior(n.house, { owner: n.me ? CZ.charArt.url(n.kind, 'front') : CZ.avatarArt.url(n.kind, n.look, 'idle') })),
+          const pic = !n.me && CZ.NEIGHBOR_HOUSE[n.id];
+          card.append(pic ? h('div', { class: 'plot-art plot-pic' }, h('img', { src: 'assets/village/house_' + pic + '.webp', alt: '' })) : html('plot-art', art.exterior(n.house, { owner: n.me ? CZ.charArt.url(n.kind, 'front') : CZ.avatarArt.url(n.kind, n.look, 'idle') })),
             h('div', { class: 'plot-tag' }, h('b', { class: 'plot-lv', text: n.level }), h('span', { text: n.me ? (HS.title(n.house) || t('hood.yourHouse')) : t('hood.house', { name: n.pos }) })));
           return card;
         }));

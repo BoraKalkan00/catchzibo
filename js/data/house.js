@@ -78,6 +78,8 @@ CZ.PAINTS = {
 };
 
 // Mahalle: bot komşular. Seviyeleri her gün büyür (base + rate × gün).
+// Komşuların Gemini ev çizimleri (assets/village/house_hN.webp)
+CZ.NEIGHBOR_HOUSE = { mia: 'h1', leo: 'h2', elif: 'h3', can: 'h5', yuki: 'h6', noah: 'h8' };
 CZ.NEIGHBORS = [
   { id: 'mia', base: 9, rate: 3.2, seed: 11 },
   { id: 'leo', base: 15, rate: 2.6, seed: 23 },

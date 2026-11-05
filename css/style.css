@@ -1097,3 +1097,5 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .album-stars { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 11px; letter-spacing: -1px; }
 .album-stars i { font-style: normal; color: rgba(0, 0, 0, .2); }
 .album-stars i.on { color: #f2b51e; }
+.plot-pic { display: grid; place-items: center; }
+.plot-pic img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
