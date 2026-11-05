@@ -694,5 +694,6 @@ CZ.i18n.register('es', 'Español', {
   'house.topUp2': '¡El Castor lo trae del mercado y empieza ya!',
   'house.balance': 'Tu oro: {a} → {b}',
   'house.notNow': 'Ahora no',
-  'gold.buyWeapon': 'Comprar por {n}'
+  'gold.buyWeapon': 'Comprar por {n}',
+  'run.gemShort': 'No tienes esmeraldas suficientes ({n}/{c}). ¡Mira un anuncio para seguir!'
 });

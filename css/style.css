@@ -1165,3 +1165,6 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .lobby-bottom { flex: none; padding: 8px 12px calc(12px + var(--safe-bottom)); position: relative; z-index: 2; }
 .lobby-go { font-size: 26px; }
 .lobby-buy { background: linear-gradient(#ffe27a, #f2b51e); color: #3a2400; box-shadow: 0 5px 0 #b07a00; font-size: 22px; }
+.btn.gem-short, .btn.disabled { opacity: .55; filter: grayscale(.6); }
+.btn.shake { animation: shakehard .35s; }
+.toast { z-index: 200; }

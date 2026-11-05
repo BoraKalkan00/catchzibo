@@ -694,5 +694,6 @@ CZ.i18n.register('ar', 'العربية', {
   'house.topUp2': 'القندس يجلبها من السوق ويبدأ فورًا!',
   'house.balance': 'ذهبك: {a} ← {b}',
   'house.notNow': 'ليس الآن',
-  'gold.buyWeapon': 'اشترِ بـ {n}'
+  'gold.buyWeapon': 'اشترِ بـ {n}',
+  'run.gemShort': 'الزمرد غير كافٍ ({n}/{c}). شاهد إعلانًا للمتابعة!'
 });

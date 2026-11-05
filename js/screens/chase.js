@@ -317,7 +317,7 @@ CZ.screens.chase = (function () {
       h('p', { text: t('chase.escapedNote') }),
       canAd ? btn(t('chase.adMore', { s: C.continueSeconds }), () => { sheet.remove(); adThen(resume); }, 'primary wide') : null,
       btn(t('chase.gemMore', { n: C.continueEmeralds, s: C.continueSeconds }), () => {
-        if (!canGems) return CZ.ui.toast(t('village.need'));
+        if (!canGems) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('run.gemShort', { n: d.emeralds || 0, c: C.continueEmeralds })); }
         d.emeralds -= C.continueEmeralds;
         CZ.state.save();
         sheet.remove();

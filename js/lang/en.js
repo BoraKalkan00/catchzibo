@@ -875,5 +875,6 @@ CZ.i18n.register('en', 'English', {
   'house.topUp2': 'Beaver can fetch these from the market and start right away!',
   'house.balance': 'Your gold: {a} → {b}',
   'house.notNow': 'Not now',
-  'gold.buyWeapon': 'Buy for {n}'
+  'gold.buyWeapon': 'Buy for {n}',
+  'run.gemShort': 'Not enough emeralds ({n}/{c}). Watch an ad to continue!'
 });

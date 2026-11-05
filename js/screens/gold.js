@@ -254,14 +254,15 @@ CZ.screens.gold = (function () {
           close();
           g.adTimer = CZ.ads.show(() => { g.adContinued = true; revive(); });
         }, 'primary big wide cont-ad') : null,
-        btn(t('run.gemContinue', { n: cost }), () => {
-          if ((d.emeralds || 0) < cost) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('gold.gemNeed')); }
+        btn(t('run.gemContinue', { n: cost }) + ((d.emeralds || 0) < cost ? ' 🔒' : ''), e => {
+          // Yetmiyorsa kesinlikle devam etmez: düğme kilitli görünür, basınca sallanır.
+          if ((d.emeralds || 0) < cost) { CZ.audio.sfx('wrong'); CZ.audio.vibrate(30); e.currentTarget.classList.remove('shake'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('shake'); return CZ.ui.toast(t('run.gemShort', { n: d.emeralds || 0, c: cost })); }
           d.emeralds -= cost;
           g.gemContinues = (g.gemContinues || 0) + 1;
           CZ.state.save();
           close();
           revive();
-        }, 'ghost-dark wide', 'ui.emerald'),
+        }, 'ghost-dark wide' + ((d.emeralds || 0) < cost ? ' gem-short' : ''), 'ui.emerald'),
         h('button', { class: 'cont-skip', type: 'button', text: t('run.noThanks'), onClick: () => { close(); finish(g.run.summary()); } })));
     g.el.append(box);
     timer = setTimeout(() => { if (box.isConnected) { close(); finish(g.run.summary()); } }, 6000);

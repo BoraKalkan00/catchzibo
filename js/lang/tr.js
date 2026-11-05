@@ -875,5 +875,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   'house.topUp2': 'Kunduz Usta pazardan getirsin, hemen başlasın!',
   'house.balance': 'Altının: {a} → {b}',
   'house.notNow': 'Şimdi değil',
-  'gold.buyWeapon': '{n} altına al'
+  'gold.buyWeapon': '{n} altına al',
+  'run.gemShort': 'Elmasın yetmiyor ({n}/{c}). Reklamla devam edebilirsin!'
 });

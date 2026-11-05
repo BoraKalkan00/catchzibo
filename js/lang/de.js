@@ -694,5 +694,6 @@ CZ.i18n.register('de', 'Deutsch', {
   'house.topUp2': 'Biber holt das vom Markt und legt sofort los!',
   'house.balance': 'Dein Gold: {a} → {b}',
   'house.notNow': 'Jetzt nicht',
-  'gold.buyWeapon': 'Für {n} kaufen'
+  'gold.buyWeapon': 'Für {n} kaufen',
+  'run.gemShort': 'Nicht genug Smaragde ({n}/{c}). Schau Werbung zum Weiterlaufen!'
 });
