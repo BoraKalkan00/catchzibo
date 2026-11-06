@@ -741,5 +741,15 @@ CZ.i18n.register('de', 'Deutsch', {
   'heist.streak': '{n}-Tage-Serie!',
   'heist.done': 'Heutiger Raub geschafft!',
   'heist.bigChest': 'Tag 7: GROSSE TRUHE!',
-  'heist.retry': 'Nochmal'
+  'heist.retry': 'Nochmal',
+  'perk.gold': 'Gold beim Lauf +{n}%',
+  'perk.time': '+{n} s im Raum',
+  'perk.lens': 'Gegenstand leuchtet +{n} s',
+  'perk.head': 'Jagd {n} m näher starten',
+  'perk.sled': 'Schlitten lädt {n}% schneller',
+  'perk.power': 'Waffenstärke +{n}',
+  'perk.gems': 'Smaragde +{n}%',
+  'perk.lv': 'St. {n}',
+  'perk.short': 'Dir fehlen {n} Gold',
+  'perk.up': 'Stufe {n}! Stärker!'
 });

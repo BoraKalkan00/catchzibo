@@ -741,5 +741,15 @@ CZ.i18n.register('ar', 'العربية', {
   'heist.streak': 'سلسلة {n} أيام!',
   'heist.done': 'اكتملت سرقة اليوم!',
   'heist.bigChest': 'اليوم 7: صندوق كبير!',
-  'heist.retry': 'حاول مجددًا'
+  'heist.retry': 'حاول مجددًا',
+  'perk.gold': 'ذهب الركض +{n}%',
+  'perk.time': '+{n} ث في الغرف',
+  'perk.lens': 'يلمع الغرض +{n} ث',
+  'perk.head': 'ابدأ المطاردة أقرب بـ{n} م',
+  'perk.sled': 'الزلاجة تمتلئ أسرع بـ{n}%',
+  'perk.power': 'قوة السلاح +{n}',
+  'perk.gems': 'زمرد +{n}%',
+  'perk.lv': 'مستوى {n}',
+  'perk.short': 'تحتاج {n} ذهب إضافي',
+  'perk.up': 'المستوى {n}! أقوى!'
 });

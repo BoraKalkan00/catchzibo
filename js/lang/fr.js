@@ -741,5 +741,15 @@ CZ.i18n.register('fr', 'Français', {
   'heist.streak': 'Série de {n} jours !',
   'heist.done': 'Vol du jour réussi !',
   'heist.bigChest': 'Jour 7 : GRAND COFFRE !',
-  'heist.retry': 'Réessayer'
+  'heist.retry': 'Réessayer',
+  'perk.gold': 'Or en course +{n} %',
+  'perk.time': '+{n} s dans les pièces',
+  'perk.lens': 'L’objet brille +{n} s',
+  'perk.head': 'Poursuites {n} m plus près',
+  'perk.sled': 'Luge se remplit {n} % plus vite',
+  'perk.power': 'Puissance de l’arme +{n}',
+  'perk.gems': 'Émeraudes +{n} %',
+  'perk.lv': 'Niv. {n}',
+  'perk.short': 'Il te manque {n} or',
+  'perk.up': 'Niveau {n} ! Plus fort !'
 });

@@ -922,5 +922,15 @@ CZ.i18n.register('en', 'English', {
   'heist.streak': '{n}-day streak!',
   'heist.done': 'Today’s heist cleared!',
   'heist.bigChest': 'Day 7: BIG CHEST!',
-  'heist.retry': 'Try again'
+  'heist.retry': 'Try again',
+  'perk.gold': 'Run gold +{n}%',
+  'perk.time': '+{n} s in rooms',
+  'perk.lens': 'Item glows +{n} s',
+  'perk.head': 'Start chases {n} m closer',
+  'perk.sled': 'Sled fills {n}% faster',
+  'perk.power': 'Weapon power +{n}',
+  'perk.gems': 'Emerald rewards +{n}%',
+  'perk.lv': 'Lv. {n}',
+  'perk.short': 'You need {n} more gold',
+  'perk.up': 'Level {n}! Stronger!'
 });

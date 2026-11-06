@@ -124,7 +124,7 @@ CZ.game = (function () {
   }
 
   function reward(id, secondsLeft, stars) {
-    const mult = CZ.charPerk ? CZ.charPerk('gems') : 1;
+    const mult = 1 + (CZ.charPerk ? CZ.charPerk('gems') : 0);
     return Math.round(baseReward(id, secondsLeft, stars) * mult) + (isDaily(id) ? 4 : 0);
   }
   function baseReward(id, secondsLeft, stars) {

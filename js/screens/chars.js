@@ -40,6 +40,32 @@ CZ.chars = (function () {
   }
   return { state, hasArt, front, buy };
 })();
+// KARAKTER SEVİYELERİ: her karakterin tek bir yeteneği var, 1→10 seviye altınla yükselir.
+CZ.CHAR_PERKS = {
+  boy: { type: 'gold', per: 0.05 },      // koşuda altın +%5 / seviye
+  girl: { type: 'time', per: 0.5 },      // odada +0,5 sn / seviye
+  elf: { type: 'lens', per: 0.2 },       // eşya parlaması +0,2 sn / seviye (büyüteç olmadan da)
+  snowkid: { type: 'head', per: 2 },     // kovalamacaya Zibo'ya 2 m daha yakın başla / seviye
+  reindeer: { type: 'sled', per: 0.08 }, // kızak %8 daha hızlı dolar / seviye
+  knight: { type: 'power', per: 0.4 },   // silah gücü +0,4 / seviye
+  santa: { type: 'gems', per: 0.08 }     // zümrüt ödülü +%8 / seviye
+};
+CZ.CHAR_MAX = 10;
+CZ.charLevel = id => Math.min(CZ.CHAR_MAX, ((CZ.state.data.charLv || {})[id]) || 1);
+CZ.charUpPrice = lvl => Math.round(100 * Math.pow(1.6, lvl - 1) / 10) * 10;
+// Seçili karakterin bu türdeki bonusu (yoksa 0).
+CZ.charPerk = type => {
+  const id = CZ.state.data.avatar || 'girl';
+  const p = CZ.CHAR_PERKS[id];
+  return p && p.type === type ? p.per * CZ.charLevel(id) : 0;
+};
+CZ.perkText = id => {
+  const p = CZ.CHAR_PERKS[id];
+  const v = p.per * CZ.charLevel(id);
+  const n = p.type === 'gold' || p.type === 'sled' || p.type === 'gems' ? Math.round(v * 100) : Math.round(v * 10) / 10;
+  return CZ.t('perk.' + p.type, { n });
+};
+
 // Kostüm bonusları eski gardıroptandı; karakterlerin bonusu şimdilik yok.
 if (CZ.closet) CZ.closet.perk = () => ({});
 
@@ -60,6 +86,25 @@ CZ.screens.chars = {
       h('div', { class: 'emeralds gold-badge chars-gold' }, img('ui.gold', 'emerald-icon'), h('span', { class: 'emerald-count', text: d.gold || 0 })),
       CA.img(me, 'wave', 'chars-hero', look),
       h('div', { class: 'chars-name' }, h('strong', { text: t('char.' + me) }), h('small', { text: t('chars.selected') })));
+    // Seviye paneli
+    const lvl = CZ.charLevel(me);
+    const upPrice = CZ.charUpPrice(lvl);
+    const levelPanel = h('div', { class: 'char-level' },
+      h('div', { class: 'char-lv-badge', text: t('perk.lv', { n: lvl }) }),
+      h('div', { class: 'char-lv-text' },
+        h('strong', { text: CZ.perkText(me) }),
+        h('div', { class: 'up-dots' }, Array.from({ length: CZ.CHAR_MAX }, (_, i) => h('i', { class: i < lvl ? 'on' : '' })))),
+      lvl >= CZ.CHAR_MAX ? h('b', { class: 'up-max', text: t('up.max') })
+        : btn(String(upPrice), () => {
+          if ((d.gold || 0) < upPrice) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('perk.short', { n: upPrice - (d.gold || 0) })); }
+          d.gold -= upPrice;
+          d.charLv = d.charLv || {};
+          d.charLv[me] = lvl + 1;
+          CZ.state.save();
+          CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 50]);
+          CZ.ui.refresh();
+          CZ.ui.toast(t('perk.up', { n: lvl + 1 }));
+        }, 'primary small', 'ui.gold'));
 
     // Renk paneli: mont / bere / atkı
     let colorPanel = null;
@@ -133,11 +178,13 @@ CZ.screens.chars = {
       },
       st === 'open' && CZ.chars.hasArt(c.id) ? CA.img(c.id, 'front', 'char-img') : h('img', { class: 'char-img', src: CZ.chars.front(c.id), alt: '' }),
       st !== 'open' ? h('span', { class: 'char-lock', text: st === 'soon' ? '✨' : '🔒' }) : null,
+      st === 'open' ? h('span', { class: 'char-lv-mini', text: t('perk.lv', { n: CZ.charLevel(c.id) }) }) : null,
       h('span', { class: 'char-label', text: label }));
     };
     el.append(
       CZ.ui.header(t('chars.title'), () => { this.trying = null; CZ.ui.go(params && params.returnTo ? params.returnTo : 'hub'); }),
       preview,
+      levelPanel,
       h('div', { class: 'scroll chars-body' }, colorPanel, h('div', { class: 'chars-grid' }, CZ.ROSTER.map(card))));
   }
 };

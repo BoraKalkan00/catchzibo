@@ -741,5 +741,15 @@ CZ.i18n.register('ja', '日本語', {
   'heist.streak': '{n}日連続！',
   'heist.done': '今日の盗みクリア！',
   'heist.bigChest': '7日目：大きな宝箱！',
-  'heist.retry': 'もう一度'
+  'heist.retry': 'もう一度',
+  'perk.gold': 'ランの金貨+{n}%',
+  'perk.time': '部屋で+{n}秒',
+  'perk.lens': 'アイテムが+{n}秒光る',
+  'perk.head': '追跡を{n}m近くから開始',
+  'perk.sled': 'ソリが{n}%早くたまる',
+  'perk.power': '武器の力+{n}',
+  'perk.gems': 'エメラルド+{n}%',
+  'perk.lv': 'Lv.{n}',
+  'perk.short': 'あと{n}ゴールド必要',
+  'perk.up': 'レベル{n}！強くなった！'
 });

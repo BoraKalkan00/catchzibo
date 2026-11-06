@@ -944,15 +944,16 @@ CZ.screens.play = (function () {
     if (s.tutorial) tutorialStep();
     // Yükseltmeler: kakao = ek süre, büyüteç = eşya bir an parlar.
     if (!s.tutorial) {
-      const extra = CZ.upLevel('cocoa');
+      const extra = CZ.upLevel('cocoa') + CZ.charPerk('time');
       if (extra) { s.timeLeft += extra; s.total += extra; drawTime(); }
       const lens = CZ.upLevel('lens');
+      const glow = (lens ? 0.6 + lens * 0.35 : 0.3) + CZ.charPerk('lens');
       const target = s.items.find(it => it.target);
-      if (lens && target) {
+      if ((lens || CZ.charPerk('lens')) && target) {
         later(() => {
           target.el.classList.add('lens-glow');
           CZ.audio.sfx('lift', 6);
-          later(() => target.el.classList.remove('lens-glow'), (0.6 + lens * 0.35) * 1000);
+          later(() => target.el.classList.remove('lens-glow'), glow * 1000);
         }, 450);
       }
     }

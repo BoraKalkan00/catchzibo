@@ -741,5 +741,15 @@ CZ.i18n.register('pt', 'Português', {
   'heist.streak': 'Sequência de {n} dias!',
   'heist.done': 'Roubo de hoje concluído!',
   'heist.bigChest': 'Dia 7: BAÚ GRANDE!',
-  'heist.retry': 'Tentar de novo'
+  'heist.retry': 'Tentar de novo',
+  'perk.gold': 'Ouro na corrida +{n}%',
+  'perk.time': '+{n} s nas salas',
+  'perk.lens': 'Item brilha +{n} s',
+  'perk.head': 'Comece perseguições {n} m mais perto',
+  'perk.sled': 'Trenó enche {n}% mais rápido',
+  'perk.power': 'Poder da arma +{n}',
+  'perk.gems': 'Esmeraldas +{n}%',
+  'perk.lv': 'Nv. {n}',
+  'perk.short': 'Faltam {n} de ouro',
+  'perk.up': 'Nível {n}! Mais forte!'
 });

@@ -1067,6 +1067,7 @@ CZ.runner3d = (function () {
     function collect(c) {
       if (c.kind === 'coin') {
         let n = R.coinValue * (s.doubleT > 0 ? 2 : 1);
+        if (opts.goldMult > 1) { s.goldFrac = (s.goldFrac || 0) + n * (opts.goldMult - 1); const extra = Math.floor(s.goldFrac); s.goldFrac -= extra; n += extra; }
         if (opts.perk.goldMul && Math.random() < (opts.perk.goldMul - 1) * 3) n += 1;
         s.gold += n;
         s.score = (s.score || 0) + 5 * n;
@@ -1099,7 +1100,7 @@ CZ.runner3d = (function () {
     sledBtn.addEventListener('pointerdown', e => { e.stopPropagation(); dash(); });
     function fillSled(n) {
       if (s.dashT > 0) return;
-      s.sled = Math.min(1, s.sled + n / Math.max(10, 30 - SLED_LVL * 4));
+      s.sled = Math.min(1, s.sled + n * (1 + (opts.sledBoost || 0)) / Math.max(10, 30 - SLED_LVL * 4));
       drawSled();
     }
     function drawSled() {
@@ -1153,7 +1154,7 @@ CZ.runner3d = (function () {
       CZ.audio.sfx('throw');
     }
     // Kaç isabette çuval tamamen boşalır: güçlü silah = daha az isabet.
-    const hitsNeeded = () => Math.max(2, Math.ceil(12 / ((opts.dmg || 1) + 2)));
+    const hitsNeeded = () => Math.max(2, Math.ceil(12 / ((opts.dmg || 1) + (opts.power || 0) + 2)));
     function huntHit() {
       s.ziboHits += 1;
       const spill = 1;

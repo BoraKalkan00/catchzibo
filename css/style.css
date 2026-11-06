@@ -1256,3 +1256,8 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .daily-card small { opacity: .85; }
 .daily-prize { margin: 8px 0; padding: 10px; border-radius: 16px; background: linear-gradient(135deg, #ffefc2, #ffd57a); color: #6a3b00; display: flex; flex-direction: column; align-items: center; gap: 2px; animation: pop .4s ease-out; }
 .daily-prize.big { background: linear-gradient(135deg, #ffd1f0, #c7a2ff); }
+.char-level { display: flex; align-items: center; gap: 10px; margin: 6px 14px; padding: 8px 12px; border-radius: 18px; background: rgba(255,255,255,.92); box-shadow: 0 4px 0 rgba(0,0,0,.12); }
+.char-lv-badge { flex: none; padding: 6px 10px; border-radius: 12px; background: linear-gradient(#ffcf4a, #f59e0b); color: #5a2d00; font-weight: 900; font-size: 15px; box-shadow: 0 3px 0 #b86e00; }
+.char-lv-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: #24324f; }
+.char-lv-text .up-dots i { width: 12px; }
+.char-lv-mini { position: absolute; left: 6px; top: 6px; padding: 1px 7px; border-radius: 9px; background: #f59e0b; color: #fff; font-size: 11px; font-weight: 900; }

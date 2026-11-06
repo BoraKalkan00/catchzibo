@@ -741,5 +741,15 @@ CZ.i18n.register('ko', '한국어', {
   'heist.streak': '{n}일 연속!',
   'heist.done': '오늘의 도둑질 완료!',
   'heist.bigChest': '7일째: 큰 상자!',
-  'heist.retry': '다시 하기'
+  'heist.retry': '다시 하기',
+  'perk.gold': '달리기 금화 +{n}%',
+  'perk.time': '방에서 +{n}초',
+  'perk.lens': '물건이 +{n}초 빛나요',
+  'perk.head': '추격을 {n}m 가까이서 시작',
+  'perk.sled': '썰매가 {n}% 빨리 차요',
+  'perk.power': '무기 힘 +{n}',
+  'perk.gems': '에메랄드 +{n}%',
+  'perk.lv': 'Lv.{n}',
+  'perk.short': '금화가 {n}개 더 필요해요',
+  'perk.up': '레벨 {n}! 더 강해졌어요!'
 });

@@ -197,7 +197,7 @@ CZ.screens.gold = (function () {
       if (!g || g.el !== el) return;
       g.run = CZ.runner3d.start(g.stage, {
         avatar: d.avatar || 'girl', weaponArt: weapon.art, weaponId: weapon.id, ball: weapon.ball, dmg: weapon.dmg, perk: perk(),
-        sledLvl: CZ.upLevel('sled'),
+        sledLvl: CZ.upLevel('sled'), goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), power: CZ.charPerk('power'),
         onZiboHit(hits, need) {
           floatText('🎯 ' + hits + '/' + need, 'gold');
           if (hits === 1 || Math.random() < 0.3) say('zibo.hunt.hit');

@@ -922,5 +922,15 @@ CZ.i18n.register('tr', 'Türkçe', {
   'heist.streak': '{n}. gün serisi!',
   'heist.done': 'Bugünün soygunu tamam!',
   'heist.bigChest': '7. gün: BÜYÜK SANDIK!',
-  'heist.retry': 'Tekrar dene'
+  'heist.retry': 'Tekrar dene',
+  'perk.gold': 'Koşuda altın +%{n}',
+  'perk.time': 'Odada +{n} sn',
+  'perk.lens': 'Eşya +{n} sn parlar',
+  'perk.head': 'Kovalamacaya {n} m önde başla',
+  'perk.sled': 'Kızak %{n} hızlı dolar',
+  'perk.power': 'Silah gücü +{n}',
+  'perk.gems': 'Zümrüt ödülü +%{n}',
+  'perk.lv': 'Sv. {n}',
+  'perk.short': '{n} altın daha lazım',
+  'perk.up': 'Seviye {n}! Daha güçlü!'
 });
