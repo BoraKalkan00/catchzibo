@@ -884,6 +884,19 @@ CZ.screens.play = (function () {
       s.room,
       s.hintEl);
 
+    // GECE MODU: oda karanlık, sadece fenerin (parmağın) aydınlattığı yer görünür.
+    if (round.night) {
+      const mask = h('div', { class: 'night-mask' });
+      s.room.append(mask);
+      s.room.classList.add('night');
+      const aim = e => {
+        const r = s.room.getBoundingClientRect();
+        mask.style.setProperty('--x', (e.clientX - r.left) + 'px');
+        mask.style.setProperty('--y', (e.clientY - r.top) + 'px');
+      };
+      s.room.addEventListener('pointermove', aim);
+      s.room.addEventListener('pointerdown', aim);
+    }
     sizeItems();
     s.resize = new ResizeObserver(sizeItems);
     s.resize.observe(s.room);

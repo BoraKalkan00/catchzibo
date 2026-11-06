@@ -32,10 +32,10 @@ CZ.game = (function () {
       used.add(base.target);
       const hard = k === 2 ? 1 : 0;
       out.push(Object.assign({}, base, {
-        id: 'd.' + day + '.' + k, daily: true, room: room.id, k,
+        id: 'd.' + day + '.' + k, daily: true, room: room.id, k, night: k === 2,
         count: base.count + 4 + hard * 6,
         heaps: (base.heaps || 2) + hard,
-        seconds: Math.max(22, (base.seconds || 30) - k),
+        seconds: Math.max(22, (base.seconds || 30) - k) + (k === 2 ? 6 : 0),
         buzz: (base.buzz || 1) + 0.1 * k,
         similar: base.similar.slice().sort(() => rnd() - 0.5)
       }));

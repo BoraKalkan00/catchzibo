@@ -102,7 +102,7 @@
       h('div', { class: 'daily-head' },
         h('strong', { text: '🦹 ' + t('heist.title') }),
         streak ? h('b', { class: 'daily-streak', text: '🔥 ' + streak }) : null),
-      h('div', { class: 'daily-items' }, list.map(r => h('span', { class: 'daily-item' + (CZ.state.isFound(r.id) ? ' got' : '') }, img('item.' + r.target, 'daily-img'), CZ.state.isFound(r.id) ? h('i', { text: '✓' }) : null))),
+      h('div', { class: 'daily-items' }, list.map(r => h('span', { class: 'daily-item' + (CZ.state.isFound(r.id) ? ' got' : '') + (r.night ? ' night' : '') }, img('item.' + r.target, 'daily-img'), CZ.state.isFound(r.id) ? h('i', { text: '✓' }) : null))),
       h('small', { text: next ? t('heist.sub') : t('heist.comeBack', { n: hours }) }));
   }
 
