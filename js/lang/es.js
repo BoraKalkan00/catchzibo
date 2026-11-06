@@ -733,5 +733,13 @@ CZ.i18n.register('es', 'Español', {
   'chars.gemShort': 'Te faltan {n} esmeraldas',
   'mansion.gemRetry': 'Buscar ya por {n} esmeraldas',
   'common.no': 'No',
-  'run.bestCombo': 'Mejor combo: x{n}'
+  'run.bestCombo': 'Mejor combo: x{n}',
+  'zibo.hello.daily': '¡Jiji! ¡Volví y robé otra vez!',
+  'heist.title': 'Robo del día',
+  'heist.sub': 'Zibo robó 3 cosas más hoy. ¡Encuéntralas todas!',
+  'heist.comeBack': 'Nuevo robo en {n} h',
+  'heist.streak': '¡Racha de {n} días!',
+  'heist.done': '¡Robo de hoy superado!',
+  'heist.bigChest': 'Día 7: ¡GRAN COFRE!',
+  'heist.retry': 'Reintentar'
 });

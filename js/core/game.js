@@ -2,8 +2,93 @@
 CZ.game = (function () {
   // Tüm odaların turları tek sırada: bir oda bitince sıradakinin ilk turu açılır.
   const rounds = () => CZ.ROOMS.reduce((all, room) => all.concat(room.rounds), []);
-  const round = id => rounds().find(r => r.id === id);
-  const roomOf = id => CZ.ROOMS.find(room => room.rounds.some(r => r.id === id)) || CZ.ROOMS[0];
+  const isDaily = id => typeof id === 'string' && id.startsWith('d.');
+  const round = id => isDaily(id) ? dailyRound(id) : rounds().find(r => r.id === id);
+  const roomOf = id => {
+    if (isDaily(id)) { const dr = dailyRound(id); return CZ.ROOMS.find(room => room.id === (dr && dr.room)) || CZ.ROOMS[0]; }
+    return CZ.ROOMS.find(room => room.rounds.some(r => r.id === id)) || CZ.ROOMS[0];
+  };
+
+  /* ---------- GÜNÜN SOYGUNU ----------
+     Her gün Zibo bitmiş odalara geri döner ve 3 eşya çalar. Eşyalar ve yerleri tarihten üretilir:
+     herkes aynı gün aynı soygunu görür, ertesi gün yenisi gelir. Sonsuz içerik, ek çizim yok. */
+  function seeded(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  const dailyUnlocked = () => foundCount() >= ((CZ.UNLOCK && CZ.UNLOCK.daily) || 3);
+  function dailyRounds(day) {
+    day = day || CZ.state.today();
+    const rooms = CZ.ROOMS.filter(room => room.rounds.some(r => !r.tutorial && CZ.state.isFound(r.id)));
+    if (!rooms.length) return [];
+    const rnd = seeded('zibo-' + day);
+    const out = [];
+    const used = new Set();
+    for (let k = 0; k < 3; k++) {
+      const room = rooms[Math.floor(rnd() * rooms.length)];
+      const pool = room.rounds.filter(r => !r.tutorial && !used.has(r.target));
+      const base = pool[Math.floor(rnd() * pool.length)] || room.rounds[1];
+      used.add(base.target);
+      const hard = k === 2 ? 1 : 0;
+      out.push(Object.assign({}, base, {
+        id: 'd.' + day + '.' + k, daily: true, room: room.id, k,
+        count: base.count + 4 + hard * 6,
+        heaps: (base.heaps || 2) + hard,
+        seconds: Math.max(22, (base.seconds || 30) - k),
+        buzz: (base.buzz || 1) + 0.1 * k,
+        similar: base.similar.slice().sort(() => rnd() - 0.5)
+      }));
+    }
+    return out;
+  }
+  function dailyRound(id) {
+    const [, day, k] = id.split('.').length === 3 ? id.split('.') : [null, id.slice(2, 12), id.slice(13)];
+    return dailyRounds(day)[+k];
+  }
+  // Bugünün soygunu: sıradaki bulunmamış eşya (yoksa null).
+  const dailyNext = () => dailyRounds().find(r => !CZ.state.isFound(r.id)) || null;
+  const dailyDone = () => dailyRounds().filter(r => CZ.state.isFound(r.id)).length;
+  // Üç eşya bitince seri bir artar; 7. günde büyük sandık.
+  function dailyComplete() {
+    const d = CZ.state.data;
+    const day = CZ.state.today();
+    if (d.dailyLast === day) return null;
+    d.dailyStreak = d.dailyLast === dateBefore(day) ? (d.dailyStreak || 0) + 1 : 1;
+    d.dailyLast = day;
+    const big = d.dailyStreak % 7 === 0;
+    const prize = big ? { gold: 1500, emeralds: 60 } : { gold: 150 + 50 * Math.min(6, d.dailyStreak), emeralds: 10 };
+    d.gold = (d.gold || 0) + prize.gold;
+    d.emeralds = (d.emeralds || 0) + prize.emeralds;
+    CZ.state.save();
+    return Object.assign({ streak: d.dailyStreak, big }, prize);
+  }
+  function dateBefore(day) {
+    const dt = new Date(day + 'T12:00:00');
+    dt.setDate(dt.getDate() - 1);
+    const p = n => String(n).padStart(2, '0');
+    return dt.getFullYear() + '-' + p(dt.getMonth() + 1) + '-' + p(dt.getDate());
+  }
+  // Seri bugün ya da dün devam ettiyse geçerli; kaçırılan gün seriyi bozar.
+  const dailyStreak = () => {
+    const d = CZ.state.data;
+    const day = CZ.state.today();
+    return d.dailyLast === day || d.dailyLast === dateBefore(day) ? (d.dailyStreak || 0) : 0;
+  };
+  // Kazanma ekranına eklenecek "Günün soygunu tamam!" kutusu (3. eşya bulununca bir kez).
+  function dailyPrizeEl(id) {
+    if (!isDaily(id) || dailyDone() < 3) return null;
+    const prize = dailyComplete();
+    if (!prize) return null;
+    const { h, img } = CZ.ui;
+    CZ.audio.sfx('win');
+    return h('div', { class: 'daily-prize' + (prize.big ? ' big' : '') },
+      h('strong', { text: '🔥 ' + CZ.t('heist.streak', { n: prize.streak }) }),
+      h('span', { text: CZ.t(prize.big ? 'heist.bigChest' : 'heist.done') }),
+      h('p', { class: 'reward' }, img('ui.gold', 'emerald-icon'), '+' + prize.gold, ' ', img('ui.emerald', 'emerald-icon'), '+' + prize.emeralds));
+  }
+  // Bir turdan sonra nereye? Günün soygunundaysan sıradaki günlük eşya.
+  const nextAfter = id => isDaily(id) ? dailyNext() : nextOpen();
   const roomDone = room => room.rounds.every(r => CZ.state.isFound(r.id));
   // Oda kilidi: önceki oda tamamen bulunmadan açılmaz.
   // Yılbaşı takvimi açıksa oda tarihinden önce açılmaz.
@@ -17,6 +102,7 @@ CZ.game = (function () {
   // found: bulundu · resting: yarına kaldı · open: oynanabilir · locked: sırası gelmedi
   function status(id) {
     if (CZ.state.isFound(id)) return 'found';
+    if (isDaily(id)) return 'open';
     if (CZ.state.isResting(id)) return 'resting';
     const room = roomOf(id);
     if (!roomOpen(room)) return 'locked';
@@ -38,6 +124,10 @@ CZ.game = (function () {
   }
 
   function reward(id, secondsLeft, stars) {
+    const mult = CZ.charPerk ? CZ.charPerk('gems') : 1;
+    return Math.round(baseReward(id, secondsLeft, stars) * mult) + (isDaily(id) ? 4 : 0);
+  }
+  function baseReward(id, secondsLeft, stars) {
     if (CZ.state.isFound(id)) {
       const gained = Math.max(0, stars - (CZ.state.round(id).stars || 0));
       return CZ.CONFIG.rewardReplay + gained * CZ.CONFIG.rewardNewStar;
@@ -305,5 +395,5 @@ CZ.game = (function () {
     };
   }
 
-  return { rounds, round, roomOf, roomDone, roomOpen, dateLocked, status, nextOpen, foundCount, reward, starsFor, totalStars, hubLine, share, shareDiary, diaryCard, next, ensureDiary, diaryUnread, formatDate, formatSeconds, gibberish, pickLine, ziboActor, preloadZibo };
+  return { isDaily, dailyRounds, dailyNext, dailyDone, dailyComplete, dailyPrizeEl, dailyStreak, dailyUnlocked, nextAfter, rounds, round, roomOf, roomDone, roomOpen, dateLocked, status, nextOpen, foundCount, reward, starsFor, totalStars, hubLine, share, shareDiary, diaryCard, next, ensureDiary, diaryUnread, formatDate, formatSeconds, gibberish, pickLine, ziboActor, preloadZibo };
 })();

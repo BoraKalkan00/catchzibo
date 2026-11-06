@@ -733,5 +733,13 @@ CZ.i18n.register('ja', '日本語', {
   'chars.gemShort': 'エメラルドがあと{n}個必要',
   'mansion.gemRetry': 'エメラルド{n}個で今すぐ探す',
   'common.no': 'いいえ',
-  'run.bestCombo': '最高コンボ：{n}'
+  'run.bestCombo': '最高コンボ：{n}',
+  'zibo.hello.daily': 'ひひ！また来て、また盗んだよ！',
+  'heist.title': '今日の盗み',
+  'heist.sub': 'ジボが今日も3つ盗んだ。全部見つけよう！',
+  'heist.comeBack': '次の盗みまで{n}時間',
+  'heist.streak': '{n}日連続！',
+  'heist.done': '今日の盗みクリア！',
+  'heist.bigChest': '7日目：大きな宝箱！',
+  'heist.retry': 'もう一度'
 });

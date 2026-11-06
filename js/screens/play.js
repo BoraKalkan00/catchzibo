@@ -683,7 +683,7 @@ CZ.screens.play = (function () {
   }
 
   function showWin(reward) {
-    const next = CZ.game.nextOpen();
+    const next = CZ.game.nextAfter(s.round.id);
     const actions = next
         ? [btn(t('win.next'), () => CZ.ui.wipeTo('play', { roundId: next.id }), 'primary wide'),
           btn(t('win.toVillage'), () => CZ.ui.go('hub'), 'ghost-dark wide')]
@@ -713,6 +713,7 @@ CZ.screens.play = (function () {
       h('p', { class: 'small-note', text: t(`item.${s.round.target}.note`) }),
       firstClear && CZ.ROOM_PRIZES[roomId] ? h('p', { class: 'reward prize' }, '🎁 ', t('win.prize', { item: t('char.' + CZ.ROOM_PRIZES[roomId]) })) : null,
       h('p', { class: 'reward', 'data-fly': 'emeralds', 'data-n': reward }, img('ui.emerald', 'emerald-icon'), t('win.reward', { n: reward })),
+      CZ.game.dailyPrizeEl(s.round.id),
       h('div', { class: 'sheet-row' }, actions.slice().reverse()));
   }
 
@@ -736,11 +737,13 @@ CZ.screens.play = (function () {
       canAd
         ? btn(reason === 'time' ? t('lose.ad', { s: cfg.adContinueSeconds }) : t('lose.adPlain'), showAd, 'primary wide')
         : h('p', { class: 'small-note', text: t('lose.noMoreAds') }),
-      btn(t('lose.tomorrow'), () => {
-        CZ.state.restUntilTomorrow(s.round.id);
-        CZ.ui.go('mansion');
-        CZ.ui.toast(t('lose.tomorrowToast'));
-      }, canAd ? 'ghost-dark wide' : 'primary wide')), 600);
+      s.daily
+        ? btn(t('heist.retry'), () => CZ.ui.wipeTo('play', { roundId: s.round.id }), canAd ? 'ghost-dark wide' : 'primary wide')
+        : btn(t('lose.tomorrow'), () => {
+          CZ.state.restUntilTomorrow(s.round.id);
+          CZ.ui.go('mansion');
+          CZ.ui.toast(t('lose.tomorrowToast'));
+        }, canAd ? 'ghost-dark wide' : 'primary wide')), 600);
   }
 
   // Sahte reklam: gerçek reklam eklenince yalnız bu fonksiyon değişir.
@@ -799,15 +802,15 @@ CZ.screens.play = (function () {
     s.running = false;
     endPress();
     openSheet('leave',
-      h('p', { text: t(s.tutorial || CZ.state.isFound(s.round.id) ? 'play.leaveFree' : 'play.leave') }),
+      h('p', { text: t(s.tutorial || s.daily || CZ.state.isFound(s.round.id) ? 'play.leaveFree' : 'play.leave') }),
       btn(t('play.leaveNo'), () => {
         closeSheet();
         s.last = performance.now();
         s.running = true;
       }, 'primary wide'),
-      btn(t(s.tutorial ? 'play.leaveYesFree' : 'play.leaveYes'), () => {
-        if (!s.tutorial && !CZ.state.isFound(s.round.id)) CZ.state.restUntilTomorrow(s.round.id);
-        CZ.ui.go('mansion');
+      btn(t(s.tutorial || s.daily ? 'play.leaveYesFree' : 'play.leaveYes'), () => {
+        if (!s.tutorial && !s.daily && !CZ.state.isFound(s.round.id)) CZ.state.restUntilTomorrow(s.round.id);
+        CZ.ui.go(s.daily ? 'hub' : 'mansion');
       }, 'ghost-dark wide'));
   }
 
@@ -838,6 +841,7 @@ CZ.screens.play = (function () {
       el, round, tutorial, roomDef: CZ.game.roomOf(round.id),
       // Gerçek ilk tur: eğitimden sonra kuralı bir kez daha hatırlat.
       firstReal: round.id === 'r1' && !CZ.state.isFound(round.id),
+      daily: !!round.daily,
       items: [], press: null, running: false, sheet: null,
       total: (!tutorial && round.seconds) || cfg.roundSeconds,
       buzz: round.buzz || 1,
@@ -952,7 +956,7 @@ CZ.screens.play = (function () {
         }, 450);
       }
     }
-    const hello = s.tutorial ? 'zibo.catch' : (CZ.state.isFound(s.round.id) ? 'zibo.hello' : 'zibo.hello.' + s.round.id);
+    const hello = s.tutorial ? 'zibo.catch' : (CZ.state.isFound(s.round.id) ? 'zibo.hello' : s.round.daily ? 'zibo.hello.daily' : 'zibo.hello.' + s.round.id);
     s.zibo.say(CZ.i18n.keys('en').includes(hello) ? hello : 'zibo.hello', 'smug');
   }
 

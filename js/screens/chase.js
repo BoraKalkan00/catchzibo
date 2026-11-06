@@ -318,7 +318,7 @@ CZ.screens.chase = (function () {
     const firstClear = CZ.game.roomDone(roomDef) && !d.roomDoneSeen.includes(roomDef.id);
     if (firstClear) { d.roomDoneSeen.push(roomDef.id); CZ.state.save(); }
     const id = setTimeout(() => {
-      const next = CZ.game.nextOpen();
+      const next = CZ.game.nextAfter(c.round.id);
       const actions = next
         ? [btn(t('win.toVillage'), () => CZ.ui.go('hub'), 'ghost-dark wide'),
           btn(t('win.next'), () => CZ.ui.wipeTo('play', { roundId: next.id }), 'primary wide')]
@@ -333,6 +333,7 @@ CZ.screens.chase = (function () {
         c.gold ? h('p', { class: 'reward', 'data-fly': 'gold', 'data-n': c.gold }, img('ui.gold', 'emerald-icon'), '+' + c.gold) : null,
         h('p', { class: 'reward', 'data-fly': 'emeralds', 'data-n': base + pocket }, img('ui.emerald', 'emerald-icon'), t('chase.reward', { n: base, p: pocket })),
         back ? h('p', { class: 'reward revenge', 'data-fly': 'gold', 'data-n': back }, img('ui.gold', 'emerald-icon'), t('raid.revenge', { n: back })) : null,
+        CZ.game.dailyPrizeEl(c.round.id),
         h('div', { class: 'sheet-row' }, actions)));
       void before;
     }, 2300);

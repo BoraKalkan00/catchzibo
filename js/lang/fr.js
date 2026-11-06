@@ -733,5 +733,13 @@ CZ.i18n.register('fr', 'Français', {
   'chars.gemShort': 'Il te manque {n} émeraudes',
   'mansion.gemRetry': 'Chercher maintenant pour {n} émeraudes',
   'common.no': 'Non',
-  'run.bestCombo': 'Meilleur combo : x{n}'
+  'run.bestCombo': 'Meilleur combo : x{n}',
+  'zibo.hello.daily': 'Hihi ! Je suis revenu, et j’ai encore volé !',
+  'heist.title': 'Vol du jour',
+  'heist.sub': 'Zibo a volé 3 choses aujourd’hui. Retrouve-les !',
+  'heist.comeBack': 'Nouveau vol dans {n} h',
+  'heist.streak': 'Série de {n} jours !',
+  'heist.done': 'Vol du jour réussi !',
+  'heist.bigChest': 'Jour 7 : GRAND COFFRE !',
+  'heist.retry': 'Réessayer'
 });

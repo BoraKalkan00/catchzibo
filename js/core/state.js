@@ -84,7 +84,9 @@ CZ.state = (function () {
       best: old.best === undefined ? seconds : Math.min(old.best, seconds)
     };
     data.emeralds += reward;
-    if (!old.found) data.newReturn = id;
+    if (!old.found && !String(id).startsWith('d.')) data.newReturn = id;
+    // Eski günlerin soygun kayıtlarını temizle (kayıt şişmesin).
+    Object.keys(data.rounds).forEach(k => { if (k.startsWith('d.') && k.slice(2, 12) < today()) delete data.rounds[k]; });
     save();
     if (CZ.progress) CZ.progress.addXp(old.found ? CZ.PROGRESS.xp.replay : CZ.PROGRESS.xp.find);
     if (CZ.quests) { CZ.quests.track('find'); if (stars >= 3) CZ.quests.track('perfect'); }

@@ -733,5 +733,13 @@ CZ.i18n.register('de', 'Deutsch', {
   'chars.gemShort': 'Dir fehlen {n} Smaragde',
   'mansion.gemRetry': 'Für {n} Smaragde jetzt suchen',
   'common.no': 'Nein',
-  'run.bestCombo': 'Beste Kombo: x{n}'
+  'run.bestCombo': 'Beste Kombo: x{n}',
+  'zibo.hello.daily': 'Hihi! Ich bin zurück und hab wieder geklaut!',
+  'heist.title': 'Tagesraub',
+  'heist.sub': 'Zibo hat heute 3 Dinge geklaut. Finde alle!',
+  'heist.comeBack': 'Neuer Raub in {n} Std.',
+  'heist.streak': '{n}-Tage-Serie!',
+  'heist.done': 'Heutiger Raub geschafft!',
+  'heist.bigChest': 'Tag 7: GROSSE TRUHE!',
+  'heist.retry': 'Nochmal'
 });

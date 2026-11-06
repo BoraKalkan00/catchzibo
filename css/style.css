@@ -1238,3 +1238,21 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .up-dots i { width: 16px; height: 7px; border-radius: 4px; background: rgba(0,0,0,.12); }
 .up-dots i.on { background: #2fbf5b; }
 .up-max { color: #2fbf5b; font-weight: 900; }
+/* Günün Soygunu kartı */
+.daily-card { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 10px 14px; border-radius: 20px; border: 2px solid rgba(255,255,255,.5); background: linear-gradient(135deg, #3b1d6e, #7a2b8c); color: #fff; box-shadow: 0 5px 0 #2a1150, 0 10px 24px rgba(0,0,0,.3); text-align: left; position: relative; }
+.daily-card.hot { animation: dailyglow 1.6s ease-in-out infinite; }
+@keyframes dailyglow { 50% { box-shadow: 0 5px 0 #2a1150, 0 0 26px rgba(255,190,90,.75); } }
+.daily-card.done { background: linear-gradient(135deg, #2b3a5a, #3d4f73); }
+.daily-card.locked { flex-direction: row; align-items: center; gap: 10px; opacity: .8; background: rgba(20,30,60,.6); }
+.daily-lock { width: 30px; height: 30px; }
+.daily-head { display: flex; justify-content: space-between; align-items: center; font-size: 17px; }
+.daily-streak { background: #ff8a2a; padding: 2px 10px; border-radius: 999px; font-size: 15px; box-shadow: 0 2px 0 #b2510a; }
+.daily-items { display: flex; gap: 10px; }
+.daily-item { position: relative; width: 54px; height: 54px; border-radius: 14px; background: rgba(255,255,255,.18); display: grid; place-items: center; }
+.daily-item.got { background: rgba(70,210,120,.35); }
+.daily-img { width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.4)); }
+.daily-item:not(.got) .daily-img { filter: brightness(0) invert(1) opacity(.55); }
+.daily-item i { position: absolute; right: -4px; bottom: -4px; width: 22px; height: 22px; border-radius: 50%; background: #2fbf5b; color: #fff; font-style: normal; font-weight: 900; display: grid; place-items: center; font-size: 13px; }
+.daily-card small { opacity: .85; }
+.daily-prize { margin: 8px 0; padding: 10px; border-radius: 16px; background: linear-gradient(135deg, #ffefc2, #ffd57a); color: #6a3b00; display: flex; flex-direction: column; align-items: center; gap: 2px; animation: pop .4s ease-out; }
+.daily-prize.big { background: linear-gradient(135deg, #ffd1f0, #c7a2ff); }

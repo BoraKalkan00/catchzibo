@@ -83,6 +83,29 @@
   }
 
   // Sıcak kakao: eşya aramasından önce alınır, sıradaki aramaya otomatik +5 sn ekler.
+  // GÜNÜN SOYGUNU kartı: bugünkü 3 eşya, seri ateşi, yeni soyguna kalan süre.
+  function dailyCard() {
+    const game = CZ.game;
+    if (!game.dailyUnlocked()) {
+      const need = ((CZ.UNLOCK && CZ.UNLOCK.daily) || 3) - game.foundCount();
+      return h('div', { class: 'daily-card locked' }, img('ui.lock', 'daily-lock'), h('div', {}, h('strong', { text: t('heist.title') }), h('small', { text: t('hub.unlockIn', { n: need }) })));
+    }
+    const list = game.dailyRounds();
+    const next = game.dailyNext();
+    const streak = game.dailyStreak();
+    const midnight = new Date(); midnight.setHours(24, 0, 0, 0);
+    const hours = Math.max(1, Math.ceil((midnight - Date.now()) / 3600000));
+    return h('button', { class: 'daily-card' + (next ? ' hot' : ' done'), type: 'button', onClick: () => {
+      if (!next) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('heist.comeBack', { n: hours })); }
+      CZ.audio.sfx('button'); CZ.ui.wipeTo('play', { roundId: next.id });
+    } },
+      h('div', { class: 'daily-head' },
+        h('strong', { text: '🦹 ' + t('heist.title') }),
+        streak ? h('b', { class: 'daily-streak', text: '🔥 ' + streak }) : null),
+      h('div', { class: 'daily-items' }, list.map(r => h('span', { class: 'daily-item' + (CZ.state.isFound(r.id) ? ' got' : '') }, img('item.' + r.target, 'daily-img'), CZ.state.isFound(r.id) ? h('i', { text: '✓' }) : null))),
+      h('small', { text: next ? t('heist.sub') : t('heist.comeBack', { n: hours }) }));
+  }
+
   // Hakkı biten eşya: reklam izle ya da 5 elmasla hemen tekrar ara (ya da yarını bekle).
   function retryBox(r) {
     const d = state.data;
@@ -167,6 +190,7 @@
           h('button', { class: 'play-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
             h('b', { text: t('hub.enter') }),
             h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) })),
+          dailyCard(),
           adRewardBar(),
           h('div', { class: 'hub-tiles' },
             tile('gold-tile' + (goldFree ? ' ready' : ''), img('ui.gold', 'tile-icon'), t('hub.gold'), goldFree ? t('hub.goldReady') : CZ.screens.gold.waitText(), () => CZ.ui.wipeTo('gold'), goldFree, 'gold'),

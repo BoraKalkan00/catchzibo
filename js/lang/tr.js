@@ -914,5 +914,13 @@ CZ.i18n.register('tr', 'Türkçe', {
   'chars.gemShort': '{n} elmas daha lazım',
   'mansion.gemRetry': '{n} elmasla hemen ara',
   'common.no': 'Hayır',
-  'run.bestCombo': 'En iyi kombo: x{n}'
+  'run.bestCombo': 'En iyi kombo: x{n}',
+  'zibo.hello.daily': 'Hihi! Yine geldim, yine çaldım!',
+  'heist.title': 'Günün Soygunu',
+  'heist.sub': 'Zibo bugün 3 eşya daha çaldı. Hepsini bul!',
+  'heist.comeBack': 'Yeni soygun {n} saat sonra',
+  'heist.streak': '{n}. gün serisi!',
+  'heist.done': 'Bugünün soygunu tamam!',
+  'heist.bigChest': '7. gün: BÜYÜK SANDIK!',
+  'heist.retry': 'Tekrar dene'
 });

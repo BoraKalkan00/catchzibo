@@ -733,5 +733,13 @@ CZ.i18n.register('ko', '한국어', {
   'chars.gemShort': '에메랄드가 {n}개 더 필요해요',
   'mansion.gemRetry': '에메랄드 {n}개로 바로 찾기',
   'common.no': '아니요',
-  'run.bestCombo': '최고 콤보: x{n}'
+  'run.bestCombo': '최고 콤보: x{n}',
+  'zibo.hello.daily': '히히! 또 와서 또 훔쳤지!',
+  'heist.title': '오늘의 도둑질',
+  'heist.sub': '지보가 오늘 3개를 더 훔쳤어요. 모두 찾아요!',
+  'heist.comeBack': '{n}시간 후 새 도둑질',
+  'heist.streak': '{n}일 연속!',
+  'heist.done': '오늘의 도둑질 완료!',
+  'heist.bigChest': '7일째: 큰 상자!',
+  'heist.retry': '다시 하기'
 });

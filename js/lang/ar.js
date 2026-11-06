@@ -733,5 +733,13 @@ CZ.i18n.register('ar', 'العربية', {
   'chars.gemShort': 'تحتاج {n} زمرد إضافي',
   'mansion.gemRetry': 'ابحث الآن مقابل {n} زمرد',
   'common.no': 'لا',
-  'run.bestCombo': 'أفضل كومبو: x{n}'
+  'run.bestCombo': 'أفضل كومبو: x{n}',
+  'zibo.hello.daily': 'هيهي! عدت وسرقت مجددًا!',
+  'heist.title': 'سرقة اليوم',
+  'heist.sub': 'سرق زيبو 3 أشياء أخرى اليوم. جدها كلها!',
+  'heist.comeBack': 'سرقة جديدة بعد {n} ساعة',
+  'heist.streak': 'سلسلة {n} أيام!',
+  'heist.done': 'اكتملت سرقة اليوم!',
+  'heist.bigChest': 'اليوم 7: صندوق كبير!',
+  'heist.retry': 'حاول مجددًا'
 });

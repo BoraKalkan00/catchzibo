@@ -914,5 +914,13 @@ CZ.i18n.register('en', 'English', {
   'chars.gemShort': 'You need {n} more emeralds',
   'mansion.gemRetry': 'Search now for {n} emeralds',
   'common.no': 'No',
-  'run.bestCombo': 'Best combo: x{n}'
+  'run.bestCombo': 'Best combo: x{n}',
+  'zibo.hello.daily': 'Hehe! I’m back, and I stole again!',
+  'heist.title': 'Daily Heist',
+  'heist.sub': 'Zibo stole 3 more things today. Find them all!',
+  'heist.comeBack': 'New heist in {n} h',
+  'heist.streak': '{n}-day streak!',
+  'heist.done': 'Today’s heist cleared!',
+  'heist.bigChest': 'Day 7: BIG CHEST!',
+  'heist.retry': 'Try again'
 });
