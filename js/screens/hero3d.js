@@ -225,7 +225,10 @@ CZ.hero3d = function (THREE, kind) {
 // Karakterin kendi çizimleri kullanıldığı için oyundaki karakter birebir Gemini'deki karakter olur.
 // İleride 8 karelik koşu sayfası gelirse CZ.RUN_FRAMES[kind] listesine eklenir, otomatik kullanılır.
 // Videodan çıkarılmış kareler (Kling yeşil ekran): koşu döngüsü ve zıplama dizisi.
-CZ.RUN_FRAMES = { knight: ['run00', 'run01', 'run02', 'run03', 'run04', 'run05', 'run06', 'run07', 'run08', 'run09', 'run10', 'run11', 'run12'] };
+CZ.RUN_FRAMES = {
+  knight: ['run00', 'run01', 'run02', 'run03', 'run04', 'run05', 'run06', 'run07', 'run08', 'run09', 'run10', 'run11', 'run12'],
+  boy: Array.from({ length: 16 }, (_, i) => 'run' + String(i).padStart(2, '0'))
+};
 CZ.JUMP_FRAMES = { knight: ['jmp00', 'jmp01', 'jmp02', 'jmp03', 'jmp04', 'jmp05', 'jmp06', 'jmp07', 'jmp08', 'jmp09', 'jmp10', 'jmp11', 'jmp12', 'jmp13'] };
 CZ.heroSprite = function (THREE, kind) {
   const root = new THREE.Group();
