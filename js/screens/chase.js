@@ -19,9 +19,11 @@ CZ.screens.chase = (function () {
   /* ---------- Ekran ---------- */
   function render(el, params) {
     const round = CZ.game.round(params.roundId);
+    const boss = CZ.ZIBO_FAMILY[CZ.game.roomOf(round.id).id] || { id: 'zibo' };
     c = {
+      boss,
       el, round, params,
-      gap: C.startGap - CZ.charPerk('head'), timeLeft: C.seconds, lives: C.lives,
+      gap: C.startGap * (boss.gapMul || 1) - CZ.charPerk('head'), timeLeft: C.seconds, lives: C.lives,
       lane: 1, ziboLane: 1, running: false, last: performance.now(), sim: 0,
       hookReady: 0, burst: 0, stun: 0, continues: 0, gold: 0,
       timers: [], bombs: [], frame: 0
@@ -37,6 +39,7 @@ CZ.screens.chase = (function () {
       if (!c || c.el !== el) return;
       c.run = CZ.runner3d.start(c.stage, {
         mode: 'chase', lanes: 3, speed: 17, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
+        ziboTint: c.boss.tint, ziboFly: c.boss.fly, ziboCrown: c.boss.crown,
         perk: {}, goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
         onDash(lvl) { if (!c || !c.running) return; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
         onTap: () => hook(),
@@ -60,7 +63,7 @@ CZ.screens.chase = (function () {
 
     el.append(
       h('div', { class: 'play-top chase-top' },
-        h('div', { class: 'chase-gap' }, h('small', { text: t('chase.distance') }), c.gapText, h('div', { class: 'chase-meter' }, c.gapBar)),
+        h('div', { class: 'chase-gap' }, h('small', { text: c.boss.id === 'zibo' ? t('chase.distance') : t('boss.ahead', { name: t('boss.' + c.boss.id) }) }), c.gapText, h('div', { class: 'chase-meter' }, c.gapBar)),
         c.hearts,
         c.clock),
       c.field);
@@ -73,9 +76,9 @@ CZ.screens.chase = (function () {
 
   function intro() {
     const box = h('div', { class: 'intro chase-intro' },
-      h('small', { text: t('chase.introTop') }),
+      h('small', { text: c.boss.id === 'zibo' ? t('chase.introTop') : t('boss.' + c.boss.id + '.tag') }),
       img('item.' + c.round.target, 'intro-item'),
-      h('strong', { text: t('chase.introTitle') }),
+      h('strong', { text: c.boss.id === 'zibo' ? t('chase.introTitle') : t('boss.runs', { name: t('boss.' + c.boss.id) }) }),
       h('p', { text: t('chase.introHow') }));
     c.el.append(box);
     CZ.audio.sfx('intro');
@@ -94,11 +97,11 @@ CZ.screens.chase = (function () {
     if (c.run) c.run.go();
     c.last = performance.now();
     c.loop = requestAnimationFrame(loop);
-    c.nextSwitch = c.sim + byLevel(C.laneSwitchMs);
+    c.nextSwitch = c.sim + byLevel(C.laneSwitchMs) * (c.boss.switchMul || 1);
     c.nextBomb = c.sim + 1500;
     CZ.audio.music('play');
     CZ.audio.setTempo(1.3);
-    say('zibo.chase.start');
+    say(c.boss.id === 'zibo' ? 'zibo.chase.start' : 'zibo.boss.' + c.boss.id);
   }
 
   /* ---------- Döngü ---------- */
@@ -152,13 +155,13 @@ CZ.screens.chase = (function () {
   function switchLane() {
     const options = [0, 1, 2].filter(l => l !== c.ziboLane && Math.abs(l - c.ziboLane) <= (Math.random() < 0.25 ? 2 : 1));
     c.ziboLane = options[Math.floor(Math.random() * options.length)];
-    c.nextSwitch = c.sim + byLevel(C.laneSwitchMs) * rand(0.75, 1.25);
+    c.nextSwitch = c.sim + byLevel(C.laneSwitchMs) * rand(0.75, 1.25) * (c.boss.switchMul || 1);
     if (Math.random() < 0.35 && !speaking()) say(pick(['zibo.chase.slow', 'zibo.chase.tongue', 'zibo.chase.mine']));
   }
 
   /* ---------- Bombalar ---------- */
   function throwBomb(now) {
-    c.nextBomb = now + byLevel(C.bombEveryMs) * rand(0.8, 1.2);
+    c.nextBomb = now + byLevel(C.bombEveryMs) * rand(0.8, 1.2) * (c.boss.bombMul || 1);
     if (c.run) c.run.ziboThrow();
     // Çoğunlukla oyuncunun şeridine atar: kaçmak zorunda kalsın.
     // Adil olsun: bomba, o anda pankart ya da kızak gelecek şeride düşmez (zıplayarak kaçılabilsin),
@@ -169,7 +172,7 @@ CZ.screens.chase = (function () {
     const cands = [0, 1, 2].filter(ok);
     if (!cands.length) { c.nextBomb = now + 700; return; }
     let lanes = [cands.includes(c.lane) && Math.random() < 0.7 ? c.lane : cands[Math.floor(Math.random() * cands.length)]];
-    if (level() >= C.doubleBombLevel && Math.random() < 0.45) {
+    if ((c.boss.double && Math.random() < 0.8) || (level() >= C.doubleBombLevel && Math.random() < 0.45)) {
       const other = cands.filter(l => l !== lanes[0]);
       const second = other[Math.floor(Math.random() * other.length)];
       const clear = [0, 1, 2].filter(l => l !== lanes[0] && l !== second && busy(l).length === 0 && !c.bombs.some(x => x.lane === l));
@@ -201,10 +204,21 @@ CZ.screens.chase = (function () {
       CZ.audio.sfx('wrong');
       CZ.audio.vibrate([80, 40, 120]);
       if (c.run) c.run.hurt();
-      hurt();
+      if (c.boss.freeze) freeze(); else hurt();
     } else {
       CZ.audio.vibrate(15);
     }
+  }
+
+  // Buzbo'nun buzu: can almaz ama donarsın, Buzbo uzaklaşır.
+  function freeze() {
+    if (!c || !c.running || c.stun > 0) return;
+    c.gap = Math.min(C.startGap * 1.4, c.gap + C.bombHit * 1.2);
+    c.stun = 1.1;
+    floatText('❄ ' + t('boss.frozen'), 'bad');
+    say('zibo.boss.buzbo.hit');
+    c.field.classList.add('frozen');
+    setTimeout(() => c && c.field.classList.remove('frozen'), 1100);
   }
 
   // Bomba ya da engel: bir can gider, Zibo biraz açılır.

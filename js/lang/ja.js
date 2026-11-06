@@ -751,5 +751,21 @@ CZ.i18n.register('ja', '日本語', {
   'perk.gems': 'エメラルド+{n}%',
   'perk.lv': 'Lv.{n}',
   'perk.short': 'あと{n}ゴールド必要',
-  'perk.up': 'レベル{n}！強くなった！'
+  'perk.up': 'レベル{n}！強くなった！',
+  'boss.buzbo': 'コオリボ',
+  'boss.ucubo': 'トビボ',
+  'boss.patlabo': 'バクボ',
+  'boss.kralbo': 'ジボ王',
+  'boss.buzbo.tag': 'ジボのいとこ：氷を投げて君を凍らせる！',
+  'boss.ucubo.tag': 'ジボのいとこ：飛びながらレーンを変え続ける！',
+  'boss.patlabo.tag': 'ジボのいとこ：いつも爆弾を2つ投げる！',
+  'boss.kralbo.tag': '一族の長：すべてのワザを知っている！',
+  'boss.runs': '{name}が逃げる！',
+  'boss.frozen': '凍った！',
+  'zibo.boss.buzbo': 'ブルル！氷にしてやる！',
+  'zibo.boss.ucubo': 'ひゅーん！飛んでるから捕まらないよ！',
+  'zibo.boss.patlabo': 'ドカンドカン！爆弾2倍！',
+  'zibo.boss.kralbo': 'ぼくは王様！王冠もお宝もぼくのもの！',
+  'zibo.boss.buzbo.hit': 'ひひ！カチコチだね！',
+  'boss.ahead': '{name}が先'
 });

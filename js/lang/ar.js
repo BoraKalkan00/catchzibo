@@ -751,5 +751,21 @@ CZ.i18n.register('ar', 'العربية', {
   'perk.gems': 'زمرد +{n}%',
   'perk.lv': 'مستوى {n}',
   'perk.short': 'تحتاج {n} ذهب إضافي',
-  'perk.up': 'المستوى {n}! أقوى!'
+  'perk.up': 'المستوى {n}! أقوى!',
+  'boss.buzbo': 'ثلجبو',
+  'boss.ucubo': 'طيربو',
+  'boss.patlabo': 'بومبو',
+  'boss.kralbo': 'الملك زيبو',
+  'boss.buzbo.tag': 'ابن عم زيبو: يرمي الثلج ويجمّدك!',
+  'boss.ucubo.tag': 'ابن عم زيبو: يطير ويغيّر المسار باستمرار!',
+  'boss.patlabo.tag': 'ابن عم زيبو: يرمي قنبلتين دائمًا!',
+  'boss.kralbo.tag': 'زعيم العائلة: يعرف كل الحيل!',
+  'boss.runs': '{name} يهرب!',
+  'boss.frozen': 'تجمّدت!',
+  'zibo.boss.buzbo': 'برر! سأحولك إلى ثلج!',
+  'zibo.boss.ucubo': 'وييي! لن تمسكني، أنا أطير!',
+  'zibo.boss.patlabo': 'بوم بوم! قنابل مضاعفة!',
+  'zibo.boss.kralbo': 'أنا الملك! التاج والغنيمة لي!',
+  'zibo.boss.buzbo.hit': 'هيهي! تجمّدت تمامًا!',
+  'boss.ahead': '{name} في المقدمة'
 });

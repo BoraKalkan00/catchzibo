@@ -751,5 +751,21 @@ CZ.i18n.register('ko', '한국어', {
   'perk.gems': '에메랄드 +{n}%',
   'perk.lv': 'Lv.{n}',
   'perk.short': '금화가 {n}개 더 필요해요',
-  'perk.up': '레벨 {n}! 더 강해졌어요!'
+  'perk.up': '레벨 {n}! 더 강해졌어요!',
+  'boss.buzbo': '얼음보',
+  'boss.ucubo': '날보',
+  'boss.patlabo': '펑보',
+  'boss.kralbo': '지보 왕',
+  'boss.buzbo.tag': '지보의 사촌: 얼음을 던져 얼려요!',
+  'boss.ucubo.tag': '지보의 사촌: 날아다니며 계속 차선을 바꿔요!',
+  'boss.patlabo.tag': '지보의 사촌: 항상 폭탄을 두 개 던져요!',
+  'boss.kralbo.tag': '가문의 우두머리: 모든 속임수를 알아요!',
+  'boss.runs': '{name}가 도망쳐요!',
+  'boss.frozen': '얼었다!',
+  'zibo.boss.buzbo': '부르르! 얼음으로 만들어 주지!',
+  'zibo.boss.ucubo': '슝! 난 날아서 못 잡아!',
+  'zibo.boss.patlabo': '펑펑! 폭탄 두 배!',
+  'zibo.boss.kralbo': '나는 왕이다! 왕관도 보물도 내 거야!',
+  'zibo.boss.buzbo.hit': '히히! 꽁꽁 얼었네!',
+  'boss.ahead': '{name}가 앞에'
 });

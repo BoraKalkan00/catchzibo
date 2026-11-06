@@ -751,5 +751,21 @@ CZ.i18n.register('de', 'Deutsch', {
   'perk.gems': 'Smaragde +{n}%',
   'perk.lv': 'St. {n}',
   'perk.short': 'Dir fehlen {n} Gold',
-  'perk.up': 'Stufe {n}! Stärker!'
+  'perk.up': 'Stufe {n}! Stärker!',
+  'boss.buzbo': 'Eisbo',
+  'boss.ucubo': 'Flugbo',
+  'boss.patlabo': 'Bumbo',
+  'boss.kralbo': 'König Zibo',
+  'boss.buzbo.tag': 'Zibos Cousin: wirft Eis und friert dich ein!',
+  'boss.ucubo.tag': 'Zibos Cousin: fliegt und wechselt ständig die Spur!',
+  'boss.patlabo.tag': 'Zibos Cousin: wirft immer Doppelbomben!',
+  'boss.kralbo.tag': 'Das Familienoberhaupt: kennt jeden Trick!',
+  'boss.runs': '{name} haut ab!',
+  'boss.frozen': 'Eingefroren!',
+  'zibo.boss.buzbo': 'Brrr! Ich mach dich zu Eis!',
+  'zibo.boss.ucubo': 'Wiii! Mich fängst du nie, ich fliege!',
+  'zibo.boss.patlabo': 'Bumm bumm! Doppelte Bomben!',
+  'zibo.boss.kralbo': 'Ich bin der KÖNIG! Krone und Beute gehören mir!',
+  'zibo.boss.buzbo.hit': 'Hihi! Du bist eingefroren!',
+  'boss.ahead': '{name} vorne'
 });

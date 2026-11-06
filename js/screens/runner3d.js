@@ -390,9 +390,19 @@ CZ.runner3d = (function () {
     hero.weaponSlot.add(weaponSp);
     const ziboMat = new THREE.SpriteMaterial({ transparent: true });
     const zibo = new THREE.Sprite(ziboMat);
+    if (opts.ziboTint) ziboMat.color.setHex(opts.ziboTint);
     zibo.center.set(0.5, 0);
     zibo.position.set(0, 0, -17);
     scene.add(zibo);
+    // Kral Zibo'nun tacı
+    let crown = null;
+    if (opts.ziboCrown) {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+      const g = cv.getContext('2d'); g.font = '100px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('👑', 64, 70);
+      crown = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true }));
+      crown.scale.set(0.8, 0.8, 1);
+      scene.add(crown);
+    }
     // Her silahın kendi mermisi: kartopu, buz topu, dönen şeker kamışı, kar tanesi, yıldırım.
     const W = opts.weaponId || 'snowball';
     const SHOT = {
@@ -812,6 +822,7 @@ CZ.runner3d = (function () {
         else y = Math.sin(k * Math.PI) * s.zj.h;
         if (k >= 1) s.zj = null;
       }
+      if (opts.ziboFly) y += 0.7 + Math.sin(s.frame * 5) * 0.25;
       zibo.position.y = y;
       zibo.userData.sy = sy;
       if (ziboMat.map) zibo.scale.y = (CHASE ? 2.5 : 1.7) * sy;
@@ -950,6 +961,7 @@ CZ.runner3d = (function () {
       if (s.ziboCaughtT > 0) { s.ziboCaughtT -= dt; s.ziboZ = -11 - Math.sin(Math.min(1, (3 - s.ziboCaughtT) / 3) * Math.PI) * 14; }
       zibo.position.z += (s.ziboZ + s.ziboKick - zibo.position.z) * Math.min(1, dt * 7);
       if (lootSp) { lootSp.position.set(zibo.position.x + 0.35, zibo.position.y + 1.25, zibo.position.z + 0.05); }
+      if (crown) crown.position.set(zibo.position.x, zibo.position.y + zibo.scale.y * 0.98, zibo.position.z + 0.02);
       chaseFx(dt);
       s.ziboX += (laneX(s.ziboLane) - s.ziboX) * Math.min(1, dt * 3);
       s.ziboPose = Math.max(0, s.ziboPose - dt);

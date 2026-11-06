@@ -751,5 +751,21 @@ CZ.i18n.register('es', 'Español', {
   'perk.gems': 'Esmeraldas +{n}%',
   'perk.lv': 'Nv. {n}',
   'perk.short': 'Te faltan {n} de oro',
-  'perk.up': '¡Nivel {n}! ¡Más fuerte!'
+  'perk.up': '¡Nivel {n}! ¡Más fuerte!',
+  'boss.buzbo': 'Hielbo',
+  'boss.ucubo': 'Volbo',
+  'boss.patlabo': 'Bumbo',
+  'boss.kralbo': 'Rey Zibo',
+  'boss.buzbo.tag': 'Primo de Zibo: ¡lanza hielo y te congela!',
+  'boss.ucubo.tag': 'Primo de Zibo: ¡vuela y cambia de carril sin parar!',
+  'boss.patlabo.tag': 'Primo de Zibo: ¡siempre lanza bombas dobles!',
+  'boss.kralbo.tag': 'El jefe de la familia: ¡conoce todos los trucos!',
+  'boss.runs': '¡{name} se escapa!',
+  'boss.frozen': '¡Congelado!',
+  'zibo.boss.buzbo': '¡Brrr! ¡Te convertiré en hielo!',
+  'zibo.boss.ucubo': '¡Uiii! ¡No me atrapas, vuelo!',
+  'zibo.boss.patlabo': '¡Bum bum! ¡Bombas dobles!',
+  'zibo.boss.kralbo': '¡Soy el REY! ¡La corona y el botín son míos!',
+  'zibo.boss.buzbo.hit': '¡Jiji! ¡Estás congelado!',
+  'boss.ahead': '{name} delante'
 });

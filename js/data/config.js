@@ -319,3 +319,12 @@ CZ.upLevel = id => {
   return Math.max(u.start, ((d && d.up) || {})[id] || u.start);
 };
 CZ.RETRY_GEMS = 5;
+
+// ZİBO'NUN AİLESİ: her odanın hırsızı başka bir kuzen. Görünüş (renk) + davranış farkı.
+CZ.ZIBO_FAMILY = {
+  living: { id: 'zibo' },
+  kitchen: { id: 'buzbo', tint: 0x9fdcff, freeze: true, bombMul: 0.8 },                  // buz atar: can almaz, dondurur
+  attic: { id: 'ucubo', tint: 0xd9b0ff, fly: true, switchMul: 0.55, bombMul: 1.35 },     // uçar, şerit değiştirir durur
+  treasure: { id: 'patlabo', tint: 0xffb59e, double: true, bombMul: 0.7 },              // hep çift bomba
+  throne: { id: 'kralbo', tint: 0xffe48a, double: true, switchMul: 0.7, bombMul: 0.8, gapMul: 1.15, crown: true }
+};

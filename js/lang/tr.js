@@ -932,5 +932,21 @@ CZ.i18n.register('tr', 'Türkçe', {
   'perk.gems': 'Zümrüt ödülü +%{n}',
   'perk.lv': 'Sv. {n}',
   'perk.short': '{n} altın daha lazım',
-  'perk.up': 'Seviye {n}! Daha güçlü!'
+  'perk.up': 'Seviye {n}! Daha güçlü!',
+  'boss.buzbo': 'Buzbo',
+  'boss.ucubo': 'Uçubo',
+  'boss.patlabo': 'Patlabo',
+  'boss.kralbo': 'Kral Zibo',
+  'boss.buzbo.tag': 'Zibo’nun kuzeni: buz atar, seni dondurur!',
+  'boss.ucubo.tag': 'Zibo’nun kuzeni: uçar, şerit değiştirir durur!',
+  'boss.patlabo.tag': 'Zibo’nun kuzeni: hep çift bomba atar!',
+  'boss.kralbo.tag': 'Ailenin reisi: hepsinin hilesi onda!',
+  'boss.runs': '{name} kaçıyor!',
+  'boss.frozen': 'Dondun!',
+  'zibo.boss.buzbo': 'Brrr! Seni buz gibi yapacağım!',
+  'zibo.boss.ucubo': 'Vıııın! Beni yakalayamazsın, uçuyorum!',
+  'zibo.boss.patlabo': 'Bum bum! Bombalarım iki kat!',
+  'zibo.boss.kralbo': 'Ben KRAL’ım! Taç da eşya da benim!',
+  'zibo.boss.buzbo.hit': 'Hihi! Buz kesildin!',
+  'boss.ahead': '{name} önde'
 });

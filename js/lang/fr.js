@@ -751,5 +751,21 @@ CZ.i18n.register('fr', 'Français', {
   'perk.gems': 'Émeraudes +{n} %',
   'perk.lv': 'Niv. {n}',
   'perk.short': 'Il te manque {n} or',
-  'perk.up': 'Niveau {n} ! Plus fort !'
+  'perk.up': 'Niveau {n} ! Plus fort !',
+  'boss.buzbo': 'Glaçbo',
+  'boss.ucubo': 'Volbo',
+  'boss.patlabo': 'Boumbo',
+  'boss.kralbo': 'Roi Zibo',
+  'boss.buzbo.tag': 'Cousin de Zibo : lance de la glace et te gèle !',
+  'boss.ucubo.tag': 'Cousin de Zibo : vole et change de voie sans arrêt !',
+  'boss.patlabo.tag': 'Cousin de Zibo : lance toujours des bombes doubles !',
+  'boss.kralbo.tag': 'Le chef de famille : connaît toutes les ruses !',
+  'boss.runs': '{name} s’enfuit !',
+  'boss.frozen': 'Gelé !',
+  'zibo.boss.buzbo': 'Brrr ! Je vais te changer en glace !',
+  'zibo.boss.ucubo': 'Wiii ! Tu ne m’auras pas, je vole !',
+  'zibo.boss.patlabo': 'Boum boum ! Bombes doubles !',
+  'zibo.boss.kralbo': 'Je suis le ROI ! La couronne et le butin sont à moi !',
+  'zibo.boss.buzbo.hit': 'Hihi ! Tu es gelé !',
+  'boss.ahead': '{name} devant'
 });

@@ -932,5 +932,21 @@ CZ.i18n.register('en', 'English', {
   'perk.gems': 'Emerald rewards +{n}%',
   'perk.lv': 'Lv. {n}',
   'perk.short': 'You need {n} more gold',
-  'perk.up': 'Level {n}! Stronger!'
+  'perk.up': 'Level {n}! Stronger!',
+  'boss.buzbo': 'Buzbo',
+  'boss.ucubo': 'Flybo',
+  'boss.patlabo': 'Boombo',
+  'boss.kralbo': 'King Zibo',
+  'boss.buzbo.tag': 'Zibo’s cousin: throws ice and freezes you!',
+  'boss.ucubo.tag': 'Zibo’s cousin: flies and keeps switching lanes!',
+  'boss.patlabo.tag': 'Zibo’s cousin: always throws double bombs!',
+  'boss.kralbo.tag': 'Head of the family: knows every trick!',
+  'boss.runs': '{name} is running!',
+  'boss.frozen': 'Frozen!',
+  'zibo.boss.buzbo': 'Brrr! I’ll turn you to ice!',
+  'zibo.boss.ucubo': 'Wheee! You can’t catch me, I fly!',
+  'zibo.boss.patlabo': 'Boom boom! Double bombs!',
+  'zibo.boss.kralbo': 'I am the KING! The crown and the loot are mine!',
+  'zibo.boss.buzbo.hit': 'Hehe! You’re frozen solid!',
+  'boss.ahead': '{name} ahead'
 });

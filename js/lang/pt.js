@@ -751,5 +751,21 @@ CZ.i18n.register('pt', 'Português', {
   'perk.gems': 'Esmeraldas +{n}%',
   'perk.lv': 'Nv. {n}',
   'perk.short': 'Faltam {n} de ouro',
-  'perk.up': 'Nível {n}! Mais forte!'
+  'perk.up': 'Nível {n}! Mais forte!',
+  'boss.buzbo': 'Gelbo',
+  'boss.ucubo': 'Voabo',
+  'boss.patlabo': 'Bumbo',
+  'boss.kralbo': 'Rei Zibo',
+  'boss.buzbo.tag': 'Primo do Zibo: joga gelo e te congela!',
+  'boss.ucubo.tag': 'Primo do Zibo: voa e troca de faixa sem parar!',
+  'boss.patlabo.tag': 'Primo do Zibo: sempre joga bombas duplas!',
+  'boss.kralbo.tag': 'O chefe da família: conhece todos os truques!',
+  'boss.runs': '{name} está fugindo!',
+  'boss.frozen': 'Congelado!',
+  'zibo.boss.buzbo': 'Brrr! Vou te transformar em gelo!',
+  'zibo.boss.ucubo': 'Uiii! Não me pega, eu voo!',
+  'zibo.boss.patlabo': 'Bum bum! Bombas duplas!',
+  'zibo.boss.kralbo': 'Eu sou o REI! A coroa e o tesouro são meus!',
+  'zibo.boss.buzbo.hit': 'Hihi! Você congelou!',
+  'boss.ahead': '{name} à frente'
 });
