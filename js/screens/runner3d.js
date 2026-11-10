@@ -824,6 +824,8 @@ CZ.runner3d = (function () {
       if (!s.running) return;
       if (s.jumping) return;
       s.jumping = true; s.vy = R.jumpV; s.slideT = 0;
+      s.squashV = -0.22;   // kalkışta uzama
+      sparks(new THREE.Vector3(s.px, (s.floor || 0) + 0.1, 0.2), 5, '#eaf6ff', 0.22);
       CZ.audio.sfx('jump');
     }
     function slide() {
@@ -1049,7 +1051,7 @@ CZ.runner3d = (function () {
       if (s.jumping) {
         s.vy -= R.gravity * dt;
         s.py += s.vy * dt;
-        if (s.py <= floor && s.vy <= 0) { s.py = floor; s.vy = 0; s.jumping = false; CZ.audio.sfx('land'); }
+        if (s.py <= floor && s.vy <= 0) { s.py = floor; s.vy = 0; s.jumping = false; s.squashV = 0.28; sparks(new THREE.Vector3(s.px, floor + 0.08, 0.2), 7, '#eaf6ff', 0.24); CZ.audio.sfx('land'); }
       } else if (s.py < floor) {
         s.py = floor;                                   // rampadan yukarı çıkış
       } else if (s.py > floor + 0.05) {
@@ -1063,6 +1065,13 @@ CZ.runner3d = (function () {
       const lean = (tx - s.px) * 0.6;
       hero.root.position.set(s.px, s.py, 0);
       hero.update(dt, { speed: s.speed, jumping: s.jumping, sliding, lean, dead: false, vy: s.vy, jumpV: R.jumpV });
+      // Ezilme/uzama (kalkış, iniş) + eğilirken kar püskürmesi + kaçarken yana savrulma
+      s.squashV = (s.squashV || 0) * Math.max(0, 1 - dt * 9);
+      const sq = s.squashV || 0;
+      hero.root.scale.set(1 + sq * 0.6, 1 - sq, 1);
+      hero.root.rotation.z = -lean * 0.15;
+      if (sliding && Math.random() < 0.6) sparks(new THREE.Vector3(s.px + rand(-0.3, 0.3), (s.floor || 0) + 0.1, 0.4), 1, '#ffffff', 0.18);
+      if (Math.abs(lean) > 0.35 && Math.random() < 0.5) sparks(new THREE.Vector3(s.px - Math.sign(lean) * 0.4, (s.floor || 0) + 0.15, 0.3), 1, '#dff2ff', 0.16);
       hero.setOpacity(s.invT > 0 ? (Math.floor(s.t * 14) % 2 ? 0.35 : 1) : 1);
       weaponSp.visible = !sliding && !!T.weapon;
       pShadow.position.x = s.px;
