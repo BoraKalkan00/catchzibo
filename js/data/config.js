@@ -14,7 +14,7 @@ CZ.CONFIG = {
   stars: [0.66, 0.33],   // kalan sürenin turun süresine oranı: %66+ = 3 yıldız, %33+ = 2, altı 1 (30 sn'de 20 ve 10 sn)
   diaryGift: 5,          // günün ilk günlük okuması: Zibo'dan "sus payı"
   tauntEverySeconds: 7,
-  storySlideMs: 3250,    // 4 sahne x 3.25 sn = 13 sn
+  storySlideMs: 3600,    // 8 sahne x 3.6 sn ≈ 29 sn (dokununca geçer, atlanabilir)
   roomDates: false       // true: odalar 'opens' tarihinden önce açılmaz (yılbaşı takvimi). Test için false.
 };
 
@@ -309,9 +309,9 @@ CZ.ROOMS.find(r => r.id === 'throne').spots = { src: [765, 1024], list: [[380,47
 
 // YÜKSELTMELER (altınla). Oyunun iki yarısını da güçlendirir: odada arama + kovalamaca.
 CZ.UPGRADES = [
-  { id: 'lens', icon: '🔍', start: 0, prices: [200, 450, 900, 1800, 3500] },   // oda başında eşya bir an parlar: 0.6 + 0.35×seviye sn
-  { id: 'cocoa', icon: '☕', start: 0, prices: [150, 350, 700, 1400, 2800] },  // odada +1 sn / seviye
-  { id: 'sled', icon: '🛷', start: 1, prices: [250, 600, 1200, 2400, 4500] }   // kızak atağı: daha hızlı dolar, daha uzun sürer
+  { id: 'lens', icon: 'lens', start: 0, prices: [200, 450, 900, 1800, 3500] },   // oda başında eşya bir an parlar: 0.6 + 0.35×seviye sn
+  { id: 'cocoa', icon: 'cocoa', start: 0, prices: [150, 350, 700, 1400, 2800] },  // odada +1 sn / seviye
+  { id: 'sled', icon: 'sled', start: 1, prices: [250, 600, 1200, 2400, 4500] }   // kızak atağı: daha hızlı dolar, daha uzun sürer
 ];
 CZ.upLevel = id => {
   const u = CZ.UPGRADES.find(x => x.id === id);

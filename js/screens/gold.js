@@ -44,7 +44,7 @@ CZ.screens.gold = (function () {
           CZ.ui.refresh();
         }
       }, img(w.art, 'rail-img'),
-      owned ? (d.weapon === w.id ? h('i', { class: 'rail-ok', text: '✓' }) : null)
+      owned ? (d.weapon === w.id ? CZ.icon('check', 'rail-ok') : null)
         : h('small', { class: 'rail-price' }, img('ui.gold', 'mini-ico'), String(w.price)));
     };
     const cTile = c => {
@@ -57,7 +57,7 @@ CZ.screens.gold = (function () {
           CZ.audio.sfx('button'); d.avatar = c.id; CZ.state.save(); CZ.ui.refresh();
         }
       }, st === 'open' ? CZ.charArt.img(c.id, 'front', 'rail-img') : h('img', { class: 'rail-img', src: CZ.chars.front(c.id), alt: '' }),
-      st !== 'open' ? h('i', { class: 'rail-lock', text: '🔒' }) : null);
+      st !== 'open' ? CZ.icon('lock', 'rail-lock') : null);
     };
     const action = ownedW
       ? btn(t('gold.start'), () => startRound(el, true), 'primary big pulse wide lobby-go')
@@ -73,7 +73,7 @@ CZ.screens.gold = (function () {
       h('div', { class: 'lobby' },
         h('div', { class: 'rail left' }, h('small', { class: 'rail-head', text: t('gold.weapons') }), G.weapons.map(wTile)),
         h('div', { class: 'lobby-stage' },
-          d.runBest ? h('p', { class: 'lobby-best' }, '🏆 ', t('run.best', { n: (d.runBest || 0).toLocaleString() })) : null,
+          d.runBest ? h('p', { class: 'lobby-best' }, CZ.icon('trophy'), t('run.best', { n: (d.runBest || 0).toLocaleString() })) : null,
           h('div', { class: 'lobby-hero' },
             CZ.charArt.img(me, 'front', 'lobby-char'),
             h('div', { class: 'lobby-wbadge' + (ownedW ? '' : ' peek') }, img(showW.art, 'lobby-weapon'))),
@@ -82,7 +82,7 @@ CZ.screens.gold = (function () {
             h('small', {}, t('gold.dmg', { n: showW.dmg }), ' · ', h('span', { class: 'dmg-bar' }, h('i', { style: `width:${showW.dmg / 9 * 100}%` }))))),
         h('div', { class: 'rail right' }, h('small', { class: 'rail-head', text: t('chars.title') }), CZ.ROSTER.map(cTile))),
       h('div', { class: 'lobby-bottom' },
-        btn('⬆ ' + t('up.title'), () => upgradesSheet(el), 'ghost-dark wide lobby-up'),
+        btn(t('up.title'), () => upgradesSheet(el), 'ghost-dark wide lobby-up', 'ic:up'),
         action));
     if (showUps) upgradesSheet(el);
   }
@@ -100,7 +100,7 @@ CZ.screens.gold = (function () {
       const max = u.start + u.prices.length;
       const price = lvl < max ? u.prices[lvl - u.start] : 0;
       return h('div', { class: 'up-row' },
-        h('span', { class: 'up-icon', text: u.icon }),
+        h('span', { class: 'up-icon' }, CZ.icon(u.icon)),
         h('div', { class: 'up-text' },
           h('strong', { text: t('up.' + u.id) }),
           h('small', { text: t('up.' + u.id + '.desc') }),
@@ -199,7 +199,7 @@ CZ.screens.gold = (function () {
         avatar: d.avatar || 'girl', weaponArt: weapon.art, weaponId: weapon.id, ball: weapon.ball, dmg: weapon.dmg, perk: perk(),
         sledLvl: CZ.upLevel('sled'), goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), power: CZ.charPerk('power'),
         onZiboHit(hits, need) {
-          floatText('🎯 ' + hits + '/' + need, 'gold');
+          floatText(hits + '/' + need, 'gold');
           if (hits === 1 || Math.random() < 0.3) say('zibo.hunt.hit');
         },
         onZiboCaught() {
@@ -224,7 +224,7 @@ CZ.screens.gold = (function () {
           g.gems += n;
           d.emeralds = (d.emeralds || 0) + n;
           g.gemCount.textContent = g.gems;
-          floatText('+' + n + ' 💎', 'gem');
+          floatText('+' + n, 'gem');
           CZ.state.save();
         },
         onPower(kind) { floatText(t('run.power.' + kind), 'power'); },
@@ -256,7 +256,7 @@ CZ.screens.gold = (function () {
   function perk() { return (CZ.closet && CZ.closet.perk()) || {}; }
 
   function drawHearts(n) {
-    g.hearts.replaceChildren(...Array.from({ length: Math.max(0, n) }, () => h('span', { text: '❤️' })));
+    g.hearts.replaceChildren(...Array.from({ length: Math.max(0, n) }, () => CZ.icon('heart', 'heart-ic')));
   }
 
   function countdown() {
@@ -321,7 +321,7 @@ CZ.screens.gold = (function () {
           close();
           g.adTimer = CZ.ads.show(() => { g.adContinued = true; revive(); });
         }, 'primary big wide cont-ad') : null,
-        btn(t('run.gemContinue', { n: cost }) + ((d.emeralds || 0) < cost ? ' 🔒' : ''), e => {
+        btn(t('run.gemContinue', { n: cost }), e => {
           // Yetmiyorsa kesinlikle devam etmez: düğme kilitli görünür, basınca sallanır.
           if ((d.emeralds || 0) < cost) { CZ.audio.sfx('wrong'); CZ.audio.vibrate(30); e.currentTarget.classList.remove('shake'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('shake'); return CZ.ui.toast(t('run.gemShort', { n: d.emeralds || 0, c: cost })); }
           d.emeralds -= cost;
@@ -401,16 +401,16 @@ CZ.screens.gold = (function () {
           CZ.ui.toast(t('run.doubled'));
         });
       }
-    }, h('span', { text: '+' + g.earned }), img('ui.gold', 'mini-ico'), h('em', { text: '▶ ' + t('run.ad') })) : null;
+    }, h('span', { text: '+' + g.earned }), img('ui.gold', 'mini-ico'), h('em', {}, CZ.icon('play', 'mini-ico'), t('run.ad'))) : null;
     const sheet = h('div', { class: 'run-results' },
       h('div', { class: 'res-top' },
         CZ.charArt.img(me, 'front', 'res-hero'),
         h('div', { class: 'res-boxes' },
           h('div', { class: 'res-box' }, h('small', { text: t('run.score') }), h('strong', { text: sum.score.toLocaleString() }),
-            h('em', { text: record ? '🏆 ' + t('run.newBest') : t('run.best', { n: (d.runBest || 0).toLocaleString() }) })),
+            h('em', {}, record ? CZ.icon('trophy', 'mini-ico') : null, record ? t('run.newBest') : t('run.best', { n: (d.runBest || 0).toLocaleString() }))),
           h('div', { class: 'res-box' }, h('small', { text: t('run.coins') }), h('strong', {}, goldVal, img('ui.gold', 'mini-ico')), doubleBtn),
           h('div', { class: 'res-box small' }, h('small', { text: t('run.metersLabel') }), h('strong', { text: sum.meters + ' m' }),
-            g.gems ? h('em', { text: '+' + g.gems + ' 💎' }) : null,
+            g.gems ? h('em', {}, '+' + g.gems, img('ui.emerald', 'mini-ico')) : null,
             sum.bestCombo >= 3 ? h('em', { text: t('run.bestCombo', { n: sum.bestCombo }) }) : null))),
       h('div', { class: 'res-actions' },
         btn('⌂', () => CZ.ui.go('hub'), 'ghost-dark res-home'),

@@ -12,10 +12,10 @@ CZ.i18n.register('fr', 'Français', {
   'avatar.girl': 'Fille',
   'avatar.boy': 'Garçon',
   'story.skip': 'Passer',
-  'story.1': 'Tu viens d’emménager à Neigebaie, un tout petit village enneigé. Des cartons partout. Noël approche !',
-  'story.2': 'Puis une nuit… un gobelin vert nommé Zibo a volé toutes les affaires d’hiver de la ville. Les tiennes aussi !',
-  'story.3': 'Il a tout traîné jusqu’à son manoir sur la colline. Gâté ? Très. Désolé ? Pas du tout.',
-  'story.4': 'Alors tu as frappé. Trouve ce qui est à toi, réclame-le et ramène-le à la maison !',
+  'story.1': 'Tu viens d’emménager à Neigeval, un tout petit village enneigé et douillet.',
+  'story.2': 'Mais cette nuit-là… quelqu’un de vert aux oreilles pointues s’est glissé par la fenêtre : ZIBO !',
+  'story.3': 'La piste menait au manoir tordu sur la colline. Gâté ? Très. Désolé ? Jamais.',
+  'story.4': 'La fête approche. Frappe à la porte, retrouve tes affaires, dis « c’est à moi ! » et attrape Zibo !',
   'hub.enter': 'Entrer dans le manoir',
   'hub.village': 'Ma maison',
   'hub.book': 'Objets trouvés',
@@ -767,5 +767,9 @@ CZ.i18n.register('fr', 'Français', {
   'zibo.boss.patlabo': 'Boum boum ! Bombes doubles !',
   'zibo.boss.kralbo': 'Je suis le ROI ! La couronne et le butin sont à moi !',
   'zibo.boss.buzbo.hit': 'Hihi ! Tu es gelé !',
-  'boss.ahead': '{name} devant'
+  'boss.ahead': '{name} devant',
+  'story.fest': 'Demain, c’est la grande Fête de Noël ! Tout le village est décoré et personne n’arrive à dormir.',
+  'story.morning': 'Au matin, tout le monde s’est figé. Décorations, cadeaux, clochettes… tout a disparu. Les tiens aussi !',
+  'story.trail': 'Mais Zibo était maladroit. Des traces vertes et des trésors tombés menaient en haut de la colline.',
+  'story.hall': 'Et il n’était pas seul ! Ses cousins s’y cachaient aussi : Glaçbo, Volbo, Boumbo et le Roi Zibo.'
 });

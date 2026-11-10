@@ -1,7 +1,18 @@
 // Atlanabilir hikâye: 4 sahne, kendiliğinden ilerler, dokununca sonrakine geçer.
 CZ.screens.story = (function () {
   const { h, img } = CZ.ui;
-  const COUNT = 4;
+  // 8 sahne. Yeni resim henüz yoksa "fb" resmine düşer (filtreyle farklılaştırılır).
+  const SCENES = [
+    { art: 'story.1', key: 'story.1', shot: 1, hero: 'wave', heroCls: 's1' },
+    { art: 'story.fest', fb: 'story.1', fbCls: 'fb-fest', key: 'story.fest', shot: 5 },
+    { art: 'story.2', key: 'story.2', shot: 2, zibo: 'zibo.runLoot', ziboCls: 's2', gib: true },
+    { art: 'story.morning', fb: 'story.1', fbCls: 'fb-morning', key: 'story.morning', shot: 6, hero: 'front', heroCls: 's5' },
+    { art: 'story.trail', fb: 'story.3', fbCls: 'fb-trail', key: 'story.trail', shot: 7 },
+    { art: 'story.3', key: 'story.3', shot: 3, zibo: 'zibo.laugh', ziboCls: 's3' },
+    { art: 'story.hall', fb: 'story.3', fbCls: 'fb-hall', key: 'story.hall', shot: 8, family: true },
+    { art: 'story.4', key: 'story.4', shot: 4, zibo: 'zibo.smug', ziboCls: 's4', hero: 'back1', heroCls: 's4' }
+  ];
+  const COUNT = SCENES.length;
   let timer = null;
 
   function render(el, params) {
@@ -21,18 +32,25 @@ CZ.screens.story = (function () {
     function show(next) {
       if (next >= COUNT) return finish();
       index = next;
-      // Yeni sahne öncekinin üstüne süzülür, kamera yavaşça yaklaşır.
-      const scene = h('div', { class: `story-scene shot-${index + 1}` }, img('story.' + (index + 1), 'story-img'));
-      // Sahnelerde oyundaki 3D Zibo ve oyuncunun kendi karakteri
+      const S = SCENES[index];
       const me = CZ.state.data.avatar || 'girl';
-      if (index === 0) scene.append(CZ.charArt.img(me, 'wave', 'story-hero s1'));
-      if (index === 1) scene.append(img('zibo.runLoot', 'story-zibo s2'));
-      if (index === 2) scene.append(img('zibo.laugh', 'story-zibo s3'));
-      if (index === 3) scene.append(img('zibo.smug', 'story-zibo s4'), CZ.charArt.img(me, 'back1', 'story-hero s4'));
+      const pic = img(S.art, 'story-img');
+      const scene = h('div', { class: `story-scene shot-${S.shot}` }, pic);
+      if (S.fb) pic.onerror = () => { pic.onerror = null; pic.src = CZ.art(S.fb); scene.classList.add(S.fbCls); };
+      if (S.hero) scene.append(CZ.charArt.img(me, S.hero, 'story-hero ' + S.heroCls));
+      if (S.zibo) scene.append(img(S.zibo, 'story-zibo ' + S.ziboCls));
+      if (S.family) {
+        // Zibo'nun ailesi: beş kuzen sırayla zıplayarak çıkar
+        scene.append(h('div', { class: 'story-family' },
+          ['zibo', 'buzbo', 'ucubo', 'patlabo', 'kralbo'].map((id, i) => h('figure', { class: 'fam fam-' + id, style: `animation-delay:${0.25 + i * 0.22}s` },
+            img('zibo.smug', 'fam-img'),
+            id === 'kralbo' ? h('i', { class: 'fam-crown' }) : null,
+            h('figcaption', { text: id === 'zibo' ? 'Zibo' : CZ.t('boss.' + id) })))));
+      }
       stage.append(scene);
       const old = stage.children;
       while (old.length > 2) old[0].remove();
-      text.textContent = CZ.t('story.' + (index + 1));
+      text.textContent = CZ.t(S.key);
       text.classList.remove('in');
       void text.offsetWidth;
       text.classList.add('in');
@@ -41,7 +59,7 @@ CZ.screens.story = (function () {
         bar.firstChild.style.animationDuration = CZ.CONFIG.storySlideMs + 'ms';
       });
       CZ.audio.sfx('intro');
-      if (index === 1) {
+      if (S.gib) {
         CZ.audio.speak(CZ.game.gibberish('zibo.catch'));
         CZ.audio.vibrate(30);
       }

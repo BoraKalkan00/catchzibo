@@ -15,10 +15,10 @@ CZ.i18n.register('en', 'English', {
   'avatar.boy': 'Boy',
 
   'story.skip': 'Skip',
-  'story.1': 'You just moved to Snowbrook, a tiny snowy town. Boxes everywhere. Winter is just beginning!',
-  'story.2': 'Then one night… a green goblin named Zibo stole all the town’s winter things. Yours too!',
-  'story.3': 'He hauled it all up the hill to his mansion. Spoiled? Very. Sorry? Not at all.',
-  'story.4': 'So you knocked. Find what’s yours, claim it, and bring it home!',
+  'story.1': 'You just moved to Snowbrook, a tiny, snowy, cozy little town.',
+  'story.2': 'But that night… someone green with pointy ears slipped through the window: ZIBO!',
+  'story.3': 'The trail led to the crooked mansion on the hill. Spoiled? Very. Sorry? Never.',
+  'story.4': 'The festival is almost here. Knock on the door, find your things, say “that’s mine!” and catch Zibo!',
 
   'hub.enter': 'Enter the mansion',
   'hub.village': 'My House',
@@ -948,5 +948,9 @@ CZ.i18n.register('en', 'English', {
   'zibo.boss.patlabo': 'Boom boom! Double bombs!',
   'zibo.boss.kralbo': 'I am the KING! The crown and the loot are mine!',
   'zibo.boss.buzbo.hit': 'Hehe! You’re frozen solid!',
-  'boss.ahead': '{name} ahead'
+  'boss.ahead': '{name} ahead',
+  'story.fest': 'Tomorrow is the big Christmas Festival! The whole town decorated, and nobody can sleep from excitement.',
+  'story.morning': 'In the morning everyone froze. Ornaments, presents, bells… all gone. Yours too!',
+  'story.trail': 'But Zibo was clumsy. Green footprints and dropped treasures led up the hill.',
+  'story.hall': 'And he wasn’t alone! His cousins were hiding there too: Buzbo, Flybo, Boombo and King Zibo.'
 });

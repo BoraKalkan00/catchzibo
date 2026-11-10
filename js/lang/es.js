@@ -12,10 +12,10 @@ CZ.i18n.register('es', 'Español', {
   'avatar.girl': 'Chica',
   'avatar.boy': 'Chico',
   'story.skip': 'Saltar',
-  'story.1': 'Acabas de mudarte a Bayanieve, un pueblito nevado. Cajas por todas partes. ¡Ya llega la Navidad!',
-  'story.2': 'Una noche… un duende verde llamado Zibo robó todas las cosas de invierno del pueblo. ¡También las tuyas!',
-  'story.3': 'Lo subió todo a su mansión en la colina. ¿Malcriado? Mucho. ¿Arrepentido? Para nada.',
-  'story.4': 'Así que llamaste a la puerta. ¡Encuentra lo tuyo, reclámalo y llévatelo a casa!',
+  'story.1': 'Acabas de mudarte a Nevalia, un pueblito pequeño, nevado y acogedor.',
+  'story.2': 'Pero esa noche… alguien verde de orejas puntiagudas se coló por la ventana: ¡ZIBO!',
+  'story.3': 'El rastro llevaba a la mansión torcida de la colina. ¿Malcriado? Mucho. ¿Arrepentido? Jamás.',
+  'story.4': 'El festival está cerca. Llama a la puerta, encuentra tus cosas, di “¡eso es mío!” y atrapa a Zibo.',
   'hub.enter': 'Entrar en la mansión',
   'hub.village': 'Mi casa',
   'hub.book': 'Objetos perdidos',
@@ -767,5 +767,9 @@ CZ.i18n.register('es', 'Español', {
   'zibo.boss.patlabo': '¡Bum bum! ¡Bombas dobles!',
   'zibo.boss.kralbo': '¡Soy el REY! ¡La corona y el botín son míos!',
   'zibo.boss.buzbo.hit': '¡Jiji! ¡Estás congelado!',
-  'boss.ahead': '{name} delante'
+  'boss.ahead': '{name} delante',
+  'story.fest': '¡Mañana es el gran Festival de Navidad! Todo el pueblo está decorado y nadie puede dormir de la emoción.',
+  'story.morning': 'Por la mañana todos se quedaron helados. Adornos, regalos, campanas… todo desapareció. ¡Lo tuyo también!',
+  'story.trail': 'Pero Zibo era torpe. Huellas verdes y tesoros caídos subían por la colina.',
+  'story.hall': '¡Y no estaba solo! Sus primos también se escondían allí: Hielbo, Volbo, Bumbo y el Rey Zibo.'
 });

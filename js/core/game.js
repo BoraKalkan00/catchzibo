@@ -83,7 +83,7 @@ CZ.game = (function () {
     const { h, img } = CZ.ui;
     CZ.audio.sfx('win');
     return h('div', { class: 'daily-prize' + (prize.big ? ' big' : '') },
-      h('strong', { text: '🔥 ' + CZ.t('heist.streak', { n: prize.streak }) }),
+      h('strong', {}, CZ.icon('flame'), CZ.t('heist.streak', { n: prize.streak })),
       h('span', { text: CZ.t(prize.big ? 'heist.bigChest' : 'heist.done') }),
       h('p', { class: 'reward' }, img('ui.gold', 'emerald-icon'), '+' + prize.gold, ' ', img('ui.emerald', 'emerald-icon'), '+' + prize.emeralds));
   }

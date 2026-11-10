@@ -28,7 +28,7 @@ CZ.chars = (function () {
   // Odayı bitirmeyi beklemek istemeyen elmasla hemen açar.
   function buy(c, done) {
     const d = CZ.state.data;
-    CZ.ui.confirmBox(CZ.t('chars.buyAsk', { room: CZ.t('room.' + c.room), n: c.gems }), '💎 ' + c.gems, CZ.t('common.no'), () => {
+    CZ.ui.confirmBox(CZ.t('chars.buyAsk', { room: CZ.t('room.' + c.room), n: c.gems }), String(c.gems), CZ.t('common.no'), () => {
       if ((d.emeralds || 0) < c.gems) { CZ.audio.sfx('wrong'); return CZ.ui.toast(CZ.t('chars.gemShort', { n: c.gems - (d.emeralds || 0) })); }
       d.emeralds -= c.gems;
       d.boughtChars = (d.boughtChars || []).concat(c.id);
@@ -126,7 +126,7 @@ CZ.screens.chars = {
           }
         },
         h('i', { style: 'background:#' + CZ.COLORS[color].hex.toString(16).padStart(6, '0') }),
-        owned ? (worn[this.part] === color ? h('b', { text: '✓' }) : null)
+        owned ? (worn[this.part] === color ? CZ.icon('check', 'swatch-ok') : null)
           : h('small', { class: 'swatch-price' }, img(price.gold ? 'ui.gold' : 'ui.emerald', 'mini-ico'), String(price.gold || price.emeralds)));
       };
       const tabs = h('div', { class: 'part-tabs' }, ['jacket', 'hat', 'scarf'].map(p => h('button', {
@@ -160,7 +160,7 @@ CZ.screens.chars = {
       const selected = c.id === me;
       const label = st === 'open' ? t('char.' + c.id)
         : st === 'soon' ? t('chars.soon')
-          : '💎 ' + c.gems;
+          : null;
       return h('button', {
         class: 'char-card ' + st + (selected ? ' selected' : ''), type: 'button',
         onClick: () => {
@@ -177,9 +177,9 @@ CZ.screens.chars = {
         }
       },
       st === 'open' && CZ.chars.hasArt(c.id) ? CA.img(c.id, 'front', 'char-img') : h('img', { class: 'char-img', src: CZ.chars.front(c.id), alt: '' }),
-      st !== 'open' ? h('span', { class: 'char-lock', text: st === 'soon' ? '✨' : '🔒' }) : null,
+      st !== 'open' ? (st === 'soon' ? h('span', { class: 'char-lock', text: '…' }) : CZ.icon('lock', 'char-lock')) : null,
       st === 'open' ? h('span', { class: 'char-lv-mini', text: t('perk.lv', { n: CZ.charLevel(c.id) }) }) : null,
-      h('span', { class: 'char-label', text: label }));
+      label ? h('span', { class: 'char-label', text: label }) : h('span', { class: 'char-label price' }, CZ.ui.img('ui.emerald', 'mini-ico'), String(c.gems)));
     };
     el.append(
       CZ.ui.header(t('chars.title'), () => { this.trying = null; CZ.ui.go(params && params.returnTo ? params.returnTo : 'hub'); }),

@@ -78,7 +78,7 @@
         CZ.ui.toast(t('hub.adGot', { n: CZ.AD_REWARD.gold }));
         CZ.ui.refresh();
       })
-    }, h('span', { class: 'ad-play', text: '▶' }), h('b', { text: t('hub.adReward') }),
+    }, h('span', { class: 'ad-play' }, CZ.icon('play')), h('b', { text: t('hub.adReward') }),
       h('span', { class: 'ad-gold' }, '+' + CZ.AD_REWARD.gold, img('ui.gold', 'mini-ico')), h('small', { text: left + '/' + CZ.AD_REWARD.perDay }));
   }
 
@@ -100,9 +100,9 @@
       CZ.audio.sfx('button'); CZ.ui.wipeTo('play', { roundId: next.id });
     } },
       h('div', { class: 'daily-head' },
-        h('strong', { text: '🦹 ' + t('heist.title') }),
-        streak ? h('b', { class: 'daily-streak', text: '🔥 ' + streak }) : null),
-      h('div', { class: 'daily-items' }, list.map(r => h('span', { class: 'daily-item' + (CZ.state.isFound(r.id) ? ' got' : '') + (r.night ? ' night' : '') }, img('item.' + r.target, 'daily-img'), CZ.state.isFound(r.id) ? h('i', { text: '✓' }) : null))),
+        h('strong', {}, CZ.icon('goblin'), t('heist.title')),
+        streak ? h('b', { class: 'daily-streak' }, CZ.icon('flame'), String(streak)) : null),
+      h('div', { class: 'daily-items' }, list.map(r => h('span', { class: 'daily-item' + (CZ.state.isFound(r.id) ? ' got' : '') + (r.night ? ' night' : '') }, img('item.' + r.target, 'daily-img'), CZ.state.isFound(r.id) ? CZ.icon('check', 'daily-check') : null))),
       h('small', { text: next ? t('heist.sub') : t('heist.comeBack', { n: hours }) }));
   }
 
@@ -113,7 +113,7 @@
     const box = h('div', { class: 'modal-wrap' },
       h('div', { class: 'modal' },
         h('p', { text: t('mansion.restingAd') }),
-        btn('▶ ' + t('mansion.watchRetry'), () => { box.remove(); CZ.ads.show(again); }, 'primary wide'),
+        btn(t('mansion.watchRetry'), () => { box.remove(); CZ.ads.show(again); }, 'primary wide', 'ic:play'),
         btn(t('mansion.gemRetry', { n: CZ.RETRY_GEMS }), () => {
           if ((d.emeralds || 0) < CZ.RETRY_GEMS) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.gemShort', { n: CZ.RETRY_GEMS - (d.emeralds || 0) })); }
           d.emeralds -= CZ.RETRY_GEMS; box.remove(); again();
@@ -195,7 +195,7 @@
           h('div', { class: 'hub-tiles' },
             tile('gold-tile' + (goldFree ? ' ready' : ''), img('ui.gold', 'tile-icon'), t('hub.gold'), goldFree ? t('hub.goldReady') : CZ.screens.gold.waitText(), () => CZ.ui.wipeTo('gold'), goldFree, 'gold'),
             tile('chars-tile', CZ.charArt.img(state.data.avatar || 'girl', 'front', 'tile-icon tile-char'), t('chars.title'), t('char.' + (state.data.avatar || 'girl')), () => CZ.ui.wipeTo('chars'), false),
-            tile('quest-tile', h('div', { class: 'tile-art quest-art' }, h('span', { text: '📋' }), h('div', { class: 'quest-dots' }, q.list.map(x => h('i', { class: x.claimed ? 'on' : x.have >= x.n ? 'ready' : '' })), h('i', { class: 'chest' + (q.chest ? ' on' : '') }))),
+            tile('quest-tile', h('div', { class: 'tile-art quest-art' }, CZ.icon('list', 'quest-ic'), h('div', { class: 'quest-dots' }, q.list.map(x => h('i', { class: x.claimed ? 'on' : x.have >= x.n ? 'ready' : '' })), h('i', { class: 'chest' + (q.chest ? ' on' : '') }))),
               t('quest.short'), `${q.list.filter(x => x.claimed).length}/3`, () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), CZ.quests.ready(), 'quests'))),
         h('nav', { class: 'hub-nav glass-bar' },
           nav(t('chars.title'), 'ui.wardrobe', 'chars'),
@@ -224,7 +224,7 @@
           houseArt,
           h('div', { class: 'hub-card-text' }, h('strong', { text: CZ.house.title(H) || t('house.title') }), h('small', { text: status }))),
         h('button', { class: 'hub-card quest-card' + (CZ.quests.ready() ? ' ready' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()); } },
-          h('b', { class: 'quest-icon', text: '📋' }),
+          h('b', { class: 'quest-icon' }, CZ.icon('list')),
           h('div', { class: 'hub-card-text' }, h('strong', { text: t('quest.title') }),
             h('div', { class: 'quest-dots' }, q.list.map(x => h('i', { class: x.claimed ? 'on' : x.have >= x.n ? 'ready' : '' })), h('i', { class: 'chest' + (q.chest ? ' on' : '') }))),
           CZ.quests.ready() ? h('i', { class: 'dot' }) : null));

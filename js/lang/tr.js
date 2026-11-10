@@ -15,10 +15,10 @@ CZ.i18n.register('tr', 'Türkçe', {
   'avatar.boy': 'Erkek',
 
   'story.skip': 'Geç',
-  'story.1': 'Küçücük, karlı bir kasaba olan Karlıdere’ye yeni taşındın. Her yer koli. Kış yeni başlıyor!',
-  'story.2': 'Derken bir gece… Zibo adında yeşil bir goblin kasabanın bütün kış eşyalarını çaldı. Seninkileri de!',
-  'story.3': 'Hepsini tepedeki malikanesine taşıdı. Şımarık mı? Çok. Pişman mı? Asla.',
-  'story.4': 'Sen de kapısını çaldın. Eşyanı bul, “bu benim” de ve eve götür!',
+  'story.1': 'Karlıdere’ye yeni taşındın. Minicik, karlı, sıcacık bir kasaba.',
+  'story.2': 'Ama o gece… sivri kulaklı, yeşil biri pencereden süzüldü: ZİBO!',
+  'story.3': 'İzler tepedeki eğri büğrü köşke gidiyordu. Şımarık mı? Çok. Pişman mı? Asla.',
+  'story.4': 'Festivale az kaldı. Kapıyı çal, eşyanı bul, “bu benim!” de ve Zibo’yu yakala!',
 
   'hub.enter': 'Malikaneye gir',
   'hub.village': 'Evim',
@@ -948,5 +948,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   'zibo.boss.patlabo': 'Bum bum! Bombalarım iki kat!',
   'zibo.boss.kralbo': 'Ben KRAL’ım! Taç da eşya da benim!',
   'zibo.boss.buzbo.hit': 'Hihi! Buz kesildin!',
-  'boss.ahead': '{name} önde'
+  'boss.ahead': '{name} önde',
+  'story.fest': 'Yarın büyük Noel Festivali var! Bütün kasaba süsledi, hazırladı, heyecandan kimse uyuyamıyor.',
+  'story.morning': 'Sabah herkes donakaldı. Süsler, hediyeler, ziller… Her şey gitmiş. Seninkiler de!',
+  'story.trail': 'Ama Zibo sakardı. Karda yeşil ayak izleri ve düşürdüğü eşyalar tepeye çıkıyordu.',
+  'story.hall': 'Üstelik yalnız değildi! Kuzenleri de köşkte saklanıyordu: Buzbo, Uçubo, Patlabo ve Kral Zibo.'
 });

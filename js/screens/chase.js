@@ -215,7 +215,7 @@ CZ.screens.chase = (function () {
     if (!c || !c.running || c.stun > 0) return;
     c.gap = Math.min(C.startGap * 1.4, c.gap + C.bombHit * 1.2);
     c.stun = 1.1;
-    floatText('❄ ' + t('boss.frozen'), 'bad');
+    floatText(t('boss.frozen'), 'bad');
     say('zibo.boss.buzbo.hit');
     c.field.classList.add('frozen');
     setTimeout(() => c && c.field.classList.remove('frozen'), 1100);
@@ -277,7 +277,7 @@ CZ.screens.chase = (function () {
   }
 
   function drawHearts() {
-    c.hearts.replaceChildren(...Array.from({ length: C.lives }, (_, i) => h('i', { class: 'heart' + (i < c.lives ? '' : ' empty'), text: '♥' })));
+    c.hearts.replaceChildren(...Array.from({ length: C.lives }, (_, i) => h('i', { class: 'heart' + (i < c.lives ? '' : ' empty') }, CZ.icon('heart'))));
   }
 
   /* ---------- Zibo konuşur ---------- */
@@ -323,7 +323,7 @@ CZ.screens.chase = (function () {
     if (c.run) c.run.caught();
     c.hookBtn.style.display = 'none';
     say('zibo.chase.caught');
-    const mine = h('div', { class: 'mine-pop good show', text: '🎉 ' + t('chase.caught') });
+    const mine = h('div', { class: 'mine-pop good show', text: t('chase.caught') });
     c.field.append(mine);
     if (c.run) { c.run.state.running = false; }
     const roomDef = CZ.game.roomOf(p.roundId);
@@ -343,7 +343,7 @@ CZ.screens.chase = (function () {
         starRow,
         h('h2', { text: t(`item.${c.round.target}.name`) }),
         h('p', { text: firstClear ? t(roomDef.id === 'living' ? 'win.roomDone' : 'win.roomDone.' + roomDef.id) : t('chase.winNote') }),
-        firstClear && CZ.ROOM_PRIZES[roomDef.id] ? h('p', { class: 'reward prize' }, '🎁 ', t('win.prize', { item: t('char.' + CZ.ROOM_PRIZES[roomDef.id]) })) : null,
+        firstClear && CZ.ROOM_PRIZES[roomDef.id] ? h('p', { class: 'reward prize' }, CZ.icon('gift'), t('win.prize', { item: t('char.' + CZ.ROOM_PRIZES[roomDef.id]) })) : null,
         c.gold ? h('p', { class: 'reward', 'data-fly': 'gold', 'data-n': c.gold }, img('ui.gold', 'emerald-icon'), '+' + c.gold) : null,
         h('p', { class: 'reward', 'data-fly': 'emeralds', 'data-n': base + pocket }, img('ui.emerald', 'emerald-icon'), t('chase.reward', { n: base, p: pocket })),
         back ? h('p', { class: 'reward revenge', 'data-fly': 'gold', 'data-n': back }, img('ui.gold', 'emerald-icon'), t('raid.revenge', { n: back })) : null,

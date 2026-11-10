@@ -31,7 +31,7 @@ CZ.ui = (function () {
       class: 'btn ' + (cls || ''),
       type: 'button',
       onClick: e => { CZ.audio.sfx('button'); onClick(e); }
-    }, iconKey ? img(iconKey, 'btn-icon') : null, h('span', { text: label }));
+    }, iconKey ? (String(iconKey).startsWith('ic:') ? CZ.icon(iconKey.slice(3), 'btn-icon') : img(iconKey, 'btn-icon')) : null, h('span', { text: label }));
   }
 
   function emeralds() {

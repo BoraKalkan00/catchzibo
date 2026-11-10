@@ -12,10 +12,10 @@ CZ.i18n.register('pt', 'Português', {
   'avatar.girl': 'Menina',
   'avatar.boy': 'Menino',
   'story.skip': 'Pular',
-  'story.1': 'Você acabou de se mudar para Nevebaga, uma cidadezinha coberta de neve. Caixas por todo lado. O Natal está chegando!',
-  'story.2': 'Então, numa noite… um goblin verde chamado Zibo roubou todas as coisas de inverno da cidade. As suas também!',
-  'story.3': 'Ele levou tudo morro acima até a mansão dele. Mimado? Muito. Arrependido? Nem um pouco.',
-  'story.4': 'Então você bateu na porta. Encontre o que é seu, pegue de volta e leve para casa!',
+  'story.1': 'Você acabou de se mudar para Nevalinda, uma cidadezinha pequena, nevada e aconchegante.',
+  'story.2': 'Mas naquela noite… alguém verde de orelhas pontudas entrou pela janela: ZIBO!',
+  'story.3': 'A trilha levava à mansão torta no alto da colina. Mimado? Muito. Arrependido? Nunca.',
+  'story.4': 'O festival está chegando. Bata na porta, ache suas coisas, diga “isso é meu!” e pegue o Zibo!',
   'hub.enter': 'Entrar na mansão',
   'hub.village': 'Minha casa',
   'hub.book': 'Achados e perdidos',
@@ -767,5 +767,9 @@ CZ.i18n.register('pt', 'Português', {
   'zibo.boss.patlabo': 'Bum bum! Bombas duplas!',
   'zibo.boss.kralbo': 'Eu sou o REI! A coroa e o tesouro são meus!',
   'zibo.boss.buzbo.hit': 'Hihi! Você congelou!',
-  'boss.ahead': '{name} à frente'
+  'boss.ahead': '{name} à frente',
+  'story.fest': 'Amanhã é o grande Festival de Natal! A cidade toda decorou e ninguém consegue dormir de tanta empolgação.',
+  'story.morning': 'De manhã todos congelaram. Enfeites, presentes, sinos… tudo sumiu. Os seus também!',
+  'story.trail': 'Mas o Zibo era desastrado. Pegadas verdes e tesouros caídos subiam a colina.',
+  'story.hall': 'E ele não estava sozinho! Os primos também se escondiam lá: Gelbo, Voabo, Bumbo e o Rei Zibo.'
 });

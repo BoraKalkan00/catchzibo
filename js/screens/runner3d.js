@@ -1107,7 +1107,8 @@ CZ.runner3d = (function () {
     const sledBtn = document.createElement('button');
     sledBtn.type = 'button';
     sledBtn.className = 'sled-btn';
-    sledBtn.innerHTML = '<i></i><b>🛷</b><span>' + CZ.t('run.sled') + '</span>';
+    sledBtn.innerHTML = '<i></i><b></b><span>' + CZ.t('run.sled') + '</span>';
+    sledBtn.querySelector('b').append(CZ.icon('sled'));
     host.append(sledBtn);
     sledBtn.addEventListener('pointerdown', e => { e.stopPropagation(); dash(); });
     function fillSled(n) {

@@ -99,14 +99,14 @@ CZ.quests = (function () {
               h('strong', { text: t('quest.' + item.id, { n: item.n }) }),
               h('div', { class: 'quest-bar' }, h('i', { style: `width:${item.have / item.n * 100}%` })),
               h('small', { text: `${item.have}/${item.n}` })),
-            item.claimed ? h('span', { class: 'quest-check', text: '✓' })
+            item.claimed ? CZ.icon('check', 'quest-check')
               : done ? h('button', { class: 'btn small primary pulse', type: 'button', onClick: e => { const r = claim(i); if (r) { if (r.gold) CZ.ui.fly(e.currentTarget, 'gold', r.gold); if (r.emeralds) CZ.ui.fly(e.currentTarget, 'emeralds', r.emeralds); } CZ.audio.sfx('buy'); CZ.audio.vibrate(30); draw(); } }, chips(rewardOf(item)))
                 : h('button', { class: 'btn small ghost-dark', type: 'button', onClick: () => { wrap.remove(); CZ.ui.wipeTo(GO[item.id]); } }, t('quest.go'), chips(rewardOf(item))));
         }),
         h('div', { class: 'quest-chest' + (all && !q.chest ? ' ready' : '') },
           img('gold.chest_gold', 'quest-chest-img'),
           h('div', {}, h('strong', { text: t('quest.chest') }), chips(CZ.QUEST_CHEST)),
-          q.chest ? h('span', { class: 'quest-check', text: '✓' })
+          q.chest ? CZ.icon('check', 'quest-check')
             : btn(t('daily.claim'), () => {
               const box = wrap.querySelector('.quest-chest');
               if (!claimChest()) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('quest.chestLocked')); }

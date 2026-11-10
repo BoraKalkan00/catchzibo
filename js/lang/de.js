@@ -12,10 +12,10 @@ CZ.i18n.register('de', 'Deutsch', {
   'avatar.girl': 'Mädchen',
   'avatar.boy': 'Junge',
   'story.skip': 'Überspringen',
-  'story.1': 'Du bist gerade nach Schneebeerenhausen gezogen, ein winziges verschneites Städtchen. Überall Kisten. Weihnachten steht vor der Tür!',
-  'story.2': 'Dann, eines Nachts… stahl ein grüner Kobold namens Zibo alle Wintersachen der Stadt. Auch deine!',
-  'story.3': 'Er schleppte alles den Hügel hinauf in seine Villa. Verwöhnt? Sehr. Tut es ihm leid? Kein bisschen.',
-  'story.4': 'Also hast du geklopft. Finde, was dir gehört, beanspruche es und bring es nach Hause!',
+  'story.1': 'Du bist gerade nach Schneebach gezogen, ein winziges, verschneites, gemütliches Städtchen.',
+  'story.2': 'Doch in dieser Nacht… huschte jemand Grünes mit spitzen Ohren durchs Fenster: ZIBO!',
+  'story.3': 'Die Spur führte zur schiefen Villa auf dem Hügel. Verwöhnt? Sehr. Reumütig? Niemals.',
+  'story.4': 'Das Fest ist bald da. Klopf an, finde deine Sachen, sag „das ist meins!“ und fang Zibo!',
   'hub.enter': 'Villa betreten',
   'hub.village': 'Mein Haus',
   'hub.book': 'Fundbüro',
@@ -767,5 +767,9 @@ CZ.i18n.register('de', 'Deutsch', {
   'zibo.boss.patlabo': 'Bumm bumm! Doppelte Bomben!',
   'zibo.boss.kralbo': 'Ich bin der KÖNIG! Krone und Beute gehören mir!',
   'zibo.boss.buzbo.hit': 'Hihi! Du bist eingefroren!',
-  'boss.ahead': '{name} vorne'
+  'boss.ahead': '{name} vorne',
+  'story.fest': 'Morgen ist das große Weihnachtsfest! Die ganze Stadt ist geschmückt, und keiner kann vor Aufregung schlafen.',
+  'story.morning': 'Am Morgen erstarrten alle. Schmuck, Geschenke, Glocken… alles weg. Deine Sachen auch!',
+  'story.trail': 'Aber Zibo war tollpatschig. Grüne Fußspuren und verlorene Schätze führten den Hügel hinauf.',
+  'story.hall': 'Und er war nicht allein! Seine Cousins versteckten sich auch dort: Eisbo, Flugbo, Bumbo und König Zibo.'
 });
