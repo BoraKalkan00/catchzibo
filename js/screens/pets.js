@@ -23,7 +23,7 @@ CZ.petFx = {
   owlLight: lvl => 1 + lvl * 0.12,                   // baykuş: fener çapı çarpanı
   owlTime: lvl => lvl * 0.5,                         // baykuş: odada ek saniye
   foxEvery: lvl => Math.max(3.5, 8 - lvl * 0.8),     // tilki: kaç saniyede bir atılır
-  foxPull: lvl => 3 + lvl                            // tilki: kaç metre yaklaştırır
+  foxPull: lvl => 2 + lvl                            // tilki: kaç metre yaklaştırır
 };
 
 // Odada köşede duran yardımcı (play.js kullanır)
