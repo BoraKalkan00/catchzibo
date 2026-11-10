@@ -782,5 +782,12 @@ CZ.i18n.register('ko', '한국어', {
   'pet.fox.desc': '추격 중 지보에게 달려들어 가까이 끌어와요.',
   'pet.with': '함께 가요',
   'pet.tapToTake': '탭해서 데려가기',
-  'pet.foxBite': '여우가 물었다! -{n}m'
+  'pet.foxBite': '여우가 물었다! -{n}m',
+  'share.btn': '기록 공유',
+  'share.beat': '나를 이길 수 있어?',
+  'share.text': 'Catch Zibo! 내 기록: {n}. 이겨 봐!',
+  'share.saved': '이미지 저장됨',
+  'week.best': '이번 주: {n}',
+  'season.winter': '겨울 시즌',
+  'season.left': '{n}일 남음'
 });

@@ -73,7 +73,7 @@ CZ.screens.gold = (function () {
       h('div', { class: 'lobby' },
         h('div', { class: 'rail left' }, h('small', { class: 'rail-head', text: t('gold.weapons') }), G.weapons.map(wTile)),
         h('div', { class: 'lobby-stage' },
-          d.runBest ? h('p', { class: 'lobby-best' }, CZ.icon('trophy'), t('run.best', { n: (d.runBest || 0).toLocaleString() })) : null,
+          d.runBest ? h('p', { class: 'lobby-best' }, CZ.icon('trophy'), t('run.best', { n: (d.runBest || 0).toLocaleString() }), d.weekKey === CZ.weekKey() && d.weekBest ? h('small', { text: ' · ' + t('week.best', { n: d.weekBest.toLocaleString() }) }) : null) : null,
           h('div', { class: 'lobby-hero' },
             CZ.charArt.img(me, 'front', 'lobby-char'),
             h('div', { class: 'lobby-wbadge' + (ownedW ? '' : ' peek') }, img(showW.art, 'lobby-weapon'))),
@@ -353,6 +353,10 @@ CZ.screens.gold = (function () {
     const d = data();
     const record = sum.score > (d.runBest || 0);
     if (record) d.runBest = sum.score;
+    // Haftalık rekor (her pazartesi sıfırlanır)
+    const wk = CZ.weekKey();
+    if (d.weekKey !== wk) { d.weekKey = wk; d.weekBest = 0; }
+    d.weekBest = Math.max(d.weekBest || 0, sum.score);
     if (g.earned > (d.goldBest || 0)) d.goldBest = g.earned;
     d.runBestM = Math.max(d.runBestM || 0, sum.meters);
     CZ.state.save();
@@ -413,6 +417,7 @@ CZ.screens.gold = (function () {
           h('div', { class: 'res-box small' }, h('small', { text: t('run.metersLabel') }), h('strong', { text: sum.meters + ' m' }),
             g.gems ? h('em', {}, '+' + g.gems, img('ui.emerald', 'mini-ico')) : null,
             sum.bestCombo >= 3 ? h('em', { text: t('run.bestCombo', { n: sum.bestCombo }) }) : null))),
+      btn(t('share.btn'), () => CZ.share.share({ big: sum.score.toLocaleString(), label: t('run.score'), line: sum.bestCombo >= 3 ? t('run.bestCombo', { n: sum.bestCombo }) : sum.meters + ' m', avatar: me }), 'res-share wide', 'ic:trophy'),
       h('div', { class: 'res-actions' },
         btn('⌂', () => CZ.ui.go('hub'), 'ghost-dark res-home'),
         btn(t('gold.again'), () => CZ.ui.go('gold'), 'ghost-dark'),

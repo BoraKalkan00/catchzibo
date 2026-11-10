@@ -397,6 +397,7 @@ self.CZ_FILES = [
  "js/core/notify.js",
  "js/core/progress.js",
  "js/core/quests.js",
+ "js/core/share.js",
  "js/core/state.js",
  "js/core/ui.js",
  "js/data/config.js",

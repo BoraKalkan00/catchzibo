@@ -782,5 +782,12 @@ CZ.i18n.register('pt', 'Português', {
   'pet.fox.desc': 'Pula no Zibo nas perseguições e o puxa para perto.',
   'pet.with': 'Vai com você',
   'pet.tapToTake': 'Toque para levar',
-  'pet.foxBite': 'Mordida! -{n} m'
+  'pet.foxBite': 'Mordida! -{n} m',
+  'share.btn': 'Compartilhe seu recorde',
+  'share.beat': 'Consegue me vencer?',
+  'share.text': 'Meu recorde no Catch Zibo!: {n}. Me supere!',
+  'share.saved': 'Imagem salva',
+  'week.best': 'Esta semana: {n}',
+  'season.winter': 'Temporada de inverno',
+  'season.left': 'Faltam {n} dias'
 });

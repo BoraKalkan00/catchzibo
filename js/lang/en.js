@@ -963,5 +963,12 @@ CZ.i18n.register('en', 'English', {
   'pet.fox.desc': 'Pounces on Zibo during chases and pulls him closer.',
   'pet.with': 'Coming with you',
   'pet.tapToTake': 'Tap to take along',
-  'pet.foxBite': 'Fox bite! -{n} m'
+  'pet.foxBite': 'Fox bite! -{n} m',
+  'share.btn': 'Share your record',
+  'share.beat': 'Can you beat me?',
+  'share.text': 'My Catch Zibo! record: {n}. Beat me!',
+  'share.saved': 'Image saved',
+  'week.best': 'This week: {n}',
+  'season.winter': 'Winter Season',
+  'season.left': '{n} days left'
 });

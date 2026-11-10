@@ -328,3 +328,9 @@ CZ.ZIBO_FAMILY = {
   treasure: { id: 'patlabo', tint: 0xffb59e, double: true, bombMul: 0.7 },              // hep çift bomba
   throne: { id: 'kralbo', tint: 0xffe48a, double: true, switchMul: 0.7, bombMul: 0.8, gapMul: 1.15, crown: true }
 };
+
+// Hafta anahtarı (pazartesi başlar) — haftalık rekor için
+CZ.weekKey = () => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0, 10); };
+// SEZON: şimdilik Kış. Yeni sezon = yeni resimler + bu satır.
+CZ.SEASON = { id: 'winter', end: '2027-01-07' };
+CZ.seasonDaysLeft = () => Math.max(0, Math.ceil((new Date(CZ.SEASON.end + 'T00:00:00') - Date.now()) / 86400000));

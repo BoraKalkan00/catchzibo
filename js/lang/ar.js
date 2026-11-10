@@ -782,5 +782,12 @@ CZ.i18n.register('ar', 'العربية', {
   'pet.fox.desc': 'ينقضّ على زيبو أثناء المطاردة ويقرّبه.',
   'pet.with': 'يرافقك',
   'pet.tapToTake': 'انقر لاصطحابه',
-  'pet.foxBite': 'عضّة الثعلب! -{n} م'
+  'pet.foxBite': 'عضّة الثعلب! -{n} م',
+  'share.btn': 'شارك رقمك القياسي',
+  'share.beat': 'هل تستطيع هزيمتي؟',
+  'share.text': 'رقمي في Catch Zibo!: {n}. اهزمني!',
+  'share.saved': 'تم حفظ الصورة',
+  'week.best': 'هذا الأسبوع: {n}',
+  'season.winter': 'موسم الشتاء',
+  'season.left': 'باقي {n} يوم'
 });

@@ -782,5 +782,12 @@ CZ.i18n.register('ja', '日本語', {
   'pet.fox.desc': '追跡中にジボに飛びかかり、引き寄せる。',
   'pet.with': 'いっしょに来るよ',
   'pet.tapToTake': 'タップで連れていく',
-  'pet.foxBite': 'キツネがかんだ！-{n}m'
+  'pet.foxBite': 'キツネがかんだ！-{n}m',
+  'share.btn': '記録をシェア',
+  'share.beat': 'わたしを超えられる？',
+  'share.text': 'Catch Zibo!の記録：{n}。超えてみて！',
+  'share.saved': '画像を保存しました',
+  'week.best': '今週：{n}',
+  'season.winter': '冬のシーズン',
+  'season.left': '残り{n}日'
 });

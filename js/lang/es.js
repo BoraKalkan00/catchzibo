@@ -782,5 +782,12 @@ CZ.i18n.register('es', 'Español', {
   'pet.fox.desc': 'Salta sobre Zibo en las persecuciones y lo acerca.',
   'pet.with': 'Va contigo',
   'pet.tapToTake': 'Toca para llevarlo',
-  'pet.foxBite': '¡Mordisco! -{n} m'
+  'pet.foxBite': '¡Mordisco! -{n} m',
+  'share.btn': 'Comparte tu récord',
+  'share.beat': '¿Me superas?',
+  'share.text': 'Mi récord en Catch Zibo!: {n}. ¡Supérame!',
+  'share.saved': 'Imagen guardada',
+  'week.best': 'Esta semana: {n}',
+  'season.winter': 'Temporada de invierno',
+  'season.left': 'Quedan {n} días'
 });

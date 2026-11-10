@@ -782,5 +782,12 @@ CZ.i18n.register('de', 'Deutsch', {
   'pet.fox.desc': 'Springt Zibo bei der Jagd an und holt ihn näher.',
   'pet.with': 'Kommt mit dir',
   'pet.tapToTake': 'Tippen zum Mitnehmen',
-  'pet.foxBite': 'Fuchsbiss! -{n} m'
+  'pet.foxBite': 'Fuchsbiss! -{n} m',
+  'share.btn': 'Rekord teilen',
+  'share.beat': 'Schaffst du mehr?',
+  'share.text': 'Mein Catch-Zibo!-Rekord: {n}. Schlag mich!',
+  'share.saved': 'Bild gespeichert',
+  'week.best': 'Diese Woche: {n}',
+  'season.winter': 'Wintersaison',
+  'season.left': 'Noch {n} Tage'
 });

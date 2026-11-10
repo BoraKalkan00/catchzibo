@@ -782,5 +782,12 @@ CZ.i18n.register('fr', 'Français', {
   'pet.fox.desc': 'Bondit sur Zibo pendant les poursuites et le rapproche.',
   'pet.with': 'Vient avec toi',
   'pet.tapToTake': 'Touche pour l’emmener',
-  'pet.foxBite': 'Morsure ! -{n} m'
+  'pet.foxBite': 'Morsure ! -{n} m',
+  'share.btn': 'Partage ton record',
+  'share.beat': 'Tu peux me battre ?',
+  'share.text': 'Mon record Catch Zibo! : {n}. Bats-moi !',
+  'share.saved': 'Image enregistrée',
+  'week.best': 'Cette semaine : {n}',
+  'season.winter': 'Saison d’hiver',
+  'season.left': 'Encore {n} jours'
 });

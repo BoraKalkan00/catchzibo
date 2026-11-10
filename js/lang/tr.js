@@ -963,5 +963,12 @@ CZ.i18n.register('tr', 'Türkçe', {
   'pet.fox.desc': 'Kovalamacada Zibo’ya atılır, onu yaklaştırır.',
   'pet.with': 'Seninle geliyor',
   'pet.tapToTake': 'Yanına almak için dokun',
-  'pet.foxBite': 'Tilki ısırdı! -{n} m'
+  'pet.foxBite': 'Tilki ısırdı! -{n} m',
+  'share.btn': 'Rekorunu paylaş',
+  'share.beat': 'Geçebilir misin?',
+  'share.text': 'Catch Zibo! rekorum: {n}. Geç beni!',
+  'share.saved': 'Resim kaydedildi',
+  'week.best': 'Bu hafta: {n}',
+  'season.winter': 'Kış Sezonu',
+  'season.left': '{n} gün kaldı'
 });

@@ -190,6 +190,7 @@
           h('button', { class: 'play-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
             h('b', { text: t('hub.enter') }),
             h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) })),
+          h('div', { class: 'season-ribbon' }, CZ.icon('snowflake'), h('b', { text: t('season.' + CZ.SEASON.id) }), h('small', { text: t('season.left', { n: CZ.seasonDaysLeft() }) })),
           dailyCard(),
           adRewardBar(),
           h('div', { class: 'hub-tiles' },
