@@ -771,5 +771,16 @@ CZ.i18n.register('de', 'Deutsch', {
   'story.fest': 'Morgen ist das große Weihnachtsfest! Die ganze Stadt ist geschmückt, und keiner kann vor Aufregung schlafen.',
   'story.morning': 'Am Morgen erstarrten alle. Schmuck, Geschenke, Glocken… alles weg. Deine Sachen auch!',
   'story.trail': 'Aber Zibo war tollpatschig. Grüne Fußspuren und verlorene Schätze führten den Hügel hinauf.',
-  'story.hall': 'Und er war nicht allein! Seine Cousins versteckten sich auch dort: Eisbo, Flugbo, Bumbo und König Zibo.'
+  'story.hall': 'Und er war nicht allein! Seine Cousins versteckten sich auch dort: Eisbo, Flugbo, Bumbo und König Zibo.',
+  'pet.title': 'Helfer',
+  'pet.short': 'Helfer',
+  'pet.penguin': 'Pinguin Pip',
+  'pet.owl': 'Eule Laterne',
+  'pet.fox': 'Fuchs Watte',
+  'pet.penguin.desc': 'Erschnüffelt dein Ding: es leuchtet ab und zu.',
+  'pet.owl.desc': 'Größeres Nachtlicht und mehr Zeit im Raum.',
+  'pet.fox.desc': 'Springt Zibo bei der Jagd an und holt ihn näher.',
+  'pet.with': 'Kommt mit dir',
+  'pet.tapToTake': 'Tippen zum Mitnehmen',
+  'pet.foxBite': 'Fuchsbiss! -{n} m'
 });

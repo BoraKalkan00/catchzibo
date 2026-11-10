@@ -292,6 +292,49 @@ CZ.runner3d = (function () {
       scene.add(sp);
     });
 
+    // AKICILIK: bir dekor grubundaki onlarca küçük kutuyu tek bir ağa "pişir" (renkler köşe rengine).
+    // Ev başına ~20 çizim çağrısı → 2. Sahnedeki toplam çağrı ~750'den ~150'ye iner.
+    const bakedLambert = new THREE.MeshLambertMaterial({ vertexColors: true });
+    const bakedBasic = new THREE.MeshBasicMaterial({ vertexColors: true });
+    function bake(g) {
+      const lists = { lambert: [], basic: [] };
+      g.children.slice().forEach(ch => {
+        if (!ch.isMesh) return;
+        ch.updateMatrix();
+        let geo = ch.geometry.index ? ch.geometry.toNonIndexed() : ch.geometry.clone();
+        geo.applyMatrix4(ch.matrix);
+        const n = geo.attributes.position.count;
+        const col = new Float32Array(n * 3);
+        const c = ch.material.color;
+        for (let i = 0; i < n; i++) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+        geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+        (ch.material.isMeshBasicMaterial ? lists.basic : lists.lambert).push(geo);
+        g.remove(ch);
+      });
+      ['lambert', 'basic'].forEach(k => {
+        const arr = lists[k];
+        if (!arr.length) return;
+        let total = 0;
+        arr.forEach(gg => { total += gg.attributes.position.count; });
+        const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), col = new Float32Array(total * 3);
+        let off = 0;
+        arr.forEach(gg => {
+          pos.set(gg.attributes.position.array, off * 3);
+          if (gg.attributes.normal) nor.set(gg.attributes.normal.array, off * 3);
+          col.set(gg.attributes.color.array, off * 3);
+          off += gg.attributes.position.count;
+          gg.dispose();
+        });
+        const merged = new THREE.BufferGeometry();
+        merged.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        merged.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+        merged.setAttribute('color', new THREE.BufferAttribute(col, 3));
+        merged.computeBoundingSphere();
+        g.add(new THREE.Mesh(merged, k === 'basic' ? bakedBasic : bakedLambert));
+      });
+      return g;
+    }
+
     /* Kenar dekoru: ev, fener, çam. Hepsi döngüde arkaya geri taşınır. */
     function house(side) {
       const g = new THREE.Group();
@@ -353,16 +396,16 @@ CZ.runner3d = (function () {
     [-1, 1].forEach(side => {
       let z = 6;
       while (z > -110) {
-        const hz = house(side);
+        const hz = bake(house(side));
         hz.position.z = z - hz.userData.len / 2;
         scene.add(hz); deco.push(hz);
         z -= hz.userData.len;
       }
       for (let z2 = 2; z2 > -110; z2 -= 13) {
-        const l = lamp(side); l.position.z = z2; scene.add(l); deco.push(l);
+        const l = bake(lamp(side)); l.position.z = z2; scene.add(l); deco.push(l);
       }
       for (let z3 = -4; z3 > -110; z3 -= rand(18, 26)) {
-        const p = pine(side); p.position.z = z3; p.position.x = side * (roadW / 2 + 1.0); scene.add(p); deco.push(p);
+        const p = bake(pine(side)); p.position.z = z3; p.position.x = side * (roadW / 2 + 1.0); scene.add(p); deco.push(p);
       }
     });
 
@@ -394,6 +437,42 @@ CZ.runner3d = (function () {
     zibo.center.set(0.5, 0);
     zibo.position.set(0, 0, -17);
     scene.add(zibo);
+    // Yardımcı hayvan: kahramanın yanında koşar; tilki ara ara Zibo'ya atılır.
+    let petSp = null;
+    const petState = { dash: 0 };
+    if (opts.pet) {
+      const im = new Image();
+      im.onload = () => {
+        if (!s.alive) return;
+        const tx = new THREE.Texture(im); tx.needsUpdate = true;
+        petSp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true }));
+        petSp.center.set(0.5, 0);
+        const hh = opts.pet.id === 'fox' ? 0.95 : 0.85;
+        petSp.scale.set(hh * im.width / im.height, hh, 1);
+        scene.add(petSp);
+      };
+      im.src = CZ.petArt(opts.pet.id, 'back');
+    }
+    function petStep(dt) {
+      if (!petSp) return;
+      // Altın Avı'nda tilki kendi kendine Zibo'nun çuvalına atılır
+      if (!CHASE && s.running && opts.pet.id === 'fox') {
+        petState.timer = (petState.timer == null ? CZ.petFx.foxEvery(opts.pet.lvl) : petState.timer) - dt;
+        if (petState.timer <= 0) { petState.timer = CZ.petFx.foxEvery(opts.pet.lvl) + 2; petDash(huntHit); }
+      }
+      const side = s.lane >= LANES - 1 ? -1 : 1;
+      let x = s.px + side * 0.85, y = Math.abs(Math.sin(s.frame * 11)) * 0.12, z = 0.35;
+      if (petState.dash > 0) {
+        petState.dash -= dt;
+        const k = 1 - Math.max(0, petState.dash) / 0.9;
+        const e = Math.sin(k * Math.PI);
+        x += (zibo.position.x - x) * e; z += (zibo.position.z + 0.6 - z) * e; y += e * 1.2;
+        if (k > 0.45 && !petState.hit) { petState.hit = true; ziboHit(); if (petState.onHit) petState.onHit(); }
+      }
+      petSp.position.set(x, y, z);
+    }
+    function petDash(onHit) { if (!petSp || petState.dash > 0) return; petState.dash = 0.9; petState.hit = false; petState.onHit = onHit; }
+
     // Kral Zibo'nun tacı
     let crown = null;
     if (opts.ziboCrown) {
@@ -511,7 +590,10 @@ CZ.runner3d = (function () {
     }
 
     /* ---------- Engeller ve toplanacaklar ---------- */
-    function addObj(o) { o.mesh.position.z = SPAWN_Z; scene.add(o.mesh); s.objs.push(o); return o; }
+    function addObj(o) {
+      if (o.mesh.isGroup) { if (o.mesh.userData.wobble) o.mesh.children.forEach(u => u.isGroup && bake(u)); else bake(o.mesh); }
+      o.mesh.position.z = SPAWN_Z; scene.add(o.mesh); s.objs.push(o); return o;
+    }
     function hurdle(lane) {          // alçak: hediye kutusu sırası → ZIPLA
       const g = new THREE.Group();
       g.add(mesh(GEO.box, pick(M.gifts), 0.62, 0.62, 0.62, -0.32, 0.31, 0));
@@ -623,11 +705,26 @@ CZ.runner3d = (function () {
       for (const c of list) { r -= c.weight; if (r <= 0) return c; }
       return list[0];
     }
+    // Altınlar tek bir "örnekli" ağla çizilir (kaç altın olursa olsun 1 çizim çağrısı).
+    const COIN_MAX = 120;
+    const coinInst = new THREE.InstancedMesh(GEO.coin, M.coin, COIN_MAX);
+    coinInst.count = 0;
+    coinInst.frustumCulled = false;
+    scene.add(coinInst);
     function coin(lane, z, y) {
-      const m = new THREE.Mesh(GEO.coin, M.coin);
+      const m = new THREE.Object3D();       // sahneye eklenmez; sadece konum tutar
       m.position.set(laneX(lane), y, z);
-      scene.add(m);
       s.coins.push({ kind: 'coin', mesh: m, lane });
+    }
+    function drawCoins() {
+      let n = 0;
+      for (const c of s.coins) {
+        if (c.kind !== 'coin' || n >= COIN_MAX) continue;
+        c.mesh.updateMatrix();
+        coinInst.setMatrixAt(n++, c.mesh.matrix);
+      }
+      coinInst.count = n;
+      coinInst.instanceMatrix.needsUpdate = true;
     }
     function gem(lane, z, y) {
       const m = new THREE.Mesh(GEO.gem, M.emerald);
@@ -790,14 +887,40 @@ CZ.runner3d = (function () {
 
     /* ---------- Döngü ---------- */
     let raf = 0, last = 0;
+    // Akıcılık: kare süresini ölç; telefon zorlanıyorsa çözünürlüğü kademeli düşür (oyun hissi > keskinlik).
+    const perf = s.perf = { fps: 60, js: 0, calls: 0, ratio: renderer.getPixelRatio(), acc: 0, n: 0, jsAcc: 0, slow: 0 };
+    const RATIOS = [Math.min(window.devicePixelRatio || 1, 1.5), 1, 0.8, 0.65];
+    let ratioIdx = 0;
+    const fpsEl = /[?&]fps=1/.test(location.search) || CZ.DEV ? document.createElement('div') : null;
+    if (fpsEl) { fpsEl.className = 'fps-meter'; host.append(fpsEl); }
     function loop(now) {
       raf = requestAnimationFrame(loop);
-      const dt = Math.min(0.05, (now - (last || now)) / 1000);
+      const raw = now - (last || now);
+      const dt = Math.min(0.05, raw / 1000);
       last = now;
+      const t0 = performance.now();
       if (s.running) step(dt);
       else if (s.catching) catchStep(dt);
       else idle(dt);
+      petStep(dt);
+      drawCoins();
       renderer.render(scene, camera);
+      perf.jsAcc += performance.now() - t0;
+      perf.acc += raw; perf.n++;
+      if (perf.acc >= 1500) {
+        perf.fps = Math.round(1000 * perf.n / perf.acc);
+        perf.js = +(perf.jsAcc / perf.n).toFixed(1);
+        perf.calls = renderer.info.render.calls;
+        // 3 ölçüm üst üste 48 fps altıysa bir kademe düşür
+        perf.slow = perf.fps < 48 && !document.hidden ? perf.slow + 1 : 0;
+        if (perf.slow >= 2 && ratioIdx < RATIOS.length - 1) {
+          ratioIdx++; perf.slow = 0;
+          renderer.setPixelRatio(RATIOS[ratioIdx]); perf.ratio = RATIOS[ratioIdx];
+          resize();
+        }
+        if (fpsEl) fpsEl.textContent = perf.fps + ' fps · ' + perf.js + ' ms · ' + perf.calls + ' dc · x' + perf.ratio;
+        perf.acc = 0; perf.n = 0; perf.jsAcc = 0;
+      }
     }
     // Yakalama sahnesi: ağır çekim, kahraman Zibo'nun üstüne atlar, eşya havaya fırlar, kamera yaklaşır.
     // Zibo da engelleri aşar: alçak/kızak → zıplar, pankart → eğilir. Önündeki engel ortasından geçerken zirvede olur.
@@ -1242,7 +1365,7 @@ CZ.runner3d = (function () {
         s.bombs.push({ lane, sp, t: 0, dur: sec, x0: zibo.position.x, y0: 1.2, z0: zibo.position.z });
       },
       hook(hit) { s.hookFx = 0.3; s.hookHit = hit; },
-      throwAt, dash,
+      throwAt, dash, petDash,
       hurt() { s.invT = 0.8; s.shake = 0.35; s.stunT = 0.6; },
       // Bu şeritte, sec saniye sonra oyuncunun hizasında hangi engel olacak?
       obstacleAt(lane, sec) {

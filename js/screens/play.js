@@ -510,6 +510,20 @@ CZ.screens.play = (function () {
     s.timeLeft -= dt;
     s.tauntIn -= dt;
     drawTime();
+    // Penguen koklaması: aralıkla hedef eşya kısa süre parlar
+    if (s.pet && s.pet.pet.id === 'penguin') {
+      s.sniffIn = (s.sniffIn == null ? CZ.petFx.sniffEvery(s.pet.pet.lvl) : s.sniffIn) - dt;
+      if (s.sniffIn <= 0) {
+        s.sniffIn = CZ.petFx.sniffEvery(s.pet.pet.lvl);
+        const tg = s.items.find(it => it.target);
+        if (tg) {
+          s.pet.cheer();
+          tg.el.classList.add('lens-glow');
+          CZ.audio.sfx('lift', 8);
+          later(() => tg.el.classList.remove('lens-glow'), 700);
+        }
+      }
+    }
     const shown = Math.ceil(s.timeLeft);
     if (shown !== before) {
       if (shown <= 10) {
@@ -955,9 +969,14 @@ CZ.screens.play = (function () {
     s.last = performance.now();
     s.running = true;
     if (s.tutorial) tutorialStep();
+    // Yardımcı hayvan odada: penguen belli aralıkla koklar (eşya parlar), baykuş ek süre + büyük fener.
+    if (!s.tutorial) {
+      s.pet = CZ.petInRoom(s.room);
+      if (s.pet && s.pet.pet.id === 'owl') { const m = s.room.querySelector('.night-mask'); if (m) m.style.setProperty('--lr', CZ.petFx.owlLight(s.pet.pet.lvl)); }
+    }
     // Yükseltmeler: kakao = ek süre, büyüteç = eşya bir an parlar.
     if (!s.tutorial) {
-      const extra = CZ.upLevel('cocoa') + CZ.charPerk('time');
+      const extra = CZ.upLevel('cocoa') + CZ.charPerk('time') + (s.pet && s.pet.pet.id === 'owl' ? CZ.petFx.owlTime(s.pet.pet.lvl) : 0);
       if (extra) { s.timeLeft += extra; s.total += extra; drawTime(); }
       const lens = CZ.upLevel('lens');
       const glow = (lens ? 0.6 + lens * 0.35 : 0.3) + CZ.charPerk('lens');

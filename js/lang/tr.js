@@ -952,5 +952,16 @@ CZ.i18n.register('tr', 'Türkçe', {
   'story.fest': 'Yarın büyük Noel Festivali var! Bütün kasaba süsledi, hazırladı, heyecandan kimse uyuyamıyor.',
   'story.morning': 'Sabah herkes donakaldı. Süsler, hediyeler, ziller… Her şey gitmiş. Seninkiler de!',
   'story.trail': 'Ama Zibo sakardı. Karda yeşil ayak izleri ve düşürdüğü eşyalar tepeye çıkıyordu.',
-  'story.hall': 'Üstelik yalnız değildi! Kuzenleri de köşkte saklanıyordu: Buzbo, Uçubo, Patlabo ve Kral Zibo.'
+  'story.hall': 'Üstelik yalnız değildi! Kuzenleri de köşkte saklanıyordu: Buzbo, Uçubo, Patlabo ve Kral Zibo.',
+  'pet.title': 'Yardımcılar',
+  'pet.short': 'Yardımcı',
+  'pet.penguin': 'Penguen Pıtı',
+  'pet.owl': 'Baykuş Fener',
+  'pet.fox': 'Tilki Pamuk',
+  'pet.penguin.desc': 'Odada eşyanın yerini koklar: eşyan ara ara parlar.',
+  'pet.owl.desc': 'Gece feneri büyür, odada ek süre verir.',
+  'pet.fox.desc': 'Kovalamacada Zibo’ya atılır, onu yaklaştırır.',
+  'pet.with': 'Seninle geliyor',
+  'pet.tapToTake': 'Yanına almak için dokun',
+  'pet.foxBite': 'Tilki ısırdı! -{n} m'
 });

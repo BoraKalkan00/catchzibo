@@ -771,5 +771,16 @@ CZ.i18n.register('fr', 'Français', {
   'story.fest': 'Demain, c’est la grande Fête de Noël ! Tout le village est décoré et personne n’arrive à dormir.',
   'story.morning': 'Au matin, tout le monde s’est figé. Décorations, cadeaux, clochettes… tout a disparu. Les tiens aussi !',
   'story.trail': 'Mais Zibo était maladroit. Des traces vertes et des trésors tombés menaient en haut de la colline.',
-  'story.hall': 'Et il n’était pas seul ! Ses cousins s’y cachaient aussi : Glaçbo, Volbo, Boumbo et le Roi Zibo.'
+  'story.hall': 'Et il n’était pas seul ! Ses cousins s’y cachaient aussi : Glaçbo, Volbo, Boumbo et le Roi Zibo.',
+  'pet.title': 'Aides',
+  'pet.short': 'Aides',
+  'pet.penguin': 'Pip le pingouin',
+  'pet.owl': 'Lanterne la chouette',
+  'pet.fox': 'Coton le renard',
+  'pet.penguin.desc': 'Flaire ton objet : il brille de temps en temps.',
+  'pet.owl.desc': 'Lampe de nuit plus grande et plus de temps.',
+  'pet.fox.desc': 'Bondit sur Zibo pendant les poursuites et le rapproche.',
+  'pet.with': 'Vient avec toi',
+  'pet.tapToTake': 'Touche pour l’emmener',
+  'pet.foxBite': 'Morsure ! -{n} m'
 });

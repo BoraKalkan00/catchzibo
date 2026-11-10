@@ -771,5 +771,16 @@ CZ.i18n.register('pt', 'Português', {
   'story.fest': 'Amanhã é o grande Festival de Natal! A cidade toda decorou e ninguém consegue dormir de tanta empolgação.',
   'story.morning': 'De manhã todos congelaram. Enfeites, presentes, sinos… tudo sumiu. Os seus também!',
   'story.trail': 'Mas o Zibo era desastrado. Pegadas verdes e tesouros caídos subiam a colina.',
-  'story.hall': 'E ele não estava sozinho! Os primos também se escondiam lá: Gelbo, Voabo, Bumbo e o Rei Zibo.'
+  'story.hall': 'E ele não estava sozinho! Os primos também se escondiam lá: Gelbo, Voabo, Bumbo e o Rei Zibo.',
+  'pet.title': 'Ajudantes',
+  'pet.short': 'Ajudantes',
+  'pet.penguin': 'Pinguim Pip',
+  'pet.owl': 'Coruja Lanterna',
+  'pet.fox': 'Raposa Algodão',
+  'pet.penguin.desc': 'Fareja seu item: ele brilha de vez em quando.',
+  'pet.owl.desc': 'Luz noturna maior e mais tempo na sala.',
+  'pet.fox.desc': 'Pula no Zibo nas perseguições e o puxa para perto.',
+  'pet.with': 'Vai com você',
+  'pet.tapToTake': 'Toque para levar',
+  'pet.foxBite': 'Mordida! -{n} m'
 });

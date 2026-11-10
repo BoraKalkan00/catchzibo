@@ -771,5 +771,16 @@ CZ.i18n.register('es', 'Español', {
   'story.fest': '¡Mañana es el gran Festival de Navidad! Todo el pueblo está decorado y nadie puede dormir de la emoción.',
   'story.morning': 'Por la mañana todos se quedaron helados. Adornos, regalos, campanas… todo desapareció. ¡Lo tuyo también!',
   'story.trail': 'Pero Zibo era torpe. Huellas verdes y tesoros caídos subían por la colina.',
-  'story.hall': '¡Y no estaba solo! Sus primos también se escondían allí: Hielbo, Volbo, Bumbo y el Rey Zibo.'
+  'story.hall': '¡Y no estaba solo! Sus primos también se escondían allí: Hielbo, Volbo, Bumbo y el Rey Zibo.',
+  'pet.title': 'Ayudantes',
+  'pet.short': 'Ayudantes',
+  'pet.penguin': 'Pingüino Pip',
+  'pet.owl': 'Búho Farol',
+  'pet.fox': 'Zorro Algodón',
+  'pet.penguin.desc': 'Olfatea tu objeto: brilla de vez en cuando.',
+  'pet.owl.desc': 'Más luz de noche y más tiempo en la sala.',
+  'pet.fox.desc': 'Salta sobre Zibo en las persecuciones y lo acerca.',
+  'pet.with': 'Va contigo',
+  'pet.tapToTake': 'Toca para llevarlo',
+  'pet.foxBite': '¡Mordisco! -{n} m'
 });

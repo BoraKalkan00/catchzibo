@@ -199,6 +199,7 @@
               t('quest.short'), `${q.list.filter(x => x.claimed).length}/3`, () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), CZ.quests.ready(), 'quests'))),
         h('nav', { class: 'hub-nav glass-bar' },
           nav(t('chars.title'), 'ui.wardrobe', 'chars'),
+          h('button', { class: 'nav-btn', type: 'button', onClick: () => { CZ.audio.sfx('button'); go('pets'); } }, h('img', { class: 'nav-icon', src: CZ.petArt((CZ.activePet() || { id: 'penguin' }).id, 'front'), alt: '' }), h('span', { text: t('pet.short') })),
           open('book') ? nav(t('hub.bookShort'), 'ui.book', 'book') : null,
           open('diary') ? nav(t('hub.diaryShort'), 'ui.diary', 'diary', game.diaryUnread()) : null));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.

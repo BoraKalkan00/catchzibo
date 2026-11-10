@@ -952,5 +952,16 @@ CZ.i18n.register('en', 'English', {
   'story.fest': 'Tomorrow is the big Christmas Festival! The whole town decorated, and nobody can sleep from excitement.',
   'story.morning': 'In the morning everyone froze. Ornaments, presents, bells… all gone. Yours too!',
   'story.trail': 'But Zibo was clumsy. Green footprints and dropped treasures led up the hill.',
-  'story.hall': 'And he wasn’t alone! His cousins were hiding there too: Buzbo, Flybo, Boombo and King Zibo.'
+  'story.hall': 'And he wasn’t alone! His cousins were hiding there too: Buzbo, Flybo, Boombo and King Zibo.',
+  'pet.title': 'Helpers',
+  'pet.short': 'Helpers',
+  'pet.penguin': 'Pip the Penguin',
+  'pet.owl': 'Lantern the Owl',
+  'pet.fox': 'Cotton the Fox',
+  'pet.penguin.desc': 'Sniffs out your item: it glows now and then.',
+  'pet.owl.desc': 'Bigger night light and extra room time.',
+  'pet.fox.desc': 'Pounces on Zibo during chases and pulls him closer.',
+  'pet.with': 'Coming with you',
+  'pet.tapToTake': 'Tap to take along',
+  'pet.foxBite': 'Fox bite! -{n} m'
 });

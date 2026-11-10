@@ -40,7 +40,7 @@ CZ.screens.chase = (function () {
       c.run = CZ.runner3d.start(c.stage, {
         mode: 'chase', lanes: 3, speed: 17, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
         ziboTint: c.boss.tint, ziboFly: c.boss.fly, ziboCrown: c.boss.crown,
-        perk: {}, goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
+        pet: CZ.activePet(), perk: {}, goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
         onDash(lvl) { if (!c || !c.running) return; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
         onTap: () => hook(),
         onGold(n) { c.gold += n; if (c.gold >= (c.goldSay || 25)) { c.goldSay = c.gold + 40; if (!speaking()) say('zibo.chase.gold'); } c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
@@ -126,6 +126,20 @@ CZ.screens.chase = (function () {
 
     if (c.run) c.lane = c.run.state.lane;
     c.ziboStun = Math.max(0, (c.ziboStun || 0) - dt);
+    // Tilki: ara ara Zibo'ya atılır, onu sendeletip yaklaştırır
+    const pet = CZ.activePet();
+    if (pet && pet.id === 'fox' && c.run) {
+      c.foxIn = (c.foxIn == null ? CZ.petFx.foxEvery(pet.lvl) : c.foxIn) - dt;
+      if (c.foxIn <= 0) {
+        c.foxIn = CZ.petFx.foxEvery(pet.lvl);
+        c.run.petDash(() => {
+          if (!c || !c.running) return;
+          const n = CZ.petFx.foxPull(pet.lvl);
+          c.gap = Math.max(0, c.gap - n); c.ziboStun = 0.5;
+          floatText(t('pet.foxBite', { n }), 'gold');
+        });
+      }
+    }
     if (now >= c.nextSwitch && c.ziboStun <= 0) switchLane();
     if (now >= c.nextBomb) throwBomb(now);
     c.bombs.slice().forEach(b => { if (now >= b.at) explode(b); });

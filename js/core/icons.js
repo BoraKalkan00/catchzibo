@@ -62,12 +62,15 @@
     shield: `<path d="M50 6 L86 18 V48 q0 28-36 44 q-36-16-36-44 V18z" fill="#3aa0ff" ${W}/><path d="M50 20 V82" stroke="#fff" stroke-width="6" opacity=".5"/>`,
     mask: `<path d="M50 6 L86 18 V48 q0 28-36 44 q-36-16-36-44 V18z" fill="#3aa0ff" ${W}/>`
   };
+  // Çizilmiş (3D) ikonlar varsa onlar kullanılır, yoksa SVG.
+  const IMG = ['lens', 'cocoa', 'sled', 'flame', 'crown', 'trophy', 'goblin', 'moon'];
   CZ.ICONS = SVG;
   CZ.icon = function (name, cls) {
     const span = document.createElement('span');
     span.className = 'ic ic-' + name + (cls ? ' ' + cls : '');
     span.setAttribute('aria-hidden', 'true');
-    span.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${SVG[name] || ''}</svg>`;
+    if (IMG.includes(name)) span.innerHTML = `<img src="assets/ui/ic_${name}.webp" alt="" draggable="false">`;
+    else span.innerHTML = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${SVG[name] || ''}</svg>`;
     return span;
   };
 })();
