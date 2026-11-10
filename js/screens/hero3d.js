@@ -225,6 +225,7 @@ CZ.hero3d = function (THREE, kind) {
 // Karakterin kendi çizimleri kullanıldığı için oyundaki karakter birebir Gemini'deki karakter olur.
 // İleride 8 karelik koşu sayfası gelirse CZ.RUN_FRAMES[kind] listesine eklenir, otomatik kullanılır.
 // Videodan çıkarılmış kareler (Kling yeşil ekran): koşu döngüsü ve zıplama dizisi.
+CZ.POSE_FRAMES = {};
 CZ.RUN_FRAMES = {
   knight: ['run00', 'run01', 'run02', 'run03', 'run04', 'run05', 'run06', 'run07', 'run08', 'run09', 'run10', 'run11', 'run12'],
   boy: Array.from({ length: 8 }, (_, i) => 'run' + String(i).padStart(2, '0')),
@@ -246,7 +247,12 @@ CZ.heroSprite = function (THREE, kind) {
   const video = !!CZ.RUN_FRAMES[kind];
   const runFrames = CZ.RUN_FRAMES[kind] || ['back1', 'back2'];
   const jumpFrames = CZ.JUMP_FRAMES[kind] || ['jump'];
-  const poses = Array.from(new Set(runFrames.concat(jumpFrames, ['jump', 'slide'])));
+  // Ek pozlar (videodan gelirse): eğilme kareleri ve sağa/sola kaçış kareleri. Yoksa eski tek resimler.
+  const extra = (CZ.POSE_FRAMES && CZ.POSE_FRAMES[kind]) || {};
+  const slideFrames = extra.slide || ['slide'];
+  const leftFrames = extra.left || null;
+  const rightFrames = extra.right || null;
+  const poses = Array.from(new Set(runFrames.concat(jumpFrames, slideFrames, leftFrames || [], rightFrames || [], ['jump'])));
   poses.forEach(p => {
     const im = new Image();
     im.onload = () => {
@@ -272,13 +278,16 @@ CZ.heroSprite = function (THREE, kind) {
   function update(dt, info) {
     st.jump = lerp(st.jump, info.jumping ? 1 : 0, Math.min(1, dt * 14));
     st.slide = lerp(st.slide, info.sliding ? 1 : 0, Math.min(1, dt * 18));
+    if (!info.sliding) st.slideT = 0;
     st.lean = lerp(st.lean, info.lean || 0, Math.min(1, dt * 12));
     st.dead = lerp(st.dead, info.dead ? 1 : 0, Math.min(1, dt * 5));
     const running = !info.idle && !info.dead;
     phase += dt * (running ? 7 + (info.speed || 13) * 0.3 : 2);
     const H = 1.85;
     if (info.sliding) {
-      show('slide', H * 0.62);
+      st.slideT = (st.slideT || 0) + dt;
+      const sf = slideFrames[Math.min(slideFrames.length - 1, Math.floor(st.slideT * 14))];
+      show(sf, slideFrames.length > 1 ? H * 1.25 : H * 0.62);
       body.position.y = 0;
       body.rotation.z = 0;
     } else if (info.jumping) {
@@ -288,7 +297,15 @@ CZ.heroSprite = function (THREE, kind) {
       show(jf, video ? H * 1.25 : H * 1.05);
       body.position.y = 0;
       body.rotation.z = st.lean * -0.25;
+    } else if ((leftFrames || rightFrames) && Math.abs(info.lean || 0) > 0.25) {
+      // Şerit değiştirirken yana kaçış karesi
+      const fr = (info.lean < 0 ? leftFrames : rightFrames) || leftFrames || rightFrames;
+      st.dodgeT = (st.dodgeT || 0) + dt;
+      show(fr[Math.min(fr.length - 1, Math.floor(st.dodgeT * 16))], H * 1.25);
+      body.position.y = 0;
+      body.rotation.z = 0;
     } else {
+      st.dodgeT = 0;
       // Koşu: kareler adım hızında değişir; her adımda gövde yaylanır ve hafifçe sallanır.
       const n = runFrames.length;
       const f = Math.floor((phase / Math.PI) * (n / 2)) % n;
