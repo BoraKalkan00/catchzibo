@@ -789,5 +789,6 @@ CZ.i18n.register('ar', 'العربية', {
   'share.saved': 'تم حفظ الصورة',
   'week.best': 'هذا الأسبوع: {n}',
   'season.winter': 'موسم الشتاء',
-  'season.left': 'باقي {n} يوم'
+  'season.left': 'باقي {n} يوم',
+  'heist.short': 'السرقة'
 });

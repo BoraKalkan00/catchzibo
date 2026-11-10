@@ -789,5 +789,6 @@ CZ.i18n.register('ko', '한국어', {
   'share.saved': '이미지 저장됨',
   'week.best': '이번 주: {n}',
   'season.winter': '겨울 시즌',
-  'season.left': '{n}일 남음'
+  'season.left': '{n}일 남음',
+  'heist.short': '도둑질'
 });

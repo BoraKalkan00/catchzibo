@@ -789,5 +789,6 @@ CZ.i18n.register('de', 'Deutsch', {
   'share.saved': 'Bild gespeichert',
   'week.best': 'Diese Woche: {n}',
   'season.winter': 'Wintersaison',
-  'season.left': 'Noch {n} Tage'
+  'season.left': 'Noch {n} Tage',
+  'heist.short': 'Raub'
 });

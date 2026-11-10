@@ -970,5 +970,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   'share.saved': 'Resim kaydedildi',
   'week.best': 'Bu hafta: {n}',
   'season.winter': 'Kış Sezonu',
-  'season.left': '{n} gün kaldı'
+  'season.left': '{n} gün kaldı',
+  'heist.short': 'Soygun'
 });

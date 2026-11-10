@@ -789,5 +789,6 @@ CZ.i18n.register('pt', 'Português', {
   'share.saved': 'Imagem salva',
   'week.best': 'Esta semana: {n}',
   'season.winter': 'Temporada de inverno',
-  'season.left': 'Faltam {n} dias'
+  'season.left': 'Faltam {n} dias',
+  'heist.short': 'Roubo'
 });

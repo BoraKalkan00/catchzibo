@@ -173,6 +173,41 @@
         return h('button', { class: 'hub-tile ' + cls + (hot ? ' hot' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); onClick(); } },
           art, h('strong', { text: title }), h('small', { text: sub }), hot ? h('i', { class: 'dot' }) : null);
       };
+      // MERKEZ (yeniden tasarım): ortası sahneye ve Zibo'ya ait. Düğmeler iki yan rayda yuvarlak,
+      // büyük "Malikaneye gir" en altta. Hay Day / CoC düzeni.
+      const rb = (key, icon, label, onClick, opts = {}) => {
+        const locked = key && !open(key);
+        const need = locked ? CZ.UNLOCK[key] - found : 0;
+        return h('button', { class: 'rbtn' + (locked ? ' locked' : '') + (opts.hot ? ' hot' : '') + (opts.cls ? ' ' + opts.cls : ''), type: 'button',
+          onClick: () => {
+            if (locked) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('hub.unlockIn', { n: need })); }
+            CZ.audio.sfx('button'); onClick();
+          } },
+          h('span', { class: 'rbtn-face' }, locked ? CZ.icon('lock') : icon),
+          opts.badge ? h('b', { class: 'rbtn-badge' }, opts.badge) : null,
+          opts.dot && !locked ? h('i', { class: 'dot' }) : null,
+          h('span', { class: 'rbtn-label', text: label }));
+      };
+      // Günün soygunu
+      const dList = game.dailyUnlocked() ? game.dailyRounds() : [];
+      const dNext = game.dailyNext();
+      const dDone = dList.filter(r => state.isFound(r.id)).length;
+      const streak = game.dailyStreak();
+      const heistBtn = rb('daily', CZ.icon('goblin'), t('heist.short'), () => {
+        if (!dNext) return CZ.ui.toast(t('heist.comeBack', { n: Math.max(1, Math.ceil((new Date().setHours(24, 0, 0, 0) - Date.now()) / 3600000)) }));
+        CZ.ui.wipeTo('play', { roundId: dNext.id });
+      }, { hot: !!dNext, badge: dList.length ? h('span', {}, dDone + '/3') : null, cls: 'heist-btn' });
+      if (streak) heistBtn.append(h('b', { class: 'rbtn-streak' }, CZ.icon('flame'), String(streak)));
+      // Reklamla altın
+      const ad = state.data.adGold && state.data.adGold.day === state.today() ? state.data.adGold.n : 0;
+      const adLeft = CZ.AD_REWARD.perDay - ad;
+      const adBtn = adLeft > 0 && open('gold') ? rb(null, CZ.icon('play'), '+' + CZ.AD_REWARD.gold, () => CZ.ads.show(() => {
+        const d = state.data;
+        if (!d.adGold || d.adGold.day !== state.today()) d.adGold = { day: state.today(), n: 0 };
+        d.adGold.n += 1; d.gold = (d.gold || 0) + CZ.AD_REWARD.gold; state.save();
+        CZ.audio.sfx('buy'); CZ.ui.toast(t('hub.adGot', { n: CZ.AD_REWARD.gold })); CZ.ui.refresh();
+      }), { cls: 'ad-btn', badge: h('span', {}, adLeft + '') }) : null;
+      const petId = (CZ.activePet() || { id: 'penguin' }).id;
       el.append(
         h('div', { class: 'hub-bg' }, img('scene.hub_bg', 'hub-bg-img')),
         snow(10),
@@ -185,24 +220,22 @@
             h('div', { class: 'emeralds gold-badge' }, img('ui.gold', 'emerald-icon'), h('span', { text: state.data.gold || 0 })),
             CZ.ui.emeralds(),
             h('button', { class: 'hub-gear', type: 'button', 'aria-label': t('hub.settings'), onClick: () => { CZ.audio.sfx('button'); go('settings'); } }, img('ui.gear', 'hub-gear-img')))),
+        h('div', { class: 'season-chip' }, CZ.icon('snowflake'), h('b', { text: t('season.' + CZ.SEASON.id) }), h('small', { text: t('season.left', { n: CZ.seasonDaysLeft() }) })),
         zibo.el,
-        h('div', { class: 'hub-main' },
+        h('div', { class: 'hub-rail left' },
+          heistBtn,
+          rb('quests', CZ.icon('list'), t('quest.short'), () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), { dot: CZ.quests.ready(), badge: h('span', {}, q.list.filter(x => x.claimed).length + '/3') }),
+          adBtn),
+        h('div', { class: 'hub-rail right' },
+          rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('gold'), { hot: goldFree, dot: goldFree }),
+          rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
+          rb(null, h('img', { class: 'rb-img', src: CZ.petArt(petId, 'front'), alt: '' }), t('pet.short'), () => go('pets')),
+          rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book')),
+          rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() })),
+        h('div', { class: 'hub-cta' },
           h('button', { class: 'play-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
             h('b', { text: t('hub.enter') }),
-            h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) })),
-          h('div', { class: 'season-ribbon' }, CZ.icon('snowflake'), h('b', { text: t('season.' + CZ.SEASON.id) }), h('small', { text: t('season.left', { n: CZ.seasonDaysLeft() }) })),
-          dailyCard(),
-          adRewardBar(),
-          h('div', { class: 'hub-tiles' },
-            tile('gold-tile' + (goldFree ? ' ready' : ''), img('ui.gold', 'tile-icon'), t('hub.gold'), goldFree ? t('hub.goldReady') : CZ.screens.gold.waitText(), () => CZ.ui.wipeTo('gold'), goldFree, 'gold'),
-            tile('chars-tile', CZ.charArt.img(state.data.avatar || 'girl', 'front', 'tile-icon tile-char'), t('chars.title'), t('char.' + (state.data.avatar || 'girl')), () => CZ.ui.wipeTo('chars'), false),
-            tile('quest-tile', h('div', { class: 'tile-art quest-art' }, CZ.icon('list', 'quest-ic'), h('div', { class: 'quest-dots' }, q.list.map(x => h('i', { class: x.claimed ? 'on' : x.have >= x.n ? 'ready' : '' })), h('i', { class: 'chest' + (q.chest ? ' on' : '') }))),
-              t('quest.short'), `${q.list.filter(x => x.claimed).length}/3`, () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), CZ.quests.ready(), 'quests'))),
-        h('nav', { class: 'hub-nav glass-bar' },
-          nav(t('chars.title'), 'ui.wardrobe', 'chars'),
-          h('button', { class: 'nav-btn', type: 'button', onClick: () => { CZ.audio.sfx('button'); go('pets'); } }, h('img', { class: 'nav-icon', src: CZ.petArt((CZ.activePet() || { id: 'penguin' }).id, 'front'), alt: '' }), h('span', { text: t('pet.short') })),
-          open('book') ? nav(t('hub.bookShort'), 'ui.book', 'book') : null,
-          open('diary') ? nav(t('hub.diaryShort'), 'ui.diary', 'diary', game.diaryUnread()) : null));
+            h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) }))));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
       // İlk girişte pencere açılmaz: oyuncu önce merkezi görsün.
       state.data.hubVisits = (state.data.hubVisits || 0) + 1;

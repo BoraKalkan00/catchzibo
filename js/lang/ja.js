@@ -789,5 +789,6 @@ CZ.i18n.register('ja', '日本語', {
   'share.saved': '画像を保存しました',
   'week.best': '今週：{n}',
   'season.winter': '冬のシーズン',
-  'season.left': '残り{n}日'
+  'season.left': '残り{n}日',
+  'heist.short': '盗み'
 });
