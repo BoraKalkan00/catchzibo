@@ -227,13 +227,19 @@ CZ.hero3d = function (THREE, kind) {
 // Videodan çıkarılmış kareler (Kling yeşil ekran): koşu döngüsü ve zıplama dizisi.
 CZ.POSE_FRAMES = {
   girl: { slide: ['slide2'], left: ['left'], right: ['right'] },
-  elf: { slide: ['slide2'], left: ['left'], right: ['right'] }
+  elf: { slide: ['slide2'], left: ['left'], right: ['right'] },
+  boy: { slide: ['slide2'], left: ['left'], right: ['right'] },
+  knight: { slide: ['slide2'], left: ['left'], right: ['right'] },
+  reindeer: { slide: ['slide2'], left: ['left'], right: ['right'] },
+  snowkid: { slide: ['slide2'], left: ['left'], right: ['right'] }
 };
 CZ.RUN_FRAMES = {
   knight: ['run00', 'run01', 'run02', 'run03', 'run04', 'run05', 'run06', 'run07', 'run08', 'run09', 'run10', 'run11', 'run12'],
   boy: Array.from({ length: 8 }, (_, i) => 'run' + String(i).padStart(2, '0')),
   girl: Array.from({ length: 18 }, (_, i) => 'run' + String(i).padStart(2, '0')),
-  elf: Array.from({ length: 16 }, (_, i) => 'run' + String(i).padStart(2, '0'))
+  elf: Array.from({ length: 16 }, (_, i) => 'run' + String(i).padStart(2, '0')),
+  reindeer: Array.from({ length: 17 }, (_, i) => 'run' + String(i).padStart(2, '0')),
+  snowkid: Array.from({ length: 16 }, (_, i) => 'run' + String(i).padStart(2, '0'))
 };
 CZ.JUMP_FRAMES = { knight: ['jmp00', 'jmp01', 'jmp02', 'jmp03', 'jmp04', 'jmp05', 'jmp06', 'jmp07', 'jmp08', 'jmp09', 'jmp10', 'jmp11', 'jmp12', 'jmp13'] };
 CZ.heroSprite = function (THREE, kind) {
