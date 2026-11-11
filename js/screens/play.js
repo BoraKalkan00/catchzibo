@@ -751,13 +751,8 @@ CZ.screens.play = (function () {
       canAd
         ? btn(reason === 'time' ? t('lose.ad', { s: cfg.adContinueSeconds }) : t('lose.adPlain'), showAd, 'primary wide')
         : h('p', { class: 'small-note', text: t('lose.noMoreAds') }),
-      s.daily
-        ? btn(t('heist.retry'), () => CZ.ui.wipeTo('play', { roundId: s.round.id }), canAd ? 'ghost-dark wide' : 'primary wide')
-        : btn(t('lose.tomorrow'), () => {
-          CZ.state.restUntilTomorrow(s.round.id);
-          CZ.ui.go('mansion');
-          CZ.ui.toast(t('lose.tomorrowToast'));
-        }, canAd ? 'ghost-dark wide' : 'primary wide')), 600);
+      btn(t('lose.retryFree'), () => CZ.ui.wipeTo('play', { roundId: s.round.id }), canAd ? 'ghost-dark wide' : 'primary wide'),
+      btn(t('lose.later'), () => CZ.ui.go('mansion'), 'small ghost-dark')), 600);
   }
 
   // Sahte reklam: gerçek reklam eklenince yalnız bu fonksiyon değişir.
@@ -816,14 +811,13 @@ CZ.screens.play = (function () {
     s.running = false;
     endPress();
     openSheet('leave',
-      h('p', { text: t(s.tutorial || s.daily || CZ.state.isFound(s.round.id) ? 'play.leaveFree' : 'play.leave') }),
+      h('p', { text: t('play.leaveFree') }),
       btn(t('play.leaveNo'), () => {
         closeSheet();
         s.last = performance.now();
         s.running = true;
       }, 'primary wide'),
-      btn(t(s.tutorial || s.daily ? 'play.leaveYesFree' : 'play.leaveYes'), () => {
-        if (!s.tutorial && !s.daily && !CZ.state.isFound(s.round.id)) CZ.state.restUntilTomorrow(s.round.id);
+      btn(t('play.leaveYesFree'), () => {
         CZ.ui.go(s.daily ? 'hub' : 'mansion');
       }, 'ghost-dark wide'));
   }

@@ -19,6 +19,13 @@ CZ.i18n.register('tr', 'Türkçe', {
   'story.2': 'Ama o gece… sivri kulaklı, yeşil biri pencereden süzüldü: ZİBO!',
   'story.3': 'İzler tepedeki eğri büğrü köşke gidiyordu. Şımarık mı? Çok. Pişman mı? Asla.',
   'story.4': 'Festivale az kaldı. Kapıyı çal, eşyanı bul, “bu benim!” de ve Zibo’yu yakala!',
+  'story.n1': "Snowbrook’ta yılbaşı akşamı. Annen, baban, küçük kardeşin ve sen sıcacık bir sofradasınız. Ağacın tepesinde ailenin altın yıldızı parlıyor.",
+  'story.n2': "Birden ışıklar titriyor… pencere gıcırdayarak açılıyor. O yeşil gölge de neydi?",
+  'story.n3': "ZIBO! Altın yıldızı kapıyor, yola bir de kurabiye alıyor ve bağırıyor: “BENİM!”",
+  'story.n4': "Babanın lokması ağzında kalıyor. Kardeşin pencereyi gösteriyor. Sen çoktan çizmelerini giyiyorsun…",
+  'story.n5': "“Geri getireceğim!” Yeşil ayak izleri tepedeki yamuk malikaneye gidiyor. Yakala Zibo’yu!",
+  'lose.retryFree': "Tekrar dene (ücretsiz)",
+  'lose.later': "Sonra",
 
   'hub.enter': 'Malikaneye gir',
   'hub.village': 'Evim',

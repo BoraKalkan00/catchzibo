@@ -14,7 +14,7 @@ CZ.CONFIG = {
   stars: [0.66, 0.33],   // kalan sürenin turun süresine oranı: %66+ = 3 yıldız, %33+ = 2, altı 1 (30 sn'de 20 ve 10 sn)
   diaryGift: 5,          // günün ilk günlük okuması: Zibo'dan "sus payı"
   tauntEverySeconds: 7,
-  storySlideMs: 3600,    // 8 sahne x 3.6 sn ≈ 29 sn (dokununca geçer, atlanabilir)
+  storySlideMs: 4000,    // 5 sahne x 4 sn = 20 sn (dokununca geçer, atlanabilir)
   roomDates: false       // true: odalar 'opens' tarihinden önce açılmaz (yılbaşı takvimi). Test için false.
 };
 

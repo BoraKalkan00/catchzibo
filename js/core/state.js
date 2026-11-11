@@ -72,10 +72,8 @@ CZ.state = (function () {
   function isFound(id) {
     return !!round(id).found;
   }
-  function isResting(id) {
-    const r = round(id);
-    return !r.found && !!r.lockedUntil && r.lockedUntil > today();
-  }
+  // Günlük deneme sınırı kaldırıldı: kaybeden oyuncu hemen, ücretsiz tekrar dener.
+  function isResting() { return false; }
   function markFound(id, reward, stars, seconds) {
     const old = round(id);
     data.rounds[id] = {

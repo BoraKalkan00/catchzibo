@@ -388,11 +388,8 @@ CZ.screens.chase = (function () {
         sheet.remove();
         resume();
       }, (canAd ? 'ghost-dark' : 'primary') + ' wide' + (canGems ? '' : ' disabled')),
-      btn(t('lose.tomorrow'), () => {
-        CZ.state.restUntilTomorrow(c.params.roundId);
-        CZ.ui.go('mansion');
-        CZ.ui.toast(t('lose.tomorrowToast'));
-      }, 'ghost-dark wide'));
+      btn(t('lose.retryFree'), () => CZ.ui.wipeTo('chase', c.params), 'ghost-dark wide', 'ic:play'),
+      btn(t('lose.later'), () => CZ.ui.go('mansion'), 'small ghost-dark'));
     c.el.append(sheet);
   }
 

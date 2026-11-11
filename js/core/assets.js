@@ -55,6 +55,10 @@ CZ.OVERRIDES = {
   'story.morning': 'assets/scenes/story_morning.webp',
   'story.trail': 'assets/scenes/story_trail.webp',
   'story.hall': 'assets/scenes/story_hall.webp',
+  // Yılbaşı akşamı hikâyesi (Gemini). Dosya yoksa story.js eski resme düşer.
+  'story.dinner_girl': 'assets/story/dinner_girl.webp', 'story.dinner_boy': 'assets/story/dinner_boy.webp',
+  'story.window': 'assets/story/window.webp', 'story.grab': 'assets/story/grab.webp',
+  'story.shock_girl': 'assets/story/shock_girl.webp', 'story.shock_boy': 'assets/story/shock_boy.webp',
   // Kunduz Usta: ev inşasında yardımcı
   'usta.wave': 'assets/usta/wave.webp', 'usta.talk': 'assets/usta/talk.webp', 'usta.hammer': 'assets/usta/hammer.webp',
   'usta.worried': 'assets/usta/worried.webp', 'usta.cheer': 'assets/usta/cheer.webp', 'usta.think': 'assets/usta/think.webp'

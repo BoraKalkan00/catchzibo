@@ -19,6 +19,13 @@ CZ.i18n.register('en', 'English', {
   'story.2': 'But that night… someone green with pointy ears slipped through the window: ZIBO!',
   'story.3': 'The trail led to the crooked mansion on the hill. Spoiled? Very. Sorry? Never.',
   'story.4': 'The festival is almost here. Knock on the door, find your things, say “that’s mine!” and catch Zibo!',
+  'story.n1': "New Year’s Eve in Snowbrook. Mom, Dad, your little sister and you around a warm table. On top of the tree shines the family’s golden star.",
+  'story.n2': "Suddenly the lights flicker… the window creaks open. Was that a green shadow?",
+  'story.n3': "ZIBO! He snatches the golden star, grabs a cookie for the road and yells: “MINE!”",
+  'story.n4': "Dad freezes mid-bite. Your sister points at the window. You’re already pulling on your boots…",
+  'story.n5': "“I’ll bring it back!” His green footprints lead up the hill to his crooked mansion. Catch Zibo!",
+  'lose.retryFree': "Try again (free)",
+  'lose.later': "Later",
 
   'hub.enter': 'Enter the mansion',
   'hub.village': 'My House',

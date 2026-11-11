@@ -229,7 +229,7 @@
         h('div', { class: 'hub-rail right' },
           rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('gold'), { hot: goldFree, dot: goldFree }),
           rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
-          rb(null, h('img', { class: 'rb-img', src: CZ.petArt(petId, 'front'), alt: '' }), t('pet.short'), () => go('pets')),
+          // Yardımcılar (evcil hayvanlar) sadeleştirme için şimdilik gizli; ekran duruyor.
           rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book')),
           rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() })),
         h('div', { class: 'hub-cta' },
