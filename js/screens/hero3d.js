@@ -225,7 +225,9 @@ CZ.hero3d = function (THREE, kind) {
 // Karakterin kendi çizimleri kullanıldığı için oyundaki karakter birebir Gemini'deki karakter olur.
 // İleride 8 karelik koşu sayfası gelirse CZ.RUN_FRAMES[kind] listesine eklenir, otomatik kullanılır.
 // Videodan çıkarılmış kareler (Kling yeşil ekran): koşu döngüsü ve zıplama dizisi.
-CZ.POSE_FRAMES = {};
+CZ.POSE_FRAMES = {
+  girl: { slide: ['slide2'], left: ['left'], right: ['right'] }
+};
 CZ.RUN_FRAMES = {
   knight: ['run00', 'run01', 'run02', 'run03', 'run04', 'run05', 'run06', 'run07', 'run08', 'run09', 'run10', 'run11', 'run12'],
   boy: Array.from({ length: 8 }, (_, i) => 'run' + String(i).padStart(2, '0')),
@@ -287,7 +289,7 @@ CZ.heroSprite = function (THREE, kind) {
     if (info.sliding) {
       st.slideT = (st.slideT || 0) + dt;
       const sf = slideFrames[Math.min(slideFrames.length - 1, Math.floor(st.slideT * 14))];
-      show(sf, slideFrames.length > 1 ? H * 1.25 : H * 0.62);
+      show(sf, extra.slide ? H * 1.25 : H * 0.62);
       body.position.y = 0;
       body.rotation.z = 0;
     } else if (info.jumping) {
@@ -297,9 +299,11 @@ CZ.heroSprite = function (THREE, kind) {
       show(jf, video ? H * 1.25 : H * 1.05);
       body.position.y = 0;
       body.rotation.z = st.lean * -0.25;
-    } else if ((leftFrames || rightFrames) && Math.abs(info.lean || 0) > 0.25) {
-      // Şerit değiştirirken yana kaçış karesi
-      const fr = (info.lean < 0 ? leftFrames : rightFrames) || leftFrames || rightFrames;
+    } else if ((leftFrames || rightFrames) && (Math.abs(info.lean || 0) > 0.12 || st.dodgeHold > 0)) {
+      // Şerit değiştirirken yana kaçış karesi (en az ~0,3 sn görünür)
+      if (Math.abs(info.lean || 0) > 0.12) { st.dodgeDir = info.lean < 0 ? -1 : 1; st.dodgeHold = Math.max(st.dodgeHold || 0, 0.3); }
+      st.dodgeHold -= dt;
+      const fr = (st.dodgeDir < 0 ? leftFrames : rightFrames) || leftFrames || rightFrames;
       st.dodgeT = (st.dodgeT || 0) + dt;
       show(fr[Math.min(fr.length - 1, Math.floor(st.dodgeT * 16))], H * 1.25);
       body.position.y = 0;
