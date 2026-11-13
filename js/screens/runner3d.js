@@ -227,6 +227,7 @@ CZ.runner3d = (function () {
       goldChest: new THREE.MeshLambertMaterial({ color: 0xf3c33c, emissive: 0x5a3d00 }),
       sled: new THREE.MeshLambertMaterial({ color: 0xb8262e }),
       wagonA: new THREE.MeshLambertMaterial({ color: 0xc23a2e }),
+      ribbon: new THREE.MeshLambertMaterial({ color: 0xffcf3a }),
       wagonB: new THREE.MeshLambertMaterial({ color: 0x2f7a4a }),
       trim: new THREE.MeshLambertMaterial({ color: 0xe8b830 }),
       roofSnowT: new THREE.MeshLambertMaterial({ color: 0xdfe8f6 }),
@@ -629,6 +630,10 @@ CZ.runner3d = (function () {
         g.add(mesh(GEO.box, M.trim, 1.24, 0.1, wl + 0.04, 0, TRAIN_TOP - 0.05, zc));
         g.add(mesh(GEO.box, M.roofSnowT, 1.12, 0.06, wl - 0.1, 0, TRAIN_TOP + 0.03, zc));
         g.add(mesh(GEO.box, M.trim, 1.24, 0.08, wl, 0, 0.55, zc));
+        // hediye kurdelesi: vagonu saran sarı bant + çatıda fiyonk
+        g.add(mesh(GEO.box, M.ribbon, 1.26, TRAIN_TOP - 0.3, 0.22, 0, 0.25 + (TRAIN_TOP - 0.3) / 2, zc));
+        g.add(mesh(GEO.box, M.ribbon, 0.5, 0.16, 0.22, -0.22, TRAIN_TOP + 0.12, zc));
+        g.add(mesh(GEO.box, M.ribbon, 0.5, 0.16, 0.22, 0.22, TRAIN_TOP + 0.12, zc));
         [-1, 1].forEach(k => g.add(mesh(GEO.box, M.runnerMetal, 0.08, 0.14, wl, k * 0.52, 0.1, zc)));
         // pencere ışıkları
         [-1, 1].forEach(k => g.add(mesh(GEO.box, M.window, 0.02, 0.35, 0.6, k * 0.61, 0.9, zc - 0.8)));
@@ -754,14 +759,19 @@ CZ.runner3d = (function () {
         let crateUsed = false;
         lanes.forEach(l => {
           let kind = pickW(R.obstacles).id;
-          if (kind === 'crate' || kind === 'train') kind = pick(['low', 'low', 'soldier', 'high', 'wall']);
+          // Noel Ekspresi (hediye vagonları) geri döndü: rampayla üstüne çık, çatıda koş.
+          if (kind === 'crate') kind = pick(['low', 'low', 'soldier', 'high', 'wall']);
+          if (CHASE && kind === 'train' && s.t < 6) kind = 'low';
           if (kind === 'train' && s.t < R.trainsFrom) kind = 'wall';
           if (kind === 'crate') { if (crateUsed) kind = 'low'; crateUsed = true; }
           kinds[l] = kind;
         });
         // Adalet: bir sırada en fazla bir kızak (duvar); kalanlar zıplanır/eğilinir.
         let walls = 0;
-        kinds.forEach((k2, l) => { if (k2 === 'wall' && ++walls > 1) kinds[l] = pick(['low', 'soldier', 'high']); });
+        kinds.forEach((k2, l) => { if ((k2 === 'wall' || k2 === 'train') && ++walls > (CHASE ? 1 : 2)) kinds[l] = pick(['low', 'soldier', 'high']); });
+        // Bir şeritte tren varken diğer şeritlerden en az biri tamamen açık kalsın
+        const blocked = ALL.filter(l => s.busy && s.busy[l] > s.dist).length;
+        if (blocked >= LANES - 1) kinds.forEach((k2, l) => { if (k2 === 'train' || k2 === 'wall') kinds[l] = 'low'; });
       }
       // Tren geçen şeride, tren bitene kadar yeni engel konmaz.
       s.busy = s.busy || ALL.map(() => 0);
@@ -929,7 +939,7 @@ CZ.runner3d = (function () {
     function ziboHurdles(dt) {
       if (!s.zj) {
         for (const o of s.objs) {
-          if (o.ziboDone || Math.abs(laneX(o.lane) - zibo.position.x) > 0.7) continue;
+          if (o.ziboDone || o.type === 'train' || Math.abs(laneX(o.lane) - zibo.position.x) > 0.7) continue;
           const dur = Math.max(0.5, (2.4 + o.len) / Math.max(1, s.speed));
           const d = o.mesh.position.z - zibo.position.z;           // < 0: Zibo'nun önünde
           if (d < -(dur * s.speed) / 2 - 0.2 || d > o.len / 2) continue;
@@ -940,11 +950,18 @@ CZ.runner3d = (function () {
         }
       }
       let y = 0, sy = 1;
+      // Zibo'nun şeridinde tren varsa çatısında koşar (rampadan çıkar)
+      for (const o of s.objs) {
+        if (o.type !== 'train' || Math.abs(laneX(o.lane) - zibo.position.x) > 0.7) continue;
+        const lz = zibo.position.z - o.mesh.position.z, half = o.len / 2;
+        if (lz < -half || lz > half) continue;
+        y = Math.max(y, o.ramp && lz > half - o.rampLen ? o.top * (half - lz) / o.rampLen : o.top);
+      }
       if (s.zj) {
         s.zj.t += dt;
         const k = Math.min(1, s.zj.t / s.zj.dur);
         if (s.zj.duck) sy = 1 - Math.sin(k * Math.PI) * 0.4;
-        else y = Math.sin(k * Math.PI) * s.zj.h;
+        else y += Math.sin(k * Math.PI) * s.zj.h;
         if (k >= 1) s.zj = null;
       }
       if (opts.ziboFly) y += 0.7 + Math.sin(s.frame * 5) * 0.25;

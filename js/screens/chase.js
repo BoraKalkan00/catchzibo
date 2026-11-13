@@ -182,7 +182,7 @@ CZ.screens.chase = (function () {
     // ve her zaman engelsiz, bombasız en az bir şerit kalır.
     const sec = C.warnMs / 1000;
     const busy = l => c.run ? c.run.obstacleAt(l, sec) : [];
-    const ok = l => !busy(l).some(k => k === 'high' || k === 'wall') && !c.bombs.some(b => b.lane === l);
+    const ok = l => !busy(l).some(k => k === 'high' || k === 'wall' || k === 'train') && !c.bombs.some(b => b.lane === l);
     const cands = [0, 1, 2].filter(ok);
     if (!cands.length) { c.nextBomb = now + 700; return; }
     let lanes = [cands.includes(c.lane) && Math.random() < 0.7 ? c.lane : cands[Math.floor(Math.random() * cands.length)]];
