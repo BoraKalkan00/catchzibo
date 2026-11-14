@@ -978,5 +978,14 @@ CZ.i18n.register('en', 'English', {
   'week.best': 'This week: {n}',
   'season.winter': 'Winter Season',
   'season.left': '{n} days left',
-  'heist.short': 'Heist'
+  'heist.short': 'Heist',
+  'endless.play': 'RUN!',
+  'endless.best': 'Best: {n}',
+  'endless.record': 'NEW RECORD!',
+  'endless.caught': 'Caught him! +{n}',
+  'endless.over': 'Zibo got away!',
+  'endless.newBest': 'NEW RECORD!',
+  'endless.revive': 'Watch ad to continue',
+  'endless.double': 'Watch ad: double gold ({n})',
+  'endless.again': 'Run again'
 });

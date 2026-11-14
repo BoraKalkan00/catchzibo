@@ -797,5 +797,14 @@ CZ.i18n.register('de', 'Deutsch', {
   'week.best': 'Diese Woche: {n}',
   'season.winter': 'Wintersaison',
   'season.left': 'Noch {n} Tage',
-  'heist.short': 'Raub'
+  'heist.short': 'Raub',
+  'endless.play': 'LAUF!',
+  'endless.best': 'Rekord: {n}',
+  'endless.record': 'NEUER REKORD!',
+  'endless.caught': 'Erwischt! +{n}',
+  'endless.over': 'Zibo ist entkommen!',
+  'endless.newBest': 'NEUER REKORD!',
+  'endless.revive': 'Werbung: weiterlaufen',
+  'endless.double': 'Werbung: Gold verdoppeln ({n})',
+  'endless.again': 'Nochmal'
 });

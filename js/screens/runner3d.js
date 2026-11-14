@@ -1055,7 +1055,7 @@ CZ.runner3d = (function () {
     function step(dt) {
       s.t += dt;
       s.frame += dt;
-      s.speed = CHASE ? (opts.speed || 16) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 && !(s.dashT > 0) ? 0.55 : 1);
+      s.speed = CHASE ? (opts.speed || 16) * (s.speedMul || 1) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 && !(s.dashT > 0) ? 0.55 : 1);
       s.stunT = Math.max(0, (s.stunT || 0) - dt);
       if (s.dashT > 0) { s.dashT -= dt; s.speed *= 1.6; if (s.dashT <= 0) drawSled(); if (Math.random() < 0.5) sparks(new THREE.Vector3(s.px + rand(-0.4, 0.4), 0.15, 0.6), 1, '#bfe4ff', 0.25); }
       const fov = s.dashT > 0 ? 72 : 62;

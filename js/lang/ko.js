@@ -797,5 +797,14 @@ CZ.i18n.register('ko', '한국어', {
   'week.best': '이번 주: {n}',
   'season.winter': '겨울 시즌',
   'season.left': '{n}일 남음',
-  'heist.short': '도둑질'
+  'heist.short': '도둑질',
+  'endless.play': '달려!',
+  'endless.best': '최고: {n}',
+  'endless.record': '신기록!',
+  'endless.caught': '잡았다! +{n}',
+  'endless.over': '지보가 도망쳤다!',
+  'endless.newBest': '신기록!',
+  'endless.revive': '광고 보고 계속',
+  'endless.double': '광고 보고 골드 2배 ({n})',
+  'endless.again': '다시 달리기'
 });

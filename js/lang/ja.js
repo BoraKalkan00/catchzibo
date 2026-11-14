@@ -797,5 +797,14 @@ CZ.i18n.register('ja', '日本語', {
   'week.best': '今週：{n}',
   'season.winter': '冬のシーズン',
   'season.left': '残り{n}日',
-  'heist.short': '盗み'
+  'heist.short': '盗み',
+  'endless.play': '走れ！',
+  'endless.best': 'ベスト: {n}',
+  'endless.record': '新記録！',
+  'endless.caught': 'つかまえた！ +{n}',
+  'endless.over': 'ジボが逃げた！',
+  'endless.newBest': '新記録！',
+  'endless.revive': '広告を見て続ける',
+  'endless.double': '広告でゴールド2倍 ({n})',
+  'endless.again': 'もう一回'
 });

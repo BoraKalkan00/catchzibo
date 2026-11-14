@@ -46,7 +46,59 @@
     const sph = (r, m, p, sc, line) => part(GEO.sph, m, { s: [r * (sc ? sc[0] : 1), r * (sc ? sc[1] : 1), r * (sc ? sc[2] : 1)], p, line });
     const capsule = (r, len, m, p, line) => part(GEO.cap, m, { s: [r, len / 2 + r * 0 || len / 2, r], p, line });
     const pivot = (x, y, z) => { const o = new THREE.Group(); o.position.set(x || 0, y || 0, z || 0); return o; };
-    return { mat, mats, GEO, part, sph, capsule, pivot, outline };
+    // Aynı ekleme bağlı parçaları tek çizime indir (telefon için): renk köşe rengine gider.
+    const vmat = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: g });
+    mats.push(vmat);
+    function merge(list) {
+      let total = 0;
+      list.forEach(x => { total += x.attributes.position.count; });
+      const pos = new Float32Array(total * 3), nor = new Float32Array(total * 3), col = new Float32Array(total * 3);
+      let off = 0;
+      list.forEach(x => {
+        pos.set(x.attributes.position.array, off * 3);
+        nor.set(x.attributes.normal.array, off * 3);
+        if (x.attributes.color) col.set(x.attributes.color.array, off * 3);
+        off += x.attributes.position.count; x.dispose();
+      });
+      const m = new THREE.BufferGeometry();
+      m.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      m.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+      m.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      return m;
+    }
+    function bakeRig(root) {
+      const nodes = [];
+      root.traverse(o => nodes.push(o));
+      nodes.forEach(node => {
+        const meshes = node.children.filter(ch => ch.isMesh && !ch.userData.keep && ch.material.isMeshToonMaterial && !ch.material.map && ch.material !== vmat);
+        if (meshes.length < 1) return;
+        const body = [], lines = [];
+        meshes.forEach(ch => {
+          ch.updateMatrix();
+          const geo = ch.geometry.toNonIndexed ? (ch.geometry.index ? ch.geometry.toNonIndexed() : ch.geometry.clone()) : ch.geometry.clone();
+          geo.applyMatrix4(ch.matrix);
+          const n = geo.attributes.position.count, col = new Float32Array(n * 3), c = ch.material.color;
+          for (let i = 0; i < n; i++) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+          geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+          body.push(geo);
+          ch.children.slice().forEach(o => {
+            if (o.isMesh && o.material === outline) {
+              o.updateMatrix();
+              const lg = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+              lg.applyMatrix4(new THREE.Matrix4().multiplyMatrices(ch.matrix, o.matrix));
+              lines.push(lg);
+            } else if (!o.isMesh) {
+              // eklem: yerinde kalsın
+              o.applyMatrix4(ch.matrix); node.add(o);
+            }
+          });
+          node.remove(ch);
+        });
+        node.add(new THREE.Mesh(merge(body), vmat));
+        if (lines.length) node.add(new THREE.Mesh(merge(lines), outline));
+      });
+    }
+    return { mat, mats, GEO, part, sph, capsule, pivot, outline, bakeRig };
   }
 
   /* ===================== KAHRAMAN ===================== */
@@ -250,6 +302,7 @@
         b.rotation.z = Math.cos(phase - i * 0.5) * 0.15 * run - st.lean * 0.3;
       });
     }
+    K.bakeRig(root);
     function setOpacity(o) { K.mats.forEach(m => { m.transparent = o < 1; m.opacity = o; }); }
     // dünyadaki boy ~1.45 birim (eski sprite kahramanla aynı ölçek)
     body.scale.setScalar(1.08);
@@ -310,6 +363,7 @@
     });
     head.add(sph(0.08, M.skin, [0, -0.03, -0.3], [0.7, 0.8, 1.2], L));       // burun
     const mouth = part(GEO.sph, M.mouth, { s: [0.13, 0.06, 0.05], p: [0, -0.14, -0.24] });
+    mouth.userData.keep = true;
     head.add(mouth);
     head.add(part(GEO.sph, M.tooth, { s: [0.025, 0.03, 0.02], p: [0.05, -0.12, -0.275] }));
     head.add(part(GEO.sph, M.tooth, { s: [0.025, 0.03, 0.02], p: [-0.05, -0.12, -0.275] }));
@@ -359,6 +413,7 @@
       crown.add(part(GEO.cyl, M.gold, { s: [0.2, 0.06, 0.2], p: [0, 0, 0], line: 0.06 }));
     }
     body.scale.setScalar(1.25);
+    K.bakeRig(root);
     return { root, update, setCrown, mats: K.mats, dispose() { K.mats.forEach(m => m.dispose()); } };
   };
 })();

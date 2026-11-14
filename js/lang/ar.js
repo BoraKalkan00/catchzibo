@@ -797,5 +797,14 @@ CZ.i18n.register('ar', 'العربية', {
   'week.best': 'هذا الأسبوع: {n}',
   'season.winter': 'موسم الشتاء',
   'season.left': 'باقي {n} يوم',
-  'heist.short': 'السرقة'
+  'heist.short': 'السرقة',
+  'endless.play': 'اركض!',
+  'endless.best': 'الأفضل: {n}',
+  'endless.record': 'رقم قياسي جديد!',
+  'endless.caught': 'أمسكته! +{n}',
+  'endless.over': 'هرب زيبو!',
+  'endless.newBest': 'رقم قياسي جديد!',
+  'endless.revive': 'شاهد إعلانًا للمتابعة',
+  'endless.double': 'شاهد إعلانًا: ذهب ×2 ({n})',
+  'endless.again': 'اركض مجددًا'
 });

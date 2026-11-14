@@ -18,10 +18,11 @@ CZ.screens.chase = (function () {
 
   /* ---------- Ekran ---------- */
   function render(el, params) {
-    const round = CZ.game.round(params.roundId);
-    const boss = CZ.ZIBO_FAMILY[CZ.game.roomOf(round.id).id] || { id: 'zibo' };
+    const E = !!params.endless;
+    const round = E ? CZ.game.rounds()[0] : CZ.game.round(params.roundId);
+    const boss = E ? { id: 'zibo' } : CZ.ZIBO_FAMILY[CZ.game.roomOf(round.id).id] || { id: 'zibo' };
     c = {
-      boss,
+      boss, endless: E, score: 0, catches: 0, revived: 0, mult: E ? endlessMult() : 1,
       el, round, params,
       gap: C.startGap * (boss.gapMul || 1) - CZ.charPerk('head'), timeLeft: C.seconds, lives: C.lives,
       lane: 1, ziboLane: 1, running: false, last: performance.now(), sim: 0,
@@ -57,17 +58,18 @@ CZ.screens.chase = (function () {
     c.goldText = h('b', { text: '0' });
     c.gapBar = h('i', {});
     c.hearts = h('div', { class: 'chase-hearts' });
-    c.clock = h('div', { class: 'clock', text: C.seconds });
+    c.clock = h('div', { class: 'clock' + (E ? ' score-clock' : ''), text: E ? '0' : C.seconds });
     c.hookBtn = h('button', { class: 'hook-btn', type: 'button', onPointerDown: e => { e.stopPropagation(); hook(); } },
       img(W.art, 'hook-ico'), h('span', { text: t('chase.throw') }), h('i', { class: 'hook-cool' }));
 
     el.append(
       h('div', { class: 'play-top chase-top' },
-        h('div', { class: 'chase-gap' }, h('small', { text: c.boss.id === 'zibo' ? t('chase.distance') : t('boss.ahead', { name: t('boss.' + c.boss.id) }) }), c.gapText, h('div', { class: 'chase-meter' }, c.gapBar)),
+        h('div', { class: 'chase-gap' }, h('small', { text: E ? t('endless.best', { n: CZ.state.data.bestRun || 0 }) : c.boss.id === 'zibo' ? t('chase.distance') : t('boss.ahead', { name: t('boss.' + c.boss.id) }) }), c.gapText, h('div', { class: 'chase-meter' }, c.gapBar)),
         c.hearts,
         c.clock),
       c.field);
     c.field.append(h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), c.goldText), c.hookBtn);
+    if (E && c.mult > 1) c.field.append(h('div', { class: 'mult-chip' }, 'x' + c.mult));
 
     drawHearts();
     layout();
@@ -75,6 +77,7 @@ CZ.screens.chase = (function () {
   }
 
   function intro() {
+    if (c.endless) return start();
     const box = h('div', { class: 'intro chase-intro' },
       h('small', { text: c.boss.id === 'zibo' ? t('chase.introTop') : t('boss.' + c.boss.id + '.tag') }),
       img('item.' + c.round.target, 'intro-item'),
@@ -114,11 +117,36 @@ CZ.screens.chase = (function () {
     c.loop = requestAnimationFrame(loop);
   }
 
+  // Görev çarpanı: bugün tamamlanan her görev skoru +1 katlar (Subway Surfers'taki gibi).
+  function endlessMult() {
+    try { return 1 + CZ.quests.today().list.filter(x => x.claimed).length; } catch (e) { return 1; }
+  }
+  function endlessStep(dt) {
+    c.score += dt * 10 * (c.run ? c.run.state.speedMul || 1 : 1) * c.mult;
+    // her 15 sn biraz hızlan (en çok 1.7 kat)
+    if (c.run) c.run.state.speedMul = Math.min(1.7, 1 + Math.floor(c.sim / 15000) * 0.07);
+    const sc = Math.floor(c.score);
+    if (sc !== c.shown) { c.shown = sc; c.clock.textContent = sc; }
+    if (!c.recordSaid && CZ.state.data.bestRun && sc > CZ.state.data.bestRun) { c.recordSaid = true; floatText(t('endless.record'), 'gold'); CZ.audio.sfx('star'); }
+  }
+  function endlessCatch() {
+    c.catches += 1;
+    const bonus = 100 * c.mult * c.catches;
+    c.score += bonus;
+    c.gold += 10 + c.catches * 5;
+    c.goldText.textContent = c.gold;
+    c.gap = C.startGap;
+    c.ziboStun = 0;
+    CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]);
+    floatText(t('endless.caught', { n: bonus }), 'gold');
+    say('zibo.chase.again');
+  }
+
   function step(dt, now) {
-    c.timeLeft -= dt;
+    if (!c.endless) c.timeLeft -= dt; else endlessStep(dt);
     c.frame += dt;
     // Oyuncu hep yaklaşır; sersemlikte durur. Kancadan sonra Zibo bir an kaçar.
-    let close = c.stun > 0 ? 0 : byLevel([C.closeRate, C.closeRate * 0.55]);
+    let close = c.stun > 0 ? 0 : c.endless ? C.closeRate * 0.35 : byLevel([C.closeRate, C.closeRate * 0.55]);
     if (c.burst > 0) { close -= C.hookBurst; c.burst -= dt; }
     c.stun = Math.max(0, c.stun - dt);
     c.gap = Math.max(0, Math.min(C.startGap * 1.4, c.gap - close * dt));
@@ -146,6 +174,7 @@ CZ.screens.chase = (function () {
 
     layout();
     const shown = Math.max(0, Math.ceil(c.timeLeft));
+    if (c.endless) { if (c.gap <= 0) endlessCatch(); return; }
     if (shown !== c.shown) {
       c.shown = shown;
       c.clock.textContent = shown;
@@ -368,7 +397,41 @@ CZ.screens.chase = (function () {
     c.timers.push(id);
   }
 
+  function endlessOver() {
+    stop();
+    CZ.audio.sfx('lose');
+    CZ.audio.vibrate([120, 60, 200]);
+    if (c.run) c.run.ziboPose('tongue');
+    say('zibo.chase.escaped');
+    const d = CZ.state.data;
+    const sc = Math.floor(c.score);
+    const record = sc > (d.bestRun || 0);
+    if (record) d.bestRun = sc;
+    d.runs = (d.runs || 0) + 1;
+    CZ.state.save();
+    if (CZ.quests) CZ.quests.track('chase');
+    CZ.progress.addXp(Math.min(40, 5 + Math.floor(sc / 200)));
+    let doubled = false;
+    const goldP = h('p', { class: 'reward' }, img('ui.gold', 'emerald-icon'), h('b', { text: '+' + c.gold }));
+    const sheet = h('div', { class: 'sheet sheet-lose endless-over' },
+      h('small', { text: t(record ? 'endless.newBest' : 'endless.over') }),
+      h('h2', { class: 'big-score', text: sc }),
+      h('p', { text: t('endless.best', { n: d.bestRun || 0 }) + (c.mult > 1 ? '  ·  x' + c.mult : '') }),
+      goldP,
+      c.revived < 1 ? btn(t('endless.revive'), () => { sheet.remove(); adThen(() => { c.revived += 1; c.lives = 1; drawHearts(); c.continues -= 1; resume(); }); }, 'primary wide', 'ic:play') : null,
+      c.gold > 0 ? btn(t('endless.double', { n: c.gold }), e => {
+        const b = e.currentTarget;
+        if (doubled) return;
+        adThen(() => { doubled = true; c.gold *= 2; goldP.querySelector('b').textContent = '+' + c.gold; b.remove(); CZ.audio.sfx('buy'); });
+      }, 'ghost-dark wide', 'ic:play') : null,
+      h('div', { class: 'sheet-row' },
+        btn(t('win.toVillage'), () => CZ.ui.go('hub'), 'ghost-dark wide'),
+        btn(t('endless.again'), () => CZ.ads.maybeInter(() => CZ.ui.wipeTo('chase', { endless: true })), 'primary wide')));
+    c.el.append(sheet);
+  }
+
   function escaped(reason) {
+    if (c.endless) return endlessOver();
     stop();
     CZ.audio.sfx('lose');
     CZ.audio.vibrate([120, 60, 200]);

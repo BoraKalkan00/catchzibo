@@ -797,5 +797,14 @@ CZ.i18n.register('fr', 'Français', {
   'week.best': 'Cette semaine : {n}',
   'season.winter': 'Saison d’hiver',
   'season.left': 'Encore {n} jours',
-  'heist.short': 'Vol'
+  'heist.short': 'Vol',
+  'endless.play': 'COURS !',
+  'endless.best': 'Record : {n}',
+  'endless.record': 'NOUVEAU RECORD !',
+  'endless.caught': 'Attrapé ! +{n}',
+  'endless.over': 'Zibo a filé !',
+  'endless.newBest': 'NOUVEAU RECORD !',
+  'endless.revive': 'Pub : continuer',
+  'endless.double': 'Pub : or x2 ({n})',
+  'endless.again': 'Rejouer'
 });

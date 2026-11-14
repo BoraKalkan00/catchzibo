@@ -978,5 +978,14 @@ CZ.i18n.register('tr', 'Türkçe', {
   'week.best': 'Bu hafta: {n}',
   'season.winter': 'Kış Sezonu',
   'season.left': '{n} gün kaldı',
-  'heist.short': 'Soygun'
+  'heist.short': 'Soygun',
+  'endless.play': 'KOŞ!',
+  'endless.best': 'Rekor: {n}',
+  'endless.record': 'YENİ REKOR!',
+  'endless.caught': 'Yakaladın! +{n}',
+  'endless.over': 'Zibo kaçtı!',
+  'endless.newBest': 'YENİ REKOR!',
+  'endless.revive': 'Reklamla devam et',
+  'endless.double': 'Reklam izle: altını 2 katına çıkar ({n})',
+  'endless.again': 'Tekrar koş'
 });

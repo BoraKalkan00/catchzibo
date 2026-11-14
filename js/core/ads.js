@@ -3,7 +3,9 @@
 CZ.ADS = {
   testing: true,
   appId: 'ca-app-pub-3940256099942544~3347511713',          // test (android.yml manifest'e yazar)
-  rewarded: 'ca-app-pub-3940256099942544/5224354917'        // test ödüllü reklam
+  rewarded: 'ca-app-pub-3940256099942544/5224354917',       // test ödüllü reklam
+  interstitial: 'ca-app-pub-3940256099942544/1033173712',   // test geçiş reklamı
+  interEvery: 3                                             // her 3 koşuda bir
 };
 CZ.ads = (function () {
   const plugin = () => window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
@@ -58,5 +60,19 @@ CZ.ads = (function () {
     }, 1000);
     return timer;
   }
-  return { show, init };
+  // Geçiş reklamı: ödülsüz, kapatılabilir. Her CZ.ADS.interEvery koşuda bir; ilk 2 günde hiç.
+  function maybeInter(done) {
+    const d = CZ.state.data;
+    d.runsForAd = (d.runsForAd || 0) + 1;
+    const fresh = (d.firstDay || CZ.state.today()) === CZ.state.today() || d.noAds;
+    if (!d.firstDay) d.firstDay = CZ.state.today();
+    CZ.state.save();
+    if (fresh || d.runsForAd < CZ.ADS.interEvery) return done();
+    d.runsForAd = 0; CZ.state.save();
+    const A = plugin();
+    if (!A) return done();
+    init().then(ok => { if (!ok) throw 0; return A.prepareInterstitial({ adId: CZ.ADS.interstitial, isTesting: CZ.ADS.testing, npa: true }); })
+      .then(() => A.showInterstitial()).then(() => done(), () => done());
+  }
+  return { show, init, maybeInter };
 })();

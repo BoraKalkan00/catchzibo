@@ -135,6 +135,7 @@
         }, 'small gold-buy', 'ui.gold'));
   }
 
+  const endlessMult = () => { try { return 1 + CZ.quests.today().list.filter(x => x.claimed).length; } catch (e) { return 1; } };
   CZ.screens.hub = {
     render(el) {
       game.ensureDiary();
@@ -208,6 +209,7 @@
         CZ.audio.sfx('buy'); CZ.ui.toast(t('hub.adGot', { n: CZ.AD_REWARD.gold })); CZ.ui.refresh();
       }), { cls: 'ad-btn', badge: h('span', {}, adLeft + '') }) : null;
       const petId = (CZ.activePet() || { id: 'penguin' }).id;
+      const runOpen = state.data.tutorialDone && game.foundCount() >= 1;
       el.append(
         h('div', { class: 'hub-bg' }, img('scene.hub_bg', 'hub-bg-img')),
         snow(10),
@@ -233,7 +235,11 @@
           rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book')),
           rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() })),
         h('div', { class: 'hub-cta' },
-          h('button', { class: 'play-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
+          // Ana oyun: sonsuz kovalamaca. Odalar (hikâye) ikinci düğme.
+          runOpen ? h('button', { class: 'play-big run-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('chase', { endless: true }); } },
+            h('b', { text: t('endless.play') }),
+            h('small', { text: t('endless.best', { n: state.data.bestRun || 0 }) + (endlessMult() > 1 ? '  ·  x' + endlessMult() : '') })) : null,
+          h('button', { class: 'play-big' + (runOpen ? ' play-small' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
             h('b', { text: t('hub.enter') }),
             h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) }))));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
