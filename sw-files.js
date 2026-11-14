@@ -494,6 +494,7 @@ self.CZ_FILES = [
  "js/core/houseart.js",
  "js/core/i18n.js",
  "js/core/icons.js",
+ "js/core/meta.js",
  "js/core/notify.js",
  "js/core/progress.js",
  "js/core/quests.js",

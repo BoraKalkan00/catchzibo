@@ -857,6 +857,7 @@ CZ.runner3d = (function () {
       if (!s.running) return;
       if (s.jumping) return;
       s.jumping = true; s.vy = R.jumpV; s.slideT = 0;
+      if (opts.onAct) opts.onAct('jump');
       s.squashV = -0.22;   // kalkışta uzama
       sparks(new THREE.Vector3(s.px, (s.floor || 0) + 0.1, 0.2), 5, '#eaf6ff', 0.22);
       CZ.audio.sfx('jump');
@@ -868,6 +869,7 @@ CZ.runner3d = (function () {
       if (s.jumping) { s.vy = -R.jumpV * 1.4; }      // havadaysan hızla in
       s.slideT = R.slideSec;
       s.slideCD = R.slideSec + 0.25;
+      if (opts.onAct) opts.onAct('roll');
       CZ.audio.sfx('slide');
     }
     function bump() { s.shake = 0.12; CZ.audio.vibrate(10); }

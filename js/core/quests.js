@@ -90,6 +90,7 @@ CZ.quests = (function () {
       const q = today();
       const all = q.list.every(x => x.claimed);
       wrap.replaceChildren(h('div', { class: 'modal quest-modal' },
+        CZ.missions ? CZ.missions.panel() : null,
         h('h2', { text: t('quest.title') }),
         h('p', { class: 'small-note', text: t('quest.sub') }),
         q.list.map((item, i) => {

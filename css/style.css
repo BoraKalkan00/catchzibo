@@ -1523,3 +1523,87 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .modal.swap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .modal.swap h3 { margin: 0; font-family: var(--game); font-size: 22px; }
 .swap-rate { display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 900; }
+
+/* ===== Görev setleri ===== */
+.mis-panel { width: 100%; background: rgba(255,255,255,.9); border: 3px solid var(--outline, #2a1a10); border-radius: 16px; padding: 8px 10px; text-align: left; color: #2a1a10; box-sizing: border-box; }
+.mis-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.mis-head .ic { width: 22px; height: 22px; }
+.mis-head b { flex: 1; font-size: 15px; }
+.mult-chip-sm { padding: 1px 9px; border-radius: 99px; background: #f2c230; font-weight: 900; box-shadow: 0 2px 0 #9a6a1a; }
+.mis-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 13px; font-weight: 700; }
+.mis-row .mis-txt { flex: 1; }
+.mis-row small { opacity: .7; font-weight: 800; }
+.mis-row.done .mis-txt { text-decoration: line-through; opacity: .6; }
+.mis-dot { width: 14px; height: 14px; border-radius: 50%; border: 3px solid #b8a48a; flex: none; }
+.mis-check { width: 18px; height: 18px; flex: none; }
+.mis-reward { margin-top: 6px; padding: 6px; border-radius: 10px; background: #34db92; color: #063; font-weight: 900; text-align: center; animation: btnpulse 1s ease-in-out 3; }
+.mis-hint { display: block; margin-top: 3px; opacity: .65; font-size: 11px; }
+.quest-modal .mis-panel { margin-bottom: 10px; }
+.endless-over { max-height: 92dvh; overflow-y: auto; gap: 6px; }
+.endless-over .mis-panel { margin: 4px 0; }
+.rank-up, .rank-now { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 2px 0; font-weight: 900; }
+.rank-up { color: #12905a; animation: btnpulse 1s ease-in-out 3; }
+.rank-up .ic, .rank-now .ic { width: 24px; height: 24px; }
+
+/* ===== Koşu üstü çipler ===== */
+.target-chip { position: absolute; top: 44px; right: 12px; z-index: 6; max-width: 55%; padding: 4px 10px; border-radius: 99px; background: rgba(20,24,60,.75); color: #fff; font-weight: 800; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 2px solid rgba(255,255,255,.5); }
+.perk-chip { position: absolute; left: 50%; top: 92px; transform: translateX(-50%); z-index: 6; padding: 6px 14px; border-radius: 14px; background: rgba(255,255,255,.92); color: #2a1a10; font-weight: 800; font-size: 14px; white-space: nowrap; box-shadow: 0 4px 0 rgba(0,0,0,.25); transition: opacity .5s, transform .5s; }
+.perk-chip.out { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+
+/* ===== Haftalık lig ===== */
+.league-modal { max-height: 90dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.lg-top { display: flex; align-items: center; gap: 10px; }
+.lg-top h2 { margin: 0; }
+.lg-ic, .league-big-ic { width: 44px; height: 44px; }
+.league-big-ic { width: 80px; height: 80px; margin: 0 auto; }
+.lg-list { display: flex; flex-direction: column; gap: 5px; }
+.lg-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 12px; background: rgba(0,0,0,.06); font-weight: 800; }
+.lg-row.me { background: #ffe27a; box-shadow: 0 0 0 3px #f2b52a inset; }
+.lg-row.friend { background: rgba(80,160,255,.18); }
+.lg-rank { width: 22px; text-align: center; }
+.lg-av { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: #fff; flex: none; display: grid; place-items: center; }
+.lg-av img { height: 140%; margin-top: 30%; }
+.lg-av.gob img { height: 120%; margin-top: 20%; }
+.lg-buzbo img { filter: hue-rotate(95deg) saturate(1.3) brightness(1.1); }
+.lg-ucubo img { filter: hue-rotate(160deg) saturate(1.2); }
+.lg-patlabo img { filter: hue-rotate(-70deg) saturate(1.3); }
+.lg-kralbo img { filter: hue-rotate(-35deg) saturate(1.5) brightness(1.15); }
+.lg-name { flex: 1; display: flex; flex-direction: column; line-height: 1.1; overflow: hidden; }
+.lg-name small { font-size: 11px; opacity: .6; }
+.lg-score { font-variant-numeric: tabular-nums; }
+.lg-prize { display: flex; align-items: center; gap: 2px; font-size: 11px; opacity: .8; }
+.lg-prize .mini-ico { width: 14px; height: 14px; }
+
+/* ===== Meydan okuma / ad ===== */
+.chal-modal, .name-modal, .league-prize { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.chal-img { height: 130px; }
+.chal-score { font-family: var(--game); font-size: 46px; margin: 0; }
+.name-input { width: 100%; box-sizing: border-box; padding: 12px; font-size: 20px; font-weight: 800; border-radius: 12px; border: 3px solid var(--outline, #2a1a10); text-align: center; }
+
+/* ===== Noel takvimi ===== */
+.advent-modal { max-height: 92dvh; overflow-y: auto; }
+.adv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 8px 0; }
+.adv-box { position: relative; aspect-ratio: 1; border-radius: 12px; border: 3px solid var(--outline, #2a1a10); background: linear-gradient(180deg, #e8403a, #a8201e); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; font-weight: 900; box-shadow: 0 3px 0 rgba(0,0,0,.3); }
+.adv-box.big { grid-column: span 5; aspect-ratio: auto; height: 74px; background: linear-gradient(180deg, #ffd34a, #e09a12); color: #3a2400; }
+.adv-box.today { background: linear-gradient(180deg, #34db92, #12905a); animation: btnpulse 1.2s ease-in-out infinite; }
+.adv-box.missed { background: linear-gradient(180deg, #7a86a8, #4a5578); }
+.adv-box.open { background: #d8d2c4; color: #6a5a4a; }
+.adv-box.locked { filter: saturate(.55) brightness(.85); }
+.adv-n { position: absolute; top: 2px; left: 6px; font-size: 13px; }
+.adv-ic { width: 28px; height: 28px; }
+.adv-r, .adv-ad { font-size: 9px; display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; align-items: center; line-height: 1; }
+.adv-r .mini-ico { width: 11px; height: 11px; }
+.adv-ad .ic { width: 12px; height: 12px; }
+.adv-char { font-weight: 900; }
+
+/* ===== Karakter gücü ===== */
+.char-perk-mini { position: absolute; left: 4px; right: 4px; bottom: 26px; font-size: 9px; font-weight: 800; line-height: 1.05; text-align: center; color: #2a1a10; background: rgba(255,255,255,.85); border-radius: 6px; padding: 2px; }
+.perk-room { display: block; font-size: 11px; opacity: .7; }
+.lg-title { display: block; font-family: var(--game); font-size: 26px; line-height: 1; }
+.adv-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.adv-r, .adv-ad { max-width: 100%; overflow: hidden; }
+.lg-av img { display: block; width: auto; max-width: none; }
+.lg-av img { width: 100% !important; height: 100% !important; margin: 0 !important; object-fit: cover; object-position: 50% 8%; }
+.modal-wrap.top-wrap { z-index: 300; }
+.perk-chip { top: 168px; }
+@media (max-height: 780px) { .hub-rail .rbtn { transform: scale(.86); margin: -4px 0; } }

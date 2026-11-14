@@ -36,6 +36,8 @@
   });
 
   if (CZ.charArt) CZ.charArt.warm();
+  // Arkadaşın meydan okuma linkiyle geldiysen: ligine eklenir, merkezde haber verilir
+  if (CZ.challenge) { const ch = CZ.challenge.read(); if (ch) { CZ.state.data.pendingChal = ch; CZ.state.save(); } }
   CZ.ui.go('title');
   CZ.notify.schedule();
 

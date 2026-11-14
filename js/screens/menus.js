@@ -135,7 +135,7 @@
         }, 'small gold-buy', 'ui.gold'));
   }
 
-  const endlessMult = () => { try { return 1 + CZ.quests.today().list.filter(x => x.claimed).length; } catch (e) { return 1; } };
+  const endlessMult = () => { try { return CZ.missions.mult(); } catch (e) { return 1; } };
   CZ.screens.hub = {
     render(el) {
       game.ensureDiary();
@@ -227,6 +227,8 @@
         h('div', { class: 'hub-rail left' },
           heistBtn,
           rb('quests', CZ.icon('list'), t('quest.short'), () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), { dot: CZ.quests.ready(), badge: h('span', {}, q.list.filter(x => x.claimed).length + '/3') }),
+          runOpen ? rb(null, CZ.icon('trophy'), t('league.short'), () => CZ.league.open(document.getElementById('app')), { badge: h('span', {}, '#' + CZ.league.rankOf()) }) : null,
+          runOpen ? rb(null, CZ.icon('gift'), t('adv.short'), () => CZ.advent.open(document.getElementById('app'), () => CZ.ui.refresh()), { hot: CZ.advent.ready(), dot: CZ.advent.ready(), badge: CZ.advent.day() ? null : h('span', {}, String(CZ.advent.daysUntil())) }) : null,
           adBtn),
         h('div', { class: 'hub-rail right' },
           rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('gold'), { hot: goldFree, dot: goldFree }),
@@ -246,7 +248,11 @@
       // İlk girişte pencere açılmaz: oyuncu önce merkezi görsün.
       state.data.hubVisits = (state.data.hubVisits || 0) + 1;
       state.save();
-      if (state.data.hubVisits > 1) this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
+      // Sıra: arkadaş meydan okuması > geçen haftanın lig ödülü > günlük ödül
+      const chal = state.data.tutorialDone && state.data.pendingChal;
+      if (chal) { state.data.pendingChal = null; state.save(); this.popTimer = setTimeout(() => CZ.challenge.popup(el, chal), 450); }
+      else if (runOpen && CZ.league.state() && state.data.leaguePrev && !state.data.leaguePrev.claimed) this.popTimer = setTimeout(() => CZ.league.claimPrev(el, () => CZ.ui.refresh()), 450);
+      else if (state.data.hubVisits > 1) this.popTimer = setTimeout(() => CZ.progress.showOnHub(el, () => CZ.ui.refresh()), 450);
       if (state.data.tutorialDone && game.foundCount() >= 2) CZ.notify.askOnce();
     },
     // Evim (küçük resim + durum) ve günlük görevler kartı

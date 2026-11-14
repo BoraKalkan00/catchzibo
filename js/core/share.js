@@ -43,13 +43,34 @@ CZ.share = (function () {
     const c = await card(info);
     const blob = await new Promise(r => c.toBlob(r, 'image/png'));
     const file = new File([blob], 'catch-zibo.png', { type: 'image/png' });
-    const text = CZ.t('share.text', { n: info.big });
+    const text = (info.text || CZ.t('share.text', { n: info.big })) + (info.url ? '\n' + info.url : '');
+    // Telefonda (APK): Capacitor paylaş menüsü, resimle birlikte
+    const P = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins;
+    if (P && P.Share) {
+      try {
+        let files;
+        if (P.Filesystem) {
+          const data = c.toDataURL('image/png').split(',')[1];
+          const w = await P.Filesystem.writeFile({ path: 'catch-zibo.png', data, directory: 'CACHE' });
+          files = [w.uri];
+        }
+        await P.Share.share(Object.assign({ title: 'Catch Zibo!', text, dialogTitle: 'Catch Zibo!' }, info.url ? { url: info.url } : {}, files ? { files } : {}));
+        return;
+      } catch (e) {
+        if (e && /cancel/i.test(e.message || '')) return;
+        try { await P.Share.share({ title: 'Catch Zibo!', text, url: info.url }); return; } catch (e2) { /* tarayıcı yoluna düş */ }
+      }
+    }
     try {
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], text });
         return;
       }
+      // resimsiz paylaşım (link yeter)
+      if (info.url && navigator.share) { await navigator.share({ text, url: info.url }); return; }
     } catch (e) { if (e && e.name === 'AbortError') return; }
+    // Link varsa panoya kopyala
+    if (info.url) { try { await navigator.clipboard.writeText(text); CZ.ui.toast(CZ.t('chal.copied')); return; } catch (e) { /* olmazsa resmi indir */ } }
     // Paylaşım yoksa indir
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = 'catch-zibo.png';

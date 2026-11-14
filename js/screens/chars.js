@@ -134,7 +134,8 @@ CZ.screens.chars = {
     const levelPanel = h('div', { class: 'char-level' },
       h('div', { class: 'char-lv-badge', text: t('perk.lv', { n: lvl }) }),
       h('div', { class: 'char-lv-text' },
-        h('strong', { text: CZ.perkText(me) }),
+        h('strong', { text: CZ.runPerkText ? CZ.runPerkText(me) : CZ.perkText(me) }),
+        CZ.RUN_PERKS && CZ.RUN_PERKS[me] && CZ.RUN_PERKS[me].type !== CZ.CHAR_PERKS[me].type ? h('small', { class: 'perk-room', text: t('rperk.room') + ' ' + CZ.perkText(me) }) : null,
         h('div', { class: 'up-dots' }, Array.from({ length: CZ.CHAR_MAX }, (_, i) => h('i', { class: i < lvl ? 'on' : '' })))),
       lvl >= CZ.CHAR_MAX ? h('b', { class: 'up-max', text: t('up.max') })
         : btn(String(upPrice), () => {
@@ -221,6 +222,7 @@ CZ.screens.chars = {
       st === 'open' && CZ.chars.hasArt(c.id) ? CA.img(c.id, 'front', 'char-img') : h('img', { class: 'char-img', src: CZ.chars.front(c.id), alt: '' }),
       st !== 'open' ? (st === 'soon' ? h('span', { class: 'char-lock', text: '…' }) : CZ.icon('lock', 'char-lock')) : null,
       st === 'open' ? h('span', { class: 'char-lv-mini', text: t('perk.lv', { n: CZ.charLevel(c.id) }) }) : null,
+      CZ.runPerkText ? h('small', { class: 'char-perk-mini', text: CZ.runPerkText(c.id) }) : null,
       label ? h('span', { class: 'char-label', text: label }) : h('span', { class: 'char-label price' }, CZ.ui.img('ui.gold', 'mini-ico'), c.gold >= 1000 ? (c.gold / 1000) + 'K' : String(c.gold)));
     };
     el.append(
