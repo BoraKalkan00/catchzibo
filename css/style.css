@@ -1634,3 +1634,5 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .pw-magnet { background: #d63a3a; } .pw-double { background: #e0a010; } .pw-boots { background: #2fa05a; } .pw-sleigh { background: #2f5fd8; }
 .chase-hearts.hide { display: none; }
 .save-me .save-score { margin: 0; color: #fff; font-family: var(--game); font-size: 30px; text-shadow: 0 3px 0 var(--outline); }
+.title-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; left: 0; right: 0; }
+.title-actions .btn.big { max-width: calc(100vw - 40px); white-space: nowrap; }
