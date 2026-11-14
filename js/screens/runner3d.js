@@ -193,8 +193,8 @@ CZ.runner3d = (function () {
     const sky = skyTex();
     scene.background = sky;
     const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 200);
-    camera.position.set(0, 2.7, 4.4);
-    camera.lookAt(0, 1.15, -8);
+    camera.position.set(0, 3.25, 4.9);
+    camera.lookAt(0, 0.9, -9);
     const camBase = camera.position.clone();
 
     scene.add(new THREE.HemisphereLight(0xb9c8ff, 0x3a3050, 0.95));
@@ -443,6 +443,20 @@ CZ.runner3d = (function () {
     const SKIN = { 0x9fdcff: 0x8fd6ff, 0xd9b0ff: 0xc79bff, 0xffb59e: 0xff9a6a, 0xffe48a: 0xe8c040 };
     const zibo3 = CZ.kk && CZ.kk.ready() && !CZ.HERO_SPRITES ? CZ.kk.zibo(THREE, opts.ziboTint ? SKIN[opts.ziboTint] : null) : CZ.toonZibo && !CZ.HERO_SPRITES ? CZ.toonZibo(THREE, opts.ziboTint ? SKIN[opts.ziboTint] : null) : null;
     if (zibo3) { scene.add(zibo3.root); if (opts.ziboCrown) zibo3.setCrown(true); }
+    let jet = null;
+    if (zibo3) {
+      jet = new THREE.Group();
+      const tank = new THREE.MeshLambertMaterial({ color: 0x9aa4b4 }), red = new THREE.MeshLambertMaterial({ color: 0xd8282a });
+      [-0.16, 0.16].forEach(x => {
+        const c1 = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.5, 10), tank); c1.position.set(x, 1.05, 0.3); jet.add(c1);
+        const cap = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 6), red); cap.position.set(x, 1.3, 0.3); jet.add(cap);
+        const noz = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.14, 8), tank); noz.position.set(x, 0.75, 0.3); noz.rotation.x = Math.PI; jet.add(noz);
+      });
+      const fl = [-0.16, 0.16].map(x => { const f = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(255,150,40,1)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); f.position.set(x, 0.55, 0.3); f.center.set(0.5, 1); jet.add(f); return f; });
+      jet.userData.fl = fl;
+      jet.visible = false;
+      zibo3.root.add(jet);
+    }
     function syncZibo3(dt) {
       if (!zibo3) return;
       zibo.material.opacity = 0;
@@ -1160,6 +1174,10 @@ CZ.runner3d = (function () {
         if (k >= 1) s.zj = null;
       }
       if (opts.ziboFly) y += 0.7 + Math.sin(s.frame * 5) * 0.25;
+      // sen kızakla uçarken Zibo da jetpack'iyle havalanır (önünde görürsün, yakalayabilirsin)
+      s.ziboAir = (s.ziboAir || 0) + (((s.flyT > 1.1) ? FLY_H - 0.3 : 0) - (s.ziboAir || 0)) * Math.min(1, dt * 2.2);
+      y += s.ziboAir;
+      if (jet) { jet.visible = s.ziboAir > 0.3; if (jet.visible) { jet.userData.fl.forEach((f, i) => f.scale.set(0.5 + Math.random() * 0.25, 0.9 + Math.random() * 0.5, 1)); if (Math.random() < 0.5) sparks(new THREE.Vector3(zibo.position.x + rand(-0.2, 0.2), zibo.position.y + 0.5, zibo.position.z + 0.4), 1, '#ffb04a', 0.25); } }
       zibo.position.y = y;
       zibo.userData.sy = sy;
       if (ziboMat.map) zibo.scale.y = (CHASE ? 2.5 : 1.7) * sy;
@@ -1337,6 +1355,15 @@ CZ.runner3d = (function () {
         if (o.oncoming && !o.honk && z > -55) { o.honk = true; CZ.audio.sfx('horn'); }
         if (z > KILL_Z) { scene.remove(o.mesh); s.objs.splice(i, 1); continue; }
         if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
+        if (o.type === 'train' || o.type === 'wall') {
+          const back = z + o.len / 2;          // nesnenin kameraya yakın ucu
+          const fade = Math.max(0, Math.min(1, (back - 1.2) / 2.2));
+          if (fade > 0 && !o.fadeMats) {
+            o.fadeMats = [];
+            o.mesh.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.transparent = true; o.fadeMats.push(m.material); } });
+          }
+          if (o.fadeMats) o.fadeMats.forEach(m => { m.opacity = 1 - fade * 0.78; m.depthWrite = fade < 0.2; });
+        }
         if (o.hitFlash) { o.hitFlash -= dt; o.mesh.scale.setScalar(o.hitFlash > 0 ? 1.08 : 1); }
         if (o.passed || o.dead) continue;
         if (s.flyT > 0 && s.py > 1.5) continue;     // kızakla uçarken yerdekiler değmez
@@ -1543,6 +1570,7 @@ CZ.runner3d = (function () {
       if (!(s.flyT > 0)) { s.flyY = s.py; sleigh.visible = true; CZ.audio.sfx('star'); }
       s.flyT = 9.5;
       s.nextRow = 4;
+      s.bombs.forEach(b => scene.remove(b.sp, b.ring, b.fill)); s.bombs = [];
       s.invT = Math.max(s.invT, 10);
       s.slideT = 0; s.jumping = false; s.vy = 0;
       if (opts.onFly) opts.onFly(true);

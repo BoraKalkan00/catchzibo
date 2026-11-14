@@ -241,6 +241,8 @@ CZ.screens.chase = (function () {
   /* ---------- Bombalar ---------- */
   function throwBomb(now) {
     c.nextBomb = now + byLevel(C.bombEveryMs) * rand(0.8, 1.2) * (c.boss.bombMul || 1);
+    // kızakla uçarken Zibo bomba atmaz (yerdeki bombalar seni tutamaz, sadece görüşü kapatır)
+    if (c.run && c.run.state.flyT > 0) return;
     if (c.run) c.run.ziboThrow();
     // Çoğunlukla oyuncunun şeridine atar: kaçmak zorunda kalsın.
     // Adil olsun: bomba, o anda pankart ya da kızak gelecek şeride düşmez (zıplayarak kaçılabilsin),
