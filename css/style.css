@@ -1607,3 +1607,22 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .modal-wrap.top-wrap { z-index: 300; }
 .perk-chip { top: 168px; }
 @media (max-height: 780px) { .hub-rail .rbtn { transform: scale(.86); margin: -4px 0; } }
+/* Zibo'nun mıknatısla kapması */
+.snatch-item { position: absolute; z-index: 96; pointer-events: none; filter: drop-shadow(0 0 14px #fff2a8); }
+.snatch-item img { width: 100%; height: 100%; object-fit: contain; }
+.zibo-magnet { position: absolute; z-index: 97; width: 64px; height: 64px; pointer-events: none; animation: magIn .25s cubic-bezier(.3,1.6,.5,1) both, magShake .09s .25s linear infinite alternate; }
+.zibo-magnet .ic { width: 100%; height: 100%; }
+.zibo-magnet.out { animation: magOut .3s ease-in forwards; }
+@keyframes magIn { from { scale: 0; } to { scale: 1; } }
+@keyframes magShake { from { translate: -2px 0; } to { translate: 2px 0; } }
+@keyframes magOut { to { scale: 0; opacity: 0; } }
+.magnet-beam { position: absolute; z-index: 95; height: 34px; margin-top: -17px; transform-origin: 0 50%; pointer-events: none; opacity: .85;
+  background: repeating-linear-gradient(90deg, rgba(120,220,255,0) 0 10px, rgba(160,235,255,.9) 10px 16px, rgba(120,220,255,0) 16px 26px);
+  -webkit-mask: linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent); mask: linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
+  animation: beamFlow .25s linear infinite, beamFade 1.05s ease-in forwards; }
+@keyframes beamFlow { from { background-position: 0 0; } to { background-position: -26px 0; } }
+@keyframes beamFade { 0% { opacity: 0; } 15% { opacity: .9; } 80% { opacity: .9; } 100% { opacity: 0; } }
+.snatch-spark { position: absolute; z-index: 96; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: radial-gradient(#fff, #ffe27a 50%, transparent 70%); pointer-events: none; animation: sparkFade .5s ease-out forwards; }
+@keyframes sparkFade { to { opacity: 0; transform: scale(.2) translateY(10px); } }
+.snatch-pop { position: absolute; z-index: 97; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%; border: 6px solid #ffe27a; pointer-events: none; animation: popRing .45s ease-out forwards; }
+@keyframes popRing { from { transform: scale(.2); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }

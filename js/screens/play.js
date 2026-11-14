@@ -620,30 +620,69 @@ CZ.screens.play = (function () {
     item.el.style.zIndex = 95;
     item.el.classList.add('found');
     s.mine.classList.add('show');
-    // Tam sevinirken Zibo atlar, eşyayı kapar.
+    // Tam sevinirken Zibo dev mıknatısını çıkarır: eşya titrer, direnir, sonra Zibo'nun eline/çuvalına uçar.
     later(() => {
       s.mine.classList.remove('show');
       s.zibo.lock('laugh', 'dance');
       s.zibo.say('zibo.snatch');
       CZ.audio.sfx('poke');
       const room = s.room.getBoundingClientRect();
-      const from = item.el.getBoundingClientRect();
-      const to = s.zibo.sprite.getBoundingClientRect();
-      const dx = to.left + to.width / 2 - (from.left + from.width / 2);
-      const dy = to.top + to.height * 0.4 - (from.top + from.height / 2);
-      item.el.classList.remove('found');
-      item.el.animate([
-        { transform: `${baseTransform(item)} scale(1.6)` },
-        { transform: `translate(calc(-50% + ${dx * 0.5}px), calc(-50% + ${dy * 0.5 - 80}px)) scale(1.1) rotate(200deg)`, offset: 0.5 },
-        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.5) rotate(400deg)` }
-      ], { duration: 520, easing: 'ease-in', fill: 'forwards' });
-      void room;
-    }, 700);
+      const from = (item.el.querySelector('img') || item.el).getBoundingClientRect();
+      const z = s.zibo.sprite.getBoundingClientRect();
+      const fx = from.left + from.width / 2 - room.left, fy = from.top + from.height / 2 - room.top;
+      const tx = z.left + z.width * 0.5 - room.left, ty = z.top + z.height * 0.58 - room.top;
+      // eşyanın kopyası şimdiki yerinden uçar (asıl eşya yığında yerine dönmesin diye gizlenir)
+      const ghost = h('div', { class: 'snatch-item' });
+      const pic = (item.el.querySelector('img') || item.el).cloneNode(true);
+      pic.className = ''; pic.removeAttribute('style');
+      ghost.append(pic);
+      ghost.style.cssText = `left:${fx}px;top:${fy}px;width:${from.width}px;height:${from.height}px`;
+      s.room.append(ghost);
+      item.el.style.visibility = 'hidden';
+      // mıknatıs + çekim ışını
+      const ang = Math.atan2(fy - ty, fx - tx);
+      const dist = Math.hypot(fx - tx, fy - ty);
+      const mag = h('div', { class: 'zibo-magnet' }, CZ.icon('magnet'));
+      mag.style.cssText = `left:${tx}px;top:${ty}px;transform:translate(-50%,-50%) rotate(${ang * 180 / Math.PI + 90}deg)`;
+      const beam = h('div', { class: 'magnet-beam' });
+      beam.style.cssText = `left:${tx}px;top:${ty}px;width:${dist}px;transform:rotate(${ang}rad)`;
+      s.room.append(beam, mag);
+      CZ.audio.sfx('swish');
+      const dx = tx - fx, dy = ty - fy;
+      const fly = ghost.animate([
+        { transform: 'translate(-50%,-50%) scale(1)' },
+        { transform: 'translate(-50%,-50%) scale(1) rotate(-10deg)', offset: 0.12 },
+        { transform: 'translate(-50%,-50%) scale(1) rotate(10deg)', offset: 0.24 },
+        { transform: 'translate(-50%,-50%) scale(.95) rotate(-6deg)', offset: 0.34 },
+        { transform: `translate(calc(-50% + ${dx * 0.55}px), calc(-50% + ${dy * 0.55 - 30}px)) scale(.6) rotate(200deg)`, offset: 0.72 },
+        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.12) rotate(380deg)` }
+      ], { duration: 1050, easing: 'cubic-bezier(.5,0,.9,.6)', fill: 'forwards' });
+      // ışıltı izi
+      const trail = setInterval(() => {
+        const r = ghost.getBoundingClientRect();
+        const dot = h('i', { class: 'snatch-spark' });
+        dot.style.cssText = `left:${r.left + r.width / 2 - room.left}px;top:${r.top + r.height / 2 - room.top}px`;
+        s.room.append(dot);
+        setTimeout(() => dot.remove(), 500);
+      }, 45);
+      fly.onfinish = () => {
+        clearInterval(trail);
+        ghost.remove(); beam.remove();
+        mag.classList.add('out');
+        setTimeout(() => mag.remove(), 300);
+        const pop = h('i', { class: 'snatch-pop' });
+        pop.style.cssText = `left:${tx}px;top:${ty}px`;
+        s.room.append(pop);
+        setTimeout(() => pop.remove(), 500);
+        CZ.audio.sfx('coin', 4); CZ.audio.vibrate(30);
+        s.zibo.lock('laugh', 'dance');
+      };
+    }, 650);
     later(() => {
       s.zibo.el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(140%)' }], { duration: 380, easing: 'ease-in', fill: 'forwards' });
       CZ.audio.sfx('throw');
-    }, 1700);
-    later(() => CZ.ui.wipeTo('chase', params), 2150);
+    }, 2050);
+    later(() => CZ.ui.wipeTo('chase', params), 2500);
   }
 
   function confetti() {
@@ -1001,5 +1040,5 @@ CZ.screens.play = (function () {
     s = null;
   }
 
-  return { render, leave, music: null, get debug() { return s; } };
+  return { render, leave, music: null, get debug() { return s; }, devWin() { const it = s && s.items.find(i => i.target); if (it && s.running) win(it); } };
 })();

@@ -574,30 +574,99 @@ CZ.runner3d = (function () {
       x.strokeStyle = '#8a6a3a'; x.lineWidth = 8; x.beginPath(); x.moveTo(64, 28); x.quadraticCurveTo(76, 10, 92, 14); x.stroke();
       x.fillStyle = '#ffcf3a'; x.beginPath(); x.arc(94, 14, 9, 0, 7); x.fill();
     }) : null;
+    // 3D bomba: siyah gövde, fitil, fitilde titreyen kıvılcım
+    const bombBody = CHASE ? new THREE.MeshLambertMaterial({ color: 0x24262e }) : null;
+    const bombGeo = CHASE ? new THREE.SphereGeometry(0.34, 16, 12) : null;
+    const fuseMat = CHASE ? new THREE.MeshLambertMaterial({ color: 0x8a6a3a }) : null;
+    const fuseSparkMat = CHASE ? new THREE.SpriteMaterial({ map: canvasTex(64, 64, (x) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 30); g.addColorStop(0, '#fff'); g.addColorStop(0.3, '#ffe27a'); g.addColorStop(0.6, 'rgba(255,120,30,.7)'); g.addColorStop(1, 'rgba(255,80,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); }), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }) : null;
+    function makeBomb() {
+      const g = new THREE.Group();
+      const b = new THREE.Mesh(bombGeo, bombBody); g.add(b);
+      const shine = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 }));
+      shine.position.set(-0.13, 0.15, 0.24); g.add(shine);
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.1, 10), bombBody); cap.position.y = 0.34; g.add(cap);
+      const fuse = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.22, 6), fuseMat); fuse.position.set(0.05, 0.47, 0); fuse.rotation.z = -0.4; g.add(fuse);
+      const sp = new THREE.Sprite(fuseSparkMat); sp.position.set(0.1, 0.58, 0); sp.scale.set(0.4, 0.4, 1); g.add(sp);
+      g.userData.spark = sp;
+      return g;
+    }
+    // yere iniş hedefi: kırmızı halka + dolan disk (patlamaya kalan süre)
+    const ringTex = CHASE ? canvasTex(128, 128, (x) => { x.strokeStyle = 'rgba(255,60,40,1)'; x.lineWidth = 10; x.beginPath(); x.arc(64, 64, 56, 0, 7); x.stroke(); x.strokeStyle = 'rgba(255,230,120,.9)'; x.lineWidth = 4; x.setLineDash([10, 8]); x.beginPath(); x.arc(64, 64, 44, 0, 7); x.stroke(); }) : null;
+    const fillTex = CHASE ? canvasTex(128, 128, (x) => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 60); g.addColorStop(0, 'rgba(255,90,40,.75)'); g.addColorStop(1, 'rgba(255,40,30,.25)'); x.fillStyle = g; x.beginPath(); x.arc(64, 64, 60, 0, 7); x.fill(); }) : null;
+    const ringMat = CHASE ? new THREE.MeshBasicMaterial({ map: ringTex, transparent: true, depthWrite: false }) : null;
+    const fillMat = CHASE ? new THREE.MeshBasicMaterial({ map: fillTex, transparent: true, depthWrite: false }) : null;
+    // patlama: parlama küresi, yerde şok halkası, duman, kıvılcım, sarsıntı
+    const boomMat = CHASE ? new THREE.MeshBasicMaterial({ color: 0xffb04a, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }) : null;
+    const smokeMat = CHASE ? new THREE.SpriteMaterial({ map: canvasTex(64, 64, (x) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 30); g.addColorStop(0, 'rgba(90,90,100,.9)'); g.addColorStop(1, 'rgba(90,90,100,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); }), transparent: true, depthWrite: false }) : null;
+    const booms = [];
+    function boom(pos) {
+      const ball = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 12), boomMat.clone());
+      ball.position.copy(pos); scene.add(ball);
+      const wave = new THREE.Mesh(GEO.plane, ringMat.clone()); wave.rotation.x = -Math.PI / 2; wave.position.set(pos.x, 0.05, pos.z); scene.add(wave);
+      const puffs = [];
+      for (let i = 0; i < 6; i++) { const p = new THREE.Sprite(smokeMat.clone()); p.position.set(pos.x + rand(-0.4, 0.4), 0.4 + rand(0, 0.4), pos.z + rand(-0.3, 0.3)); p.scale.setScalar(0.6); scene.add(p); puffs.push({ p, v: new THREE.Vector3(rand(-0.6, 0.6), rand(1, 2), rand(-0.4, 0.4)) }); }
+      booms.push({ ball, wave, puffs, t: 0 });
+      sparks(pos, 14, '#ff8a3a'); sparks(pos, 10, '#ffe27a');
+      s.shake = Math.max(s.shake || 0, 0.25);
+    }
+    function boomStep(dt) {
+      for (let i = booms.length - 1; i >= 0; i--) {
+        const B = booms[i];
+        B.t += dt;
+        const k = B.t / 0.6;
+        B.ball.scale.setScalar(1 + k * 2.6); B.ball.material.opacity = Math.max(0, 1 - k * 1.6);
+        B.wave.scale.setScalar(0.5 + k * 5); B.wave.material.opacity = Math.max(0, 1 - k);
+        B.wave.position.z += s.speed * dt; B.ball.position.z += s.speed * dt;
+        B.puffs.forEach(q => { q.p.position.addScaledVector(q.v, dt); q.p.position.z += s.speed * dt * 0.6; q.p.scale.setScalar(0.6 + k * 1.6); q.p.material.opacity = Math.max(0, 0.9 - k * 0.9); });
+        if (k >= 1.4) { scene.remove(B.ball, B.wave); B.puffs.forEach(q => scene.remove(q.p)); booms.splice(i, 1); }
+      }
+    }
     const chainMat = new THREE.MeshBasicMaterial({ color: 0xd8dde8 });
     const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1, 6), chainMat);
     chain.visible = false;
     scene.add(chain);
     function chaseFx(dt) {
+      // şerit uyarısı artık hafif (asıl uyarı yerdeki halka)
       warns.forEach((w, l) => {
-        const on = s.bombs.some(b => b.lane === l);
-        w.material.opacity = on ? 0.55 + Math.abs(Math.sin(s.frame * 10)) * 0.4 : Math.max(0, w.material.opacity - dt * 3);
+        const on = s.bombs.some(b => b.lane === l && b.t > 0.2);
+        w.material.opacity = on ? 0.18 + Math.abs(Math.sin(s.frame * 8)) * 0.14 : Math.max(0, w.material.opacity - dt * 3);
       });
       warnTex.offset.y -= dt * 1.6;
+      boomStep(dt);
       for (let i = s.bombs.length - 1; i >= 0; i--) {
         const b = s.bombs[i];
         b.t += dt;
-        const k = Math.min(1, b.t / b.dur);
-        const x = b.x0 + (laneX(b.lane) - b.x0) * k;
-        const z = b.z0 + (-1.2 - b.z0) * k;
-        const y = b.y0 * (1 - k) + Math.sin(k * Math.PI) * 4 + 0.3 * k;
-        b.sp.position.set(x, y, z);
-        b.sp.material.rotation += dt * 6;
-        if (k >= 1) {
-          scene.remove(b.sp);
+        // 0-0.22 sn: Zibo döner ve atar · uçuş · %72'de yere düşer, yerde fitil yanar, sonunda patlar
+        const T0 = Math.min(0.22, b.dur * 0.2), T1 = b.dur * 0.72;
+        if (b.x0 === undefined && b.t >= T0) { b.x0 = zibo.position.x; b.y0 = zibo.position.y + 1.3; b.z0 = zibo.position.z; b.sp.visible = true; CZ.audio.sfx('throw'); }
+        // halka oyuncunun hizasına gelecek yerde: patlama anında z ≈ -0.6
+        const zAt = tt => -0.6 - s.speed * Math.max(0, b.dur - tt);
+        const zl = zAt(b.t);
+        b.ring.visible = b.fill.visible = b.t >= T0;
+        b.ring.position.set(laneX(b.lane), 0.04, zl); b.fill.position.set(laneX(b.lane), 0.045, zl);
+        const left = Math.max(0, 1 - b.t / b.dur);
+        b.ring.scale.setScalar(1.9 + Math.sin(s.frame * 14) * 0.1);
+        b.fill.scale.setScalar(1.85 * (1 - left));
+        if (b.x0 !== undefined) {
+          if (b.t < T1) {
+            const k = (b.t - T0) / (T1 - T0);
+            const tz = zAt(T1);
+            b.sp.position.set(b.x0 + (laneX(b.lane) - b.x0) * k, b.y0 * (1 - k) + Math.sin(k * Math.PI) * 3.6 + 0.34 * k, b.z0 + (tz - b.z0) * k);
+            b.sp.rotation.x += dt * 9; b.sp.rotation.z += dt * 5;
+            if (Math.random() < 0.5) sparks(b.sp.position.clone(), 1, '#c8c8d0', 0.12);
+          } else {
+            // yerde: dünya ile birlikte gelir, sekip titrer, kıvılcım hızlanır
+            b.sp.position.set(laneX(b.lane), 0.34 + Math.abs(Math.sin((b.t - T1) * 18)) * 0.06 * left, zl);
+            b.sp.rotation.set(0, 0, Math.sin(s.frame * 30) * 0.12);
+            if (!b.landed) { b.landed = true; sparks(b.sp.position.clone(), 6, '#eaf6ff', 0.2); CZ.audio.vibrate(8); }
+          }
+          const spk = b.sp.userData.spark;
+          spk.scale.setScalar(0.3 + Math.random() * 0.25 + (1 - left) * 0.3);
+        }
+        if (b.t >= b.dur) {
+          scene.remove(b.sp, b.ring, b.fill);
           s.bombs.splice(i, 1);
-          sparks(new THREE.Vector3(laneX(b.lane), 0.6, -1.2), 10, '#ff8a3a');
-          sparks(new THREE.Vector3(laneX(b.lane), 0.6, -1.2), 6, '#ffe27a');
+          boom(new THREE.Vector3(laneX(b.lane), 0.6, zAt(b.dur)));
         }
       }
       if (s.hookFx > 0) {
@@ -1407,19 +1476,24 @@ CZ.runner3d = (function () {
       move, jump, slide, shoot,
       stop() {
         s.running = false;
-        s.bombs.forEach(b => scene.remove(b.sp));
+        s.bombs.forEach(b => scene.remove(b.sp, b.ring, b.fill));
         s.bombs = [];
         warns.forEach(w => { w.material.opacity = 0; });
       },
       // Kovalamaca API
       setZibo(lane, z) { s.ziboLane = lane; s.ziboZ = z; },
       ziboPose(p) { s.ziboForce = p || null; },
-      ziboThrow() { s.ziboPose = 0.45; },
+      ziboThrow() { s.ziboPose = 0.8; },
       bomb(lane, sec) {
-        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: bombTex }));
-        sp.scale.set(0.7, 0.7, 1);
+        const sp = makeBomb();
+        sp.visible = false;
         scene.add(sp);
-        s.bombs.push({ lane, sp, t: 0, dur: sec, x0: zibo.position.x, y0: 1.2, z0: zibo.position.z });
+        const ring = new THREE.Mesh(GEO.plane, ringMat.clone());
+        ring.rotation.x = -Math.PI / 2; ring.visible = false;
+        const fill = new THREE.Mesh(GEO.plane, fillMat.clone());
+        fill.rotation.x = -Math.PI / 2; fill.visible = false;
+        scene.add(ring, fill);
+        s.bombs.push({ lane, sp, ring, fill, t: 0, dur: sec });
       },
       hook(hit) { s.hookFx = 0.3; s.hookHit = hit; },
       throwAt, dash, petDash,

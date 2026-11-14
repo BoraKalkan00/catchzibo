@@ -289,7 +289,10 @@
     holder.rotation.y = Math.PI;      // kameraya sırtı dönük koşsun
     holder.scale.setScalar(0.5);
     holder.add(model);
-    root.add(holder);
+    // takla ekseni: göbek hizası (yuvarlanırken yerinde döner)
+    const spin = new T.Group(); spin.position.y = 0.42; holder.position.y = -0.42;
+    spin.add(holder);
+    root.add(spin);
     const R = rig(model);
     // Silah yuvası: sağ elde
     const weaponSlot = new T.Group();
@@ -316,7 +319,7 @@
         st.mode = want;
         if (want === 'run') R.play('Running_A', { speed: 1.25, fade: prev === 'roll' ? 0.08 : 0.15 });
         else if (want === 'jump') { const c = clips.Jump_Full_Short; R.play('Jump_Full_Short', { once: true, speed: c.duration / 0.8, fade: 0.06 }); }
-        else if (want === 'roll') { const c = clips.Dodge_Forward; R.play('Dodge_Forward', { once: true, speed: c.duration / 0.55, fade: 0.05 }); }
+        else if (want === 'roll') { const a = R.play('Jump_Idle', { fade: 0.05 }); a.timeScale = 0; a.time = 0.1; st.rollT = 0; }
         else if (want === 'dodgeL') R.play('Dodge_Left', { once: true, speed: 2.2, fade: 0.06 });
         else if (want === 'dodgeR') R.play('Dodge_Right', { once: true, speed: 2.2, fade: 0.06 });
         else if (want === 'dead') R.play('Death_A', { once: true, fade: 0.1 });
@@ -324,6 +327,20 @@
         else R.play('Idle', { fade: 0.25 });
       }
       if (want === 'run') { const a = R.cur; if (a) a.timeScale = 0.9 + Math.min(0.8, (info.speed || 14) / 40); }
+      // Kayma: yere oturup bacaklar önde kayar (Subway Surfers gibi), poz hızla oturur ve kayarken kalır
+      // TAKLA: toplanıp öne bir tam tur döner (Subway Surfers gibi), sonra eğik kalır
+      if (want === 'roll') {
+        st.rollT = (st.rollT || 0) + dt;
+        const k = Math.min(1, st.rollT / 0.42);
+        const e = k < 1 ? (1 - Math.cos(k * Math.PI)) / 2 : 1;
+        spin.rotation.x = -e * Math.PI * 2;
+        spin.position.y = 0.42 - Math.sin(k * Math.PI) * 0.12 - 0.1;
+        spin.scale.set(1, 0.82, 1);
+      } else {
+        spin.rotation.x *= 0.5; if (Math.abs(spin.rotation.x) < 0.01) spin.rotation.x = 0;
+        spin.position.y += (0.42 - spin.position.y) * Math.min(1, dt * 14);
+        spin.scale.y += (1 - spin.scale.y) * Math.min(1, dt * 14);
+      }
       R.mixer.update(dt);
     }
     const mats = [];
@@ -371,7 +388,13 @@
       if (up && w === 0 && upT <= -0.2) { up.stop(); up = null; }
       if (weapon) weapon.traverse(o => { if (o.userData.glow) o.scale.setScalar(1 + Math.sin(performance.now() / 120) * 0.12); });
     }
-    return { root, update: update2, weaponSlot, setOpacity, throwNow, setWeapon, is3d: true, kk: true };
+    function pose(name, tt) {
+      R.mixer.stopAllAction();
+      const a = R.mixer.clipAction(clips[name]);
+      a.reset(); a.setLoop(T.LoopOnce); a.clampWhenFinished = true; a.play();
+      R.mixer.update(Math.min(tt, clips[name].duration - 0.001));
+    }
+    return { root, update: update2, weaponSlot, setOpacity, throwNow, setWeapon, pose, is3d: true, kk: true };
   }
 
   /* ---------- ZİBO ---------- */
@@ -412,13 +435,17 @@
         if (want === 'run') R.play('Running_B', { speed: 1.3 });
         else if (want === 'hit') R.play('Hit_A', { speed: 1, fade: 0.08 });
         else if (want === 'jump') R.play('Jump_Idle', { fade: 0.08 });
-        else if (want === 'throw') R.play('Throw', { once: true, speed: 1.6, fade: 0.06 });
+        else if (want === 'throw') R.play('Throw', { once: true, speed: 1.25, fade: 0.08 });
         else R.play('Cheer', { fade: 0.2 });
       }
       R.mixer.update(dt);
+      // bomba atarken bir anlığına oyuncuya döner, sonra yine kaçar
+      const yawT = want === 'throw' ? 0 : Math.PI;
+      st.yaw = st.yaw == null ? Math.PI : st.yaw + (yawT - st.yaw) * Math.min(1, dt * (want === 'throw' ? 16 : 9));
+      holder.rotation.y = st.yaw;
       // geriye bakıp gülme: kafa döner (animasyonun üstüne)
       st.look += ((info.look ? 1 : 0) - st.look) * Math.min(1, dt * 8);
-      if (st.look > 0.01) head.rotation.y += st.look * 2.4;
+      if (st.look > 0.01 && want !== 'throw') head.rotation.y += st.look * 2.4;
     }
     function setCrown(on) {
       if (!on || crown) return;
