@@ -423,7 +423,7 @@ CZ.runner3d = (function () {
     // Oyuncu: eklemli 3D karakter (akıcı koşu animasyonu)
     // Çizimi olan karakter kendi Gemini çizimleriyle koşar; yoksa 3D parça karakter.
     // Kahraman artık GERÇEK 3D (toon). Eski kare-kare sprite yalnızca CZ.HERO_SPRITES açıksa.
-    const hero = CZ.toonHero && !CZ.HERO_SPRITES ? CZ.toonHero(THREE, opts.avatar) : (CZ.chars && CZ.chars.hasArt(opts.avatar) ? CZ.heroSprite(THREE, opts.avatar) : CZ.hero3d(THREE, opts.avatar));
+    const hero = CZ.kk && CZ.kk.ready() && !CZ.HERO_SPRITES ? CZ.kk.hero(THREE, opts.avatar) : CZ.toonHero && !CZ.HERO_SPRITES ? CZ.toonHero(THREE, opts.avatar) : (CZ.chars && CZ.chars.hasArt(opts.avatar) ? CZ.heroSprite(THREE, opts.avatar) : CZ.hero3d(THREE, opts.avatar));
     scene.add(hero.root);
     const pShadow = mesh(GEO.circle, M.shadow, 1.1, 0.7, 1, 0, 0.02, 0);
     pShadow.rotation.x = -Math.PI / 2;
@@ -439,7 +439,7 @@ CZ.runner3d = (function () {
     zibo.center.set(0.5, 0);
     // 3D Zibo: sprite görünmez kalır (konum/ölçek hesapları onunla), çizilen 3D goblin.
     const SKIN = { 0x9fdcff: 0x8fd6ff, 0xd9b0ff: 0xc79bff, 0xffb59e: 0xff9a6a, 0xffe48a: 0xe8c040 };
-    const zibo3 = CZ.toonZibo && !CZ.HERO_SPRITES ? CZ.toonZibo(THREE, opts.ziboTint ? SKIN[opts.ziboTint] : null) : null;
+    const zibo3 = CZ.kk && CZ.kk.ready() && !CZ.HERO_SPRITES ? CZ.kk.zibo(THREE, opts.ziboTint ? SKIN[opts.ziboTint] : null) : CZ.toonZibo && !CZ.HERO_SPRITES ? CZ.toonZibo(THREE, opts.ziboTint ? SKIN[opts.ziboTint] : null) : null;
     if (zibo3) { scene.add(zibo3.root); if (opts.ziboCrown) zibo3.setCrown(true); }
     function syncZibo3(dt) {
       if (!zibo3) return;
@@ -453,7 +453,8 @@ CZ.runner3d = (function () {
       zibo3.update(dt, {
         running: s.running || s.catching ? !(s.catching && s.catching > 0.6) : false,
         dizzy: f === 'dizzy' || s.ziboHitT > 0,
-        look: (s.laughT > 0) || f === 'laugh' || f === 'tongue' || (s.ziboPose > 0 && !s.catching),
+        look: (s.laughT > 0) || f === 'laugh' || f === 'tongue',
+        throwing: s.ziboPose > 0 && !s.catching,
         air: zibo.position.y > 0.3 && !!s.zj
       });
     }
@@ -846,9 +847,9 @@ CZ.runner3d = (function () {
       s.bestCombo = Math.max(s.bestCombo || 0, s.combo);
       const near = s.objs.some(o => o.lane === old && !o.passed && !o.dead && o.type !== 'crate' && o.mesh.position.z < 0 && o.mesh.position.z > -s.speed * 0.4 - o.len / 2)
         || s.bombs.some(b => b.lane === old && b.t / b.dur > 0.55);
-      const gold = (near ? 3 * Math.min(s.combo, 5) : 0) + (s.combo >= 3 ? 1 : 0);
-      if (gold) { s.gold += gold; opts.onGold(gold); }
-      if (near) { s.nearMiss = (s.nearMiss || 0) + 1; CZ.audio.sfx('coin', 6); sparks(new THREE.Vector3(laneX(old), 1, -0.6), 5, '#ffe27a'); }
+      // Sağa-sola gitmek altın vermez (sadece yazı ve efekt). Altın yalnızca yoldan toplanır.
+      const gold = 0;
+      if (near) { s.nearMiss = (s.nearMiss || 0) + 1; CZ.audio.sfx('swish'); sparks(new THREE.Vector3(laneX(old), 1, -0.6), 5, '#ffffff'); }
       if (opts.onSwipe) opts.onSwipe(s.combo, near, gold);
     }
     function jump() {
@@ -861,8 +862,11 @@ CZ.runner3d = (function () {
     }
     function slide() {
       if (!s.running) return;
+      // Gerçek bir insan gibi: takla bitmeden yenisi yok, bitince kısa bir toparlanma.
+      if (s.slideT > 0 || (s.slideCD || 0) > 0) return;
       if (s.jumping) { s.vy = -R.jumpV * 1.4; }      // havadaysan hızla in
       s.slideT = R.slideSec;
+      s.slideCD = R.slideSec + 0.25;
       CZ.audio.sfx('slide');
     }
     function bump() { s.shake = 0.12; CZ.audio.vibrate(10); }
@@ -1097,6 +1101,7 @@ CZ.runner3d = (function () {
         s.jumping = true; s.vy = 0;                     // trenin ucundan düşüş
       }
       s.slideT = Math.max(0, s.slideT - dt);
+      s.slideCD = Math.max(0, (s.slideCD || 0) - dt);
       s.invT = Math.max(0, s.invT - dt);
       s.magnetT = Math.max(0, s.magnetT - dt);
       s.doubleT = Math.max(0, s.doubleT - dt);
@@ -1328,6 +1333,7 @@ CZ.runner3d = (function () {
 
     // Kovalamaca: silahını Zibo'ya at. İsabet: Zibo sendeler, yıldızlar uçuşur, bir an yavaşlar.
     function throwAt(hit, onHit) {
+      if (hero.throwNow) hero.throwNow();
       const ball = new THREE.Sprite(ballMat.clone());
       ball.scale.set(SHOT.size * 1.3, SHOT.size * 1.3, 1);
       if (haloMat) { const hl = new THREE.Sprite(haloMat); hl.scale.set(2.2, 2.2, 1); ball.add(hl); }
@@ -1446,5 +1452,7 @@ CZ.runner3d = (function () {
     };
   }
 
-  return { load: loadThree, start };
+  // 3D modeller de yüklensin (yüklenemezse kodla yapılmış karakterlere düşer)
+  const load = () => loadThree().then(() => (CZ.kk ? CZ.kk.load(THREE).catch(() => null) : null));
+  return { load, start };
 })();

@@ -806,5 +806,13 @@ CZ.i18n.register('fr', 'Français', {
   'endless.newBest': 'NOUVEAU RECORD !',
   'endless.revive': 'Pub : continuer',
   'endless.double': 'Pub : or x2 ({n})',
-  'endless.again': 'Rejouer'
+  'endless.again': 'Rejouer',
+  'chars.goldShort': 'Il te manque {n} pièces d’or',
+  'endless.saveMe': 'Sauve-moi !',
+  'endless.skip': 'Passer',
+  'swap.title': 'Échanger l’or contre des émeraudes',
+  'swap.have': 'Or : {g} · Émeraudes : {e}',
+  'swap.one': '{g} or → {e} émeraudes',
+  'swap.all': 'Tout échanger : {g} → {e}',
+  'swap.done': '+{n} émeraudes !'
 });

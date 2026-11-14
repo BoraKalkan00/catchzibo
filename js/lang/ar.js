@@ -806,5 +806,13 @@ CZ.i18n.register('ar', 'العربية', {
   'endless.newBest': 'رقم قياسي جديد!',
   'endless.revive': 'شاهد إعلانًا للمتابعة',
   'endless.double': 'شاهد إعلانًا: ذهب ×2 ({n})',
-  'endless.again': 'اركض مجددًا'
+  'endless.again': 'اركض مجددًا',
+  'chars.goldShort': 'تحتاج {n} ذهبًا إضافيًا',
+  'endless.saveMe': 'أنقذني!',
+  'endless.skip': 'تخطَّ',
+  'swap.title': 'بدّل الذهب بالزمرد',
+  'swap.have': 'الذهب: {g} · الزمرد: {e}',
+  'swap.one': '{g} ذهب ← {e} زمرد',
+  'swap.all': 'بدّل الكل: {g} ← {e}',
+  'swap.done': '+{n} زمرد!'
 });

@@ -232,7 +232,7 @@ CZ.screens.gold = (function () {
         onCrate() { if (CZ.quests) CZ.quests.track('crate'); },
         onDodge() { if (CZ.quests) CZ.quests.track('dodge'); },
         onSwipe(combo, near, gold) {
-          if (near) { floatText(t('run.nearMiss', { n: gold }), 'gold'); if (Math.random() < 0.3) say('zibo.chase.nearMiss'); }
+          if (near) { floatText(t('chase.nice'), 'gold'); if (Math.random() < 0.3) say('zibo.chase.nearMiss'); }
           else if (combo >= 3) floatText(t('run.combo', { n: combo }), 'gold');
           const dd = CZ.state.data;
           if (combo > (dd.bestCombo || 0)) { dd.bestCombo = combo; if (combo >= 5) floatText(t('run.comboRecord', { n: combo }), 'gold'); }

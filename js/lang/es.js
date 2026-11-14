@@ -806,5 +806,13 @@ CZ.i18n.register('es', 'Español', {
   'endless.newBest': '¡NUEVO RÉCORD!',
   'endless.revive': 'Ver anuncio y seguir',
   'endless.double': 'Ver anuncio: oro x2 ({n})',
-  'endless.again': 'Otra vez'
+  'endless.again': 'Otra vez',
+  'chars.goldShort': 'Te faltan {n} de oro',
+  'endless.saveMe': '¡Sálvame!',
+  'endless.skip': 'Saltar',
+  'swap.title': 'Cambia oro por esmeraldas',
+  'swap.have': 'Oro: {g} · Esmeraldas: {e}',
+  'swap.one': '{g} oro → {e} esmeraldas',
+  'swap.all': 'Cambiar todo: {g} → {e}',
+  'swap.done': '¡+{n} esmeraldas!'
 });

@@ -1511,3 +1511,15 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .mult-chip { position: absolute; top: 44px; left: 12px; z-index: 6; padding: 3px 10px; border-radius: 99px; background: #f2c230; color: #3a2400; font-weight: 900; font-size: 16px; box-shadow: 0 3px 0 #9a6a1a; }
 .endless-over .big-score { font-family: var(--game); font-size: 64px; margin: 0; color: #fff; text-shadow: -3px -3px 0 var(--outline), 3px -3px 0 var(--outline), -3px 3px 0 var(--outline), 3px 3px 0 var(--outline), 0 5px 0 var(--outline); }
 .endless-over > small { font-weight: 900; letter-spacing: 1px; color: #f2c230; font-size: 18px; }
+.modal.char-buy { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.char-buy-img { height: 150px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+.modal.char-buy h3 { margin: 0; font-family: var(--game); font-size: 24px; }
+.save-me { position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 30px; background: rgba(10, 14, 40, .62); backdrop-filter: blur(3px); }
+.save-me h2 { font-family: var(--game); color: #fff; font-size: 38px; margin: 0; text-shadow: 0 4px 0 var(--outline); }
+.save-count { display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%; border: 7px solid #f2c230; color: #fff; font-size: 44px; font-weight: 900; animation: btnpulse 1s ease-in-out infinite; }
+.fake-ad.inter { z-index: 60; }
+.swap-btn { position: absolute; top: 74px; left: 16px; z-index: 5; display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 99px; border: 3px solid var(--outline, #2a1a10); background: linear-gradient(180deg, #ffe27a, #f2b52a); font-weight: 900; color: #3a2400; box-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.swap-btn .mini-ico { width: 20px; height: 20px; }
+.modal.swap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.modal.swap h3 { margin: 0; font-family: var(--game); font-size: 22px; }
+.swap-rate { display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 900; }

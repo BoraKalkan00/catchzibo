@@ -4,16 +4,40 @@
 CZ.ROSTER = [
   { id: 'boy' },
   { id: 'girl' },
-  { id: 'elf', room: 'living', gems: 60 },
-  { id: 'snowkid', room: 'kitchen', gems: 90 },
-  { id: 'reindeer', room: 'attic', gems: 130 },
-  { id: 'knight', room: 'treasure', gems: 180 },
-  { id: 'santa', room: 'throne', gems: 250 }
+  // Subway Surfers ekonomisi: koşu başına ~100-200 altın, karakter binlerce altın (uzun hedef).
+  { id: 'elf', room: 'living', gems: 300, gold: 3000 },
+  { id: 'snowkid', room: 'kitchen', gems: 600, gold: 6000 },
+  { id: 'reindeer', room: 'attic', gems: 900, gold: 9000 },
+  { id: 'knight', room: 'treasure', gems: 1400, gold: 14000 },
+  { id: 'santa', room: 'throne', gems: 2000, gold: 20000 }
 ];
 CZ.CHAR_ART = ['boy', 'girl', 'elf', 'snowkid', 'reindeer', 'knight', 'santa'];               // assets/chars/<id>_front.webp ... olanlar
 // Oda ödülü artık karakter: odayı bitiren o karakteri açar.
 CZ.ROOM_PRIZES = {};
 CZ.ROSTER.forEach(c => { if (c.room) CZ.ROOM_PRIZES[c.room] = c.id; });
+
+// Altınla elmas al: 1000 altın = 100 elmas (her şey ikisiyle de alınabilsin).
+CZ.EXCHANGE = { gold: 1000, gems: 100 };
+CZ.exchange = function (done) {
+  const { h, btn, img } = CZ.ui;
+  const t = CZ.t, d = CZ.state.data, X = CZ.EXCHANGE;
+  const max = Math.floor((d.gold || 0) / X.gold);
+  const deal = n => {
+    if (n < 1 || (d.gold || 0) < n * X.gold) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.goldShort', { n: n * X.gold - (d.gold || 0) })); }
+    d.gold -= n * X.gold; d.emeralds = (d.emeralds || 0) + n * X.gems; CZ.state.save();
+    CZ.audio.sfx('buy'); CZ.ui.toast(t('swap.done', { n: n * X.gems }));
+    box.remove(); if (done) done();
+  };
+  const box = h('div', { class: 'modal-wrap' },
+    h('div', { class: 'modal swap' },
+      h('h3', { text: t('swap.title') }),
+      h('div', { class: 'swap-rate' }, img('ui.gold', 'emerald-icon'), h('b', { text: String(X.gold) }), h('span', { text: '→' }), img('ui.emerald', 'emerald-icon'), h('b', { text: String(X.gems) })),
+      h('p', { text: t('swap.have', { g: d.gold || 0, e: d.emeralds || 0 }) }),
+      btn(t('swap.one', { g: X.gold, e: X.gems }), () => deal(1), 'primary wide'),
+      max > 1 ? btn(t('swap.all', { g: max * X.gold, e: max * X.gems }), () => deal(max), 'ghost-dark wide') : null,
+      btn(t('common.cancel'), () => box.remove(), 'small ghost')));
+  (document.getElementById('app') || document.body).append(box);
+};
 
 CZ.chars = (function () {
   const hasArt = id => CZ.CHAR_ART.includes(id);
@@ -26,17 +50,34 @@ CZ.chars = (function () {
   }
   const front = id => hasArt(id) ? CZ.art('char.' + id + '_front') : CZ.art('char.boy_front');
   // Odayı bitirmeyi beklemek istemeyen elmasla hemen açar.
+  // Kilitli karakter: odayı bitir (bedava) ya da altınla / elmasla hemen al.
   function buy(c, done) {
     const d = CZ.state.data;
-    CZ.ui.confirmBox(CZ.t('chars.buyAsk', { room: CZ.t('room.' + c.room), n: c.gems }), String(c.gems), CZ.t('common.no'), () => {
-      if ((d.emeralds || 0) < c.gems) { CZ.audio.sfx('wrong'); return CZ.ui.toast(CZ.t('chars.gemShort', { n: c.gems - (d.emeralds || 0) })); }
-      d.emeralds -= c.gems;
+    const { h, btn, img } = CZ.ui;
+    const t = CZ.t;
+    const got = () => {
       d.boughtChars = (d.boughtChars || []).concat(c.id);
       d.avatar = c.id;
       CZ.state.save();
       CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]);
+      box.remove();
       if (done) done();
-    }, 'primary');
+    };
+    const box = h('div', { class: 'modal-wrap' },
+      h('div', { class: 'modal char-buy' },
+        h('img', { class: 'char-buy-img', src: front(c.id), alt: '' }),
+        h('h3', { text: t('char.' + c.id) }),
+        h('p', { text: t('chars.buyAsk', { room: t('room.' + c.room), n: c.gems }) }),
+        btn(String(c.gold), () => {
+          if ((d.gold || 0) < c.gold) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.goldShort', { n: c.gold - (d.gold || 0) })); }
+          d.gold -= c.gold; got();
+        }, 'primary wide', 'ui.gold'),
+        btn(String(c.gems), () => {
+          if ((d.emeralds || 0) < c.gems) { CZ.audio.sfx('wrong'); CZ.ui.toast(t('chars.gemShort', { n: c.gems - (d.emeralds || 0) })); box.remove(); return CZ.exchange(); }
+          d.emeralds -= c.gems; got();
+        }, 'ghost-dark wide', 'ui.emerald'),
+        btn(t('common.cancel'), () => box.remove(), 'small ghost')));
+    (document.getElementById('app') || document.body).append(box);
   }
   return { state, hasArt, front, buy };
 })();
@@ -84,6 +125,7 @@ CZ.screens.chars = {
     const look = this.trying ? Object.assign({}, worn, { [this.trying.part]: this.trying.color }) : worn;
     const preview = h('div', { class: 'chars-stage' },
       h('div', { class: 'emeralds gold-badge chars-gold' }, img('ui.gold', 'emerald-icon'), h('span', { class: 'emerald-count', text: d.gold || 0 })),
+      h('button', { class: 'swap-btn', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.exchange(() => CZ.ui.refresh()); } }, img('ui.gold', 'mini-ico'), h('span', { text: '→' }), img('ui.emerald', 'mini-ico')),
       CA.img(me, 'wave', 'chars-hero', look),
       h('div', { class: 'chars-name' }, h('strong', { text: t('char.' + me) }), h('small', { text: t('chars.selected') })));
     // Seviye paneli
@@ -179,7 +221,7 @@ CZ.screens.chars = {
       st === 'open' && CZ.chars.hasArt(c.id) ? CA.img(c.id, 'front', 'char-img') : h('img', { class: 'char-img', src: CZ.chars.front(c.id), alt: '' }),
       st !== 'open' ? (st === 'soon' ? h('span', { class: 'char-lock', text: '…' }) : CZ.icon('lock', 'char-lock')) : null,
       st === 'open' ? h('span', { class: 'char-lv-mini', text: t('perk.lv', { n: CZ.charLevel(c.id) }) }) : null,
-      label ? h('span', { class: 'char-label', text: label }) : h('span', { class: 'char-label price' }, CZ.ui.img('ui.emerald', 'mini-ico'), String(c.gems)));
+      label ? h('span', { class: 'char-label', text: label }) : h('span', { class: 'char-label price' }, CZ.ui.img('ui.gold', 'mini-ico'), c.gold >= 1000 ? (c.gold / 1000) + 'K' : String(c.gold)));
     };
     el.append(
       CZ.ui.header(t('chars.title'), () => { this.trying = null; CZ.ui.go(params && params.returnTo ? params.returnTo : 'hub'); }),

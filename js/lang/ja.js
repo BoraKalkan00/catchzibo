@@ -806,5 +806,13 @@ CZ.i18n.register('ja', '日本語', {
   'endless.newBest': '新記録！',
   'endless.revive': '広告を見て続ける',
   'endless.double': '広告でゴールド2倍 ({n})',
-  'endless.again': 'もう一回'
+  'endless.again': 'もう一回',
+  'chars.goldShort': 'ゴールドがあと{n}必要',
+  'endless.saveMe': 'たすけて！',
+  'endless.skip': 'スキップ',
+  'swap.title': 'ゴールドをエメラルドに交換',
+  'swap.have': 'ゴールド: {g} · エメラルド: {e}',
+  'swap.one': '{g}ゴールド → {e}エメラルド',
+  'swap.all': '全部交換: {g} → {e}',
+  'swap.done': 'エメラルド+{n}！'
 });

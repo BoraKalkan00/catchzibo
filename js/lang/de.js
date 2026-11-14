@@ -806,5 +806,13 @@ CZ.i18n.register('de', 'Deutsch', {
   'endless.newBest': 'NEUER REKORD!',
   'endless.revive': 'Werbung: weiterlaufen',
   'endless.double': 'Werbung: Gold verdoppeln ({n})',
-  'endless.again': 'Nochmal'
+  'endless.again': 'Nochmal',
+  'chars.goldShort': 'Dir fehlen {n} Gold',
+  'endless.saveMe': 'Rette mich!',
+  'endless.skip': 'Weiter',
+  'swap.title': 'Gold in Smaragde tauschen',
+  'swap.have': 'Gold: {g} · Smaragde: {e}',
+  'swap.one': '{g} Gold → {e} Smaragde',
+  'swap.all': 'Alles tauschen: {g} → {e}',
+  'swap.done': '+{n} Smaragde!'
 });

@@ -987,5 +987,13 @@ CZ.i18n.register('tr', 'Türkçe', {
   'endless.newBest': 'YENİ REKOR!',
   'endless.revive': 'Reklamla devam et',
   'endless.double': 'Reklam izle: altını 2 katına çıkar ({n})',
-  'endless.again': 'Tekrar koş'
+  'endless.again': 'Tekrar koş',
+  'chars.goldShort': '{n} altın daha lazım',
+  'endless.saveMe': 'Kurtar beni!',
+  'endless.skip': 'Geç',
+  'swap.title': 'Altını elmasa çevir',
+  'swap.have': 'Altının: {g} · Elmasın: {e}',
+  'swap.one': '{g} altın → {e} elmas',
+  'swap.all': 'Hepsini çevir: {g} → {e}',
+  'swap.done': '+{n} elmas!'
 });

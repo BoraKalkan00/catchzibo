@@ -806,5 +806,13 @@ CZ.i18n.register('ko', '한국어', {
   'endless.newBest': '신기록!',
   'endless.revive': '광고 보고 계속',
   'endless.double': '광고 보고 골드 2배 ({n})',
-  'endless.again': '다시 달리기'
+  'endless.again': '다시 달리기',
+  'chars.goldShort': '골드가 {n} 더 필요해요',
+  'endless.saveMe': '구해줘!',
+  'endless.skip': '건너뛰기',
+  'swap.title': '골드를 에메랄드로 교환',
+  'swap.have': '골드: {g} · 에메랄드: {e}',
+  'swap.one': '{g} 골드 → {e} 에메랄드',
+  'swap.all': '모두 교환: {g} → {e}',
+  'swap.done': '에메랄드 +{n}!'
 });

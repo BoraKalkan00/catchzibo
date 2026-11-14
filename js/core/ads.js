@@ -5,7 +5,7 @@ CZ.ADS = {
   appId: 'ca-app-pub-3940256099942544~3347511713',          // test (android.yml manifest'e yazar)
   rewarded: 'ca-app-pub-3940256099942544/5224354917',       // test ödüllü reklam
   interstitial: 'ca-app-pub-3940256099942544/1033173712',   // test geçiş reklamı
-  interEvery: 3                                             // her 3 koşuda bir
+  interEvery: 2                                             // her 2 oyun sonunda bir
 };
 CZ.ads = (function () {
   const plugin = () => window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
@@ -60,19 +60,34 @@ CZ.ads = (function () {
     }, 1000);
     return timer;
   }
-  // Geçiş reklamı: ödülsüz, kapatılabilir. Her CZ.ADS.interEvery koşuda bir; ilk 2 günde hiç.
-  function maybeInter(done) {
+  // Geçiş reklamı: oyun bitince kendiliğinden (Subway Surfers gibi). Oyuncu basmaz.
+  // Sıklık: her CZ.ADS.interEvery oyun sonunda bir; ilk 3 koşu hediye (yeni oyuncu kaçmasın).
+  // Kapatma düğmesini Google yönetir (birkaç saniye sonra çıkar); bunu biz değiştiremeyiz.
+  function gameOver(done) {
+    done = done || (() => {});
     const d = CZ.state.data;
-    d.runsForAd = (d.runsForAd || 0) + 1;
-    const fresh = (d.firstDay || CZ.state.today()) === CZ.state.today() || d.noAds;
-    if (!d.firstDay) d.firstDay = CZ.state.today();
+    d.overs = (d.overs || 0) + 1;
     CZ.state.save();
-    if (fresh || d.runsForAd < CZ.ADS.interEvery) return done();
-    d.runsForAd = 0; CZ.state.save();
+    if (d.noAds || d.overs <= 3 || d.overs % CZ.ADS.interEvery !== 0) return done();
+    d.interShown = (d.interShown || 0) + 1;
+    CZ.state.save();
     const A = plugin();
-    if (!A) return done();
+    if (!A) return fakeInter(done);
     init().then(ok => { if (!ok) throw 0; return A.prepareInterstitial({ adId: CZ.ADS.interstitial, isTesting: CZ.ADS.testing, npa: true }); })
       .then(() => A.showInterstitial()).then(() => done(), () => done());
   }
-  return { show, init, maybeInter };
+  function fakeInter(done) {
+    const { h, img } = CZ.ui;
+    const t = CZ.t;
+    let left = 5;
+    const count = h('p', { text: t('ad.wait', { s: left }) });
+    const box = h('div', { class: 'fake-ad inter' }, h('small', { text: t('ad.label') }), img('zibo.laugh', 'fake-ad-zibo'), h('h2', { text: t('title.name') }), count);
+    (document.querySelector('.screen') || document.body).append(box);
+    const timer = setInterval(() => {
+      left -= 1;
+      if (left > 0) { count.textContent = t('ad.wait', { s: left }); return; }
+      clearInterval(timer); box.remove(); done();
+    }, 1000);
+  }
+  return { show, init, gameOver };
 })();

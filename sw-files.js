@@ -1,6 +1,13 @@
 self.CZ_FILES = [
  "index.html",
  "manifest.webmanifest",
+ "assets/3d/LICENSE-KayKit.txt",
+ "assets/3d/anims.glb",
+ "assets/3d/barbarian.glb",
+ "assets/3d/knight.glb",
+ "assets/3d/mage.glb",
+ "assets/3d/rogue.glb",
+ "assets/3d/rogue_hooded.glb",
  "assets/avatar/boy.svg",
  "assets/avatar/boy_run1.svg",
  "assets/avatar/boy_run2.svg",
@@ -503,6 +510,7 @@ self.CZ_FILES = [
  "js/screens/gold.js",
  "js/screens/hero3d.js",
  "js/screens/house.js",
+ "js/screens/kaykit.js",
  "js/screens/menus.js",
  "js/screens/pets.js",
  "js/screens/play.js",
@@ -510,6 +518,8 @@ self.CZ_FILES = [
  "js/screens/story.js",
  "js/screens/toon3d.js",
  "js/screens/wardrobe.js",
+ "js/vendor/GLTFLoader.js",
+ "js/vendor/SkeletonUtils.js",
  "js/vendor/three.LICENSE.txt",
  "js/vendor/three.min.js"
 ];

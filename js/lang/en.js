@@ -987,5 +987,13 @@ CZ.i18n.register('en', 'English', {
   'endless.newBest': 'NEW RECORD!',
   'endless.revive': 'Watch ad to continue',
   'endless.double': 'Watch ad: double gold ({n})',
-  'endless.again': 'Run again'
+  'endless.again': 'Run again',
+  'chars.goldShort': 'You need {n} more gold',
+  'endless.saveMe': 'Save me!',
+  'endless.skip': 'Skip',
+  'swap.title': 'Swap gold for emeralds',
+  'swap.have': 'Gold: {g} · Emeralds: {e}',
+  'swap.one': '{g} gold → {e} emeralds',
+  'swap.all': 'Swap all: {g} → {e}',
+  'swap.done': '+{n} emeralds!'
 });

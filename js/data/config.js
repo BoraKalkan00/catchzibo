@@ -248,7 +248,7 @@ CZ.GOLD = {
   runner: {
     startSpeed: 13, maxSpeed: 28, accel: 0.26,  // birim/sn
     hearts: 3, invulnSec: 1.6,                 // 3 çarpma hakkı (ejderha kostümü +1)
-    jumpV: 11.5, gravity: 34, slideSec: 0.7,
+    jumpV: 11.5, gravity: 34, slideSec: 0.6,
     rowGap: [10, 17],                          // sıralar arası mesafe (zamanla kısalır)
     obstaclesFrom: 2,                          // ilk saniyeler yalnız altın
     obstacles: [

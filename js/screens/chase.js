@@ -307,7 +307,7 @@ CZ.screens.chase = (function () {
   }
 
   function swipeText(combo, near, gold) {
-    if (near) floatText(t('run.nearMiss', { n: gold }), 'gold');
+    if (near) floatText(t('chase.nice'), 'gold');
     else if (combo >= 3) floatText(t('run.combo', { n: combo }), 'gold');
     const d = CZ.state.data;
     if (combo > (d.bestCombo || 0)) { d.bestCombo = combo; if (combo >= 5) floatText(t('run.comboRecord', { n: combo }), 'gold'); }
@@ -397,17 +397,35 @@ CZ.screens.chase = (function () {
     c.timers.push(id);
   }
 
+  // Oyun bitti: önce "kurtar" (reklamla devam, 4 sn), sonra skor; skordan hemen sonra geçiş reklamı kendiliğinden gelir.
   function endlessOver() {
     stop();
     CZ.audio.sfx('lose');
     CZ.audio.vibrate([120, 60, 200]);
     if (c.run) c.run.ziboPose('tongue');
     say('zibo.chase.escaped');
+    if (c.revived < 1) return savePrompt();
+    endlessScore();
+  }
+  function savePrompt() {
+    let left = 4, done = false;
+    const ring = h('b', { class: 'save-count', text: left });
+    const go = () => { if (done) return; done = true; clearInterval(tm); box.remove(); endlessScore(); };
+    const box = h('div', { class: 'save-me' },
+      h('h2', { text: t('endless.saveMe') }), ring,
+      btn(t('endless.revive'), () => { if (done) return; done = true; clearInterval(tm); box.remove(); adThen(() => { c.revived += 1; c.lives = 1; drawHearts(); c.continues -= 1; resume(); }); }, 'primary wide', 'ic:play'),
+      btn(t('endless.skip'), go, 'small ghost-dark'));
+    const tm = setInterval(() => { left -= 1; ring.textContent = left; if (left <= 0) go(); }, 1000);
+    c.timers.push(tm);
+    c.el.append(box);
+  }
+  function endlessScore() {
     const d = CZ.state.data;
     const sc = Math.floor(c.score);
     const record = sc > (d.bestRun || 0);
     if (record) d.bestRun = sc;
     d.runs = (d.runs || 0) + 1;
+    d.runGold = (d.runGold || 0) + c.gold;
     CZ.state.save();
     if (CZ.quests) CZ.quests.track('chase');
     CZ.progress.addXp(Math.min(40, 5 + Math.floor(sc / 200)));
@@ -418,7 +436,6 @@ CZ.screens.chase = (function () {
       h('h2', { class: 'big-score', text: sc }),
       h('p', { text: t('endless.best', { n: d.bestRun || 0 }) + (c.mult > 1 ? '  ·  x' + c.mult : '') }),
       goldP,
-      c.revived < 1 ? btn(t('endless.revive'), () => { sheet.remove(); adThen(() => { c.revived += 1; c.lives = 1; drawHearts(); c.continues -= 1; resume(); }); }, 'primary wide', 'ic:play') : null,
       c.gold > 0 ? btn(t('endless.double', { n: c.gold }), e => {
         const b = e.currentTarget;
         if (doubled) return;
@@ -426,8 +443,10 @@ CZ.screens.chase = (function () {
       }, 'ghost-dark wide', 'ic:play') : null,
       h('div', { class: 'sheet-row' },
         btn(t('win.toVillage'), () => CZ.ui.go('hub'), 'ghost-dark wide'),
-        btn(t('endless.again'), () => CZ.ads.maybeInter(() => CZ.ui.wipeTo('chase', { endless: true })), 'primary wide')));
+        btn(t('endless.again'), () => CZ.ui.wipeTo('chase', { endless: true }), 'primary wide')));
     c.el.append(sheet);
+    // Subway Surfers gibi: skor görünür görünmez reklam kendiliğinden açılır (her 2 oyunda bir).
+    c.timers.push(setTimeout(() => { if (c && c.el.contains(sheet)) CZ.ads.gameOver(); }, 1200));
   }
 
   function escaped(reason) {

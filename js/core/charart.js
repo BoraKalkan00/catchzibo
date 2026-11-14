@@ -94,6 +94,25 @@ CZ.charArt = (function () {
     const k = key(id, pose, colors);
     if (cache.has(k)) return Promise.resolve(cache.get(k));
     if (loading.has(k)) return loading.get(k);
+    // Önce 3D modelden çiz (oyundaki karakterin birebir aynısı, kesim hatası yok).
+    if (CZ.kk && CZ.runner3d) {
+      const hx = {};
+      if (colors.jacket) hx.jacket = CZ.COLORS[colors.jacket].hex;
+      if (colors.hat) hx.hatColor = CZ.COLORS[colors.hat].hex;
+      if (colors.scarf) hx.scarf = CZ.COLORS[colors.scarf].hex;
+      const p3 = CZ.runner3d.load().then(() => {
+        if (!CZ.kk.ready()) throw new Error('no3d');
+        const url = CZ.kk.portrait(id, pose, hx);
+        cache.set(k, url); loading.delete(k);
+        return url;
+      }).catch(() => { loading.delete(k); return build2d(id, pose, colors); });
+      loading.set(k, p3);
+      return p3;
+    }
+    return build2d(id, pose, colors);
+  }
+  function build2d(id, pose, colors) {
+    const k = key(id, pose, colors);
     const p = new Promise(ok => {
       const img = new Image();
       img.onload = () => {
