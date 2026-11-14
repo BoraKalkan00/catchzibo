@@ -27,12 +27,70 @@
           clips = {};
           a.animations.forEach(c => { clips[c.name] = c; });
           FILES.forEach((f, i) => { base[f] = list[i].scene; });
+          // elde tutulan silahlar (KayKit asa / değnek / tatar yayı)
+          const getW = f => new Promise(ok => L.load('assets/3d/w/' + f + '.gltf', g => ok(g.scene), undefined, () => ok(null)));
+          return Promise.all(['staff', 'wand', 'crossbow_1handed'].map(getW)).then(ws => { WEAP.staff = ws[0]; WEAP.wand = ws[1]; WEAP.crossbow = ws[2]; });
         });
       });
     P.catch(() => { P = null; });
     return P;
   }
   const ready = () => !!clips;
+  const WEAP = {};
+
+  /* ---------- Silahlar: elde gerçekten tutulur ---------- */
+  // atış türü: throw (kartopu/buz topu: kol savrulur), shoot (sapan/şeker tabancası), cast (asa)
+  const WEAPON_STYLE = { snowball: 'throw', ice: 'throw', sling: 'shoot', candy: 'shoot', staff: 'cast', thunder: 'cast' };
+  function makeWeapon(id) {
+    const g = new T.Group();
+    const m = c => new T.MeshToonMaterial({ color: c, gradientMap: grad() });
+    const add = (geo, mat, p, r, sc) => { const o = new T.Mesh(geo, mat); if (p) o.position.set(p[0], p[1], p[2]); if (r) o.rotation.set(r[0], r[1], r[2]); if (sc) o.scale.set(sc[0], sc[1], sc[2]); g.add(o); return o; };
+    const cloneW = (k, tint, glow) => {
+      if (!WEAP[k]) return null;
+      const o = WEAP[k].clone(true);
+      o.traverse(x => { if (x.isMesh) { x.material = new T.MeshToonMaterial({ map: x.material.map, color: tint || 0xffffff, gradientMap: grad() }); if (x.material.map) x.material.map.encoding = T.LinearEncoding; } });
+      g.add(o);
+      if (glow) {
+        const bb = new T.Box3().setFromObject(o);
+        const b = add(new T.SphereGeometry(0.14, 14, 10), new T.MeshBasicMaterial({ color: glow, transparent: true, opacity: 0.85 }), [(bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2]);
+        b.userData.glow = true;
+      }
+      return o;
+    };
+    if (id === 'snowball') add(new T.SphereGeometry(0.22, 14, 10), m(0xeaf6ff), [0, 0.1, 0.06]);
+    else if (id === 'ice') { add(new T.SphereGeometry(0.2, 14, 10), new T.MeshBasicMaterial({ color: 0x9fe0ff, transparent: true, opacity: 0.9 }), [0, 0.1, 0.05]); add(new T.SphereGeometry(0.12, 10, 8), m(0xffffff), [0.05, 0.14, 0.1]); }
+    else if (id === 'sling') {
+      const wood = m(0x8a5228), band = m(0xd23a32);
+      const cyl = new T.CylinderGeometry(0.035, 0.04, 1, 8);
+      add(cyl, wood, [0, 0.12, 0], null, [1, 0.3, 1]);
+      add(cyl, wood, [-0.08, 0.36, 0], [0, 0, 0.45], [1, 0.26, 1]);
+      add(cyl, wood, [0.08, 0.36, 0], [0, 0, -0.45], [1, 0.26, 1]);
+      add(new T.TorusGeometry(0.1, 0.018, 6, 12, Math.PI), band, [0, 0.47, 0], [0, 0, Math.PI]);
+    } else if (id === 'candy') {
+      // şeker kamışı tabancası: kırmızı-beyaz çizgili gövde
+      const c = document.createElement('canvas'); c.width = 8; c.height = 64;
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 8, 64); x.fillStyle = '#e0302e';
+      for (let i = 0; i < 64; i += 16) x.fillRect(0, i, 8, 8);
+      const tx = new T.CanvasTexture(c); tx.wrapS = tx.wrapT = T.RepeatWrapping; tx.magFilter = T.NearestFilter;
+      const mat = new T.MeshToonMaterial({ map: tx, gradientMap: grad() });
+      add(new T.CylinderGeometry(0.07, 0.07, 0.7, 12), mat, [0, 0.2, 0.25], [Math.PI / 2, 0, 0]);
+      add(new T.TorusGeometry(0.14, 0.07, 8, 14, Math.PI), mat, [0, 0.2, -0.15], [0, Math.PI / 2, 0]);
+      add(new T.CylinderGeometry(0.05, 0.05, 0.25, 8), m(0x8a5228), [0, 0.02, 0.05]);
+    } else if (id === 'staff') cloneW('staff', 0xcfe9ff, 0x9fe0ff);
+    else if (id === 'thunder') cloneW('wand', 0xffd84a, 0xffe36e) || cloneW('staff', 0xffd84a, 0xffe36e);
+    return g;
+  }
+
+  // Üst gövde katmanı: koşarken bacaklar koşmaya devam eder, yalnız kollar atar.
+  const UPPER = /^(chest|upperarm|lowerarm|wrist|hand|handslot|head|neck)/;
+  const clipCache = {};
+  function part(name, upper) {
+    const k = name + (upper ? ':u' : ':l');
+    if (clipCache[k]) return clipCache[k];
+    const c = clips[name];
+    const tracks = c.tracks.filter(tr => UPPER.test(tr.name.split('.')[0]) === upper);
+    return (clipCache[k] = new T.AnimationClip(k, c.duration, tracks));
+  }
 
   /* ---------- Palet boyama ---------- */
   // Doku 8x4 hücre (her biri 128x256). Hücrenin kendi parlaklık geçişi korunur, rengi değişir.
@@ -141,14 +199,18 @@
     // Kafa kemiği ölçüleri: kafa merkezi yaklaşık (0, 0.5, 0), yarıçap ~0.55
     list.forEach(a => {
       if (a === 'santaHat') {
-        add(head, tor, white, [0, 0.98, 0], [Math.PI / 2, 0, 0], [0.55, 0.55, 0.5]);
-        add(head, cone, red, [0, 1.4, -0.12], [-0.45, 0, 0], [0.5, 0.85, 0.5]);
-        add(head, sph, white, [0, 1.72, -0.42], null, [0.14, 0.14, 0.14]);
+        add(head, tor, white, [0, 0.9, 0], [Math.PI / 2, 0, 0], [0.5, 0.5, 0.38]);
+        add(head, cone, red, [0, 1.2, -0.1], [-0.5, 0, 0], [0.42, 0.6, 0.42]);
+        add(head, sph, white, [0, 1.43, -0.3], null, [0.1, 0.1, 0.1]);
+      } else if (a === 'santaHatZibo') {
+        add(head, tor, white, [0, 0.88, 0], [Math.PI / 2 - 0.15, 0, 0], [0.42, 0.42, 0.32]);
+        add(head, cone, red, [0, 1.14, -0.1], [-0.55, 0, 0.15], [0.36, 0.55, 0.36]);
+        add(head, sph, white, [0.08, 1.36, -0.32], null, [0.09, 0.09, 0.09]);
       } else if (a === 'beanie') {
         const hc = mat.hat ? m(mat.hat) : red;
-        add(head, sph, hc, [0, 0.98, 0], null, [0.62, 0.48, 0.62]);
-        add(head, tor, hc, [0, 0.9, 0], [Math.PI / 2, 0, 0], [0.6, 0.6, 0.55]);
-        add(head, sph, white, [0, 1.48, 0], null, [0.17, 0.17, 0.17]);
+        add(head, sph, hc, [0, 0.88, 0.02], null, [0.47, 0.36, 0.5]);
+        add(head, tor, hc, [0, 0.8, 0.02], [Math.PI / 2, 0, 0], [0.45, 0.47, 0.3]);
+        add(head, sph, white, [0, 1.24, 0.02], null, [0.1, 0.1, 0.1]);
       } else if (a === 'beret') {
         add(head, sph, m(mat.hat || 0xf07aa8), [0.06, 1.0, 0], [0, 0, -0.22], [0.54, 0.16, 0.52]);
         add(head, sph, white, [0.06, 1.16, 0], null, [0.08, 0.08, 0.08]);
@@ -268,14 +330,54 @@
     model.traverse(o => { if (o.isMesh) mats.push(o.material); });
     root.traverse(o => { if (o.isMesh && !mats.includes(o.material)) mats.push(o.material); });
     function setOpacity(o) { mats.forEach(m => { m.transparent = o < 1; m.opacity = o; }); }
-    function throwNow() { R.play('Throw', { once: true, speed: 2, fade: 0.05, restart: true }); st.mode = 'throw'; setTimeout(() => { if (st.mode === 'throw') st.mode = ''; }, 380); }
-    return { root, update, weaponSlot, setOpacity, throwNow, is3d: true, kk: true };
+    // Silah: elde gerçek 3D model
+    let weapon = null, wid = 'snowball';
+    function setWeapon(id) {
+      wid = id || 'snowball';
+      if (weapon) weaponSlot.remove(weapon);
+      weapon = makeWeapon(wid);
+      weapon.scale.setScalar(0.5);   // yuva dünya ölçeğinde (x2); silah model ölçeğinde
+      weaponSlot.add(weapon);
+    }
+    // Atış: koşuyorsa yalnız üst gövde (bacaklar koşmaya devam), değilse tam beden
+    const legs = R.mixer.clipAction(part('Running_A', false));
+    legs.play(); legs.setEffectiveWeight(0);
+    let up = null, upT = 0;
+    function throwNow() {
+      const style = WEAPON_STYLE[wid] || 'throw';
+      const name = style === 'cast' ? 'Spellcast_Shoot' : style === 'shoot' ? '1H_Ranged_Shoot' : 'Throw';
+      const dur = style === 'throw' ? 0.42 : 0.36;
+      if (up) up.stop();
+      up = R.mixer.clipAction(part(name, true));
+      up.reset(); up.setLoop(T.LoopOnce); up.clampWhenFinished = true;
+      up.timeScale = clips[name].duration / dur; up.play();
+      upT = dur;
+      // kartopu / buz topu elden çıkar, sonra yenisi belirir
+      if (style === 'throw' && weapon) { weapon.visible = false; setTimeout(() => { if (weapon) weapon.visible = true; }, dur * 900); }
+    }
+    const baseUpdate = update;
+    function update2(dt, info) {
+      baseUpdate(dt, info);
+      const run = R.cur === R.act('Running_A');
+      if (upT > 0) upT -= dt;
+      const w = upT > 0 ? 1 : 0;
+      if (up) up.setEffectiveWeight(w);
+      // koşu kolları susar, bacak kopyası koşuyu sürdürür (aynı zamanda)
+      if (run) {
+        const full = R.act('Running_A');
+        legs.time = full.time; legs.timeScale = full.timeScale;
+        full.setEffectiveWeight(1 - w); legs.setEffectiveWeight(w);
+      } else legs.setEffectiveWeight(0);
+      if (up && w === 0 && upT <= -0.2) { up.stop(); up = null; }
+      if (weapon) weapon.traverse(o => { if (o.userData.glow) o.scale.setScalar(1 + Math.sin(performance.now() / 120) * 0.12); });
+    }
+    return { root, update: update2, weaponSlot, setOpacity, throwNow, setWeapon, is3d: true, kk: true };
   }
 
   /* ---------- ZİBO ---------- */
   function zibo(THREE, tint) {
     T = THREE;
-    const skin = tint || 0x7cc84a;
+    const skin = tint || 0x5fa83a;
     const dark = new T.Color(skin).multiplyScalar(0.72).getHex();
     const face = new T.Color(skin).multiplyScalar(0.78).getHex();   // açık ten hücresi parlak: biraz koyulaştır
     // Gövde: barbar (çıplak kollar), kafa: şövalyenin kel kafası. Ten yeşil, Noel şapkası, kocaman kulaklar, atkı.
@@ -288,7 +390,7 @@
       knight: { '0,0': face, '1,0': dark }
     }, 'zibo:' + skin);
     const skinMat = new T.MeshToonMaterial({ color: dark, gradientMap: grad() });
-    accessories(model, ['goblinEars', 'santaHat', 'sack'], { skin: skinMat });
+    accessories(model, ['goblinEars', 'santaHatZibo', 'sack'], { skin: skinMat });
     const root = new T.Group();
     const holder = new T.Group();
     holder.rotation.y = Math.PI;
@@ -330,7 +432,14 @@
         crown.add(c);
       }
     }
-    return { root, update, setCrown };
+    // Sabit poz (menü/hikâye resmi çizmek için)
+    function pose(name, t) {
+      const a = R.mixer.clipAction(clips[name]);
+      R.mixer.stopAllAction();
+      a.reset(); a.setLoop(T.LoopOnce); a.clampWhenFinished = true; a.play();
+      R.mixer.update(Math.min(t, clips[name].duration - 0.001));
+    }
+    return { root, update, setCrown, pose };
   }
 
   // Menü portresi: 3D modelden çizilir (kesim hatası olmaz, oyundaki karakterin aynısı).

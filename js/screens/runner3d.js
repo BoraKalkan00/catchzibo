@@ -433,6 +433,7 @@ CZ.runner3d = (function () {
     weaponSp.center.set(0.3, 0.1);
     weaponSp.visible = false;
     hero.weaponSlot.add(weaponSp);
+    if (hero.setWeapon) hero.setWeapon(opts.weaponId || 'snowball');
     const ziboMat = new THREE.SpriteMaterial({ transparent: true });
     const zibo = new THREE.Sprite(ziboMat);
     if (opts.ziboTint) ziboMat.color.setHex(opts.ziboTint);
@@ -1117,7 +1118,7 @@ CZ.runner3d = (function () {
       if (sliding && Math.random() < 0.6) sparks(new THREE.Vector3(s.px + rand(-0.3, 0.3), (s.floor || 0) + 0.1, 0.4), 1, '#ffffff', 0.18);
       if (Math.abs(lean) > 0.35 && Math.random() < 0.5) sparks(new THREE.Vector3(s.px - Math.sign(lean) * 0.4, (s.floor || 0) + 0.15, 0.3), 1, '#dff2ff', 0.16);
       hero.setOpacity(s.invT > 0 ? (Math.floor(s.t * 14) % 2 ? 0.35 : 1) : 1);
-      weaponSp.visible = !sliding && !!T.weapon;
+      weaponSp.visible = !hero.setWeapon && !sliding && !!T.weapon;
       pShadow.position.x = s.px;
       pShadow.position.y = (s.floor || 0) + 0.02;
       const sh = Math.max(0.4, 1 - (s.py - (s.floor || 0)) * 0.25);
