@@ -57,8 +57,10 @@ CZ.ui = (function () {
     return box;
   }
 
+  const GAME = ['play', 'chase'];
   function go(name, params) {
     params = params || {};
+    const from = active && active.name;
     if (active && active.screen.leave) active.screen.leave();
     const screen = CZ.screens[name];
     active = { name, params, screen };
@@ -68,6 +70,11 @@ CZ.ui = (function () {
     CZ.audio.music(screen.music === undefined ? 'menu' : screen.music);
     screen.render(el, params || {});
     window.scrollTo(0, 0);
+    // Oyundan menüye dönüş: geçiş reklamı (Subway Surfers gibi, oyuncu basmadan)
+    if (CZ.ads && CZ.ads.onExit) {
+      if (GAME.includes(name)) CZ.ads.playing();
+      else if (from && (GAME.includes(from) || from === 'gold')) CZ.ads.onExit();
+    }
   }
 
   // Daire kapanıp açılan geçiş: malikaneye girerken ve tura başlarken.

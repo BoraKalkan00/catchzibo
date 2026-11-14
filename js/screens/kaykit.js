@@ -142,9 +142,9 @@
     girl: { body: 'rogue', hide: ['Rogue_Cape'], paint: { rogue: { '1,0': 0xc0502a, '0,1': 0x8a4ad0, '1,1': 0xf4c52e, '3,2': 0xb4b8c4, '7,1': 0xf4f4f8, '6,0': 0xf4f4f8, '5,2': 0xf6f0ff, '5,0': 0xe8e0f4 } }, acc: ['beret'] },
     santa: { body: 'rogue', hide: ['Rogue_Cape'], paint: { rogue: { '1,0': 0x4a2412, '0,1': 0xd8282a, '1,1': 0xf6f6f6, '3,2': 0xd8282a, '7,1': 0x1d1d26, '6,0': 0x1d1d26, '3,0': 0xf2c230, '5,2': 0xf6f6f6, '5,0': 0xf6f6f6 } }, acc: ['santaHat'] },
     elf: { body: 'rogue_hooded', hide: ['Rogue_Cape'], paint: { rogue_hooded: { '1,1': 0x2fa040, '0,1': 0xd23a32, '3,2': 0xf6f6f6, '7,1': 0x2f9a40, '1,0': 0xf3cc5c } }, acc: ['bell'] },
-    boy: { body: 'mage', hide: ['Mage_Hat', 'Mage_Cape'], paint: { mage: { '1,0': 0x6b3f22, '0,1': 0x2f6fd8, '2,2': 0x44a044, '2,1': 0x44a044, '3,2': 0x2b3a5c, '7,1': 0x8a5228 } }, acc: ['beanie'] },
-    snowkid: { body: 'mage', hide: ['Mage_Hat', 'Mage_Cape'], paint: { mage: { '1,0': 0x6b3f22, '0,1': 0xf4f6fb, '4,0': 0xf4f6fb, '3,0': 0x1d1d26, '2,2': 0xd23a32, '5,0': 0xd23a32, '3,2': 0xf4f6fb, '7,1': 0x1d1d26 } }, acc: ['topHat', 'carrot'] },
-    reindeer: { body: 'barbarian', head: 'mage', hide: ['Barbarian_Head', 'Barbarian_Cape'], paint: { barbarian: { '7,0': 0x8a5230, '2,1': 0xf2dcc0, '0,1': 0x8a5230, '1,1': 0xa0643a, '6,0': 0x6a3c20, '3,2': 0x8a5230, '7,1': 0x4a2c1a, '7,2': 0xf2dcc0 }, mage: { '1,0': 0x6a3c20 } }, acc: ['antlers', 'nose'] }
+    boy: { body: 'mage', head: 'knight', hide: ['Mage_Hat', 'Mage_Cape', 'Mage_Head'], paint: { knight: { '1,0': 0x5a3418 }, mage: { '1,0': 0x6b3f22, '0,1': 0x2f6fd8, '2,2': 0x44a044, '2,1': 0x44a044, '3,2': 0x2b3a5c, '7,1': 0x8a5228 } }, acc: ['beanie'] },
+    snowkid: { body: 'mage', head: 'knight', hide: ['Mage_Hat', 'Mage_Cape', 'Mage_Head'], paint: { knight: { '1,0': 0x3a200e }, mage: { '1,0': 0x6b3f22, '0,1': 0xf4f6fb, '4,0': 0xf4f6fb, '3,0': 0x1d1d26, '2,2': 0xd23a32, '5,0': 0xd23a32, '3,2': 0xf4f6fb, '7,1': 0x1d1d26 } }, acc: ['topHat', 'carrot'] },
+    reindeer: { body: 'barbarian', head: 'knight', hide: ['Barbarian_Head', 'Barbarian_Cape'], paint: { barbarian: { '7,0': 0x8a5230, '2,1': 0xf2dcc0, '0,1': 0x8a5230, '1,1': 0xa0643a, '6,0': 0x6a3c20, '3,2': 0x8a5230, '7,1': 0x4a2c1a, '7,2': 0xf2dcc0 }, knight: { '1,0': 0x6a3c20 } }, acc: ['antlers', 'nose'] }
   };
   CZ.KK_LOOKS = LOOKS;
 
@@ -280,7 +280,7 @@
     if (hx.scarf && L.body === 'rogue') cells['1,1'] = hx.scarf;
     const model = T.SkeletonUtils.clone(base[L.body]);
     tagModel(model, L.body);
-    if (L.head) borrowHead(model, L.head, L.head === 'mage' ? 'Mage_Head' : L.head);
+    if (L.head) borrowHead(model, L.head, { mage: 'Mage_Head', knight: 'Knight_Head', rogue: 'Rogue_Head', barbarian: 'Barbarian_Head' }[L.head] || L.head);
     (L.hide || []).forEach(n => { const o = model.getObjectByName(n); if (o) o.visible = false; });
     toonize(model, L.paint || {}, kind + JSON.stringify(hx));
     accessories(model, L.acc || [], { hat: hx.hatColor });

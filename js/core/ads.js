@@ -63,6 +63,27 @@ CZ.ads = (function () {
   // Geçiş reklamı: oyun bitince kendiliğinden (Subway Surfers gibi). Oyuncu basmaz.
   // Sıklık: her CZ.ADS.interEvery oyun sonunda bir; ilk 3 koşu hediye (yeni oyuncu kaçmasın).
   // Kapatma düğmesini Google yönetir (birkaç saniye sonra çıkar); bunu biz değiştiremeyiz.
+  let lastInter = 0, played = false;
+  // bir tur/koşu başladı
+  function playing() { played = true; }
+  // Oyundan çıkarken (tur bitti, menüye dönüldü) reklam kendiliğinden gelir.
+  // Az önce oyun sonu reklamı çıktıysa (40 sn) tekrar göstermez; ilk 3 oyun hediye.
+  function onExit() {
+    if (!played) return;
+    played = false;
+    const d = CZ.state.data;
+    if (d.noAds || (d.overs || 0) < 3 || Date.now() - lastInter < 40000) return;
+    lastInter = Date.now();
+    d.interShown = (d.interShown || 0) + 1;
+    CZ.state.save();
+    setTimeout(() => showInter(() => {}), 350);
+  }
+  function showInter(done) {
+    const A = plugin();
+    if (!A) return fakeInter(done);
+    init().then(ok => { if (!ok) throw 0; return A.prepareInterstitial({ adId: CZ.ADS.interstitial, isTesting: CZ.ADS.testing, npa: true }); })
+      .then(() => A.showInterstitial()).then(() => done(), () => done());
+  }
   function gameOver(done) {
     done = done || (() => {});
     const d = CZ.state.data;
@@ -70,11 +91,9 @@ CZ.ads = (function () {
     CZ.state.save();
     if (d.noAds || d.overs <= 3 || d.overs % CZ.ADS.interEvery !== 0) return done();
     d.interShown = (d.interShown || 0) + 1;
+    lastInter = Date.now();
     CZ.state.save();
-    const A = plugin();
-    if (!A) return fakeInter(done);
-    init().then(ok => { if (!ok) throw 0; return A.prepareInterstitial({ adId: CZ.ADS.interstitial, isTesting: CZ.ADS.testing, npa: true }); })
-      .then(() => A.showInterstitial()).then(() => done(), () => done());
+    showInter(done);
   }
   function fakeInter(done) {
     const { h, img } = CZ.ui;
@@ -89,5 +108,5 @@ CZ.ads = (function () {
       clearInterval(timer); box.remove(); done();
     }, 1000);
   }
-  return { show, init, gameOver };
+  return { show, init, gameOver, onExit, playing };
 })();
