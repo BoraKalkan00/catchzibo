@@ -392,6 +392,8 @@ CZ.screens.chase = (function () {
         back ? h('p', { class: 'reward revenge', 'data-fly': 'gold', 'data-n': back }, img('ui.gold', 'emerald-icon'), t('raid.revenge', { n: back })) : null,
         CZ.game.dailyPrizeEl(c.round.id),
         h('div', { class: 'sheet-row' }, actions)));
+      // oda bitti: doğal mola, geçiş reklamı kendiliğinden (sıklık CZ.ads içinde)
+      c.timers.push(setTimeout(() => CZ.ads.gameOver(), 1500));
       void before;
     }, 2300);
     c.timers.push(id);
@@ -473,6 +475,7 @@ CZ.screens.chase = (function () {
       btn(t('lose.retryFree'), () => CZ.ui.wipeTo('chase', c.params), 'ghost-dark wide', 'ic:play'),
       btn(t('lose.later'), () => CZ.ui.go('mansion'), 'small ghost-dark'));
     c.el.append(sheet);
+    c.timers.push(setTimeout(() => { if (c && c.el.contains(sheet)) CZ.ads.gameOver(); }, 1500));
   }
 
   function resume() {
