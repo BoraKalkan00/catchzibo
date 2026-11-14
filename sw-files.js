@@ -508,6 +508,7 @@ self.CZ_FILES = [
  "js/screens/play.js",
  "js/screens/runner3d.js",
  "js/screens/story.js",
+ "js/screens/toon3d.js",
  "js/screens/wardrobe.js",
  "js/vendor/three.LICENSE.txt",
  "js/vendor/three.min.js"

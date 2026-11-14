@@ -422,7 +422,8 @@ CZ.runner3d = (function () {
     /* Oyuncu ve Zibo: düz görseller (sprite) */
     // Oyuncu: eklemli 3D karakter (akıcı koşu animasyonu)
     // Çizimi olan karakter kendi Gemini çizimleriyle koşar; yoksa 3D parça karakter.
-    const hero = CZ.chars && CZ.chars.hasArt(opts.avatar) ? CZ.heroSprite(THREE, opts.avatar) : CZ.hero3d(THREE, opts.avatar);
+    // Kahraman artık GERÇEK 3D (toon). Eski kare-kare sprite yalnızca CZ.HERO_SPRITES açıksa.
+    const hero = CZ.toonHero && !CZ.HERO_SPRITES ? CZ.toonHero(THREE, opts.avatar) : (CZ.chars && CZ.chars.hasArt(opts.avatar) ? CZ.heroSprite(THREE, opts.avatar) : CZ.hero3d(THREE, opts.avatar));
     scene.add(hero.root);
     const pShadow = mesh(GEO.circle, M.shadow, 1.1, 0.7, 1, 0, 0.02, 0);
     pShadow.rotation.x = -Math.PI / 2;
@@ -436,6 +437,26 @@ CZ.runner3d = (function () {
     const zibo = new THREE.Sprite(ziboMat);
     if (opts.ziboTint) ziboMat.color.setHex(opts.ziboTint);
     zibo.center.set(0.5, 0);
+    // 3D Zibo: sprite görünmez kalır (konum/ölçek hesapları onunla), çizilen 3D goblin.
+    const SKIN = { 0x9fdcff: 0x8fd6ff, 0xd9b0ff: 0xc79bff, 0xffb59e: 0xff9a6a, 0xffe48a: 0xe8c040 };
+    const zibo3 = CZ.toonZibo && !CZ.HERO_SPRITES ? CZ.toonZibo(THREE, opts.ziboTint ? SKIN[opts.ziboTint] : null) : null;
+    if (zibo3) { scene.add(zibo3.root); if (opts.ziboCrown) zibo3.setCrown(true); }
+    function syncZibo3(dt) {
+      if (!zibo3) return;
+      zibo.material.opacity = 0;
+      if (crown) crown.visible = false;
+      zibo3.root.position.copy(zibo.position);
+      zibo3.root.rotation.z = zibo.material.rotation || 0;
+      const sy = zibo.userData.sy || 1;
+      zibo3.root.scale.set(1, sy, 1);
+      const f = s.ziboForce || '';
+      zibo3.update(dt, {
+        running: s.running || s.catching ? !(s.catching && s.catching > 0.6) : false,
+        dizzy: f === 'dizzy' || s.ziboHitT > 0,
+        look: (s.laughT > 0) || f === 'laugh' || f === 'tongue' || (s.ziboPose > 0 && !s.catching),
+        air: zibo.position.y > 0.3 && !!s.zj
+      });
+    }
     zibo.position.set(0, 0, -17);
     scene.add(zibo);
     // Yardımcı hayvan: kahramanın yanında koşar; tilki ara ara Zibo'ya atılır.
@@ -915,6 +936,7 @@ CZ.runner3d = (function () {
       else if (s.catching) catchStep(dt);
       else idle(dt);
       petStep(dt);
+      syncZibo3(dt);
       drawCoins();
       renderer.render(scene, camera);
       perf.jsAcc += performance.now() - t0;
@@ -983,7 +1005,7 @@ CZ.runner3d = (function () {
       const hz = (zz + 0.9) * e;
       s.py = k < 1 ? Math.sin(k * Math.PI) * 1.3 + 0.4 * k : 0.4;
       hero.root.position.set(s.px, s.py, hz);
-      hero.update(dt * (k < 1 ? 0.35 : 1), { speed: k < 1 ? 4 : 0, jumping: k < 1, idle: k >= 1, dead: false, vy: k < 0.5 ? 5 : -5, jumpV: R.jumpV });
+      hero.update(dt * (k < 1 ? 0.35 : 1), { speed: k < 1 ? 4 : 0, jumping: k < 1, idle: k >= 1, cheer: k >= 1, dead: false, vy: k < 0.5 ? 5 : -5, jumpV: R.jumpV });
       pShadow.position.set(s.px, 0.02, hz);
       // Zibo yere yuvarlanır, döner
       zibo.position.z += (-3.4 - zibo.position.z) * Math.min(1, dt * 4);
