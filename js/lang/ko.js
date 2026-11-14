@@ -870,5 +870,12 @@ CZ.i18n.register('ko', '한국어', {
   "adv.short": "달력",
   "common.close": "닫기",
   "boss.zibo": "지보",
-  "share.label": "점수"
+  "share.label": "점수",
+  "run.power.boots": "슈퍼 점프!",
+  "run.power.sleigh": "산타 썰매!",
+  "run.landed": "착지!",
+  "endless.reviveGems": "에메랄드 {n}개로 계속",
+  "zibo.chase.sleigh": "뭐? 날아다니는 썰매?! 반칙이야!",
+  "run.power.magnetS": "자석",
+  "tap.run": "탭해서 달리기"
 });

@@ -870,5 +870,12 @@ CZ.i18n.register('de', 'Deutsch', {
   "adv.short": "Kalender",
   "common.close": "Schließen",
   "boss.zibo": "Zibo",
-  "share.label": "PUNKTE"
+  "share.label": "PUNKTE",
+  "run.power.boots": "Supersprung!",
+  "run.power.sleigh": "Schlitten vom Weihnachtsmann!",
+  "run.landed": "Landung!",
+  "endless.reviveGems": "Für {n} Smaragde weiter",
+  "zibo.chase.sleigh": "Was? Ein fliegender Schlitten?! Unfair!",
+  "run.power.magnetS": "Magnet",
+  "tap.run": "TIPPEN ZUM LAUFEN"
 });

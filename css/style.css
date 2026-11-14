@@ -1626,3 +1626,11 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 @keyframes sparkFade { to { opacity: 0; transform: scale(.2) translateY(10px); } }
 .snatch-pop { position: absolute; z-index: 97; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%; border: 6px solid #ffe27a; pointer-events: none; animation: popRing .45s ease-out forwards; }
 @keyframes popRing { from { transform: scale(.2); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+/* Güç göstergesi (sonsuz koşu) */
+.power-hud { position: absolute; left: 10px; top: 120px; z-index: 6; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+.pw-chip { display: flex; flex-direction: column; gap: 3px; min-width: 96px; padding: 4px 8px 6px; border-radius: 12px; color: #fff; font-weight: 900; font-size: 12px; border: 2px solid rgba(255,255,255,.7); box-shadow: 0 3px 0 rgba(0,0,0,.25); animation: btnpulse .5s ease-out 1; }
+.pw-chip i { display: block; height: 6px; border-radius: 6px; background: rgba(0,0,0,.3); overflow: hidden; }
+.pw-chip u { display: block; height: 100%; background: #fff; border-radius: 6px; }
+.pw-magnet { background: #d63a3a; } .pw-double { background: #e0a010; } .pw-boots { background: #2fa05a; } .pw-sleigh { background: #2f5fd8; }
+.chase-hearts.hide { display: none; }
+.save-me .save-score { margin: 0; color: #fff; font-family: var(--game); font-size: 30px; text-shadow: 0 3px 0 var(--outline); }

@@ -7,6 +7,9 @@
 
   CZ.screens.title = {
     render(el) {
+      const quick = state.data.tutorialDone && state.data.storySeen && game.foundCount() >= 1;
+      let started = false;
+      const run = () => { if (started) return; started = true; CZ.audio.sfx('button'); CZ.ui.wipeTo('chase', { endless: true }); };
       // Harfler tek tek zıplayarak gelir.
       const letters = [...t('title.name')].map((ch, i) => h('span', {
         class: ch === ' ' ? 'space' : '',
@@ -28,8 +31,11 @@
           h('h1', { class: 'logo', 'aria-label': t('title.name') }, letters),
           h('p', { class: 'tagline', text: t('title.tag') })),
         zibo.el,
-        h('div', { class: 'title-actions' },
-          btn(t('title.play'), () => game.next(), 'primary big pulse')));
+        h('div', { class: 'title-actions' }, ...(quick
+          ? [btn(t('tap.run'), () => run(), 'primary big pulse'), btn(t('win.toVillage'), () => game.next(), 'small ghost-dark')]
+          : [btn(t('title.play'), () => game.next(), 'primary big pulse')])));
+      // Subway Surfers gibi: geri gelen oyuncu ekrana dokununca doğrudan koşar
+      if (quick) el.addEventListener('pointerdown', e => { if (!e.target.closest('button, .zibo')) run(); });
       this.helloTimer = setTimeout(() => zibo.say('zibo.catch', 'smug'), 1100);
     },
     leave() {

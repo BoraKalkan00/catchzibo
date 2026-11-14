@@ -870,5 +870,12 @@ CZ.i18n.register('fr', 'Français', {
   "adv.short": "Calendrier",
   "common.close": "Fermer",
   "boss.zibo": "Zibo",
-  "share.label": "SCORE"
+  "share.label": "SCORE",
+  "run.power.boots": "Super saut !",
+  "run.power.sleigh": "Traîneau du Père Noël !",
+  "run.landed": "Atterrissage !",
+  "endless.reviveGems": "Continuer pour {n} émeraudes",
+  "zibo.chase.sleigh": "Quoi ? Un traîneau volant ?! Pas juste !",
+  "run.power.magnetS": "Aimant",
+  "tap.run": "TOUCHE POUR COURIR"
 });

@@ -197,6 +197,8 @@ CZ.audio = (function () {
     slide: t => noise(t, 0.32, { gain: 0.09, freq: 2600, to: 400, q: 0.5 }),
     land: t => { noise(t, 0.09, { gain: 0.09, freq: 600, to: 200, q: 0.7, type: 'lowpass' }); tone(110, t, 0.08, { gain: 0.08, to: 70 }); },
     swish: t => noise(t, 0.1, { gain: 0.05, freq: 1400, to: 3000, q: 0.9 }),
+    // tren kornası: iki tonlu, kalın
+    horn: t => { [311, 370].forEach(f => tone(f, t, 0.7, { type: 'sawtooth', gain: 0.045, attack: 0.03 })); [311, 370].forEach(f => tone(f, t + 0.8, 0.5, { type: 'sawtooth', gain: 0.04, attack: 0.03 })); },
     hit: t => {
       noise(t, 0.08, { gain: 0.16, freq: 700, to: 300, q: 0.9 });
       tone(160, t, 0.08, { gain: 0.12, to: 90 });

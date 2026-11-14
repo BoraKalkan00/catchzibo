@@ -304,6 +304,7 @@
     function update(dt, info) {
       let want = 'run';
       if (info.dead) want = 'dead';
+      else if (info.sit) want = 'sit';
       else if (info.cheer) want = 'cheer';
       else if (info.idle) want = 'idle';
       else if (info.sliding) want = 'roll';
@@ -320,6 +321,7 @@
         if (want === 'run') R.play('Running_A', { speed: 1.25, fade: prev === 'roll' ? 0.08 : 0.15 });
         else if (want === 'jump') { const c = clips.Jump_Full_Short; R.play('Jump_Full_Short', { once: true, speed: c.duration / 0.8, fade: 0.06 }); }
         else if (want === 'roll') { const a = R.play('Jump_Idle', { fade: 0.05 }); a.timeScale = 0; a.time = 0.1; st.rollT = 0; }
+        else if (want === 'sit') { const a = R.play('Sit_Floor_Down', { once: true, fade: 0.2 }); a.timeScale = 0; a.time = clips.Sit_Floor_Down.duration - 0.01; }
         else if (want === 'dodgeL') R.play('Dodge_Left', { once: true, speed: 2.2, fade: 0.06 });
         else if (want === 'dodgeR') R.play('Dodge_Right', { once: true, speed: 2.2, fade: 0.06 });
         else if (want === 'dead') R.play('Death_A', { once: true, fade: 0.1 });
@@ -373,8 +375,26 @@
       if (style === 'throw' && weapon) { weapon.visible = false; setTimeout(() => { if (weapon) weapon.visible = true; }, dur * 900); }
     }
     const baseUpdate = update;
+    const armL = model.getObjectByName('upperarml'), armR = model.getObjectByName('upperarmr');
+    const foreL = model.getObjectByName('lowerarml'), foreR = model.getObjectByName('lowerarmr');
+    let pointK = 0, pointDir = 1, restL = null, restR = null;
     function update2(dt, info) {
       baseUpdate(dt, info);
+      // durağan pozda karıştırıcı kemiği her kare yeniden yazmaz: kolu her kare dinlenme pozundan kur
+      if (info.sit && armL && armR) {
+        if (!restL) { restL = armL.quaternion.clone(); restR = armR.quaternion.clone(); }
+        armL.quaternion.copy(restL); armR.quaternion.copy(restR);
+      } else { restL = restR = null; }
+      // Kızakta yön gösterme: kolu yana kaldırıp baş parmakla işaret eder
+      const want = info.point || 0;
+      if (want) pointDir = want;
+      pointK += ((want ? 1 : 0) - pointK) * Math.min(1, dt * 12);
+      if (pointK > 0.01) {
+        // karakter kameraya sırtı dönük: sola gösterirken sol kol, sağa gösterirken sağ kol
+        const arm = pointDir < 0 ? armL : armR, fore = pointDir < 0 ? foreL : foreR;
+        if (arm) { arm.rotation.y += (pointDir < 0 ? -1.2 : 1.2) * pointK; arm.rotation.z += (pointDir < 0 ? 0.6 : -0.6) * pointK; }
+        if (fore) fore.rotation.x *= 1 - pointK;
+      }
       const run = R.cur === R.act('Running_A');
       if (upT > 0) upT -= dt;
       const w = upT > 0 ? 1 : 0;
@@ -502,5 +522,33 @@
     return out.toDataURL('image/webp', 0.92);
   }
 
-  CZ.kk = { load, ready, hero, zibo, portrait };
+  /* ---------- NOEL BABA (uçan kızağı sürer) ---------- */
+  function santaClaus(THREE) {
+    T = THREE;
+    const model = T.SkeletonUtils.clone(base.barbarian);
+    tagModel(model, 'barbarian');
+    ['Barbarian_Hat', 'Barbarian_Cape'].forEach(n => { const o = model.getObjectByName(n); if (o) o.visible = false; });
+    toonize(model, { barbarian: { '1,0': 0xf4f4f8, '0,1': 0xd8282a, '1,1': 0xd8282a, '2,1': 0xffffff, '6,0': 0x1d1d26, '7,0': 0x1d1d26, '3,2': 0xd8282a, '7,1': 0x1d1d26, '7,2': 0xffffff, '3,0': 0xf2c230 } }, 'santaClaus');
+    accessories(model, ['santaHat']);
+    const holder = new T.Group(); holder.rotation.y = Math.PI; holder.scale.setScalar(0.55); holder.add(model);
+    const root = new T.Group(); root.add(holder);
+    const R = rig(model);
+    const a = R.play('Sit_Floor_Down', { once: true, fade: 0 }); a.timeScale = 0; a.time = clips.Sit_Floor_Down.duration - 0.01;
+    const armL = model.getObjectByName('upperarml'), armR = model.getObjectByName('upperarmr');
+    let tt = 0;
+    R.mixer.update(0.01);
+    const restL = armL && armL.quaternion.clone(), restR = armR && armR.quaternion.clone();
+    function update(dt, info) {
+      R.mixer.update(dt); tt += dt;
+      if (armL) armL.quaternion.copy(restL);
+      if (armR) armR.quaternion.copy(restR);
+      // dizginleri tutar; döneceği yöne çeker
+      const turn = (info && info.turn) || 0;
+      if (armL) { armL.rotation.x -= 0.9; armL.rotation.z -= 0.2 + Math.sin(tt * 6) * 0.05 + Math.max(0, -turn) * 0.4; }
+      if (armR) { armR.rotation.x -= 0.9; armR.rotation.z += 0.2 + Math.sin(tt * 6 + 1) * 0.05 + Math.max(0, turn) * 0.4; }
+    }
+    return { root, update };
+  }
+
+  CZ.kk = { load, ready, hero, zibo, portrait, santaClaus };
 })();

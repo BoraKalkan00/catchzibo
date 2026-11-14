@@ -870,5 +870,12 @@ CZ.i18n.register('es', 'Español', {
   "adv.short": "Calendario",
   "common.close": "Cerrar",
   "boss.zibo": "Zibo",
-  "share.label": "PUNTOS"
+  "share.label": "PUNTOS",
+  "run.power.boots": "¡Súper salto!",
+  "run.power.sleigh": "¡Trineo de Papá Noel!",
+  "run.landed": "¡Aterrizaje!",
+  "endless.reviveGems": "Seguir por {n} esmeraldas",
+  "zibo.chase.sleigh": "¿Qué? ¿Un trineo volador? ¡No es justo!",
+  "run.power.magnetS": "Imán",
+  "tap.run": "TOCA PARA CORRER"
 });

@@ -1051,5 +1051,12 @@ CZ.i18n.register('tr', 'Türkçe', {
   "adv.short": "Takvim",
   "common.close": "Kapat",
   "boss.zibo": "Zibo",
-  "share.label": "PUAN"
+  "share.label": "PUAN",
+  "run.power.boots": "Süper zıplama!",
+  "run.power.sleigh": "Noel Baba kızağı!",
+  "run.landed": "İniş!",
+  "endless.reviveGems": "{n} elmasla devam",
+  "zibo.chase.sleigh": "Ne? Uçan kızak mı?! Haksızlık!",
+  "run.power.magnetS": "Mıknatıs",
+  "tap.run": "KOŞMAK İÇİN DOKUN"
 });

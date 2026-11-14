@@ -870,5 +870,12 @@ CZ.i18n.register('ar', 'العربية', {
   "adv.short": "التقويم",
   "common.close": "إغلاق",
   "boss.zibo": "زيبو",
-  "share.label": "النقاط"
+  "share.label": "النقاط",
+  "run.power.boots": "قفزة خارقة!",
+  "run.power.sleigh": "زلاجة بابا نويل!",
+  "run.landed": "هبوط!",
+  "endless.reviveGems": "تابع مقابل {n} زمرد",
+  "zibo.chase.sleigh": "ماذا؟ زلاجة طائرة؟! هذا ظلم!",
+  "run.power.magnetS": "مغناطيس",
+  "tap.run": "المس لتركض"
 });

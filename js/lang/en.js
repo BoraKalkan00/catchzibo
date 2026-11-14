@@ -1051,5 +1051,12 @@ CZ.i18n.register('en', 'English', {
   "adv.short": "Calendar",
   "common.close": "Close",
   "boss.zibo": "Zibo",
-  "share.label": "SCORE"
+  "share.label": "SCORE",
+  "run.power.boots": "Super jump!",
+  "run.power.sleigh": "Santa's sleigh!",
+  "run.landed": "Landing!",
+  "endless.reviveGems": "Continue for {n} emeralds",
+  "zibo.chase.sleigh": "What? A flying sleigh?! Not fair!",
+  "run.power.magnetS": "Magnet",
+  "tap.run": "TAP TO RUN"
 });

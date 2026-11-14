@@ -220,6 +220,7 @@ CZ.runner3d = (function () {
       pole: new THREE.MeshLambertMaterial({ color: 0x2b2b36 }),
       lampHead: new THREE.MeshBasicMaterial({ color: 0xffd98a }),
       coin: new THREE.MeshLambertMaterial({ color: 0xffc928, emissive: 0x6a4a00 }),
+      coinFace: null,
       emerald: new THREE.MeshLambertMaterial({ color: 0x2ee07a, emissive: 0x0b5a2a }),
       gifts: [['#d92d3a', '#2e8b45'], ['#2f6fd6', '#f2c12e'], ['#7b3fc4', '#f2c12e'], ['#2e8b45', '#d92d3a']]
         .map(([a, b]) => new THREE.MeshLambertMaterial({ map: giftTex(a, b) })),
@@ -521,10 +522,20 @@ CZ.runner3d = (function () {
     const ballMat = new THREE.SpriteMaterial({ map: SHOT.tex === 'flake' ? flakeTex() : SHOT.tex === 'bolt' ? boltTex() : glowTex(SHOT.color), transparent: true, depthWrite: false, blending: SHOT.glow && !SHOT.tex ? THREE.AdditiveBlending : THREE.NormalBlending });
     if (SHOT.tex === 'weapon' && opts.weaponArt) imageTex(CZ.art(opts.weaponArt), 128).then(tx => { if (tx) { ballMat.map = tx; ballMat.needsUpdate = true; } });
     const haloMat = SHOT.glow ? new THREE.SpriteMaterial({ map: glowTex(SHOT.color), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }) : null;
+    // Güç simgeleri: renkli rozet + çizim (emojiye güvenmeden, her telefonda aynı)
+    const badge = (bg, draw) => new THREE.SpriteMaterial({ map: canvasTex(128, 128, (x) => {
+      x.fillStyle = 'rgba(0,0,0,.25)'; x.beginPath(); x.arc(64, 68, 56, 0, 7); x.fill();
+      x.fillStyle = bg; x.beginPath(); x.arc(64, 62, 54, 0, 7); x.fill();
+      x.lineWidth = 7; x.strokeStyle = '#fff'; x.stroke();
+      x.save(); x.translate(64, 62); draw(x); x.restore();
+    }), transparent: true });
     const powerMats = {
-      magnet: new THREE.SpriteMaterial({ map: labelTex('🧲', '#d63a3a', '#fff') }),
-      double: new THREE.SpriteMaterial({ map: labelTex('x2', '#f2b51e', '#5a2d00') })
+      magnet: badge('#d63a3a', x => { x.lineWidth = 16; x.strokeStyle = '#fff'; x.beginPath(); x.arc(0, -4, 22, Math.PI, 0, true); x.stroke(); x.fillStyle = '#cfd6e2'; x.fillRect(-30, -6, 16, 16); x.fillRect(14, -6, 16, 16); }),
+      double: badge('#f2b51e', x => { x.fillStyle = '#5a2d00'; x.font = '900 52px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('x2', 0, 4); }),
+      boots: badge('#2fa05a', x => { x.fillStyle = '#fff'; x.beginPath(); x.moveTo(-26, 4); x.lineTo(-26, -26); x.lineTo(-6, -26); x.lineTo(-6, -6); x.lineTo(26, 0); x.lineTo(26, 12); x.lineTo(-26, 12); x.closePath(); x.fill(); x.strokeStyle = '#ffe27a'; x.lineWidth = 5; x.beginPath(); for (let i = 0; i < 4; i++) { x.moveTo(-18 + i * 12, 16); x.lineTo(-12 + i * 12, 30); } x.stroke(); }),
+      sleigh: badge('#2f5fd8', x => { x.fillStyle = '#e8302e'; x.beginPath(); x.moveTo(-28, -10); x.lineTo(18, -10); x.quadraticCurveTo(30, -10, 30, -24); x.lineTo(30, 10); x.lineTo(-24, 10); x.closePath(); x.fill(); x.strokeStyle = '#ffe27a'; x.lineWidth = 5; x.beginPath(); x.moveTo(-32, 20); x.lineTo(26, 20); x.quadraticCurveTo(36, 20, 34, 10); x.stroke(); x.fillStyle = '#fff'; x.beginPath(); x.arc(-14, -16, 7, 0, 7); x.fill(); })
     };
+    const powerGlow = new THREE.SpriteMaterial({ map: glowTex('rgba(255,240,170,.85)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
     const sparkMat = new THREE.SpriteMaterial({ map: glowTex('rgba(255,220,90,1)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
 
     const T = {};
@@ -709,40 +720,103 @@ CZ.runner3d = (function () {
       return addObj({ type: 'low', lane, len: 0.8, top: 1.15, mesh: g });
     }
     // Kızak treni: üstüne zıplanır ya da önündeki rampadan çıkılır, tepesinde koşulur (Subway'deki tren gibi).
-    const TRAIN_TOP = 1.35;
-    function train(lane, ramp) {
+    // NOEL EKSPRESİ (Subway Surfers'taki gibi): karakterden yüksek, normal zıplamayla çıkılmaz.
+    // Rampadan koşarak çıkılır (ya da süper zıplamayla), çatısında koşulur. Bazıları karşıdan gelir!
+    const TRAIN_TOP = 2.3;
+    const FLY_H = 6.4;
+    const TM = {
+      body: [0xc8302a, 0x2a7a46, 0x2f5fb8].map(c => new THREE.MeshLambertMaterial({ color: c })),
+      cream: new THREE.MeshLambertMaterial({ color: 0xf3e6c8 }),
+      gold: new THREE.MeshLambertMaterial({ color: 0xe8b830 }),
+      glass: new THREE.MeshLambertMaterial({ color: 0x23344f }),
+      lit: new THREE.MeshBasicMaterial({ color: 0xffd98a }),
+      dark: new THREE.MeshLambertMaterial({ color: 0x2a2a32 }),
+      steel: new THREE.MeshLambertMaterial({ color: 0x8a8f9c }),
+      snow: new THREE.MeshLambertMaterial({ color: 0xf4f8ff }),
+      rampA: new THREE.MeshLambertMaterial({ color: 0x8a5a32 }),
+      hazY: new THREE.MeshLambertMaterial({ color: 0xf2c230 }),
+      hazK: new THREE.MeshLambertMaterial({ color: 0x24242a }),
+      head: new THREE.MeshBasicMaterial({ color: 0xfff6c8 })
+    };
+    const roofGeoT = new THREE.CylinderGeometry(0.64, 0.64, 1, 14, 1, false, -Math.PI / 2, Math.PI);
+    roofGeoT.rotateX(Math.PI / 2); roofGeoT.rotateZ(Math.PI / 2);
+    const wheelGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.08, 12); wheelGeo.rotateZ(Math.PI / 2);
+    const headGlow = new THREE.SpriteMaterial({ map: glowTex('rgba(255,245,200,1)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+    function car(g, zc, wl, mat, front) {
+      const H = TRAIN_TOP - 0.42;           // gövde (tekerlek boşluğu 0.25 + çatı payı)
+      const yb = 0.3;
+      g.add(mesh(GEO.box, mat, 1.28, H, wl, 0, yb + H / 2, zc));
+      // krem bant + altın çizgi
+      g.add(mesh(GEO.box, TM.cream, 1.3, 0.34, wl - 0.1, 0, yb + H * 0.62, zc));
+      g.add(mesh(GEO.box, TM.gold, 1.31, 0.05, wl - 0.1, 0, yb + H * 0.62 - 0.2, zc));
+      g.add(mesh(GEO.box, TM.gold, 1.31, 0.05, wl - 0.1, 0, yb + 0.1, zc));
+      // pencereler (iki yanda), içi sarı ışık
+      const nw = Math.max(2, Math.round(wl / 1.05));
+      for (let k = 0; k < nw; k++) {
+        const wz = zc - wl / 2 + (k + 0.5) * wl / nw;
+        [-1, 1].forEach(sd => {
+          g.add(mesh(GEO.box, TM.dark, 0.02, 0.42, wl / nw - 0.28, sd * 0.645, yb + H * 0.62, wz));
+          g.add(mesh(GEO.box, k % 3 === 1 ? TM.glass : TM.lit, 0.02, 0.34, wl / nw - 0.36, sd * 0.65, yb + H * 0.62, wz));
+        });
+      }
+      // kapı
+      [-1, 1].forEach(sd => g.add(mesh(GEO.box, TM.dark, 0.02, H * 0.7, 0.55, sd * 0.645, yb + H * 0.38, zc)));
+      // kubbeli çatı + kar
+      const roof = new THREE.Mesh(roofGeoT, mat); roof.scale.set(1, wl - 0.05, 0.42); roof.position.set(0, yb + H, zc); g.add(roof);
+      g.add(mesh(GEO.box, TM.snow, 0.9, 0.08, wl - 0.3, 0, TRAIN_TOP - 0.02, zc));
+      // boji ve tekerlekler
+      [-1, 1].forEach(e => {
+        const bz = zc + e * (wl / 2 - 0.7);
+        g.add(mesh(GEO.box, TM.dark, 1.0, 0.18, 1.0, 0, 0.2, bz));
+        [-1, 1].forEach(sd => [-0.3, 0.3].forEach(dz => { const w = new THREE.Mesh(wheelGeo, TM.steel); w.position.set(sd * 0.52, 0.18, bz + dz); g.add(w); }));
+      });
+      if (front) {
+        // ön yüz (oyuncuya bakan): cam, iki far, tampon
+        const fz = zc + wl / 2 + 0.01;
+        g.add(mesh(GEO.box, TM.glass, 0.9, 0.5, 0.02, 0, yb + H * 0.68, fz));
+        g.add(mesh(GEO.box, TM.gold, 1.1, 0.12, 0.06, 0, yb + 0.25, fz));
+        g.add(mesh(GEO.box, TM.dark, 1.2, 0.22, 0.18, 0, 0.22, fz + 0.06));
+        [-0.38, 0.38].forEach(x => g.add(mesh(GEO.cyl, TM.head, 0.13, 0.04, 0.13, x, yb + 0.5, fz + 0.02).rotateX(Math.PI / 2)));
+      }
+    }
+    function train(lane, ramp, oncoming) {
       const g = new THREE.Group();
-      const wagons = 3, wl = 3.6, gap = 0.25, rampLen = ramp ? 3 : 0;
+      const wagons = oncoming ? 3 : 3, wl = 4.2, gap = 0.3, rampLen = ramp ? 4.6 : 0;
       const bodyLen = wagons * wl + (wagons - 1) * gap;
       const len = bodyLen + rampLen;
       const z0 = -len / 2;
+      const mat = pick(TM.body);
       for (let w = 0; w < wagons; w++) {
         const zc = z0 + w * (wl + gap) + wl / 2;
-        g.add(mesh(GEO.box, w % 2 ? M.wagonB : M.wagonA, 1.2, TRAIN_TOP - 0.25, wl, 0, 0.25 + (TRAIN_TOP - 0.25) / 2, zc));
-        g.add(mesh(GEO.box, M.trim, 1.24, 0.1, wl + 0.04, 0, TRAIN_TOP - 0.05, zc));
-        g.add(mesh(GEO.box, M.roofSnowT, 1.12, 0.06, wl - 0.1, 0, TRAIN_TOP + 0.03, zc));
-        g.add(mesh(GEO.box, M.trim, 1.24, 0.08, wl, 0, 0.55, zc));
-        // hediye kurdelesi: vagonu saran sarı bant + çatıda fiyonk
-        g.add(mesh(GEO.box, M.ribbon, 1.26, TRAIN_TOP - 0.3, 0.22, 0, 0.25 + (TRAIN_TOP - 0.3) / 2, zc));
-        g.add(mesh(GEO.box, M.ribbon, 0.5, 0.16, 0.22, -0.22, TRAIN_TOP + 0.12, zc));
-        g.add(mesh(GEO.box, M.ribbon, 0.5, 0.16, 0.22, 0.22, TRAIN_TOP + 0.12, zc));
-        [-1, 1].forEach(k => g.add(mesh(GEO.box, M.runnerMetal, 0.08, 0.14, wl, k * 0.52, 0.1, zc)));
-        // pencere ışıkları
-        [-1, 1].forEach(k => g.add(mesh(GEO.box, M.window, 0.02, 0.35, 0.6, k * 0.61, 0.9, zc - 0.8)));
-        [-1, 1].forEach(k => g.add(mesh(GEO.box, M.window, 0.02, 0.35, 0.6, k * 0.61, 0.9, zc + 0.8)));
+        car(g, zc, wl, w % 2 && !oncoming ? pick(TM.body) : mat, w === wagons - 1);
+        if (w < wagons - 1) g.add(mesh(GEO.box, TM.dark, 1.0, TRAIN_TOP - 0.7, gap + 0.1, 0, 0.3 + (TRAIN_TOP - 0.7) / 2, zc + wl / 2 + gap / 2));
       }
       if (ramp) {
+        // rampa: tahta yüzey, sarı-siyah uyarı şeritleri, yan korkuluk, ayaklar
         const rz = z0 + bodyLen + rampLen / 2;
         const slope = Math.atan2(TRAIN_TOP, rampLen);
-        const r = mesh(GEO.box, M.ramp, 1.1, 0.1, Math.hypot(rampLen, TRAIN_TOP), 0, TRAIN_TOP / 2, rz);
-        r.rotation.x = slope;
-        g.add(r);
-        [-1, 1].forEach(k => g.add(mesh(GEO.box, M.beam, 0.08, TRAIN_TOP * 0.5, 0.08, k * 0.5, TRAIN_TOP * 0.25, rz - rampLen * 0.25)));
+        const hyp = Math.hypot(rampLen, TRAIN_TOP);
+        const rp = new THREE.Group(); rp.position.set(0, TRAIN_TOP / 2, rz); rp.rotation.x = slope; g.add(rp);
+        rp.add(mesh(GEO.box, TM.rampA, 1.15, 0.12, hyp, 0, 0, 0));
+        for (let k = 0; k < 6; k++) rp.add(mesh(GEO.box, k % 2 ? TM.hazK : TM.hazY, 1.16, 0.13, 0.22, 0, 0.01, hyp / 2 - 0.15 - k * 0.22));
+        [-1, 1].forEach(sd => rp.add(mesh(GEO.box, TM.hazY, 0.06, 0.16, hyp, sd * 0.58, 0.1, 0)));
+        [0.25, 0.55, 0.8].forEach(f => [-1, 1].forEach(sd => {
+          const h = TRAIN_TOP * (1 - f);
+          g.add(mesh(GEO.box, TM.steel, 0.07, h, 0.07, sd * 0.5, h / 2, z0 + bodyLen + rampLen * f));
+        }));
       }
       g.position.x = laneX(lane);
-      const o = addObj({ type: 'train', lane, len, top: TRAIN_TOP, ramp, rampLen, mesh: g });
-      // tepesinde altın dizisi
-      for (let z = z0 + 0.8; z < z0 + bodyLen - 0.4; z += R.coinGap) coin(lane, SPAWN_Z + z, TRAIN_TOP + 0.55);
+      const o = addObj({ type: 'train', lane, len, top: TRAIN_TOP, ramp, rampLen, mesh: g, oncoming: !!oncoming });
+      if (oncoming) {
+        // farlar: parlak hale (pişirilmez)
+        const fz = z0 + bodyLen + 0.1;
+        [-0.38, 0.38].forEach(x => { const sp = new THREE.Sprite(headGlow); sp.scale.set(1.6, 1.6, 1); sp.position.set(x, 0.8, fz); g.add(sp); });
+        o.vz = 16;              // dünyadan daha hızlı sana doğru gelir
+        o.honk = false;
+      } else {
+        // tepesinde altın dizisi
+        for (let z = z0 + 0.8; z < z0 + bodyLen - 0.4; z += R.coinGap) coin(lane, SPAWN_Z + z, TRAIN_TOP + 0.55);
+      }
       return o;
     }
     // Trenin üstündeki zemin yüksekliği (oyuncunun z=0 noktasında). Rampada eğimli artar.
@@ -804,7 +878,21 @@ CZ.runner3d = (function () {
     }
     // Altınlar tek bir "örnekli" ağla çizilir (kaç altın olursa olsun 1 çizim çağrısı).
     const COIN_MAX = 120;
-    const coinInst = new THREE.InstancedMesh(GEO.coin, M.coin, COIN_MAX);
+    // Altının iki yüzünde Zibo damgası (yan yüz düz altın)
+    M.coinFace = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x6a4a00, map: canvasTex(128, 128, (x) => {
+      const g = x.createRadialGradient(64, 54, 10, 64, 64, 64); g.addColorStop(0, '#ffe56a'); g.addColorStop(1, '#e8a812');
+      x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+      x.strokeStyle = '#b87a00'; x.lineWidth = 8; x.beginPath(); x.arc(64, 64, 56, 0, 7); x.stroke();
+      // Zibo kafası: sivri kulaklar + Noel şapkası silueti
+      x.fillStyle = '#9a6400';
+      x.beginPath(); x.moveTo(20, 62); x.lineTo(44, 54); x.lineTo(44, 74); x.closePath(); x.fill();
+      x.beginPath(); x.moveTo(108, 62); x.lineTo(84, 54); x.lineTo(84, 74); x.closePath(); x.fill();
+      x.beginPath(); x.arc(64, 70, 22, 0, 7); x.fill();
+      x.beginPath(); x.moveTo(44, 52); x.lineTo(84, 52); x.lineTo(72, 24); x.closePath(); x.fill();
+      x.beginPath(); x.arc(76, 24, 6, 0, 7); x.fill();
+      x.fillStyle = '#ffe56a'; x.beginPath(); x.arc(56, 68, 4, 0, 7); x.arc(72, 68, 4, 0, 7); x.fill();
+    }) });
+    const coinInst = new THREE.InstancedMesh(GEO.coin, [M.coin, M.coinFace, M.coinFace], COIN_MAX);
     coinInst.count = 0;
     coinInst.frustumCulled = false;
     scene.add(coinInst);
@@ -834,10 +922,11 @@ CZ.runner3d = (function () {
     }
     function power(lane, z, kind) {
       const sp = new THREE.Sprite(powerMats[kind]);
-      sp.scale.set(0.8, 0.8, 1);
-      sp.position.set(laneX(lane), 0.9, z);
+      sp.scale.set(1.0, 1.0, 1);
+      sp.position.set(laneX(lane), 1.0, z);
+      const gl = new THREE.Sprite(powerGlow); gl.scale.set(2.2, 2.2, 1); gl.position.z = -0.05; sp.add(gl);
       scene.add(sp);
-      s.coins.push({ kind, mesh: sp, lane });
+      s.coins.push({ kind, mesh: sp, lane, power: true, bob: Math.random() * 6 });
     }
 
     // Bir sıra: her şeride engel ya da boşluk. En az bir şerit hep geçilebilir.
@@ -847,7 +936,7 @@ CZ.runner3d = (function () {
       const kinds = ALL.map(() => null);
       if (!early) {
         const k = s.t < s.obstaclesFrom + 10 ? 1 : s.t < s.obstaclesFrom + 30 ? pick([1, 2, 2]) : pick([1, 2, 3, 3]);
-        const lanes = ALL.slice().sort(() => Math.random() - 0.5).slice(0, CHASE ? Math.min(k, 1 + (Math.random() < 0.35 ? 1 : 0)) : k);
+        const lanes = ALL.slice().sort(() => Math.random() - 0.5).slice(0, CHASE ? (opts.endless ? Math.min(LANES - 1, s.t < 10 ? 1 : s.t < 35 ? pick([1, 2]) : pick([1, 2, 2])) : Math.min(k, 1 + (Math.random() < 0.35 ? 1 : 0))) : k);
         let crateUsed = false;
         lanes.forEach(l => {
           let kind = pickW(R.obstacles).id;
@@ -855,27 +944,30 @@ CZ.runner3d = (function () {
           if (kind === 'crate') kind = pick(['low', 'low', 'soldier', 'high', 'wall']);
           if (CHASE && kind === 'train' && s.t < 6) kind = 'low';
           if (kind === 'train' && s.t < R.trainsFrom) kind = 'wall';
+          // karşıdan gelen tren: sonsuz koşuda 18. saniyeden sonra
+          if (kind === 'train' && opts.endless && s.t > 18 && Math.random() < 0.35) kind = 'oncoming';
           if (kind === 'crate') { if (crateUsed) kind = 'low'; crateUsed = true; }
           kinds[l] = kind;
         });
         // Adalet: bir sırada en fazla bir kızak (duvar); kalanlar zıplanır/eğilinir.
         let walls = 0;
-        kinds.forEach((k2, l) => { if ((k2 === 'wall' || k2 === 'train') && ++walls > (CHASE ? 1 : 2)) kinds[l] = pick(['low', 'soldier', 'high']); });
+        kinds.forEach((k2, l) => { if ((k2 === 'wall' || k2 === 'train' || k2 === 'oncoming') && ++walls > (CHASE ? 1 : 2)) kinds[l] = pick(['low', 'soldier', 'high']); });
         // Bir şeritte tren varken diğer şeritlerden en az biri tamamen açık kalsın
         const blocked = ALL.filter(l => s.busy && s.busy[l] > s.dist).length;
-        if (blocked >= LANES - 1) kinds.forEach((k2, l) => { if (k2 === 'train' || k2 === 'wall') kinds[l] = 'low'; });
+        if (blocked >= LANES - 1) kinds.forEach((k2, l) => { if (k2 === 'train' || k2 === 'wall' || k2 === 'oncoming') kinds[l] = 'low'; });
       }
       // Tren geçen şeride, tren bitene kadar yeni engel konmaz.
       s.busy = s.busy || ALL.map(() => 0);
       kinds.forEach((k2, l) => { if (k2 && s.busy[l] > s.dist) kinds[l] = null; });
       kinds.forEach((k2, l) => {
+        if (k2 === 'oncoming') { const o = train(l, false, true); s.busy[l] = s.dist + o.len * 2.2 + 40; return; }
         if (k2 === 'train') { const o = train(l, Math.random() < R.rampChance); s.busy[l] = s.dist + o.len + 4; return; }
         if (k2 === 'soldier') soldiers(l); else if (k2 === 'low') { if (Math.random() < 0.35) snowman(l); else hurdle(l); } else if (k2 === 'high') banner(l); else if (k2 === 'wall') sled(l); else if (k2 === 'crate') crate(l);
       });
       if (!early && Math.random() < 0.5) { s.ziboPose = 0.5; }
       // Altın dizisi: geçilebilir bir şeritte, engelin önünde başlar, alçak engelin üstünden kavis çizer.
       // Altın dizileri: her sırada en az bir uzun dizi, bazen ikinci bir şeritte daha.
-      const options = ALL.filter(l => kinds[l] !== 'soldier' && kinds[l] !== 'wall' && kinds[l] !== 'crate' && kinds[l] !== 'train' && !(s.busy[l] > s.dist));
+      const options = ALL.filter(l => kinds[l] !== 'soldier' && kinds[l] !== 'wall' && kinds[l] !== 'crate' && kinds[l] !== 'train' && kinds[l] !== 'oncoming' && !(s.busy[l] > s.dist));
       const lines = Math.random() > R.coinLineChance ? 0 : Math.random() < R.secondLine ? 2 : 1;
       const used = [];
       for (let li = 0; li < lines && options.length; li++) {
@@ -897,10 +989,12 @@ CZ.runner3d = (function () {
       }
       if (s.t >= s.nextPower) {
         const free = ALL.filter(l => !kinds[l]);
-        if (free.length) { power(pick(free), SPAWN_Z - 6, Math.random() < 0.5 ? 'magnet' : 'double'); s.nextPower = s.t + rand(R.powerEvery[0], R.powerEvery[1]); }
+        if (free.length) { power(pick(free), SPAWN_Z - 6, opts.endless ? pickW(ENDLESS_POWERS).id : Math.random() < 0.5 ? 'magnet' : 'double'); s.nextPower = s.t + (opts.endless ? rand(9, 15) : rand(R.powerEvery[0], R.powerEvery[1])); }
       }
     }
     s.emeraldsSpawned = 0;
+    const ENDLESS_POWERS = [{ id: 'magnet', weight: 30 }, { id: 'double', weight: 22 }, { id: 'boots', weight: 26 }, { id: 'sleigh', weight: 22 }];
+    if (opts.endless) s.nextPower = rand(7, 10);
 
     /* ---------- Kontroller ---------- */
     function move(dir) {
@@ -909,6 +1003,7 @@ CZ.runner3d = (function () {
       if (n === s.lane) { bump(); return; }
       const old = s.lane;
       s.lane = n;
+      s.pointT = 0.6; s.pointDir = dir;
       CZ.audio.sfx('swish');
       // Kaç kombosu: arka arkaya hızlı kaçışlar kombo yapar. Hemen önündeki engelden/bombadan
       // son anda kaçarsan "Kıl payı!" bonusu (kombo ile katlanır).
@@ -923,16 +1018,17 @@ CZ.runner3d = (function () {
       if (opts.onSwipe) opts.onSwipe(s.combo, near, gold);
     }
     function jump() {
-      if (!s.running) return;
+      if (!s.running || s.flyT > 0) return;
       if (s.jumping) return;
-      s.jumping = true; s.vy = R.jumpV; s.slideT = 0;
+      s.jumping = true; s.vy = R.jumpV * (s.superT > 0 ? 1.62 : 1); s.slideT = 0;
+      if (s.superT > 0) sparks(new THREE.Vector3(s.px, (s.floor || 0) + 0.1, 0.2), 10, '#7dffb0', 0.3);
       if (opts.onAct) opts.onAct('jump');
       s.squashV = -0.22;   // kalkışta uzama
       sparks(new THREE.Vector3(s.px, (s.floor || 0) + 0.1, 0.2), 5, '#eaf6ff', 0.22);
       CZ.audio.sfx('jump');
     }
     function slide() {
-      if (!s.running) return;
+      if (!s.running || s.flyT > 0) return;
       // Gerçek bir insan gibi: takla bitmeden yenisi yok, bitince kısa bir toparlanma.
       if (s.slideT > 0 || (s.slideCD || 0) > 0) return;
       if (s.jumping) { s.vy = -R.jumpV * 1.4; }      // havadaysan hızla in
@@ -1005,7 +1101,8 @@ CZ.runner3d = (function () {
     function loop(now) {
       raf = requestAnimationFrame(loop);
       const raw = now - (last || now);
-      const dt = Math.min(0.05, raw / 1000);
+      let dt = Math.min(0.05, raw / 1000);
+      if (s.slowT > 0) { s.slowT -= dt; dt *= 0.32; }
       last = now;
       const t0 = performance.now();
       if (s.running) step(dt);
@@ -1131,10 +1228,10 @@ CZ.runner3d = (function () {
     function step(dt) {
       s.t += dt;
       s.frame += dt;
-      s.speed = CHASE ? (opts.speed || 16) * (s.speedMul || 1) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 && !(s.dashT > 0) ? 0.55 : 1);
+      s.speed = CHASE ? (opts.endless ? Math.min(34, 18.5 + s.t * 0.2) * (s.flyT > 0 ? 1.35 : 1) : (opts.speed || 16) * (s.speedMul || 1)) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 && !(s.dashT > 0) ? 0.55 : 1);
       s.stunT = Math.max(0, (s.stunT || 0) - dt);
       if (s.dashT > 0) { s.dashT -= dt; s.speed *= 1.6; if (s.dashT <= 0) drawSled(); if (Math.random() < 0.5) sparks(new THREE.Vector3(s.px + rand(-0.4, 0.4), 0.15, 0.6), 1, '#bfe4ff', 0.25); }
-      const fov = s.dashT > 0 ? 72 : 62;
+      const fov = s.dashT > 0 || s.flyT > 0 ? 72 : 62;
       if (Math.abs(camera.fov - fov) > 0.1) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 6); camera.updateProjectionMatrix(); }
       const dz = s.speed * dt;
       s.dist += dz;
@@ -1151,9 +1248,12 @@ CZ.runner3d = (function () {
 
       // sıra doğar
       s.nextRow -= dz;
-      if (s.nextRow <= 0 && !s.catching) {
+      if (s.nextRow <= 0 && !s.catching && s.flyT > 1.5) {
+        airRow();
+        s.nextRow = 14;
+      } else if (s.nextRow <= 0 && !s.catching && !(s.flyT > 0)) {
         spawnRow();
-        s.nextRow = CHASE ? rand(22, 30) : Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
+        s.nextRow = CHASE ? (opts.endless ? Math.max(13, 23 - s.t * 0.09) + rand(0, 5) : rand(22, 30)) : Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
       }
 
       // oyuncu
@@ -1163,8 +1263,10 @@ CZ.runner3d = (function () {
       // Ayak sesi: her adımda (adım hızı koşu hızıyla artar)
       s.stepT = (s.stepT || 0) - dt;
       if (s.stepT <= 0 && !s.jumping && !(s.slideT > 0)) { s.stepT = 3.4 / (8 + s.speed * 0.32); s.stepSide = !s.stepSide; CZ.audio.sfx('step', s.stepSide ? 1 : 0); }
-      if (s.jumping) {
-        s.vy -= R.gravity * dt;
+      if (s.flyT > 0) {
+        flyStep(dt);
+      } else if (s.jumping) {
+        s.vy -= R.gravity * (s.superT > 0 ? 0.78 : 1) * dt;
         s.py += s.vy * dt;
         if (s.py <= floor && s.vy <= 0) { s.py = floor; s.vy = 0; s.jumping = false; s.squashV = 0.28; sparks(new THREE.Vector3(s.px, floor + 0.08, 0.2), 7, '#eaf6ff', 0.24); CZ.audio.sfx('land'); }
       } else if (s.py < floor) {
@@ -1177,10 +1279,14 @@ CZ.runner3d = (function () {
       s.invT = Math.max(0, s.invT - dt);
       s.magnetT = Math.max(0, s.magnetT - dt);
       s.doubleT = Math.max(0, s.doubleT - dt);
+      s.superT = Math.max(0, (s.superT || 0) - dt);
       const sliding = s.slideT > 0 && !s.jumping;
       const lean = (tx - s.px) * 0.6;
       hero.root.position.set(s.px, s.py, 0);
-      hero.update(dt, { speed: s.speed, jumping: s.jumping, sliding, lean, dead: false, vy: s.vy, jumpV: R.jumpV });
+      s.pointT = Math.max(0, (s.pointT || 0) - dt);
+      const flying = s.flyT > 0;
+      if (flying) hero.root.position.set(s.px, s.py, 0.25);
+      hero.update(dt, flying ? { sit: true, point: s.pointT > 0 ? s.pointDir : 0, speed: 0 } : { speed: s.speed, jumping: s.jumping, sliding, lean, dead: false, vy: s.vy, jumpV: R.jumpV });
       // Ezilme/uzama (kalkış, iniş) + eğilirken kar püskürmesi + kaçarken yana savrulma
       s.squashV = (s.squashV || 0) * Math.max(0, 1 - dt * 9);
       const sq = s.squashV || 0;
@@ -1199,7 +1305,9 @@ CZ.runner3d = (function () {
       camera.position.x += (s.px * 0.55 - camera.position.x) * Math.min(1, dt * 6);
       // Trenin üstündeyken kamera da yükselir (zemin), zıplarken biraz izler.
       s.camFloor = (s.camFloor || 0) + (((s.floor || 0)) - (s.camFloor || 0)) * Math.min(1, dt * 5);
-      camera.position.y = camBase.y + s.camFloor * 0.85 + (s.py - (s.floor || 0)) * 0.25;
+      const airY = s.py - (s.floor || 0);
+      camera.position.y = camBase.y + s.camFloor * 0.85 + airY * (s.flyT > 0 ? 0.9 : s.superT > 0 ? 0.55 : 0.25);
+      camera.position.z = camBase.z + (s.flyT > 0 ? 1.4 : 0) * Math.min(1, (s.py || 0) / FLY_H);
       if (s.shake > 0) { s.shake -= dt; camera.position.x += rand(-0.12, 0.12); camera.position.y += rand(-0.08, 0.08); }
 
       // Zibo önde koşar
@@ -1224,12 +1332,14 @@ CZ.runner3d = (function () {
       let nextFloor = 0;
       for (let i = s.objs.length - 1; i >= 0; i--) {
         const o = s.objs[i];
-        o.mesh.position.z += dz;
+        o.mesh.position.z += dz + (o.vz || 0) * dt;
         const z = o.mesh.position.z;
+        if (o.oncoming && !o.honk && z > -55) { o.honk = true; CZ.audio.sfx('horn'); }
         if (z > KILL_Z) { scene.remove(o.mesh); s.objs.splice(i, 1); continue; }
         if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
         if (o.hitFlash) { o.hitFlash -= dt; o.mesh.scale.setScalar(o.hitFlash > 0 ? 1.08 : 1); }
         if (o.passed || o.dead) continue;
+        if (s.flyT > 0 && s.py > 1.5) continue;     // kızakla uçarken yerdekiler değmez
         const half = o.len / 2 + 0.3;
         if (Math.abs(z) > half) {
           if (z > half && !o.passed) { o.passed = true; if (o.type !== 'crate' && Math.abs(s.px - laneX(o.lane)) < 0.7) dodged(o); }
@@ -1258,13 +1368,14 @@ CZ.runner3d = (function () {
         const c = s.coins[i];
         c.mesh.position.z += dz;
         if (c.kind === 'coin' || c.kind === 'gem') c.mesh.rotation.y += dt * 4;
+        if (c.power) { c.bob += dt * 4; c.mesh.position.y = 1.0 + Math.sin(c.bob) * 0.15 + (c.air ? FLY_H : 0); c.mesh.material.rotation = Math.sin(c.bob * 0.7) * 0.15; }
         const p = c.mesh.position;
         if (magnet && c.kind === 'coin' && p.z > -16 && p.z < 1) {
           p.x += (s.px - p.x) * Math.min(1, dt * 10);
           p.y += (s.py + 0.8 - p.y) * Math.min(1, dt * 10);
           p.z += (0 - p.z) * Math.min(1, dt * 6);
         }
-        if (p.z > KILL_Z) { scene.remove(c.mesh); s.coins.splice(i, 1); continue; }
+        if (p.z > (p.y > 1.6 ? 1.2 : KILL_Z)) { scene.remove(c.mesh); s.coins.splice(i, 1); continue; }
         if (Math.abs(p.z) < 0.7 && Math.abs(p.x - s.px) < 0.65 && p.y > s.py - 0.3 && p.y < s.py + (sliding ? 1.0 : 1.9)) {
           scene.remove(c.mesh); s.coins.splice(i, 1);
           collect(c);
@@ -1343,11 +1454,138 @@ CZ.runner3d = (function () {
         sparks(c.mesh.position, 8, '#5dff9a');
         opts.onEmerald(1);
       } else {
-        if (c.kind === 'magnet') s.magnetT = R.magnetSec; else s.doubleT = R.doubleSec;
+        if (c.kind === 'magnet') s.magnetT = R.magnetSec; else if (c.kind === 'double') s.doubleT = R.doubleSec; else if (c.kind === 'boots') s.superT = 10; else if (c.kind === 'sleigh') startFlight();
+        sparks(c.mesh.position, 10, '#fff2a8');
         CZ.audio.sfx('buy');
         CZ.audio.vibrate(30);
         opts.onPower(c.kind);
       }
+    }
+
+    /* ---------- UÇAN NOEL KIZAĞI ---------- */
+    // Kızak simgesini alınca Noel Baba'nın kızağı gelir; sen arkada oturursun, Noel Baba geyikleri sürer.
+    // Kaydırınca karakter baş parmağıyla yön gösterir, Noel Baba o yöne döner. Havada Zibo damgalı altınlar.
+    let sleigh = null;
+    function toon(c) { return new THREE.MeshLambertMaterial({ color: c }); }
+    function reindeerMesh(lead) {
+      const g = new THREE.Group();
+      const fur = toon(0x8a5230), light = toon(0xd8b48a), dark = toon(0x3a2416), horn = toon(0x6a4a2a);
+      const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 0.55, 4, 10), fur); body.rotation.x = Math.PI / 2; body.position.y = 0.75; g.add(body);
+      const belly = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), light); belly.scale.set(1, 0.7, 1.6); belly.position.set(0, 0.64, 0); g.add(belly);
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 0.45, 8), fur); neck.position.set(0, 1.0, -0.38); neck.rotation.x = 0.6; g.add(neck);
+      const head = new THREE.Group(); head.position.set(0, 1.2, -0.55); g.add(head);
+      const hd = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 8), fur); hd.scale.set(1, 1, 1.4); head.add(hd);
+      const snout = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), light); snout.position.set(0, -0.04, -0.17); head.add(snout);
+      const nose = new THREE.Mesh(new THREE.SphereGeometry(lead ? 0.07 : 0.045, 8, 6), lead ? new THREE.MeshBasicMaterial({ color: 0xff2a2a }) : dark); nose.position.set(0, -0.02, -0.26); head.add(nose);
+      if (lead) { const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex('rgba(255,60,60,.9)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); gl.scale.set(0.6, 0.6, 1); gl.position.copy(nose.position); head.add(gl); }
+      [-1, 1].forEach(sd => {
+        const ear = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.16, 6), fur); ear.position.set(sd * 0.13, 0.08, 0.04); ear.rotation.z = -sd * 1.1; head.add(ear);
+        const an = new THREE.Group(); an.position.set(sd * 0.07, 0.12, 0.02); an.rotation.z = -sd * 0.35; head.add(an);
+        const a1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.3, 5), horn); a1.position.y = 0.15; an.add(a1);
+        const a2 = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.02, 0.14, 5), horn); a2.position.set(-sd * 0.06, 0.2, 0); a2.rotation.z = sd * 0.9; an.add(a2);
+      });
+      const legs = [];
+      [[-0.12, -0.28], [0.12, -0.28], [-0.12, 0.28], [0.12, 0.28]].forEach(([x, z], i) => {
+        const lg = new THREE.Group(); lg.position.set(x, 0.62, z); g.add(lg);
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.55, 6), fur); m.position.y = -0.27; lg.add(m);
+        const hoof = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 4), dark); hoof.position.y = -0.55; lg.add(hoof);
+        legs.push({ lg, ph: i < 2 ? 0 : Math.PI });
+      });
+      const tail = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 5), light); tail.position.set(0, 0.85, 0.52); g.add(tail);
+      // koşum: kırmızı kayış ve altın çan
+      const strap = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.035, 6, 14), toon(0xc8242e)); strap.position.set(0, 0.76, -0.1); g.add(strap);
+      const bell = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), toon(0xf2c230)); bell.position.set(0, 0.5, -0.12); g.add(bell);
+      g.userData.legs = legs; g.userData.head = head;
+      return g;
+    }
+    function buildSleigh() {
+      const g = new THREE.Group();
+      const red = toon(0xd8282a), gold = toon(0xf2c230), wood = toon(0x6a3a1e), dark = toon(0x5a1414);
+      // gövde: yandan kıvrık profil
+      const sh = new THREE.Shape();
+      // ön (−z) yükselip kıvrılır, arka alçak: kamera arkadan oturanları görür
+      sh.moveTo(1.1, 0); sh.lineTo(-1.0, 0); sh.quadraticCurveTo(-1.4, 0, -1.45, 0.45); sh.quadraticCurveTo(-1.5, 1.05, -1.1, 1.12);
+      sh.lineTo(-0.95, 0.5); sh.lineTo(1.1, 0.42); sh.closePath();
+      const body = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 1.1, bevelEnabled: true, bevelSize: 0.04, bevelThickness: 0.04, bevelSegments: 1 }), red);
+      body.rotation.y = -Math.PI / 2; body.position.set(0.55, 0.32, 0); g.add(body);
+      const trim = new THREE.Mesh(new THREE.BoxGeometry(1.16, 0.06, 2.0), gold); trim.position.set(0, 0.76, 0.1); g.add(trim);
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.12, 1.7), dark); seat.position.set(0, 0.66, 0.15); g.add(seat);
+      // kızak ayakları (altın kıvrık)
+      [-0.45, 0.45].forEach(x => {
+        const path = new THREE.CatmullRomCurve3([new THREE.Vector3(x, 0.3, 1.2), new THREE.Vector3(x, 0.05, 1.0), new THREE.Vector3(x, 0.05, -1.0), new THREE.Vector3(x, 0.25, -1.45), new THREE.Vector3(x, 0.55, -1.35)]);
+        g.add(new THREE.Mesh(new THREE.TubeGeometry(path, 24, 0.045, 6), gold));
+        [0.7, -0.6].forEach(z => { const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.3, 6), gold); p2.position.set(x, 0.2, z); g.add(p2); });
+      });
+      // arkada hediye çuvalı
+      const sack = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 10), toon(0xa0643a)); sack.scale.set(1, 1.0, 0.9); sack.position.set(0.35, 0.95, 1.05); g.add(sack);
+      const gift = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.28, 0.28), toon(0x2f9a40)); gift.position.set(-0.32, 0.88, 1.05); gift.rotation.y = 0.5; g.add(gift);
+      // Noel Baba önde
+      let santa = null;
+      if (CZ.kk && CZ.kk.ready()) { santa = CZ.kk.santaClaus(THREE); santa.root.position.set(0, 0.62, -0.55); g.add(santa.root); }
+      // geyikler: 2 sıra x 2
+      const deer = [];
+      [[-0.45, -2.6, true], [0.45, -2.6, true], [-0.45, -4.0, false], [0.45, -4.0, false]].forEach(([x, z, back], i) => {
+        const d = reindeerMesh(!back && i === 2);
+        d.position.set(x, 0, z); g.add(d); deer.push(d);
+      });
+      // dizgin ipleri
+      const reinMat = new THREE.LineBasicMaterial({ color: 0xf2c230 });
+      const reinGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-0.2, 1.1, -0.6), new THREE.Vector3(-0.45, 0.8, -2.5), new THREE.Vector3(-0.45, 0.8, -3.9), new THREE.Vector3(0.45, 0.8, -3.9), new THREE.Vector3(0.45, 0.8, -2.5), new THREE.Vector3(0.2, 1.1, -0.6)]);
+      g.add(new THREE.Line(reinGeo, reinMat));
+      // sihirli iz
+      g.userData = { santa, deer };
+      g.visible = false;
+      scene.add(g);
+      return g;
+    }
+    function startFlight() {
+      if (!sleigh) sleigh = buildSleigh();
+      if (!(s.flyT > 0)) { s.flyY = s.py; sleigh.visible = true; CZ.audio.sfx('star'); }
+      s.flyT = 9.5;
+      s.nextRow = 4;
+      s.invT = Math.max(s.invT, 10);
+      s.slideT = 0; s.jumping = false; s.vy = 0;
+      if (opts.onFly) opts.onFly(true);
+    }
+    function flyStep(dt) {
+      s.flyT -= dt;
+      const up = s.flyT > 1.1;
+      const target = up ? FLY_H : 0;
+      s.flyY += (target - s.flyY) * Math.min(1, dt * (up ? 2.6 : 3.4));
+      const turn = s.pointT > 0 ? s.pointDir : 0;
+      sleigh.position.set(s.px, s.flyY - 0.66 + Math.sin(s.frame * 3) * 0.08, 0.15);
+      sleigh.rotation.z += (-turn * 0.12 - sleigh.rotation.z) * Math.min(1, dt * 6);
+      sleigh.rotation.x = up ? Math.max(-0.12, (FLY_H - s.flyY) * -0.04) : 0.12;
+      const U = sleigh.userData;
+      if (U.santa) U.santa.update(dt, { turn });
+      U.deer.forEach((d, i) => {
+        d.position.y = Math.sin(s.frame * 9 + i) * 0.08;
+        d.userData.legs.forEach(L => { L.lg.rotation.x = Math.sin(s.frame * 14 + L.ph + i) * 0.7; });
+        d.userData.head.rotation.x = Math.sin(s.frame * 9 + i) * 0.1;
+      });
+      // geyiklerin ayağından sihirli parıltı
+      if (Math.random() < 0.7) sparks(new THREE.Vector3(s.px + rand(-0.6, 0.6), s.flyY - 0.5, -3 + rand(-1, 1)), 1, pick(['#fff2a8', '#bfe4ff', '#ffffff']), 0.22);
+      s.py = s.flyY; s.vy = 0; s.jumping = false;
+      if (s.flyT <= 0) {
+        sleigh.visible = false; s.flyT = 0;
+        s.py = s.flyY; s.jumping = s.py > 0.05; s.vy = 0;
+        s.invT = Math.max(s.invT, 1.6);
+        // iniş yeri temiz olsun
+        for (let i = s.objs.length - 1; i >= 0; i--) { const o = s.objs[i]; if (o.mesh.position.z > -30) { scene.remove(o.mesh); s.objs.splice(i, 1); } }
+        if (s.busy) s.busy = s.busy.map(() => 0);
+        s.nextRow = 12;
+        if (opts.onFly) opts.onFly(false);
+      }
+    }
+    // Havada altın yolu: şeritler arasında kıvrılan Zibo damgalı altınlar
+    function airRow() {
+      let l = s.airLane == null ? 1 : s.airLane;
+      for (let i = 0; i < 10; i++) {
+        coin(l, SPAWN_Z - i * 1.6, FLY_H + 0.75);
+        if (i % 4 === 3) l = Math.max(0, Math.min(LANES - 1, l + pick([-1, 1])));
+      }
+      s.airLane = l;
+      if (Math.random() < 0.3) gem(pick([0, 1, 2].slice(0, LANES)), SPAWN_Z - 8, FLY_H + 0.9);
     }
 
     // KIZAK ATAĞI: altın topladıkça dolar; dolunca düğmeye bas → kızakla öne fırla (dokunulmaz, altınları çeker).
@@ -1504,6 +1742,22 @@ CZ.runner3d = (function () {
           .filter(x => x.z > -1.6 - x.o.len / 2 - 1.5 && x.z < 1.2 + x.o.len / 2 + 1.5).map(x => x.o.type);
       },
       airborne() { return s.py - (s.floor || 0) > 0.3 || s.invT > 0; },
+      // Zibo yakalandı: ağır çekim, çuvaldan altın fıskiyesi, kamera vuruşu
+      catchBurst() {
+        s.slowT = 0.55;
+        ziboHit();
+        s.shake = 0.3;
+        const z0 = zibo.position.z + 2;
+        for (let i = 0; i < 18; i++) {
+          const l = i % LANES;
+          coin(l, z0 + 1.2 + Math.floor(i / LANES) * 1.4, 0.55 + Math.sin(i * 0.9) * 0.5 + 0.5);
+        }
+        sparks(zibo.position.clone().setY(1.4), 16, '#ffe27a');
+        sparks(zibo.position.clone().setY(1.4), 10, '#ffffff');
+        camera.fov += 8; camera.updateProjectionMatrix();
+      },
+      devTrain(lane, on) { train(lane, !on, !!on); },
+      devPower(k) { collect({ kind: k, mesh: { position: new THREE.Vector3(s.px, 1, 0) } }); },
       caught() { s.catching = 0.0001; s.ziboForce = 'dizzy'; s.running = false; s.objs.forEach(o => scene.remove(o.mesh)); s.objs = []; },
       setDead(v) { s.dead = v; },
       // Reklam/elmasla devam: önündeki engeller temizlenir, kısa süre dokunulmazsın.

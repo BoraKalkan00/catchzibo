@@ -870,5 +870,12 @@ CZ.i18n.register('ja', '日本語', {
   "adv.short": "カレンダー",
   "common.close": "とじる",
   "boss.zibo": "ジボ",
-  "share.label": "スコア"
+  "share.label": "スコア",
+  "run.power.boots": "スーパージャンプ！",
+  "run.power.sleigh": "サンタのそり！",
+  "run.landed": "着地！",
+  "endless.reviveGems": "エメラルド{n}個で続ける",
+  "zibo.chase.sleigh": "えっ、空飛ぶそり？！ずるい！",
+  "run.power.magnetS": "マグネット",
+  "tap.run": "タップして走る"
 });

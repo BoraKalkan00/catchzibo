@@ -870,5 +870,12 @@ CZ.i18n.register('pt', 'Português', {
   "adv.short": "Calendário",
   "common.close": "Fechar",
   "boss.zibo": "Zibo",
-  "share.label": "PONTOS"
+  "share.label": "PONTOS",
+  "run.power.boots": "Super pulo!",
+  "run.power.sleigh": "Trenó do Papai Noel!",
+  "run.landed": "Pouso!",
+  "endless.reviveGems": "Continuar por {n} esmeraldas",
+  "zibo.chase.sleigh": "O quê? Um trenó voador?! Não vale!",
+  "run.power.magnetS": "Ímã",
+  "tap.run": "TOQUE PARA CORRER"
 });

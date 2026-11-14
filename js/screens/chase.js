@@ -39,14 +39,17 @@ CZ.screens.chase = (function () {
     c.readyP = CZ.runner3d.load().then(() => {
       if (!c || c.el !== el) return;
       c.run = CZ.runner3d.start(c.stage, {
-        mode: 'chase', lanes: 3, speed: 17, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
+        mode: 'chase', lanes: 3, speed: 17, endless: E, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
         ziboTint: c.boss.tint, ziboFly: c.boss.fly, ziboCrown: c.boss.crown,
         pet: CZ.activePet(), perk: {}, goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
         onAct(k) { if (c && c.act && c.running) c.act[k] = (c.act[k] || 0) + 1; },
         onDash(lvl) { if (!c || !c.running) return; if (c.act) c.act.sled += 1; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
         onTap: () => hook(),
         onGold(n) { c.gold += n; if (c.gold >= (c.goldSay || 25)) { c.goldSay = c.gold + 40; if (!speaking()) say('zibo.chase.gold'); } c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
-        onEmerald() {}, onPower() {}, onCrate() {},
+        onEmerald() {}, onCrate() {},
+        onPower(kind) { floatText(t('run.power.' + kind), 'power'); if (kind === 'sleigh') say('zibo.chase.sleigh'); },
+        onFly(on) { if (on) { CZ.audio.setTempo(1.45); } else { CZ.audio.setTempo(1.3); floatText(t('run.landed'), 'gold'); } },
+        onTick(st) { if (c && c.powerHud) drawPowers(st); },
         onDodge() { floatText(t('chase.nice'), 'gold'); },
         onSwipe(combo, near, gold) { swipeText(combo, near, gold); if (near && Math.random() < 0.35 && !speaking()) say('zibo.chase.nearMiss'); },
         onCrash() { hurt(); }, onEnd() {}
@@ -55,6 +58,7 @@ CZ.screens.chase = (function () {
       return c.run.ready;
     });
 
+    if (E) { c.powerHud = h('div', { class: 'power-hud' }); c.powerChips = {}; }
     function drawTarget() {
       if (!c.targetEl) return;
       const tg = c.targets && c.targets[0];
@@ -65,7 +69,7 @@ CZ.screens.chase = (function () {
     c.gapText = h('strong', { text: '' });
     c.goldText = h('b', { text: '0' });
     c.gapBar = h('i', {});
-    c.hearts = h('div', { class: 'chase-hearts' });
+    c.hearts = h('div', { class: 'chase-hearts' + (E ? ' hide' : '') });
     c.clock = h('div', { class: 'clock' + (E ? ' score-clock' : ''), text: E ? '0' : C.seconds });
     c.hookBtn = h('button', { class: 'hook-btn', type: 'button', onPointerDown: e => { e.stopPropagation(); hook(); } },
       img(W.art, 'hook-ico'), h('span', { text: t('chase.throw') }), h('i', { class: 'hook-cool' }));
@@ -78,6 +82,7 @@ CZ.screens.chase = (function () {
       c.field);
     c.field.append(h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), c.goldText), c.hookBtn);
     if (E && c.mult > 1) c.field.append(h('div', { class: 'mult-chip' }, 'x' + c.mult));
+    if (E) c.field.append(c.powerHud);
     if (E) {
       c.gap = Math.max(8, C.startGap - CZ.runPerk('head'));
       c.targets = CZ.challenge ? CZ.challenge.targets().filter(x => x.score > 0) : [];
@@ -142,10 +147,10 @@ CZ.screens.chase = (function () {
     try { return CZ.missions.mult(); } catch (e) { return 1; }
   }
   function endlessStep(dt) {
-    c.score += dt * 10 * (c.run ? c.run.state.speedMul || 1 : 1) * c.mult * (1 + CZ.runPerk('score'));
+    const rs = c.run ? c.run.state : {};
+    c.score += dt * 10 * ((rs.speed || 18) / 18) * (rs.doubleT > 0 ? 2 : 1) * c.mult * (1 + CZ.runPerk('score'));
     c.alive = (c.alive || 0) + dt;
     // her 15 sn biraz hızlan (en çok 1.7 kat)
-    if (c.run) c.run.state.speedMul = Math.min(1.7, 1 + Math.floor(c.sim / 15000) * 0.07);
     const sc = Math.floor(c.score);
     if (sc !== c.shown) { c.shown = sc; c.clock.textContent = sc; }
     if (!c.recordSaid && CZ.state.data.bestRun && sc > CZ.state.data.bestRun) { c.recordSaid = true; floatText(t('endless.record'), 'gold'); CZ.audio.sfx('star'); }
@@ -167,6 +172,7 @@ CZ.screens.chase = (function () {
     c.goldText.textContent = c.gold;
     c.gap = Math.max(8, C.startGap - CZ.runPerk('head'));
     c.ziboStun = 0;
+    if (c.run && c.run.catchBurst) c.run.catchBurst();
     CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]);
     floatText(t('endless.caught', { n: bonus }) + (gems ? '  +' + gems + ' 💎' : ''), 'gold');
     say('zibo.chase.again');
@@ -176,7 +182,7 @@ CZ.screens.chase = (function () {
     if (!c.endless) c.timeLeft -= dt; else endlessStep(dt);
     c.frame += dt;
     // Oyuncu hep yaklaşır; sersemlikte durur. Kancadan sonra Zibo bir an kaçar.
-    let close = c.stun > 0 ? 0 : c.endless ? C.closeRate * 0.35 : byLevel([C.closeRate, C.closeRate * 0.55]);
+    let close = c.stun > 0 ? 0 : c.endless ? C.closeRate * (c.run && c.run.state.flyT > 0 ? 2.4 : 0.35) : byLevel([C.closeRate, C.closeRate * 0.55]);
     if (c.burst > 0) { close -= C.hookBurst; c.burst -= dt; }
     c.stun = Math.max(0, c.stun - dt);
     c.gap = Math.max(0, Math.min(C.startGap * 1.4, c.gap - close * dt));
@@ -297,6 +303,8 @@ CZ.screens.chase = (function () {
   // Bomba ya da engel: bir can gider, Zibo biraz açılır.
   function hurt() {
     if (!c || !c.running || c.stun > 0) return;
+    // Sonsuz koşu: Subway Surfers gibi tek çarpma oyunu bitirir (kurtarma reklamı / elmas)
+    if (c.endless) { c.lives = 0; CZ.audio.vibrate([80, 40, 120]); return escaped('lives'); }
     c.lives -= 1;
     c.gap = Math.min(C.startGap * 1.4, c.gap + C.bombHit);
     c.stun = 0.6;
@@ -350,6 +358,22 @@ CZ.screens.chase = (function () {
     setTimeout(() => el.remove(), 900);
   }
 
+  // Aktif güçler: simge + kalan süre çubuğu
+  const POWER_MAX = { magnetT: 8, doubleT: 10, superT: 10, flyT: 9.5 };
+  const POWER_KEY = { magnetT: 'magnet', doubleT: 'double', superT: 'boots', flyT: 'sleigh' };
+  function drawPowers(st) {
+    Object.keys(POWER_MAX).forEach(k => {
+      const left = st[k] || 0;
+      let chip = c.powerChips[k];
+      if (left > 0.05) {
+        if (!chip) {
+          chip = c.powerChips[k] = h('div', { class: 'pw-chip pw-' + POWER_KEY[k] }, h('b', { text: t('run.power.' + POWER_KEY[k]).replace(/!$/, '') }), h('i', {}, h('u', {})));
+          c.powerHud.append(chip);
+        }
+        chip.querySelector('u').style.width = Math.min(100, left / POWER_MAX[k] * 100) + '%';
+      } else if (chip) { chip.remove(); delete c.powerChips[k]; }
+    });
+  }
   function drawHearts() {
     c.hearts.replaceChildren(...Array.from({ length: C.lives }, (_, i) => h('i', { class: 'heart' + (i < c.lives ? '' : ' empty') }, CZ.icon('heart'))));
   }
@@ -437,16 +461,27 @@ CZ.screens.chase = (function () {
     CZ.audio.vibrate([120, 60, 200]);
     if (c.run) c.run.ziboPose('tongue');
     say('zibo.chase.escaped');
-    if (c.revived < 1) return savePrompt();
+    return savePrompt();
     endlessScore();
   }
+  // Kurtar beni: reklamla (koşu başına 1 kez) ya da elmasla (10, 20, 40...). 5 sn içinde seçilmezse skor.
   function savePrompt() {
-    let left = 4, done = false;
+    let left = 5, done = false;
+    const d = CZ.state.data;
+    const gemCost = 10 * Math.pow(2, c.gemRevives || 0);
     const ring = h('b', { class: 'save-count', text: left });
-    const go = () => { if (done) return; done = true; clearInterval(tm); box.remove(); endlessScore(); };
+    const close = () => { done = true; clearInterval(tm); box.remove(); };
+    const go = () => { if (done) return; close(); endlessScore(); };
+    const back = () => { c.lives = 1; c.continues -= 1; if (c.run) c.run.revive(); resume(); CZ.audio.sfx('buy'); };
     const box = h('div', { class: 'save-me' },
       h('h2', { text: t('endless.saveMe') }), ring,
-      btn(t('endless.revive'), () => { if (done) return; done = true; clearInterval(tm); box.remove(); adThen(() => { c.revived += 1; c.lives = 1; drawHearts(); c.continues -= 1; resume(); }); }, 'primary wide', 'ic:play'),
+      h('p', { class: 'save-score', text: Math.floor(c.score).toLocaleString() }),
+      c.revived < 1 ? btn(t('endless.revive'), () => { if (done) return; close(); adThen(() => { c.revived += 1; back(); }); }, 'primary wide', 'ic:play') : null,
+      btn(t('endless.reviveGems', { n: gemCost }), () => {
+        if (done) return;
+        if ((d.emeralds || 0) < gemCost) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.gemShort', { n: gemCost - (d.emeralds || 0) })); }
+        close(); d.emeralds -= gemCost; c.gemRevives = (c.gemRevives || 0) + 1; CZ.state.save(); back();
+      }, 'ghost-dark wide', 'ui.emerald'),
       btn(t('endless.skip'), go, 'small ghost-dark'));
     const tm = setInterval(() => { left -= 1; ring.textContent = left; if (left <= 0) go(); }, 1000);
     c.timers.push(tm);
