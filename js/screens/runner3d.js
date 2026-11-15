@@ -752,8 +752,9 @@ CZ.runner3d = (function () {
       hazK: new THREE.MeshLambertMaterial({ color: 0x24242a }),
       head: new THREE.MeshBasicMaterial({ color: 0xfff6c8 })
     };
-    const roofGeoT = new THREE.CylinderGeometry(0.64, 0.64, 1, 14, 1, false, -Math.PI / 2, Math.PI);
-    roofGeoT.rotateX(Math.PI / 2); roofGeoT.rotateZ(Math.PI / 2);
+    // çatı: tren boyunca yatık, basık kubbe (alt yarısı gövdenin içinde kalır)
+    const roofGeoT = new THREE.CylinderGeometry(0.64, 0.64, 1, 16);
+    roofGeoT.rotateX(Math.PI / 2);
     const wheelGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.08, 12); wheelGeo.rotateZ(Math.PI / 2);
     const headGlow = new THREE.SpriteMaterial({ map: glowTex('rgba(255,245,200,1)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
     function car(g, zc, wl, mat, front) {
@@ -776,8 +777,8 @@ CZ.runner3d = (function () {
       // kapı
       [-1, 1].forEach(sd => g.add(mesh(GEO.box, TM.dark, 0.02, H * 0.7, 0.55, sd * 0.645, yb + H * 0.38, zc)));
       // kubbeli çatı + kar
-      const roof = new THREE.Mesh(roofGeoT, mat); roof.scale.set(1, wl - 0.05, 0.42); roof.position.set(0, yb + H, zc); g.add(roof);
-      g.add(mesh(GEO.box, TM.snow, 0.9, 0.08, wl - 0.3, 0, TRAIN_TOP - 0.02, zc));
+      const roof = new THREE.Mesh(roofGeoT, mat); roof.scale.set(1, 0.3, wl - 0.05); roof.position.set(0, yb + H, zc); g.add(roof);
+      g.add(mesh(GEO.box, TM.snow, 0.8, 0.06, wl - 0.3, 0, yb + H + 0.17, zc));
       // boji ve tekerlekler
       [-1, 1].forEach(e => {
         const bz = zc + e * (wl / 2 - 0.7);
@@ -1357,7 +1358,8 @@ CZ.runner3d = (function () {
         if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
         if (o.type === 'train' || o.type === 'wall') {
           const back = z + o.len / 2;          // nesnenin kameraya yakın ucu
-          const fade = Math.max(0, Math.min(1, (back - 1.2) / 2.2));
+          const mine = Math.abs(s.px - laneX(o.lane)) < 0.7 && s.py > 0.6;
+          const fade = mine ? 0 : Math.max(0, Math.min(1, (back - 1.2) / 2.2));
           if (fade > 0 && !o.fadeMats) {
             o.fadeMats = [];
             o.mesh.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.transparent = true; o.fadeMats.push(m.material); } });
@@ -1376,7 +1378,9 @@ CZ.runner3d = (function () {
           // Tren: şeridindeysen ya üstündesin (zemin) ya da yan/ön yüzüne çarparsın.
           if (Math.abs(s.px - laneX(o.lane)) > 0.62) continue;
           const f = floorOf(o);
-          if (s.py >= f - 0.45) { nextFloor = Math.max(nextFloor, f); continue; }
+          // rampadaysan her zaman yukarı çıkarsın (hızlıyken bir karede 0,5+ yükselir; eskiden çarpma sayılıyordu)
+          const lzr = -o.mesh.position.z, onRamp = o.ramp && lzr > o.len / 2 - o.rampLen - 0.2 && lzr <= o.len / 2 + 0.2;
+          if (onRamp || s.py >= f - 0.45) { nextFloor = Math.max(nextFloor, f); o.ridden = true; continue; }
           if (s.invT <= 0) { o.passed = true; crash(o); }
           continue;
         }
@@ -1402,7 +1406,7 @@ CZ.runner3d = (function () {
           p.y += (s.py + 0.8 - p.y) * Math.min(1, dt * 10);
           p.z += (0 - p.z) * Math.min(1, dt * 6);
         }
-        if (p.z > (p.y > 1.6 ? 1.2 : KILL_Z)) { scene.remove(c.mesh); s.coins.splice(i, 1); continue; }
+        if (p.z > (p.y > 1.6 ? 1.2 : KILL_Z) || (p.y > 1.6 && p.z > -2.5 && Math.abs(p.x - s.px) > 0.9)) { scene.remove(c.mesh); s.coins.splice(i, 1); continue; }
         if (Math.abs(p.z) < 0.7 && Math.abs(p.x - s.px) < 0.65 && p.y > s.py - 0.3 && p.y < s.py + (sliding ? 1.0 : 1.9)) {
           scene.remove(c.mesh); s.coins.splice(i, 1);
           collect(c);
