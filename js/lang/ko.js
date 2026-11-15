@@ -877,5 +877,12 @@ CZ.i18n.register('ko', '한국어', {
   "endless.reviveGems": "에메랄드 {n}개로 계속",
   "zibo.chase.sleigh": "뭐? 날아다니는 썰매?! 반칙이야!",
   "run.power.magnetS": "자석",
-  "tap.run": "탭해서 달리기"
+  "tap.run": "탭해서 달리기",
+  "hub.more": "다른 모드",
+  "tut.swipe": "좌우로 밀기: 줄 바꾸기",
+  "tut.jump": "위로 밀기: 점프",
+  "tut.roll": "아래로 밀기: 구르기",
+  "tut.ramp": "경사로로 기차 위에 올라가요",
+  "tut.power": "아이템 줍기: 자석, x2, 슈퍼 점프, 산타 썰매",
+  "tut.throw": "던지기 버튼으로 지보를 맞혀 잡아요!"
 });

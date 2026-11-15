@@ -877,5 +877,12 @@ CZ.i18n.register('ja', '日本語', {
   "endless.reviveGems": "エメラルド{n}個で続ける",
   "zibo.chase.sleigh": "えっ、空飛ぶそり？！ずるい！",
   "run.power.magnetS": "マグネット",
-  "tap.run": "タップして走る"
+  "tap.run": "タップして走る",
+  "hub.more": "ほかのモード",
+  "tut.swipe": "左右にスワイプ：レーン変更",
+  "tut.jump": "上にスワイプ：ジャンプ",
+  "tut.roll": "下にスワイプ：でんぐり返し",
+  "tut.ramp": "スロープから電車にのぼろう",
+  "tut.power": "アイテムをとろう：マグネット、x2、スーパージャンプ、サンタのそり",
+  "tut.throw": "なげるボタンでジボに当ててつかまえよう！"
 });

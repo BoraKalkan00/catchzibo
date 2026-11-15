@@ -877,5 +877,12 @@ CZ.i18n.register('es', 'Español', {
   "endless.reviveGems": "Seguir por {n} esmeraldas",
   "zibo.chase.sleigh": "¿Qué? ¿Un trineo volador? ¡No es justo!",
   "run.power.magnetS": "Imán",
-  "tap.run": "TOCA PARA CORRER"
+  "tap.run": "TOCA PARA CORRER",
+  "hub.more": "Más modos",
+  "tut.swipe": "Desliza a los lados: cambia de carril",
+  "tut.jump": "Desliza arriba: salta",
+  "tut.roll": "Desliza abajo: rueda",
+  "tut.ramp": "Sube a los trenes por las rampas",
+  "tut.power": "Coge poderes: imán, x2, súper salto, trineo de Papá Noel",
+  "tut.throw": "¡Golpea a Zibo con Lanzar y atrápalo!"
 });

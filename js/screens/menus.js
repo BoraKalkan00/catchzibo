@@ -231,15 +231,29 @@
         h('div', { class: 'season-chip' }, CZ.icon('snowflake'), h('b', { text: t('season.' + CZ.SEASON.id) }), h('small', { text: t('season.left', { n: CZ.seasonDaysLeft() }) })),
         zibo.el,
         h('div', { class: 'hub-rail left' },
-          heistBtn,
+          runOpen ? null : heistBtn,
           rb('quests', CZ.icon('list'), t('quest.short'), () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), { dot: CZ.quests.ready(), badge: h('span', {}, q.list.filter(x => x.claimed).length + '/3') }),
           runOpen ? rb(null, CZ.icon('trophy'), t('league.short'), () => CZ.league.open(document.getElementById('app')), { badge: h('span', {}, '#' + CZ.league.rankOf()) }) : null,
           runOpen ? rb(null, CZ.icon('gift'), t('adv.short'), () => CZ.advent.open(document.getElementById('app'), () => CZ.ui.refresh()), { hot: CZ.advent.ready(), dot: CZ.advent.ready(), badge: CZ.advent.day() ? null : h('span', {}, String(CZ.advent.daysUntil())) }) : null,
           adBtn),
-        h('div', { class: 'hub-rail right' },
+        // Ana oyun KOŞ: yan modlar (Altın Avı, soygun, kitap, günlük) "Diğer modlar" altında toplanır.
+        runOpen ? h('div', { class: 'hub-rail right' },
+          rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
+          rb(null, CZ.icon('list'), t('hub.more'), () => {
+            const wrap = h('div', { class: 'modal-wrap' });
+            const pickBtn = b => { b.addEventListener('click', () => wrap.remove(), true); return b; };
+            wrap.append(h('div', { class: 'modal more-modal' },
+              h('b', { class: 'lg-title', text: t('hub.more') }),
+              h('div', { class: 'more-grid' },
+                pickBtn(heistBtn),
+                pickBtn(rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('gold'), { hot: goldFree, dot: goldFree })),
+                pickBtn(rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book'))),
+                pickBtn(rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() }))),
+              btn(t('common.close'), () => wrap.remove(), 'small ghost')));
+            el.append(wrap);
+          }, { dot: !!dNext || goldFree || game.diaryUnread() })) : h('div', { class: 'hub-rail right' },
           rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('gold'), { hot: goldFree, dot: goldFree }),
           rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
-          // Yardımcılar (evcil hayvanlar) sadeleştirme için şimdilik gizli; ekran duruyor.
           rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book')),
           rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() })),
         h('div', { class: 'hub-cta' },

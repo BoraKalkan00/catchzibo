@@ -1058,5 +1058,12 @@ CZ.i18n.register('en', 'English', {
   "endless.reviveGems": "Continue for {n} emeralds",
   "zibo.chase.sleigh": "What? A flying sleigh?! Not fair!",
   "run.power.magnetS": "Magnet",
-  "tap.run": "TAP TO RUN"
+  "tap.run": "TAP TO RUN",
+  "hub.more": "More modes",
+  "tut.swipe": "Swipe left/right: change lane",
+  "tut.jump": "Swipe up: jump",
+  "tut.roll": "Swipe down: roll under things",
+  "tut.ramp": "Run up the ramps onto trains",
+  "tut.power": "Grab power-ups: magnet, x2, super jump, Santa's sleigh",
+  "tut.throw": "Hit Zibo with the Throw button and catch him!"
 });

@@ -1636,3 +1636,11 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .save-me .save-score { margin: 0; color: #fff; font-family: var(--game); font-size: 30px; text-shadow: 0 3px 0 var(--outline); }
 .title-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; left: 0; right: 0; }
 .title-actions .btn.big { max-width: calc(100vw - 40px); white-space: nowrap; }
+.more-modal { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.more-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; justify-items: center; }
+.more-grid .rbtn { position: relative; }
+.tut-tip { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); z-index: 8; display: flex; align-items: center; gap: 10px; max-width: 86%; padding: 10px 16px; border-radius: 18px; background: rgba(10,16,48,.82); color: #fff; font-weight: 900; font-size: 17px; border: 3px solid #fff; box-shadow: 0 6px 0 rgba(0,0,0,.3); animation: rise .35s ease-out both; transition: opacity .45s; }
+.tut-tip.out { opacity: 0; }
+.tut-ic { font-size: 30px; color: #ffe27a; animation: btnpulse .8s ease-in-out infinite; }
+.chase-gap.endless-best { justify-content: center; display: flex; align-items: center; }
+.chase-gap.endless-best small { font-size: 15px; font-weight: 900; }

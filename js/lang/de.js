@@ -877,5 +877,12 @@ CZ.i18n.register('de', 'Deutsch', {
   "endless.reviveGems": "Für {n} Smaragde weiter",
   "zibo.chase.sleigh": "Was? Ein fliegender Schlitten?! Unfair!",
   "run.power.magnetS": "Magnet",
-  "tap.run": "TIPPEN ZUM LAUFEN"
+  "tap.run": "TIPPEN ZUM LAUFEN",
+  "hub.more": "Weitere Modi",
+  "tut.swipe": "Links/rechts wischen: Spur wechseln",
+  "tut.jump": "Nach oben wischen: springen",
+  "tut.roll": "Nach unten wischen: rollen",
+  "tut.ramp": "Über die Rampen auf die Züge laufen",
+  "tut.power": "Extras sammeln: Magnet, x2, Supersprung, Weihnachtsschlitten",
+  "tut.throw": "Triff Zibo mit „Werfen“ und fang ihn!"
 });

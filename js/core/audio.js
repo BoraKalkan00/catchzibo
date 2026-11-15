@@ -210,8 +210,45 @@ CZ.audio = (function () {
     }
   };
 
+  // Gerçek kayıt sesler (Kenney, CC0). Yüklenene kadar ya da çözülemezse eski üretilmiş ses çalar.
+  const SAMPLES = {
+    coin: ['sfx_coin', 0.45], jump: ['sfx_jump', 0.6], jumpHigh: ['sfx_jump-high', 0.65], hit: ['impactPunch_heavy_000', 0.9], hurt: ['sfx_hurt', 0.7],
+    throw: ['sfx_throw', 0.6], gem: ['sfx_gem', 0.6], power: ['sfx_magic', 0.7], star: ['powerUp3', 0.5], land: ['footstep_snow_000', 0.7],
+    step: [['footstep_snow_000', 'footstep_snow_001', 'footstep_snow_002', 'footstep_snow_003'], 0.22], slide: ['impactSoft_medium_000', 0.6],
+    button: ['click_002', 0.6], wrong: ['error_004', 0.5], buy: ['chips-stack-1', 0.7], crack: ['impactWood_heavy_001', 0.8], bump: ['sfx_bump', 0.6], confirm: ['confirmation_002', 0.5]
+  };
+  const buffers = {};
+  let samplesAsked = false;
+  function loadSamples() {
+    if (samplesAsked || !ctx) return;
+    samplesAsked = true;
+    const names = new Set();
+    Object.values(SAMPLES).forEach(([f]) => [].concat(f).forEach(n => names.add(n)));
+    names.forEach(n => fetch('assets/sfx/' + n + '.ogg').then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b => { buffers[n] = b; }).catch(() => {}));
+  }
+  function playSample(name) {
+    const S = SAMPLES[name];
+    if (!S) return false;
+    const list = [].concat(S[0]);
+    const buf = buffers[list[Math.floor(Math.random() * list.length)]];
+    if (!buf) return false;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = 0.95 + Math.random() * 0.1;
+    const g = ctx.createGain(); g.gain.value = S[1];
+    src.connect(g); g.connect(master);
+    src.start();
+    return true;
+  }
   function sfx(name, step) {
-    if (enabled() && SFX[name]) SFX[name](ctx.currentTime + 0.005, step);
+    if (!enabled()) return;
+    loadSamples();
+    if (playSample(name)) {
+      // patlama ve çarpmada üretilmiş katman da kalsın (daha dolgun)
+      if (name === 'crack' && SFX.crack) SFX.crack(ctx.currentTime + 0.005, step);
+      return;
+    }
+    if (SFX[name]) SFX[name](ctx.currentTime + 0.005, step);
   }
 
   // Uzun basarken yükselen ses. Geri dönen fonksiyon sesi keser (kısa dokunuş ya da iptal).

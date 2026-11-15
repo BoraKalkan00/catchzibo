@@ -877,5 +877,12 @@ CZ.i18n.register('fr', 'Français', {
   "endless.reviveGems": "Continuer pour {n} émeraudes",
   "zibo.chase.sleigh": "Quoi ? Un traîneau volant ?! Pas juste !",
   "run.power.magnetS": "Aimant",
-  "tap.run": "TOUCHE POUR COURIR"
+  "tap.run": "TOUCHE POUR COURIR",
+  "hub.more": "Autres modes",
+  "tut.swipe": "Glisse à gauche/droite : change de voie",
+  "tut.jump": "Glisse vers le haut : saute",
+  "tut.roll": "Glisse vers le bas : roulade",
+  "tut.ramp": "Monte sur les trains par les rampes",
+  "tut.power": "Ramasse les bonus : aimant, x2, super saut, traîneau",
+  "tut.throw": "Touche Zibo avec Lancer et attrape-le !"
 });

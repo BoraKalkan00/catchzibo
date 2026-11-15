@@ -877,5 +877,12 @@ CZ.i18n.register('pt', 'Português', {
   "endless.reviveGems": "Continuar por {n} esmeraldas",
   "zibo.chase.sleigh": "O quê? Um trenó voador?! Não vale!",
   "run.power.magnetS": "Ímã",
-  "tap.run": "TOQUE PARA CORRER"
+  "tap.run": "TOQUE PARA CORRER",
+  "hub.more": "Mais modos",
+  "tut.swipe": "Deslize para os lados: troca de faixa",
+  "tut.jump": "Deslize para cima: pula",
+  "tut.roll": "Deslize para baixo: rola",
+  "tut.ramp": "Suba nos trens pelas rampas",
+  "tut.power": "Pegue poderes: ímã, x2, super pulo, trenó do Papai Noel",
+  "tut.throw": "Acerte o Zibo com Lançar e pegue-o!"
 });

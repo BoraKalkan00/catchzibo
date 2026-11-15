@@ -197,7 +197,8 @@ CZ.runner3d = (function () {
     camera.lookAt(0, 0.9, -9);
     const camBase = camera.position.clone();
 
-    scene.add(new THREE.HemisphereLight(0xb9c8ff, 0x3a3050, 0.95));
+    const hemi = new THREE.HemisphereLight(0xb9c8ff, 0x3a3050, 0.95);
+    scene.add(hemi);
     const sun = new THREE.DirectionalLight(0xffe2b8, 0.75);
     sun.position.set(3, 8, 4);
     scene.add(sun);
@@ -712,6 +713,31 @@ CZ.runner3d = (function () {
       if (o.mesh.isGroup) { if (o.mesh.userData.wobble) o.mesh.children.forEach(u => u.isGroup && bake(u)); else bake(o.mesh); }
       o.mesh.position.z = SPAWN_Z; scene.add(o.mesh); s.objs.push(o); return o;
     }
+    // TÜNEL (sürpriz an): yolun üstünü kaplayan taş kemerli tünel, içinde renkli Noel ışıkları.
+    // Engel değildir; içinde de engeller gelir. Girince ışık kararır, çıkınca açılır.
+    const TUN = { stone: new THREE.MeshLambertMaterial({ color: 0x6a6f80 }), dark: new THREE.MeshLambertMaterial({ color: 0x2a2d3a }), trim: new THREE.MeshLambertMaterial({ color: 0xe8b830 }), snow: new THREE.MeshLambertMaterial({ color: 0xf4f8ff }) };
+    const bulbMats = [0xff4a4a, 0x4aff7a, 0xffd84a, 0x4ab0ff].map(c => new THREE.MeshBasicMaterial({ color: c }));
+    function tunnel() {
+      const g = new THREE.Group();
+      const W = LANES * LANE_W + 1.2, H = 7.2, L = 18;
+      g.add(mesh(GEO.box, TUN.dark, W + 1.4, 0.6, L, 0, H, 0));                 // tavan
+      [-1, 1].forEach(sd => g.add(mesh(GEO.box, TUN.stone, 0.7, H, L, sd * (W / 2 + 0.35), H / 2, 0)));   // yan duvarlar
+      // giriş kemeri (ön yüz) ve üstünde kar
+      const fz = L / 2;
+      g.add(mesh(GEO.box, TUN.stone, W + 3, 1.6, 0.8, 0, H + 0.5, -fz));
+      g.add(mesh(GEO.box, TUN.trim, W + 3.1, 0.25, 0.85, 0, H - 0.3, -fz));
+      g.add(mesh(GEO.box, TUN.snow, W + 3.2, 0.35, 0.95, 0, H + 1.4, -fz));
+      [-1, 1].forEach(sd => g.add(mesh(GEO.box, TUN.stone, 1.2, H + 1, 0.9, sd * (W / 2 + 0.9), (H + 1) / 2, -fz)));
+      // tavanda ışık dizileri
+      const bulbGeo = new THREE.SphereGeometry(0.11, 6, 4);
+      for (let z = -fz + 1; z < fz; z += 1.2) [-1.4, 0, 1.4].forEach((x, k) => {
+        const b = new THREE.Mesh(bulbGeo, bulbMats[(Math.round(z) + k) & 3]); b.position.set(x * LANE_W / 1.6, H - 0.35, z); g.add(b);
+      });
+      const o = addObj({ type: 'deco', lane: -9, len: L, mesh: g });
+      o.mesh.position.z = SPAWN_Z - 2;
+      return o;
+    }
+
     function hurdle(lane) {          // alçak: hediye kutusu sırası → ZIPLA
       const g = new THREE.Group();
       g.add(mesh(GEO.box, pick(M.gifts), 0.62, 0.62, 0.62, -0.32, 0.31, 0));
@@ -1040,7 +1066,7 @@ CZ.runner3d = (function () {
       if (opts.onAct) opts.onAct('jump');
       s.squashV = -0.22;   // kalkışta uzama
       sparks(new THREE.Vector3(s.px, (s.floor || 0) + 0.1, 0.2), 5, '#eaf6ff', 0.22);
-      CZ.audio.sfx('jump');
+      CZ.audio.sfx(s.superT > 0 ? 'jumpHigh' : 'jump');
     }
     function slide() {
       if (!s.running || s.flyT > 0) return;
@@ -1139,6 +1165,9 @@ CZ.runner3d = (function () {
           ratioIdx++; perf.slow = 0;
           renderer.setPixelRatio(RATIOS[ratioIdx]); perf.ratio = RATIOS[ratioIdx];
           resize();
+        } else if (perf.slow >= 2 && !s.lowFx) {
+          // zayıf telefon: çözünürlük en altta ve hâlâ yavaş → efektleri azalt
+          s.lowFx = true; perf.slow = 0;
         }
         if (fpsEl) fpsEl.textContent = perf.fps + ' fps · ' + perf.js + ' ms · ' + perf.calls + ' dc · x' + perf.ratio;
         perf.acc = 0; perf.n = 0; perf.jsAcc = 0;
@@ -1270,7 +1299,10 @@ CZ.runner3d = (function () {
       if (s.nextRow <= 0 && !s.catching && s.flyT > 1.5) {
         airRow();
         s.nextRow = 14;
-      } else if (s.nextRow <= 0 && !s.catching && !(s.flyT > 0)) {
+      } else if (opts.endless && s.t > (s.nextTunnel || 22) && !(s.flyT > 0) && !s.catching) {
+        tunnel(); s.nextTunnel = s.t + rand(28, 40);
+      }
+      if (s.nextRow <= 0 && !s.catching && !(s.flyT > 0)) {
         spawnRow();
         s.nextRow = CHASE ? (opts.endless ? Math.max(13, 23 - s.t * 0.09) + rand(0, 5) : rand(22, 30)) : Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
       }
@@ -1349,12 +1381,16 @@ CZ.runner3d = (function () {
 
       // engeller
       let nextFloor = 0;
+      s.dimK = (s.dimK || 0) + ((s.dimHit ? 1 : 0) - (s.dimK || 0)) * Math.min(1, dt * 4);
+      hemi.intensity = 0.95 - 0.4 * s.dimK; sun.intensity = 0.75 - 0.45 * s.dimK;
+      s.dimHit = 0;
       for (let i = s.objs.length - 1; i >= 0; i--) {
         const o = s.objs[i];
         o.mesh.position.z += dz + (o.vz || 0) * dt;
         const z = o.mesh.position.z;
         if (o.oncoming && !o.honk && z > -55) { o.honk = true; CZ.audio.sfx('horn'); }
-        if (z > KILL_Z) { scene.remove(o.mesh); s.objs.splice(i, 1); continue; }
+        if (z > KILL_Z + (o.type === 'deco' ? o.len / 2 : 0)) { scene.remove(o.mesh); s.objs.splice(i, 1); continue; }
+        if (o.type === 'deco') { const inside = z + o.len / 2 > 0 && z - o.len / 2 < 2; if (inside) s.dimHit = 1; continue; }
         if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
         if (o.type === 'train' || o.type === 'wall') {
           const back = z + o.len / 2;          // nesnenin kameraya yakın ucu
@@ -1453,6 +1489,7 @@ CZ.runner3d = (function () {
     }
 
     function sparks(pos, n, color, size) {
+      if (s.lowFx) n = Math.min(n, Math.ceil(n / 3));
       for (let i = 0; i < n; i++) {
         const mat = sparkMat.clone();
         if (color) mat.color = new THREE.Color(color);
@@ -1485,6 +1522,7 @@ CZ.runner3d = (function () {
         sparks(c.mesh.position, 8, '#5dff9a');
         opts.onEmerald(1);
       } else {
+        CZ.audio.sfx('power');
         if (c.kind === 'magnet') s.magnetT = R.magnetSec; else if (c.kind === 'double') s.doubleT = R.doubleSec; else if (c.kind === 'boots') s.superT = 10; else if (c.kind === 'sleigh') startFlight();
         sparks(c.mesh.position, 10, '#fff2a8');
         CZ.audio.sfx('buy');
@@ -1712,7 +1750,7 @@ CZ.runner3d = (function () {
     }
 
     function crash(o) {
-      if (CHASE) { s.invT = 1.1; s.shake = 0.35; s.laughT = 1.2; s.slideT = 0; s.stunT = 0.6; CZ.audio.sfx('wrong'); CZ.audio.vibrate([60, 40, 80]); opts.onCrash(); return; }
+      if (CHASE) { s.invT = 1.1; s.shake = 0.35; s.laughT = 1.2; s.slideT = 0; s.stunT = 0.6; CZ.audio.sfx('hit'); CZ.audio.vibrate([60, 40, 80]); opts.onCrash(); return; }
       s.hearts -= 1;
       s.invT = R.invulnSec;
       s.shake = 0.35;
@@ -1789,6 +1827,7 @@ CZ.runner3d = (function () {
         camera.fov += 8; camera.updateProjectionMatrix();
       },
       devTrain(lane, on) { train(lane, !on, !!on); },
+      devTunnel() { tunnel(); },
       devPower(k) { collect({ kind: k, mesh: { position: new THREE.Vector3(s.px, 1, 0) } }); },
       caught() { s.catching = 0.0001; s.ziboForce = 'dizzy'; s.running = false; s.objs.forEach(o => scene.remove(o.mesh)); s.objs = []; },
       setDead(v) { s.dead = v; },

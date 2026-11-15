@@ -5,7 +5,9 @@ CZ.ADS = {
   appId: 'ca-app-pub-3940256099942544~3347511713',          // test (android.yml manifest'e yazar)
   rewarded: 'ca-app-pub-3940256099942544/5224354917',       // test ödüllü reklam
   interstitial: 'ca-app-pub-3940256099942544/1033173712',   // test geçiş reklamı
-  interEvery: 2                                             // her 2 oyun sonunda bir
+  interEvery: 2,
+  interGapMs: 180000,                                       // iki geçiş reklamı arası en az 3 dk
+  exitAds: false
 };
 CZ.ads = (function () {
   const plugin = () => window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
@@ -69,7 +71,9 @@ CZ.ads = (function () {
   // Oyundan çıkarken (tur bitti, menüye dönüldü) reklam kendiliğinden gelir.
   // Az önce oyun sonu reklamı çıktıysa (40 sn) tekrar göstermez; ilk 3 oyun hediye.
   function onExit() {
-    if (!played) return;
+    const was = played;
+    played = false;
+    if (!CZ.ADS.exitAds || !was) return;   // kapalı: oyuncuyu bunaltmasın
     played = false;
     const d = CZ.state.data;
     if (d.noAds || (d.overs || 0) < 3 || Date.now() - lastInter < 40000) return;
@@ -89,7 +93,8 @@ CZ.ads = (function () {
     const d = CZ.state.data;
     d.overs = (d.overs || 0) + 1;
     CZ.state.save();
-    if (d.noAds || d.overs <= 3 || d.overs % CZ.ADS.interEvery !== 0) return done();
+    if (d.noAds || d.overs <= 3 || Date.now() - lastInter < CZ.ADS.interGapMs || Date.now() - (d.lastInterAt || 0) < CZ.ADS.interGapMs) return done();
+    d.lastInterAt = Date.now();
     d.interShown = (d.interShown || 0) + 1;
     lastInter = Date.now();
     CZ.state.save();

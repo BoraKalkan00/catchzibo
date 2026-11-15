@@ -1058,5 +1058,12 @@ CZ.i18n.register('tr', 'Türkçe', {
   "endless.reviveGems": "{n} elmasla devam",
   "zibo.chase.sleigh": "Ne? Uçan kızak mı?! Haksızlık!",
   "run.power.magnetS": "Mıknatıs",
-  "tap.run": "KOŞMAK İÇİN DOKUN"
+  "tap.run": "KOŞMAK İÇİN DOKUN",
+  "hub.more": "Diğer modlar",
+  "tut.swipe": "Sağa-sola kaydır: şerit değiştir",
+  "tut.jump": "Yukarı kaydır: zıpla",
+  "tut.roll": "Aşağı kaydır: takla at, engelin altından geç",
+  "tut.ramp": "Trenlere rampadan koşarak çık",
+  "tut.power": "Güçleri topla: mıknatıs, x2, süper zıplama, Noel kızağı",
+  "tut.throw": "At düğmesiyle Zibo'yu vur, yakala!"
 });

@@ -44,10 +44,10 @@ CZ.screens.chase = (function () {
         pet: CZ.activePet(), perk: {}, goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
         onAct(k) { if (c && c.act && c.running) c.act[k] = (c.act[k] || 0) + 1; },
         onDash(lvl) { if (!c || !c.running) return; if (c.act) c.act.sled += 1; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
-        onTap: () => hook(),
+        onTap: () => { if (!E) hook(); },
         onGold(n) { c.gold += n; if (c.gold >= (c.goldSay || 25)) { c.goldSay = c.gold + 40; if (!speaking()) say('zibo.chase.gold'); } c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
         onEmerald() {}, onCrate() {},
-        onPower(kind) { floatText(t('run.power.' + kind), 'power'); if (kind === 'sleigh') say('zibo.chase.sleigh'); },
+        onPower(kind) { floatText(t('run.power.' + kind), 'power', true); if (kind === 'sleigh') say('zibo.chase.sleigh'); },
         onFly(on) { if (on) { CZ.audio.setTempo(1.45); } else { CZ.audio.setTempo(1.3); floatText(t('run.landed'), 'gold'); } },
         onTick(st) { if (c && c.powerHud) drawPowers(st); },
         onDodge() { floatText(t('chase.nice'), 'gold'); },
@@ -76,7 +76,7 @@ CZ.screens.chase = (function () {
 
     el.append(
       h('div', { class: 'play-top chase-top' },
-        h('div', { class: 'chase-gap' }, h('small', { text: E ? t('endless.best', { n: CZ.state.data.bestRun || 0 }) : c.boss.id === 'zibo' ? t('chase.distance') : t('boss.ahead', { name: t('boss.' + c.boss.id) }) }), c.gapText, h('div', { class: 'chase-meter' }, c.gapBar)),
+        E ? h('div', { class: 'chase-gap endless-best' }, h('small', { text: t('endless.best', { n: CZ.state.data.bestRun || 0 }) })) : h('div', { class: 'chase-gap' }, h('small', { text: E ? t('endless.best', { n: CZ.state.data.bestRun || 0 }) : c.boss.id === 'zibo' ? t('chase.distance') : t('boss.ahead', { name: t('boss.' + c.boss.id) }) }), c.gapText, h('div', { class: 'chase-meter' }, c.gapBar)),
         c.hearts,
         c.clock),
       c.field);
@@ -91,8 +91,9 @@ CZ.screens.chase = (function () {
       drawTarget();
       const me = CZ.state.data.avatar || 'girl';
       const perk = CZ.runPerkText ? CZ.runPerkText(me) : '';
-      if (perk) { const pc = h('div', { class: 'perk-chip' }, h('b', { text: t('char.' + me) }), ' ' + perk); c.field.append(pc); setTimeout(() => pc.classList.add('out'), 3500); }
+
       c.act = { jump: 0, roll: 0, hit: 0, sled: 0 };
+      c.tut = !CZ.state.data.runTut; c.tutI = 0;
     }
 
     drawHearts();
@@ -146,18 +147,34 @@ CZ.screens.chase = (function () {
   function endlessMult() {
     try { return CZ.missions.mult(); } catch (e) { return 1; }
   }
+  // İlk koşu öğreticisi: hareketleri sırayla gösterir, bu sırada Zibo bomba atmaz.
+  const TUT = [[0.6, 'tut.swipe', '⇆'], [5, 'tut.jump', '⇧'], [9.5, 'tut.roll', '⇩'], [14, 'tut.ramp', '⇧'], [19, 'tut.power', '★'], [24, 'tut.throw', '●']];
+  function tutStep() {
+    if (!c.tut) return;
+    c.nextBomb = c.sim + 3000;
+    while (c.tutI < TUT.length && c.alive >= TUT[c.tutI][0]) {
+      const [, key, ic] = TUT[c.tutI++];
+      if (c.tipEl) c.tipEl.remove();
+      const tip = c.tipEl = h('div', { class: 'tut-tip' }, h('b', { class: 'tut-ic', text: ic }), h('span', { text: t(key) }));
+      c.field.append(tip);
+      setTimeout(() => tip.classList.add('out'), 3600);
+      setTimeout(() => tip.remove(), 4100);
+    }
+    if (c.alive > 29) { c.tut = false; CZ.state.data.runTut = true; CZ.state.save(); }
+  }
   function endlessStep(dt) {
     const rs = c.run ? c.run.state : {};
     c.score += dt * 10 * ((rs.speed || 18) / 18) * (rs.doubleT > 0 ? 2 : 1) * c.mult * (1 + CZ.runPerk('score'));
     c.alive = (c.alive || 0) + dt;
+    tutStep();
     // her 15 sn biraz hızlan (en çok 1.7 kat)
     const sc = Math.floor(c.score);
     if (sc !== c.shown) { c.shown = sc; c.clock.textContent = sc; }
-    if (!c.recordSaid && CZ.state.data.bestRun && sc > CZ.state.data.bestRun) { c.recordSaid = true; floatText(t('endless.record'), 'gold'); CZ.audio.sfx('star'); }
+    if (!c.recordSaid && CZ.state.data.bestRun && sc > CZ.state.data.bestRun) { c.recordSaid = true; floatText(t('endless.record'), 'gold', true); CZ.audio.sfx('star'); }
     // ligdeki / arkadaşlardaki hedefleri geçtikçe haber ver
     if (c.targets && c.targets.length && sc > c.targets[0].score) {
       const tg = c.targets.shift();
-      floatText(t('chal.passed', { name: tg.name }), 'gold'); CZ.audio.sfx('star'); CZ.audio.vibrate(20);
+      floatText(t('chal.passed', { name: tg.name }), 'gold', true); CZ.audio.sfx('star'); CZ.audio.vibrate(20);
       c.drawTarget();
     }
   }
@@ -174,7 +191,7 @@ CZ.screens.chase = (function () {
     c.ziboStun = 0;
     if (c.run && c.run.catchBurst) c.run.catchBurst();
     CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]);
-    floatText(t('endless.caught', { n: bonus }) + (gems ? '  +' + gems + ' 💎' : ''), 'gold');
+    floatText(t('endless.caught', { n: bonus }) + (gems ? '  +' + gems + ' 💎' : ''), 'gold', true);
     say('zibo.chase.again');
   }
 
@@ -354,7 +371,8 @@ CZ.screens.chase = (function () {
     if (combo > (d.bestCombo || 0)) { d.bestCombo = combo; if (combo >= 5) floatText(t('run.comboRecord', { n: combo }), 'gold'); }
   }
 
-  function floatText(text, kind) {
+  function floatText(text, kind, must) {
+    if (c.endless && !must) return;
     const el = h('div', { class: 'run-float ' + (kind || ''), text });
     c.floats.append(el);
     setTimeout(() => el.remove(), 900);
@@ -384,6 +402,7 @@ CZ.screens.chase = (function () {
   const pick = list => list[Math.floor(Math.random() * list.length)];
   const speaking = () => c.bubble.classList.contains('show');
   function say(key) {
+    if (c.endless) return;
     const gib = CZ.game.gibberish(key);
     c.bubble.querySelector('em').textContent = gib;
     c.bubble.querySelector('span').textContent = t(key);
@@ -495,6 +514,7 @@ CZ.screens.chase = (function () {
     const record = sc > (d.bestRun || 0);
     if (record) d.bestRun = sc;
     d.runs = (d.runs || 0) + 1;
+    if ((c.alive || 0) > 12) d.runTut = true;
     d.runGold = (d.runGold || 0) + c.gold;
     CZ.state.save();
     if (CZ.quests) CZ.quests.track('chase');
