@@ -32,7 +32,18 @@ CZ.screens.valley = (function () {
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const WORLD_R = 58;
   const SESSION = 180;
-  const RANGE = 8.5;   // atış menzili: haritanın öbür ucuna ateş edilmez
+  const RANGE = 8.5;
+  const FENCE_R = 15.5;   // köy çiti yarıçapı
+  const CORE_R = 7;       // goblin buraya girerse altın çalar
+  const PAD_R = 12;       // kule yerleri (çitin içinde)
+  // Savunma: kule türleri ve çit. Fiyat ve süreler (dk). Yapınca hemen görünür, süre dolunca çalışır.
+  const DEF = {
+    snow: { price: 500, up: [0, 900, 1800, 3600, 7000], min: [2, 10, 20, 60, 120], range: 10.5, rate: 0.85, dmg: 1, dmgUp: 1 },
+    cannon: { price: 900, up: [0, 1500, 3000, 6000, 11000], min: [2, 10, 20, 60, 120], range: 12.5, rate: 2.2, dmg: 3, dmgUp: 2, splash: 2.6 },
+    fence: { price: 250, up: [0, 700, 1600], min: [1, 10, 20], hp: 30, hpUp: 30 }
+  };
+  const RUSH_BUILD = 200;
+  const rushPrice = ms => Math.max(RUSH_BUILD, Math.ceil(ms / 60000) * 20);   // atış menzili: haritanın öbür ucuna ateş edilmez
 
   /* ---------- Dört ayaklı binekler (kodla, çizgi film tarzı) ---------- */
   function quadruped(THREE, def) {
@@ -153,7 +164,7 @@ CZ.screens.valley = (function () {
     const groundGeo = new THREE.PlaneGeometry(170, 170, 85, 85);
     groundGeo.rotateX(-Math.PI / 2);
     const pos = groundGeo.attributes.position, col = [];
-    const roads = [[-20, 14, 24, -24], [-20, 14, -34, -30], [-20, 14, 26, 26]];
+    const roads = [[0, 0, 0, -50], [0, 0, 0, 50], [0, 0, 50, 0], [0, 0, -50, 0]];
     const distSeg = (x, z, s) => { const [ax, az, bx, bz] = s; const vx = bx - ax, vz = bz - az; const tt = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / (vx * vx + vz * vz))); return Math.hypot(x - (ax + vx * tt), z - (az + vz * tt)); };
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i);
@@ -165,7 +176,8 @@ CZ.screens.valley = (function () {
       const road = Math.min(...roads.map(s => distSeg(x, z, s)));
       let c = [0.86 + n, 0.9 + n, 0.98];
       if (road < 2.2) c = [0.8 + n, 0.85 + n, 0.95];   // ezilmiş kar patikası
-      if (Math.hypot(x - 20, z + 16) < 10.5) c = [0.62, 0.82, 0.95];   // donmuş göl
+      if (Math.hypot(x - 34, z + 30) < 9.5) c = [0.62, 0.82, 0.95];   // donmuş göl
+      if (r < FENCE_R + 0.5) c = [0.8 + n, 0.84 + n, 0.93];   // köy meydanı
       if (y > 3) c = [0.82 + n, 0.86 + n, 0.94];
       col.push(...c);
     }
@@ -174,7 +186,7 @@ CZ.screens.valley = (function () {
     const ground = new THREE.Mesh(groundGeo, new THREE.MeshLambertMaterial({ vertexColors: true })); ground.receiveShadow = true; scene.add(ground);
     // gölün parlaklığı
     const lake = new THREE.Mesh(new THREE.CircleGeometry(10.2, 40), new THREE.MeshLambertMaterial({ color: 0xa8dcf6, transparent: true, opacity: 0.55 }));
-    lake.rotation.x = -Math.PI / 2; lake.position.set(20, 0.03, -16); scene.add(lake);
+    lake.scale.setScalar(0.92); lake.rotation.x = -Math.PI / 2; lake.position.set(34, 0.03, -30); scene.add(lake);
 
     // dışarıda kalan dağ zirveleri
     const peakGeo = new THREE.ConeGeometry(1, 1, 7);
@@ -189,33 +201,29 @@ CZ.screens.valley = (function () {
 
     // Engeller (çarpışma için daireler)
     const solids = [];
-    const free = (x, z, r) => Math.hypot(x, z) < WORLD_R - 2 && Math.hypot(x - 20, z + 16) > 11.5 + r && Math.min(...roads.map(s => distSeg(x, z, s))) > 2.6 + r && !solids.some(s => Math.hypot(s.x - x, s.z - z) < s.r + r + 1);
-    // Köy: evler
-    const houseCols = [0xc8302a, 0x2a7a46, 0x2f5fb8, 0xd88a2a, 0x8a4ad0];
-    [[-26, 8], [-14, 6], [-28, 20], [-12, 22], [-20, 30], [-33, 12]].forEach(([x, z], i) => {
-      const hg = new THREE.Group();
-      hg.add(at(new THREE.Mesh(new THREE.BoxGeometry(4.4, 3, 4), toon(0xf0e2c8)), 0, 1.5, 0));
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(3.6, 2.4, 4), toon(houseCols[i % houseCols.length])); roof.rotation.y = Math.PI / 4; roof.position.y = 4.2; roof.scale.set(1, 1, 0.95); hg.add(roof);
-      const snowCap = new THREE.Mesh(new THREE.ConeGeometry(3.0, 0.9, 4), toon(0xffffff)); snowCap.rotation.y = Math.PI / 4; snowCap.position.y = 5.05; hg.add(snowCap);
-      const door = new THREE.Mesh(new THREE.BoxGeometry(1, 1.7, 0.1), toon(0x6a3a1e)); door.position.set(0, 0.85, 2.02); hg.add(door);
-      [-1.4, 1.4].forEach(wx => { const w = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.1), new THREE.MeshBasicMaterial({ color: 0xffd98a })); w.position.set(wx, 1.9, 2.02); hg.add(w); });
-      const chim = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.4, 0.6), toon(0x8a5a4a)); chim.position.set(1.1, 4.6, -0.6); hg.add(chim);
-      hg.position.set(x, 0, z); hg.rotation.y = Math.atan2(-20 - x, 14 - z) + Math.PI;
-      hg.traverse(o => { o.castShadow = true; if (o.material) o.material = seeThrough(o.material.clone()); }); scene.add(hg);
-      solids.push({ x, z, r: 2.9 });
-    });
-    // Noel ağacı (köy meydanı)
-    const xmas = new THREE.Group();
-    [[3, 3.2, 0], [2.3, 2.6, 2.2], [1.5, 2, 4]].forEach(([r, hh, y]) => { const c = new THREE.Mesh(new THREE.ConeGeometry(r, hh, 10), toon(0x1f7a3a)); c.position.y = y + 1.6; xmas.add(c); });
-    const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.6), new THREE.MeshBasicMaterial({ color: 0xffe27a })); star.position.y = 7.4; xmas.add(star);
-    const bulbMats = [0xff4a4a, 0x4ab0ff, 0xffd84a, 0xff7ad8].map(c => new THREE.MeshBasicMaterial({ color: c }));
-    for (let i = 0; i < 26; i++) { const a = i * 2.4, y = 1.8 + (i % 13) * 0.42, r = 2.8 - y * 0.33; const b2 = new THREE.Mesh(new THREE.SphereGeometry(0.16, 6, 4), bulbMats[i % 4]); b2.position.set(Math.cos(a) * r, y, Math.sin(a) * r); xmas.add(b2); }
-    xmas.position.set(-20, 0, 14); scene.add(xmas); solids.push({ x: -20, z: 14, r: 3 });
+    const free = (x, z, r) => Math.hypot(x, z) < WORLD_R - 2 && Math.hypot(x, z) > FENCE_R + 4 + r && Math.hypot(x - 34, z + 30) > 10.5 + r && Math.min(...roads.map(s => distSeg(x, z, s))) > 2.6 + r && !solids.some(s => Math.hypot(s.x - x, s.z - z) < s.r + r + 1);
+    // OYUNCUNUN KENDİ KÖYÜ: Köyüm ekranındaki binalar, aynı seviyelerle ortada durur
+    const VS = 0.68;
+    const vilGroup = new THREE.Group(); scene.add(vilGroup);
+    const star = new THREE.Object3D();
+    function placeVillage() {
+      vilGroup.clear();
+      if (!CZ.villageModel || !CZ.village) return;
+      CZ.VB.forEach(b => {
+        const [sx, sz] = CZ.VILLAGE_SPOTS[b.id];
+        const g = CZ.villageModel(THREE, b.id, CZ.village.lv(b.id));
+        g.scale.setScalar(VS); g.position.set(sx * VS, 0, sz * VS);
+        g.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && !o.material.isMeshBasicMaterial) o.material = seeThrough(o.material.clone()); } });
+        vilGroup.add(g);
+        if (!solids.some(q => q.vil === b.id)) solids.push({ x: sx * VS, z: sz * VS, r: (b.id === 'hall' ? 2.4 : 1.7), vil: b.id });
+      });
+    }
+    placeVillage();
     // Zibo'nun kampı: çadır + ateş
-    const tent = new THREE.Mesh(new THREE.ConeGeometry(3.2, 3.6, 6), toon(0x4a8a3a)); tent.position.set(28, 1.8, 26); scene.add(tent); solids.push({ x: 28, z: 26, r: 3.1 });
-    const campLight = new THREE.PointLight(0xff8a3a, 1.4, 14); campLight.position.set(24, 1.5, 22); scene.add(campLight);
-    const logs = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 0.4, 8), toon(0x5a3418)); logs.position.set(24, 0.2, 22); scene.add(logs);
-    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.4, 8), new THREE.MeshBasicMaterial({ color: 0xffa83a, transparent: true, opacity: 0.85 })); flame.position.set(24, 1, 22); scene.add(flame);
+    const tent = new THREE.Mesh(new THREE.ConeGeometry(3.2, 3.6, 6), toon(0x4a8a3a)); tent.position.set(38, 1.8, 34); scene.add(tent); solids.push({ x: 38, z: 34, r: 3.1 });
+    const campLight = new THREE.PointLight(0xff8a3a, 1.4, 14); campLight.position.set(34, 1.5, 30); scene.add(campLight);
+    const logs = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 0.4, 8), toon(0x5a3418)); logs.position.set(34, 0.2, 30); scene.add(logs);
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.4, 8), new THREE.MeshBasicMaterial({ color: 0xffa83a, transparent: true, opacity: 0.85 })); flame.position.set(34, 1, 30); scene.add(flame);
     // Buz mağarası: sadece kutup ayısı buz duvarını kırabilir; içinde hazine sandığı
     // kayalık tepe + karanlık mağara ağzı
     const caveMat = seeThrough(new THREE.MeshLambertMaterial({ color: 0x8a94aa, flatShading: true }));
@@ -235,8 +243,6 @@ CZ.screens.valley = (function () {
     for (let k = 0; k < 900 && trees.length < 170; k++) {
       const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R);
       if (!free(x, z, 0.8)) continue;
-      if (Math.hypot(x + 20, z - 14) < 18 && Math.random() < 0.85) continue;   // köy açık kalsın
-      if (Math.hypot(x, z) < 6) continue;
       trees.push({ x, z, s: rand(0.8, 1.35) });
       solids.push({ x, z, r: 0.75 });
     }
@@ -309,8 +315,8 @@ CZ.screens.valley = (function () {
         return;
       }
     }
-    for (let i = 0; i < 26 + B.boxes * 2; i++) spawnBox(i < 3);
-    for (let i = 0; i < 30; i++) spawnPile();
+    for (let i = 0; i < 18 + B.boxes * 2; i++) spawnBox(i < 2);
+    for (let i = 0; i < 22; i++) spawnPile();
     // mağaradaki hazine sandığı (buz kırılınca)
     const chestG = new THREE.Group();
     chestG.add(at(new THREE.Mesh(new THREE.BoxGeometry(1.6, 1, 1.1), toon(0x8a5228)), 0, 0.5, 0));
@@ -320,20 +326,145 @@ CZ.screens.valley = (function () {
     const chest = { type: 'chest', x: -34.2, z: -28.6, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 80, locked: true };
     targets.push(chest);
 
-    // Zibo'nun yardakçıları: çuvalla kaçar, vurulunca çuvalı düşürür
+    // ZİBO'NUN GOBLİNLERİ: dışarıdan sonsuz gelir, elinde mızrak, sırtında altın çuvalı.
+    // Sana yakınsa sana saldırır; değilse köye yürür, çit varsa çiti döver, yoksa altın çalıp kaçar.
     const goblins = [];
+    const spearWood = toon(0x7a4a24), spearTip = toon(0xcfd6e2), sackMat = toon(0x9a6a3a), ropeMat = toon(0xf2c230);
+    const spearGeo = new THREE.CylinderGeometry(0.035, 0.035, 1.5, 5), tipGeo2 = new THREE.ConeGeometry(0.08, 0.26, 5), sackGeo = new THREE.SphereGeometry(0.32, 8, 6);
     function spawnGoblin() {
-      const z3 = CZ.kk.zibo(THREE, pick([0x4f9a32, 0x6aa83a, 0x3f8a5a]));
-      z3.root.scale.setScalar(1.0);
-      let x, z;
-      for (let k = 0; k < 40; k++) { x = rand(-40, 40); z = rand(-40, 40); if (free(x, z, 0.6) && Math.hypot(x - P.x, z - P.z) > 18) break; }
+      const tough = Math.random() < Math.min(0.35, V.wave * 0.04);
+      const z3 = CZ.kk.zibo(THREE, tough ? pick([0x8a3a8a, 0x3a5aa8]) : pick([0x4f9a32, 0x6aa83a, 0x3f8a5a]));
+      z3.root.scale.setScalar(tough ? 1.15 : 0.95);
+      // mızrak (sağ elde) ve çuval (sırtta)
+      const spear = new THREE.Group();
+      spear.add(new THREE.Mesh(spearGeo, spearWood));
+      const tp = new THREE.Mesh(tipGeo2, spearTip); tp.position.y = 0.85; spear.add(tp);
+      spear.position.set(0.42, 0.75, -0.1); spear.rotation.x = -1.2; z3.root.add(spear);
+      const sack = new THREE.Mesh(sackGeo, sackMat); sack.scale.set(1, 1.15, 0.8); sack.position.set(0, 0.95, 0.38); z3.root.add(sack);
+      const rope = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.035, 5, 10), ropeMat); rope.rotation.x = Math.PI / 2; rope.position.set(0, 1.28, 0.38); z3.root.add(rope);
+      const a = rand(0, Math.PI * 2), rr = WORLD_R - 3;
+      let x = Math.cos(a) * rr, z = Math.sin(a) * rr;
+      if (Math.hypot(x - P.x, z - P.z) < 14) { x = -x; z = -z; }
       z3.root.position.set(x, 0, z); z3.root.traverse(o => { o.castShadow = true; }); scene.add(z3.root);
-      const gb = { type: 'goblin', x, z, r: 0.7, hp: 4, maxHp: 4, mesh: z3.root, z3, coins: 25, vx: 0, vz: 0, think: 0, stun: 0 };
+      const hp = Math.round((tough ? 7 : 3) + V.wave * 0.6);
+      const gb = { type: 'goblin', x, z, r: 0.7, hp, maxHp: hp, mesh: z3.root, z3, spear, coins: Math.round((tough ? 35 : 15) + V.wave * 2), stolen: 0, vx: 0, vz: 0, think: 0, stun: 0, atk: rand(0.5, 1.2), lunge: 0, speed: (tough ? 3.0 : 3.6) + Math.min(1.2, V.wave * 0.08), dmg: tough ? 2 : 1, flee: false };
       goblins.push(gb); targets.push(gb);
     }
 
+    /* ---------- Savunma: kule yerleri ve çit ---------- */
+    const DD = d.vil ? d.vil : (CZ.village ? CZ.village.ensure() : (d.vil = {}));
+    if (!DD.def) DD.def = { t: [null, null, null, null, null, null, null, null], f: [null, null, null, null, null, null, null, null] };
+    const DS = DD.def;
+    const padTex = text => { const c = document.createElement('canvas'); c.width = 256; c.height = 256; const x = c.getContext('2d');
+      x.fillStyle = 'rgba(10,16,40,.55)'; x.beginPath(); x.arc(128, 128, 120, 0, 7); x.fill();
+      x.strokeStyle = '#ffd23a'; x.lineWidth = 12; x.setLineDash([22, 14]); x.beginPath(); x.arc(128, 128, 112, 0, 7); x.stroke();
+      x.fillStyle = '#ffd23a'; x.beginPath(); x.arc(128, 92, 30, 0, 7); x.fill(); x.fillStyle = '#b88a10'; x.font = 'bold 34px sans-serif'; x.textAlign = 'center'; x.fillText('$', 128, 104);
+      x.fillStyle = '#fff'; x.font = 'bold 54px sans-serif'; x.fillText(text, 128, 182);
+      const tx = new THREE.CanvasTexture(c); return tx; };
+    const pads = [];
+    for (let i = 0; i < 8; i++) {
+      const a = (i + 0.5) / 8 * Math.PI * 2;
+      pads.push({ kind: 't', i, x: Math.cos(a) * PAD_R, z: Math.sin(a) * PAD_R, a });
+      const fa = (i + 0.5) / 8 * Math.PI * 2;
+      pads.push({ kind: 'f', i, x: Math.cos(fa) * (FENCE_R + 2.2), z: Math.sin(fa) * (FENCE_R + 2.2), a: fa });
+    }
+    const padGeo = new THREE.PlaneGeometry(2.6, 2.6);
+    const scaffoldMat = new THREE.MeshLambertMaterial({ color: 0xf2c230 });
+    function cannonModel(L) {
+      const g = new THREE.Group();
+      const st = toon(L >= 3 ? 0x8a8e9e : 0xa89070);
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 1.6 + L * 0.2, 8), st); base.position.y = 0.8 + L * 0.1; g.add(base);
+      const top = new THREE.Group(); top.position.y = 1.7 + L * 0.2; g.add(top);
+      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.28 + L * 0.03, 0.36 + L * 0.03, 1.6, 10), toon(0x2a2a32)); barrel.rotation.x = Math.PI / 2 - 0.35; barrel.position.set(0, 0.35, -0.4); top.add(barrel);
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.9, 10), toon(0x6a3a1e)); wheel.rotation.z = Math.PI / 2; top.add(wheel);
+      g.userData.top = top;
+      return g;
+    }
+    function towerModel(type, L) {
+      if (type === 'cannon') return cannonModel(L);
+      const g = CZ.villageModel ? CZ.villageModel(THREE, 'tower', Math.max(1, L * 2)) : new THREE.Group();
+      g.scale.setScalar(0.8);
+      return g;
+    }
+    function fenceModel(i, L) {
+      const g = new THREE.Group();
+      const a0 = i / 8 * Math.PI * 2, a1 = (i + 1) / 8 * Math.PI * 2;
+      const stone = L >= 2;
+      const mat = toon(stone ? 0xa8a4a0 : 0x9a6a3a), geo = stone ? new THREE.BoxGeometry(1.1, 1.3 + L * 0.2, 0.6) : new THREE.CylinderGeometry(0.17, 0.2, 1.5, 6);
+      const n = 12;
+      for (let k = 0; k <= n; k++) {
+        const a = a0 + (a1 - a0) * k / n;
+        const m = new THREE.Mesh(geo, mat); m.position.set(Math.cos(a) * FENCE_R, stone ? 0.65 : 0.75, Math.sin(a) * FENCE_R); m.rotation.y = -a + Math.PI / 2; m.castShadow = true; g.add(m);
+        if (!stone && k % 3 === 0) { const tip = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.35, 6), mat); tip.position.set(m.position.x, 1.65, m.position.z); g.add(tip); }
+      }
+      if (!stone) [0.5, 1.1].forEach(y => { for (let k = 0; k < n; k++) { const a = a0 + (a1 - a0) * (k + 0.5) / n; const rail = new THREE.Mesh(new THREE.BoxGeometry(FENCE_R * (a1 - a0) / n + 0.1, 0.12, 0.08), mat); rail.position.set(Math.cos(a) * FENCE_R, y, Math.sin(a) * FENCE_R); rail.rotation.y = -a + Math.PI / 2; g.add(rail); } });
+      return g;
+    }
+    const slot = p => DS[p.kind][p.i];
+    const defOf = p => DEF[p.kind === 'f' ? 'fence' : slot(p).type];
+    function jobLeft(it) { return it && it.job ? Math.max(0, it.job.end - Date.now()) : 0; }
+    function finishJob(p) { const it = slot(p); if (!it || !it.job) return; it.lv = it.job.to; it.job = null; CZ.state.save(); drawPad(p); CZ.audio.sfx('win'); floatAt(p, t('def.ready')); }
+    function drawPad(p) {
+      const it = slot(p);
+      if (p.g) { scene.remove(p.g); p.g = null; }
+      if (p.mark) { scene.remove(p.mark); p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
+      if (p.barG) { scene.remove(p.barG); p.barG = null; }
+      const building = it && it.job;
+      if (!it || p.kind === 't' || building) {
+        const price = !it ? (p.kind === 'f' ? DEF.fence.price : DEF.snow.price) : null;
+        if (!it) {
+          p.mark = new THREE.Mesh(padGeo, new THREE.MeshBasicMaterial({ map: padTex(String(price)), transparent: true, depthWrite: false }));
+          p.mark.rotation.x = -Math.PI / 2; p.mark.position.set(p.x, 0.05, p.z); scene.add(p.mark);
+        }
+      }
+      if (!it) { if (p.kind === 'f') { p.hp = 0; } return; }
+      const lv = building && it.lv === 0 ? 1 : it.lv;
+      p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(it.type, lv);
+      if (p.kind === 't') p.g.position.set(p.x, 0, p.z);
+      if (building) {
+        // inşaat: hemen görünür ama yarı saydam + iskele
+        p.g.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
+        const sc = new THREE.Group();
+        const cx = p.kind === 'f' ? Math.cos(p.a) * FENCE_R : p.x, cz = p.kind === 'f' ? Math.sin(p.a) * FENCE_R : p.z;
+        [[-1.3, -1.3], [1.3, -1.3], [-1.3, 1.3], [1.3, 1.3]].forEach(([x, z]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.14, 3.4, 0.14), scaffoldMat); m.position.set(cx + x, 1.7, cz + z); sc.add(m); });
+        if (p.kind === 't') { sc.position.sub(p.g.position); }
+        p.g.add(sc);
+        const bar = new THREE.Group();
+        const bg = new THREE.Mesh(barGeo, barBg); bg.scale.set(2.2, 1.4, 1); bar.add(bg);
+        const fg = new THREE.Mesh(barGeo, new THREE.MeshBasicMaterial({ color: 0x4ab0ff, depthTest: false })); fg.scale.set(2.1, 0.9, 1); fg.position.z = 0.01; bar.add(fg);
+        bar.renderOrder = 8; bg.renderOrder = 8; fg.renderOrder = 9;
+        bar.position.set(cx, 4, cz); scene.add(bar); p.barG = bar; p.barFg = fg;
+      }
+      scene.add(p.g);
+      if (p.kind === 'f') p.hp = p.hpMax = DEF.fence.hp + DEF.fence.hpUp * (it.lv - 1);
+      p.pop = 0.35;
+    }
+    function payBuild(p, type) {
+      const price = p.kind === 'f' ? DEF.fence.price : DEF[type].price;
+      if ((d.gold || 0) < price) { CZ.audio.sfx('wrong'); CZ.ui.toast(t('chars.goldShort', { n: price - (d.gold || 0) })); return; }
+      d.gold -= price; goldEl.textContent = d.gold;
+      DS[p.kind][p.i] = { type: p.kind === 'f' ? 'fence' : type, lv: 0, job: { to: 1, end: Date.now() + (p.kind === 'f' ? DEF.fence : DEF[type]).min[0] * 60000 } };
+      CZ.state.save(); CZ.audio.sfx('buy'); CZ.audio.vibrate([30, 20, 50]);
+      drawPad(p); padUi(true);
+    }
+    function payUpgrade(p) {
+      const it = slot(p), D2 = defOf(p);
+      if (it.job || it.lv >= D2.up.length) return;
+      const price = D2.up[it.lv];
+      if ((d.gold || 0) < price) { CZ.audio.sfx('wrong'); CZ.ui.toast(t('chars.goldShort', { n: price - (d.gold || 0) })); return; }
+      d.gold -= price; goldEl.textContent = d.gold;
+      it.job = { to: it.lv + 1, end: Date.now() + D2.min[it.lv] * 60000 };
+      CZ.state.save(); CZ.audio.sfx('buy'); drawPad(p); padUi(true);
+    }
+    function rushGold(p) {
+      const it = slot(p); const c = it.lv === 0 ? RUSH_BUILD : rushPrice(jobLeft(it));
+      if ((d.gold || 0) < c) { CZ.audio.sfx('wrong'); CZ.ui.toast(t('chars.goldShort', { n: c - (d.gold || 0) })); return; }
+      d.gold -= c; goldEl.textContent = d.gold; finishJob(p); padUi(true);
+    }
+    function rushAd(p) { CZ.ads.show(() => { if (V && slot(p) && slot(p).job) { finishJob(p); padUi(true); } }); }
+
     /* ---------- Oyuncu ve binek ---------- */
-    const P = { x: -4, z: 2, dir: Math.PI, riding: false, vx: 0, vz: 0 };
+    const P = { x: 2.5, z: 6.5, dir: Math.PI, riding: false, vx: 0, vz: 0, hp: 12, maxHp: 12, hurtT: 0, down: 0 };
     const hero = CZ.kk.hero(THREE, d.avatar || 'girl');
     if (hero.setWeapon) hero.setWeapon(W.id);
     hero.root.traverse(o => { o.castShadow = true; }); scene.add(hero.root);
@@ -342,9 +473,8 @@ CZ.screens.valley = (function () {
     heroShadow.rotation.x = -Math.PI / 2; heroShadow.position.y = 0.02; scene.add(heroShadow);
     const mountDef = CZ.MOUNTS.find(m => m.id === (d.mount || 'brown')) || CZ.MOUNTS[0];
     const mount = quadruped(THREE, mountDef);
-    const M = { x: -1.5, z: 3.5, dir: Math.PI, speed: 0 };
+    const M = { x: 5.5, z: 3.8, dir: Math.PI, speed: 0 };
     mount.root.position.set(M.x, 0, M.z); mount.root.traverse(o => { if (o.geometry && o.geometry.type !== 'CircleGeometry') o.castShadow = true; }); scene.add(mount.root);
-    for (let i = 0; i < 4; i++) spawnGoblin();
 
     // nişan göstergesi (yerde ok)
     const aimTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 256; const x = c.getContext('2d'); const gr = x.createLinearGradient(0, 256, 0, 0); gr.addColorStop(0, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,.95)'); x.fillStyle = gr; x.fillRect(16, 40, 32, 216); x.beginPath(); x.moveTo(0, 48); x.lineTo(32, 0); x.lineTo(64, 48); x.fill(); return new THREE.CanvasTexture(c); })();
@@ -400,32 +530,39 @@ CZ.screens.valley = (function () {
       o.bar.fg.scale.x = 1.24 * k; o.bar.fg.position.x = -0.62 * (1 - k);
       o.bar.fg.material.color.setHex(k > 0.5 ? 0x4ade6a : k > 0.25 ? 0xffc928 : 0xff4a4a);
     }
-    function hit(o, dmg) {
+    function hit(o, dmg, byTower) {
       o.hp -= dmg;
       hpBar(o);
       floatAt(o, '-' + dmg, 'dmg');
       if (o.mesh) { if (!o.base) o.base = o.mesh.scale.x; o.mesh.scale.setScalar(o.base * 1.12); o.flash = 0.1; }
       CZ.audio.sfx(o.type === 'goblin' ? 'hit' : 'crack');
       if (o.type === 'goblin') { o.stun = 0.6; }
-      if (o.hp <= 0) kill(o);
+      if (o.hp <= 0) kill(o, byTower);
     }
-    function kill(o) {
+    function kill(o, byTower) {
       o.dead = true;
       if (o.bar) { scene.remove(o.bar.g); o.bar.fg.material.dispose(); o.bar = null; }
       scene.remove(o.mesh);
-      dropCoins(o.x, o.z, Math.round(o.coins / (o.type === 'chest' ? 4 : 2)), 1.2);
-      V.pending += o.coins - Math.round(o.coins / (o.type === 'chest' ? 4 : 2));   // kalanı doğrudan
-      bump(o.coins);
-      if (o.type === 'goblin') { CZ.audio.sfx('win'); floatAt(o, t('valley.sack', { n: o.coins })); }
+      const total = o.coins + (o.stolen || 0);
+      if (byTower) { gain(total, true); floatAt(o, '+' + total, 'auto'); CZ.audio.sfx('coin'); V.kills++; }   // kule vurdu: altın kendiliğinden kasaya
+      else {
+        dropCoins(o.x, o.z, Math.round(total / (o.type === 'chest' ? 4 : 2)), 1.2);
+        V.pending += total - Math.round(total / (o.type === 'chest' ? 4 : 2));   // kalanı doğrudan
+        if (o.type === 'goblin') V.kills++;
+      }
+      bump(total);
+      if (o.type === 'goblin' && !byTower) { CZ.audio.sfx('win'); floatAt(o, t('valley.sack', { n: total })); }
       if (o.type === 'chest') { CZ.audio.sfx('win'); floatAt(o, t('valley.chest', { n: o.coins })); CZ.audio.vibrate([40, 30, 80]); }
       const i = targets.indexOf(o); if (i >= 0) targets.splice(i, 1);
       if (o.type === 'box') setTimeout(() => { if (V) spawnBox(Math.random() < 0.1); }, rand(12000, 22000));
-      if (o.type === 'goblin') { const j = goblins.indexOf(o); if (j >= 0) goblins.splice(j, 1); setTimeout(() => { if (V) spawnGoblin(); }, 15000); }
+      if (o.type === 'goblin') { const j = goblins.indexOf(o); if (j >= 0) goblins.splice(j, 1); }
     }
 
     /* ---------- Arayüz ---------- */
-    const goldEl = h('b', { text: '0' });
-    const T0 = SESSION + B.time; const timeEl = h('b', { class: 'vl-time', text: Math.floor(T0 / 60) + ':' + String(T0 % 60).padStart(2, '0') });
+    const goldEl = h('b', { text: String(d.gold || 0) });
+    const timeEl = h('b', { class: 'vl-time', text: t('def.wave', { n: 1 }) });
+    const hpFill = h('i'); const hpBarEl = h('div', { class: 'vl-hp' }, hpFill);
+    const panel = h('div', { class: 'def-panel' });
     const floats = h('div', { class: 'vl-floats' });
     const mapC = h('canvas', { class: 'vl-map', width: '220', height: '220' });
     const mctx = mapC.getContext('2d');
@@ -436,7 +573,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), goldEl), timeEl),
-      pauseB, floats, mapC, ...edgeArrows, stick, rideBtn, fireBtn);
+      hpBarEl, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -498,8 +635,8 @@ CZ.screens.valley = (function () {
     pauseB.addEventListener('pointerdown', e => { e.stopPropagation(); pause(); });
 
     V = {
-      el, renderer, scene, stage, wrap, raf: 0, last: 0, time: SESSION + B.time, earned: 0, pending: 0, cool: 0, running: true, paused: false, whistle: false,
-      P, M, hero, camera, solids, targets, goblins, piles, ice, chest, debug: { fire, autoFire, joy, nearestTarget },
+      el, renderer, scene, stage, wrap, raf: 0, last: 0, wave: 1, waveT: 0, spawnT: 2, kills: 0, earned: 0, pending: 0, cool: 0, running: true, paused: false, whistle: false,
+      P, M, hero, camera, solids, targets, goblins, piles, ice, chest, pads, DS, debug: { fire, autoFire, joy, nearestTarget, payBuild, payUpgrade, rushGold, finishJob, spawnGoblin },
       cleanup() {
         window.removeEventListener('resize', resize);
         window.removeEventListener('pointermove', V_move);
@@ -525,6 +662,7 @@ CZ.screens.valley = (function () {
         btn(t('pause.quit'), () => { box.remove(); V.paused = false; CZ.audio.duck(0.55, 0.1); end(); }, 'small ghost-dark')));
       wrap.append(box);
     }
+    pads.forEach(drawPad);
     V.pause = pause;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
@@ -537,15 +675,53 @@ CZ.screens.valley = (function () {
       return [x, z];
     };
     function step(dt) {
-      V.time -= dt;
       V.cool -= dt;
-      const sec = Math.max(0, Math.ceil(V.time));
-      timeEl.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
-      timeEl.classList.toggle('low', sec <= 15);
-      if (V.time <= 0) return end();
-      // altın yağmuru: akının ortasında 12 sn
-      if (!V.rained && V.time < (SESSION + B.time) / 2) { V.rained = true; V.rainT = 12; floatAt(P, t('valley.rain')); CZ.audio.sfx('star'); }
-      if (V.rainT > 0) { V.rainT -= dt; if (Math.random() < dt * 9) { const m = new THREE.Mesh(coinGeo, coinMat); m.position.set(P.x + rand(-9, 9), 12, P.z + rand(-9, 9)); scene.add(m); drops.push({ m, vx: 0, vz: 0, vy: -2, t: 0, rain: true }); } }
+      // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
+      V.waveT += dt;
+      if (V.waveT > 45) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); }
+      timeEl.textContent = t('def.wave', { n: V.wave });
+      V.spawnT -= dt;
+      const cap = Math.min(16, 4 + V.wave * 2);
+      if (V.spawnT <= 0 && goblins.length < cap) { V.spawnT = Math.max(1.1, 4.2 - V.wave * 0.35); spawnGoblin(); }
+      // inşaat süreleri
+      pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
+      // KULELER: menzildeki en yakın goblini kendileri vurur
+      pads.forEach(p => {
+        const it = slot(p); if (p.kind !== 't' || !it || it.lv < 1 || !p.g) return;
+        const D2 = DEF[it.type];
+        p.cd = (p.cd || 0) - dt; if (p.cd > 0) return;
+        let best = null, bd = D2.range;
+        goblins.forEach(o => { if (o.dead) return; const dd = Math.hypot(o.x - p.x, o.z - p.z); if (dd < bd) { bd = dd; best = o; } });
+        if (!best) return;
+        p.cd = D2.rate * Math.pow(0.9, it.lv - 1);
+        const m = new THREE.Mesh(it.type === 'cannon' ? cannonGeo : ballGeo, it.type === 'cannon' ? cannonMat : ballMat);
+        const top = it.type === 'cannon' ? 2.2 + it.lv * 0.2 : 2.6 + it.lv * 0.55;
+        m.position.set(p.x, top, p.z); scene.add(m);
+        tshots.push({ m, o: best, type: it.type, dmg: D2.dmg + D2.dmgUp * (it.lv - 1), sp: it.type === 'cannon' ? 14 : 20, t: 0 });
+        if (it.type === 'cannon' && p.g.userData.top) p.g.userData.top.rotation.y = Math.atan2(-(best.x - p.x), -(best.z - p.z));
+        if (bd < 14) CZ.audio.sfx(it.type === 'cannon' ? 'hit' : 'throw');
+      });
+      for (let i = tshots.length - 1; i >= 0; i--) {
+        const q = tshots[i]; q.t += dt;
+        const tx = q.o.x, tz = q.o.z, ty = 0.9;
+        const dx = tx - q.m.position.x, dy = ty - q.m.position.y, dz = tz - q.m.position.z, L2 = Math.hypot(dx, dy, dz);
+        if (L2 < 0.5 || q.t > 2) {
+          if (q.type === 'cannon') { goblins.slice().forEach(o => { if (!o.dead && Math.hypot(o.x - tx, o.z - tz) < DEF.cannon.splash) hit(o, q.dmg, true); }); boomFx(tx, tz); }
+          else if (!q.o.dead) hit(q.o, q.dmg, true);
+          scene.remove(q.m); tshots.splice(i, 1); continue;
+        }
+        const st = Math.min(L2, q.sp * dt);
+        q.m.position.x += dx / L2 * st; q.m.position.y += dy / L2 * st + (q.type === 'cannon' ? Math.sin(Math.min(1, q.t * 2) * Math.PI) * dt * 3 : 0); q.m.position.z += dz / L2 * st;
+      }
+      for (let i = booms.length - 1; i >= 0; i--) { const b2 = booms[i]; b2.t += dt; b2.m.scale.setScalar(0.5 + b2.t * 7); b2.m.material.opacity = Math.max(0, 0.8 - b2.t * 2.4); if (b2.t > 0.35) { scene.remove(b2.m); b2.m.material.dispose(); booms.splice(i, 1); } }
+      // CAN: köyün içinde yavaşça dolar; bayılınca köyde uyanırsın
+      P.hurtT = Math.max(0, P.hurtT - dt);
+      if (P.down > 0) { P.down -= dt; if (P.down <= 0) { P.hp = P.maxHp; P.x = 2.5; P.z = 6.5; P.riding = false; M.x = 5.5; M.z = 3.8; downEl.remove(); } return; }
+      if (Math.hypot(P.x, P.z) < FENCE_R && P.hp < P.maxHp) P.hp = Math.min(P.maxHp, P.hp + dt * 0.6);
+      hpFill.style.width = (P.hp / P.maxHp * 100) + '%'; hpBarEl.classList.toggle('low', P.hp / P.maxHp < 0.35);
+      if (V.pending > 0) { const n = Math.min(V.pending, Math.ceil(V.pending * dt * 6)); V.pending -= n; gain(n, true); }
+      V.saveT = (V.saveT || 0) - dt; if (V.saveT <= 0) { V.saveT = 3; CZ.state.save(); }
+      padNear();
 
       // hareket
       const sp = P.riding ? mountDef.speed * B.speed : 6;
@@ -589,17 +765,54 @@ CZ.screens.valley = (function () {
       rideBtn.textContent = P.riding ? t('valley.dismount') : (Math.hypot(M.x - P.x, M.z - P.z) < 3.2 ? t('valley.ride') : t('valley.call'));
       rideBtn.classList.toggle('near', !P.riding && Math.hypot(M.x - P.x, M.z - P.z) < 3.2);
 
-      // yardakçılar: oyuncu yaklaşınca kaçar
+      // GOBLİNLER: yakındaysan sana mızrakla saldırır; değilse köye yürür, çiti döver ya da altın çalıp kaçar
       goblins.forEach(o => {
-        o.stun = Math.max(0, o.stun - dt);
-        o.think -= dt;
-        const dx = o.x - P.x, dz = o.z - P.z, dd = Math.hypot(dx, dz);
-        if (o.think <= 0) { o.think = rand(0.6, 1.4); if (dd < 12) { o.vx = dx / dd * 5.2; o.vz = dz / dd * 5.2; } else { const a = rand(0, 6.28); o.vx = Math.cos(a) * 2; o.vz = Math.sin(a) * 2; } }
+        if (o.dead) return;
+        o.stun = Math.max(0, o.stun - dt); o.atk -= dt; o.lunge = Math.max(0, o.lunge - dt);
+        const dxp = P.x - o.x, dzp = P.z - o.z, dp = Math.hypot(dxp, dzp);
+        const rc = Math.hypot(o.x, o.z);
+        let tx = 0, tz = 0, sp = o.speed, attackFence = null;
+        if (o.flee) { tx = o.x / (rc || 1) * 80; tz = o.z / (rc || 1) * 80; sp = o.speed * 1.15; if (rc > WORLD_R - 2) { o.dead = true; scene.remove(o.mesh); if (o.bar) { scene.remove(o.bar.g); o.bar = null; } targets.splice(targets.indexOf(o), 1); goblins.splice(goblins.indexOf(o), 1); return; } }
+        else if (dp < 13 && P.down <= 0) { tx = P.x; tz = P.z; }
+        else {
+          // köyün merkezine yürü; çit parçası sağlamsa ona takıl
+          const seg = ((Math.floor(((Math.atan2(o.z, o.x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8);
+          const fp = pads.find(p => p.kind === 'f' && p.i === seg), fit = fp && slot(fp);
+          if (fit && fit.lv >= 1 && fp.hp > 0 && rc < FENCE_R + 1.1 && rc > FENCE_R - 0.5) attackFence = fp;
+          else { tx = 0; tz = 0; }
+        }
+        let mv = 0;
+        if (attackFence) {
+          o.vx = o.vz = 0;
+          if (o.atk <= 0 && o.stun <= 0) { o.atk = 1.3; o.lunge = 0.25; attackFence.hp -= o.dmg; if (attackFence.hp <= 0) { const it = slot(attackFence); DS.f[attackFence.i] = null; CZ.state.save(); drawPad(attackFence); floatAt(attackFence, t('def.fenceBroke'), 'wave'); CZ.audio.sfx('crack'); } }
+        } else if (!o.flee && dp < 1.5 && P.down <= 0) {
+          o.vx = o.vz = 0;
+          if (o.atk <= 0 && o.stun <= 0) { o.atk = 1.25; o.lunge = 0.25; hurt(o.dmg); }
+        } else {
+          const ddx = tx - o.x, ddz = tz - o.z, L2 = Math.hypot(ddx, ddz) || 1;
+          o.vx = ddx / L2 * sp; o.vz = ddz / L2 * sp; mv = 1;
+        }
         const k = o.stun > 0 ? 0 : 1;
-        [o.x, o.z] = collide(o.x + o.vx * dt * k, o.z + o.vz * dt * k, 0.5);
+        let [nx, nz] = collide(o.x + o.vx * dt * k, o.z + o.vz * dt * k, 0.45);
+        // sağlam çitten geçemez
+        const nr = Math.hypot(nx, nz);
+        if (!o.flee && rc >= FENCE_R && nr < FENCE_R + 0.6) {
+          const seg = ((Math.floor(((Math.atan2(nz, nx) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8);
+          const fp = pads.find(p => p.kind === 'f' && p.i === seg);
+          if (fp && slot(fp) && slot(fp).lv >= 1 && fp.hp > 0) { nx = nx / nr * (FENCE_R + 0.6); nz = nz / nr * (FENCE_R + 0.6); }
+        }
+        o.x = nx; o.z = nz;
+        // köyün kalbine ulaştı: altın çalıp kaçar
+        if (!o.flee && Math.hypot(o.x, o.z) < CORE_R) {
+          const steal = Math.min(d.gold || 0, 8 + V.wave * 3);
+          d.gold = (d.gold || 0) - steal; goldEl.textContent = d.gold; o.stolen += steal; o.flee = true;
+          floatAt(o, t('def.stole', { n: steal }), 'wave'); CZ.audio.sfx('wrong');
+        }
         o.mesh.position.set(o.x, 0, o.z);
-        o.mesh.rotation.y = Math.atan2(-o.vx, -o.vz);
-        o.z3.update(dt, { running: k > 0, dizzy: o.stun > 0, look: dd < 6 && o.stun <= 0 });
+        const face = (o.vx || o.vz) ? Math.atan2(-o.vx, -o.vz) : Math.atan2(-dxp, -dzp);
+        o.mesh.rotation.y = attackFence ? Math.atan2(o.x, o.z) : face;
+        o.spear.position.z = -0.1 - o.lunge * 2.2;
+        o.z3.update(dt, { running: mv > 0 && k > 0, dizzy: o.stun > 0, look: false });
       });
       // hedeflerin sarsılması geri gelsin
       targets.forEach(o => { if (o.flash > 0) { o.flash -= dt; if (o.flash <= 0) o.mesh.scale.setScalar(o.base); } });
@@ -635,7 +848,6 @@ CZ.screens.valley = (function () {
         if (Math.hypot(p.x - P.x, p.z - P.z) < (P.riding ? 1.6 : 1.1)) { scene.remove(p.mesh); piles.splice(i, 1); gain(p.value); floatAt(p, '+' + p.value); setTimeout(() => { if (V) spawnPile(); }, rand(9000, 16000)); }
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
-      if (V.pending > 0) { const n = Math.min(V.pending, Math.ceil(V.pending * dt * 6)); V.pending -= n; gain(n, true); }
       flame.scale.set(1 + Math.sin(performance.now() / 90) * 0.12, 1 + Math.sin(performance.now() / 70) * 0.18, 1);
       star.rotation.y += dt;
       mapT -= dt; if (mapT <= 0) { mapT = 0.12; drawMap(); drawEdges(); }
@@ -646,9 +858,13 @@ CZ.screens.valley = (function () {
       const X = x => cx + x * k, Z = z => cx + z * k;
       mctx.clearRect(0, 0, W2, W2);
       mctx.fillStyle = 'rgba(232,240,252,.92)'; mctx.beginPath(); mctx.arc(cx, cx, cx - 2, 0, 7); mctx.fill();
-      mctx.fillStyle = 'rgba(120,190,235,.8)'; mctx.beginPath(); mctx.arc(X(20), Z(-16), 10.5 * k, 0, 7); mctx.fill();
-      mctx.fillStyle = '#c8302a'; [[-26, 8], [-14, 6], [-28, 20], [-12, 22], [-20, 30], [-33, 12]].forEach(([x, z]) => mctx.fillRect(X(x) - 4, Z(z) - 4, 8, 8));
-      mctx.fillStyle = '#4a8a3a'; mctx.beginPath(); mctx.arc(X(28), Z(26), 7, 0, 7); mctx.fill();
+      mctx.fillStyle = 'rgba(120,190,235,.8)'; mctx.beginPath(); mctx.arc(X(34), Z(-30), 9.5 * k, 0, 7); mctx.fill();
+      mctx.fillStyle = 'rgba(200,210,230,.9)'; mctx.beginPath(); mctx.arc(cx, cx, FENCE_R * k, 0, 7); mctx.fill();
+      pads.forEach(p => { const it = slot(p); if (p.kind === 'f') { if (it && it.lv) { mctx.strokeStyle = it.job ? '#4ab0ff' : '#8a5a2a'; mctx.lineWidth = 3; mctx.beginPath(); mctx.arc(cx, cx, FENCE_R * k, p.i / 8 * Math.PI * 2, (p.i + 1) / 8 * Math.PI * 2); mctx.stroke(); } }
+        else if (it) { mctx.fillStyle = it.type === 'cannon' ? '#3a3a44' : '#5a7ab8'; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 4.5, 0, 7); mctx.fill(); }
+        else { mctx.strokeStyle = '#d8a010'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 3.5, 0, 7); mctx.stroke(); } });
+      mctx.fillStyle = '#c8302a'; mctx.fillRect(cx - 4, cx - 5, 8, 8);
+      mctx.fillStyle = '#4a8a3a'; mctx.beginPath(); mctx.arc(X(38), Z(34), 6, 0, 7); mctx.fill();
       mctx.fillStyle = '#7a8296'; mctx.beginPath(); mctx.arc(X(-38), Z(-31), 9, 0, 7); mctx.fill();
       piles.forEach(p => { mctx.fillStyle = '#f2b81a'; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 3.2, 0, 7); mctx.fill(); });
       targets.forEach(o => {
@@ -687,9 +903,60 @@ CZ.screens.valley = (function () {
       });
     }
     let mapT = 0;
+    const tshots = [], booms = [];
+    const cannonGeo = new THREE.SphereGeometry(0.3, 10, 8), cannonMat = toon(0x2a2a32);
+    function boomFx(x, z) { const m = new THREE.Mesh(new THREE.SphereGeometry(0.5, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffb04a, transparent: true, opacity: 0.8, depthWrite: false })); m.position.set(x, 0.6, z); scene.add(m); booms.push({ m, t: 0 }); }
+    const downEl = h('div', { class: 'def-down' }, h('b', { text: t('def.down') }));
+    function hurt(n) {
+      if (P.down > 0 || P.hurtT > 0) return;
+      P.hurtT = 0.35; P.hp -= n;
+      CZ.audio.sfx('hit'); CZ.audio.vibrate(40);
+      wrap.classList.remove('hurt'); void wrap.offsetWidth; wrap.classList.add('hurt');
+      if (P.hp <= 0) { P.hp = 0; P.down = 3; P.riding = false; wrap.append(downEl); CZ.audio.sfx('lose'); }
+    }
+    // Kule / çit yerinin yanına gelince panel açılır
+    let nearPad = null, panelKey = '';
+    function padNear() {
+      let best = null, bd = 2.6;
+      pads.forEach(p => { const it = slot(p); const cx = p.kind === 'f' && it ? Math.cos(p.a) * (FENCE_R + 2.2) : p.x, cz = p.kind === 'f' && it ? Math.sin(p.a) * (FENCE_R + 2.2) : p.z; const dd = Math.hypot(cx - P.x, cz - P.z); if (dd < bd) { bd = dd; best = p; } });
+      if (best !== nearPad) { nearPad = best; padUi(true); }
+      else if (nearPad && slot(nearPad) && slot(nearPad).job) padUi(false);
+    }
+    function padUi(force) {
+      const p = nearPad;
+      if (!p) { panel.classList.remove('on'); panel.replaceChildren(); panelKey = ''; return; }
+      const it = slot(p);
+      const left = jobLeft(it);
+      const key = p.kind + p.i + JSON.stringify(it) + Math.ceil(left / 1000) + (d.gold >= 0);
+      if (!force && key === panelKey) return;
+      panelKey = key;
+      const kids = [];
+      const name = p.kind === 'f' ? t('def.fence') : it ? t('def.' + it.type) : t('def.towerSpot');
+      kids.push(h('b', { class: 'def-title', text: name + (it && it.lv ? ' · ' + t('vil.lv', { n: it.lv }) : '') }));
+      if (!it) {
+        if (p.kind === 'f') kids.push(h('div', { class: 'def-row' }, btn(String(DEF.fence.price), () => payBuild(p), 'primary', 'ui.gold')));
+        else kids.push(h('div', { class: 'def-row' },
+          h('div', { class: 'def-opt' }, h('small', { text: t('def.snowD') }), btn(t('def.snow') + ' ' + DEF.snow.price, () => payBuild(p, 'snow'), 'primary', 'ui.gold')),
+          h('div', { class: 'def-opt' }, h('small', { text: t('def.cannonD') }), btn(t('def.cannon') + ' ' + DEF.cannon.price, () => payBuild(p, 'cannon'), 'primary', 'ui.gold'))));
+      } else if (it.job) {
+        const s2 = Math.ceil(left / 1000);
+        kids.push(h('small', { text: (it.lv === 0 ? t('def.building') : t('def.upgrading', { n: it.job.to })) + ' · ' + Math.floor(s2 / 60) + ':' + String(s2 % 60).padStart(2, '0') }));
+        kids.push(h('div', { class: 'def-row' },
+          btn(t('def.now') + ' ' + (it.lv === 0 ? RUSH_BUILD : rushPrice(left)), () => rushGold(p), 'primary', 'ui.gold'),
+          btn(t('def.ad'), () => rushAd(p), 'ghost-dark', 'ic:play')));
+      } else {
+        const D2 = defOf(p);
+        if (p.kind === 'f') kids.push(h('small', { text: t('def.fenceHp', { n: Math.max(0, Math.ceil(p.hp || 0)), m: p.hpMax || 0 }) }));
+        if (it.lv < D2.up.length) kids.push(h('div', { class: 'def-row' }, btn(t('def.up', { n: it.lv + 1 }) + ' · ' + D2.up[it.lv], () => payUpgrade(p), 'primary', 'ui.gold'), h('small', { text: '⏱ ' + D2.min[it.lv] + ' ' + t('def.min') })));
+        else kids.push(h('small', { text: t('up.max') }));
+      }
+      panel.replaceChildren(...kids);
+      panel.classList.add('on');
+    }
     function gain(n, quiet) {
       V.earned += n;
-      goldEl.textContent = V.earned;
+      d.gold = (d.gold || 0) + n;
+      goldEl.textContent = d.gold;
       if (!quiet) { V.streak = performance.now() - (V.lastGain || 0) < 450 ? (V.streak || 0) + 1 : 0; V.lastGain = performance.now(); CZ.audio.sfx('coin', V.streak); bump(); }
     }
     function draw(dt) {
@@ -758,7 +1025,7 @@ CZ.screens.valley = (function () {
     CZ.audio.music('play');
     if (CZ.ads.playing) CZ.ads.playing();
     // ilk girişte kısa ipucu
-    if (!d.valleyTut) { d.valleyTut = true; CZ.state.save(); const tip = h('div', { class: 'tut-tip vl-tip' }, h('span', { text: t('valley.tut') })); wrap.append(tip); setTimeout(() => tip.classList.add('out'), 6000); setTimeout(() => tip.remove(), 6600); }
+    if (!d.valleyTut2) { d.valleyTut2 = true; CZ.state.save(); const tip = h('div', { class: 'tut-tip vl-tip' }, h('span', { text: t('valley.tut') })); wrap.append(tip); setTimeout(() => tip.classList.add('out'), 6000); setTimeout(() => tip.remove(), 6600); }
   }
 
   /* ---------- Akın sonu ---------- */
@@ -767,7 +1034,7 @@ CZ.screens.valley = (function () {
     V.running = false;
     const d = CZ.state.data;
     const earned = V.earned + V.pending;
-    d.gold = (d.gold || 0) + earned;
+    d.gold = (d.gold || 0) + V.pending; V.pending = 0;
     d.valleyRuns = (d.valleyRuns || 0) + 1;
     d.valleyBest = Math.max(d.valleyBest || 0, earned);
     CZ.state.save();
@@ -801,7 +1068,7 @@ CZ.screens.valley = (function () {
   }
   function leave() {
     if (!V) return;
-    if (V.running) { const d = CZ.state.data; d.gold = (d.gold || 0) + V.earned + V.pending; CZ.state.save(); }
+    if (V.running) { const d = CZ.state.data; d.gold = (d.gold || 0) + V.pending; CZ.state.save(); }
     cancelAnimationFrame(V.raf);
     document.removeEventListener('visibilitychange', V.onHide);
     window.removeEventListener('keydown', V.kd); window.removeEventListener('keyup', V.ku);

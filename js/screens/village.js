@@ -95,6 +95,7 @@ CZ.screens.village = (function () {
     return g;
   }
 
+  CZ.villageModel = model; CZ.VILLAGE_SPOTS = SPOTS;
   function render(el) {
     el.classList.add('village-screen');
     const loading = CZ.ui.loading(el);
