@@ -5,7 +5,7 @@ CZ.screens.village = (function () {
   const VL = () => CZ.village;
   let S = null;
   // Binaların köydeki yerleri (x, z)
-  const SPOTS = { hall: [0, -1], mine: [-7.5, -6], bakery: [7, -5.5], vault: [-3.5, 4], tower: [6.5, 4.5], stable: [-8, 2.5], forge: [2.5, 7.5], lookout: [9.5, -0.5], tree: [-1.5, 9] };
+  const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7] };
 
   function model(THREE, id, L) {
     const toon = c => new THREE.MeshLambertMaterial({ color: c });
@@ -267,7 +267,7 @@ CZ.screens.village = (function () {
 
     // dokunma: binaya dokununca aç; parmakla sürükleyince kamera kayar
     const ray = new THREE.Raycaster(), mv = new THREE.Vector2();
-    const pan = { x: 0, z: 2, id: null, sx: 0, sy: 0, moved: false, bx: 0, bz: 0 };
+    const pan = { x: 0, z: 0, id: null, sx: 0, sy: 0, moved: false, bx: 0, bz: 0 };
     stage.addEventListener('pointerdown', e => { pan.id = e.pointerId; pan.sx = e.clientX; pan.sy = e.clientY; pan.bx = pan.x; pan.bz = pan.z; pan.moved = false; });
     const onMove = e => { if (e.pointerId !== pan.id) return; const dx = e.clientX - pan.sx, dy = e.clientY - pan.sy; if (Math.hypot(dx, dy) > 8) pan.moved = true; if (pan.moved) { pan.x = Math.max(-10, Math.min(10, pan.bx - dx * 0.05)); pan.z = Math.max(-8, Math.min(12, pan.bz - dy * 0.05)); } };
     const onUp = e => {
@@ -291,7 +291,7 @@ CZ.screens.village = (function () {
       S.raf = requestAnimationFrame(loop);
       const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
       const far = camera.aspect < 1 ? 1 / Math.max(0.42, camera.aspect) * 0.62 : 1;
-      const cy = 27 * far, cz = 18 * far;
+      const cy = 30 * far, cz = 19 * far;
       camera.position.set(pan.x, cy, pan.z + cz); camera.lookAt(pan.x, 0, pan.z);
       Object.values(blds).forEach(b => { if (b.g.userData.mount) b.g.userData.mount.update(dt, 0); });
       scaffold.rotation.y = Math.sin(now / 600) * 0.02;
@@ -300,7 +300,8 @@ CZ.screens.village = (function () {
         const [x, z] = SPOTS[b.id];
         v3.set(x, b.id === 'hall' ? 7 : 4.6, z).project(camera);
         const lab = labelEls[b.id];
-        lab.style.left = ((v3.x + 1) / 2 * 100) + '%'; lab.style.top = ((1 - v3.y) / 2 * 100) + '%';
+        const W2 = wrap.clientWidth || innerWidth, H2 = wrap.clientHeight || innerHeight;
+        lab.style.left = Math.max(56, Math.min(W2 - 56, (v3.x + 1) / 2 * W2)) + 'px'; lab.style.top = Math.max(150, Math.min(H2 - 100, (1 - v3.y) / 2 * H2)) + 'px';   // ekran kenarında kesilmesin
       });
       tickT -= dt;
       if (tickT <= 0) {

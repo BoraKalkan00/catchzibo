@@ -959,5 +959,10 @@ CZ.i18n.register('ar', 'العربية', {
   "vil.e.stable": "سرعة المطية +{n}%",
   "vil.e.forge": "الضرر +{n} · سرعة الرمي +{c}%",
   "vil.e.lookout": "الغارة +{n} ث",
-  "vil.e.tree": "المجد {n}"
+  "vil.e.tree": "المجد {n}",
+  "vol.all": "الصوت العام",
+  "vol.music": "الموسيقى",
+  "vol.sfx": "المؤثرات",
+  "vol.voice": "أصوات الشخصيات",
+  "vol.vibration": "الاهتزاز"
 });

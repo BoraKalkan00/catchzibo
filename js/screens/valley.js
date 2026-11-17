@@ -32,6 +32,7 @@ CZ.screens.valley = (function () {
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const WORLD_R = 58;
   const SESSION = 180;
+  const RANGE = 8.5;   // atış menzili: haritanın öbür ucuna ateş edilmez
 
   /* ---------- Dört ayaklı binekler (kodla, çizgi film tarzı) ---------- */
   function quadruped(THREE, def) {
@@ -351,6 +352,8 @@ CZ.screens.valley = (function () {
     aim.rotation.x = -Math.PI / 2; aim.visible = false; scene.add(aim);
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.1, 24), new THREE.MeshBasicMaterial({ color: 0xffe27a, transparent: true, opacity: 0.9, depthWrite: false }));
     ring.rotation.x = -Math.PI / 2; ring.visible = false; scene.add(ring);
+    const rangeRing = new THREE.Mesh(new THREE.RingGeometry(RANGE - 0.12, RANGE, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55, depthWrite: false, depthTest: false }));
+    rangeRing.rotation.x = -Math.PI / 2; rangeRing.renderOrder = 4; rangeRing.visible = false; scene.add(rangeRing);
 
     /* ---------- Mermiler ---------- */
     const shots = [];
@@ -372,7 +375,7 @@ CZ.screens.valley = (function () {
       } else m = new THREE.Mesh(ballGeo, ballMat);
       m.position.set(P.x + dx * 0.6, P.riding ? mount.seatY + 1.1 : 1.2, P.z + dz * 0.6);
       scene.add(m);
-      shots.push({ m, dx, dz, life: 0.75, sp: P.riding ? 30 : 24 });
+      const sp2 = P.riding ? 30 : 24; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2 });
       if (hero.throwNow) hero.throwNow();
       CZ.audio.sfx('throw');
     }
@@ -382,8 +385,25 @@ CZ.screens.valley = (function () {
       if (!ice.alive) return best;
       return best;
     }
+    const barBg = new THREE.MeshBasicMaterial({ color: 0x1a2040, depthTest: false, transparent: true, opacity: 0.8 });
+    const barFg = new THREE.MeshBasicMaterial({ color: 0x4ade6a, depthTest: false });
+    const barGeo = new THREE.PlaneGeometry(1, 0.16);
+    function hpBar(o) {
+      if (!o.bar) {
+        const g = new THREE.Group();
+        const bg = new THREE.Mesh(barGeo, barBg); bg.scale.x = 1.3; g.add(bg);
+        const fg = new THREE.Mesh(barGeo, barFg.clone()); fg.scale.set(1.24, 0.7, 1); fg.position.z = 0.01; g.add(fg);
+        g.renderOrder = 6; bg.renderOrder = 6; fg.renderOrder = 7;
+        scene.add(g); o.bar = { g, fg };
+      }
+      const k = Math.max(0, o.hp / o.maxHp);
+      o.bar.fg.scale.x = 1.24 * k; o.bar.fg.position.x = -0.62 * (1 - k);
+      o.bar.fg.material.color.setHex(k > 0.5 ? 0x4ade6a : k > 0.25 ? 0xffc928 : 0xff4a4a);
+    }
     function hit(o, dmg) {
       o.hp -= dmg;
+      hpBar(o);
+      floatAt(o, '-' + dmg, 'dmg');
       if (o.mesh) { if (!o.base) o.base = o.mesh.scale.x; o.mesh.scale.setScalar(o.base * 1.12); o.flash = 0.1; }
       CZ.audio.sfx(o.type === 'goblin' ? 'hit' : 'crack');
       if (o.type === 'goblin') { o.stun = 0.6; }
@@ -391,6 +411,7 @@ CZ.screens.valley = (function () {
     }
     function kill(o) {
       o.dead = true;
+      if (o.bar) { scene.remove(o.bar.g); o.bar.fg.material.dispose(); o.bar = null; }
       scene.remove(o.mesh);
       dropCoins(o.x, o.z, Math.round(o.coins / (o.type === 'chest' ? 4 : 2)), 1.2);
       V.pending += o.coins - Math.round(o.coins / (o.type === 'chest' ? 4 : 2));   // kalanı doğrudan
@@ -404,15 +425,18 @@ CZ.screens.valley = (function () {
 
     /* ---------- Arayüz ---------- */
     const goldEl = h('b', { text: '0' });
-    const timeEl = h('b', { class: 'vl-time', text: '3:00' });
+    const T0 = SESSION + B.time; const timeEl = h('b', { class: 'vl-time', text: Math.floor(T0 / 60) + ':' + String(T0 % 60).padStart(2, '0') });
     const floats = h('div', { class: 'vl-floats' });
+    const mapC = h('canvas', { class: 'vl-map', width: '220', height: '220' });
+    const mctx = mapC.getContext('2d');
+    const edgeArrows = [0, 1, 2].map(() => h('div', { class: 'vl-edge' }, h('i')));
     const stick = h('div', { class: 'vl-stick' }, h('i'));
     const fireBtn = h('button', { class: 'vl-fire', type: 'button' }, img(W.art, 'vl-fire-ico'));
     const rideBtn = h('button', { class: 'vl-ride', type: 'button', text: t('valley.ride') });
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), goldEl), timeEl),
-      pauseB, floats, stick, rideBtn, fireBtn);
+      pauseB, floats, mapC, ...edgeArrows, stick, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -422,9 +446,9 @@ CZ.screens.valley = (function () {
     resize();
     window.addEventListener('resize', resize);
     const v3 = new THREE.Vector3();
-    function floatAt(o, text) {
+    function floatAt(o, text, cls) {
       v3.set(o.x, 2.5, o.z).project(camera);
-      const f = h('div', { class: 'vl-float', text });
+      const f = h('div', { class: 'vl-float' + (cls ? ' ' + cls : ''), text });
       f.style.left = ((v3.x + 1) / 2 * 100) + '%'; f.style.top = ((1 - v3.y) / 2 * 100) + '%';
       floats.append(f); setTimeout(() => f.remove(), 1100);
     }
@@ -463,7 +487,7 @@ CZ.screens.valley = (function () {
     const aimP = { id: null, x0: 0, y0: 0, dx: 0, dy: 0, aiming: false };
     fireBtn.addEventListener('pointerdown', e => { e.preventDefault(); aimP.id = e.pointerId; aimP.x0 = e.clientX; aimP.y0 = e.clientY; aimP.dx = aimP.dy = 0; aimP.aiming = false; fireBtn.classList.add('aiming'); });
     function autoFire() {
-      const o = nearestTarget(15);
+      const o = nearestTarget(RANGE);
       if (o) fire(o.x - P.x, o.z - P.z); else fire(-Math.sin(P.dir), -Math.cos(P.dir));
     }
     rideBtn.addEventListener('click', () => {
@@ -484,13 +508,21 @@ CZ.screens.valley = (function () {
         renderer.dispose();
       }
     };
+    function resumeCount() {
+      const n = h('b', { class: 'cd-num' }); const cd = h('div', { class: 'countdown' }, n); wrap.append(cd);
+      let k = 3;
+      const tick = () => { if (!V) return; if (k === 0) { cd.remove(); V.paused = false; V.last = 0; CZ.audio.duck(0.55, 0.1); return; } n.textContent = k; n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop'); CZ.audio.sfx('button'); k--; setTimeout(tick, 650); };
+      tick();
+    }
     function pause() {
       if (!V || V.paused || !V.running) return;
       V.paused = true;
+      CZ.audio.duck(0.15, 9999);
       const box = h('div', { class: 'pause-menu' }, h('div', { class: 'pause-card' },
         h('b', { class: 'lg-title', text: t('pause.title') }),
-        btn(t('pause.resume'), () => { box.remove(); V.paused = false; V.last = 0; }, 'primary wide', 'ic:play'),
-        btn(t('pause.quit'), () => { box.remove(); V.paused = false; end(); }, 'small ghost-dark')));
+        btn(t('pause.resume'), () => { box.remove(); resumeCount(); }, 'primary wide', 'ic:play'),
+        CZ.audioPanel(),
+        btn(t('pause.quit'), () => { box.remove(); V.paused = false; CZ.audio.duck(0.55, 0.1); end(); }, 'small ghost-dark')));
       wrap.append(box);
     }
     V.pause = pause;
@@ -522,7 +554,19 @@ CZ.screens.valley = (function () {
       if (kb.ArrowLeft || kb.a) mx = -1; if (kb.ArrowRight || kb.d) mx = 1; if (kb.ArrowUp || kb.w) mz = -1; if (kb.ArrowDown || kb.s) mz = 1;
       const mag = Math.min(1, Math.hypot(mx, mz));
       P.vx += (mx * sp - P.vx) * Math.min(1, dt * 10); P.vz += (mz * sp - P.vz) * Math.min(1, dt * 10);
-      [P.x, P.z] = collide(P.x + P.vx * dt, P.z + P.vz * dt, P.riding ? 1.0 : 0.45);
+      {
+        const pr = P.riding ? 1.0 : 0.45, want = Math.hypot(P.vx, P.vz) * dt;
+        let [nx, nz] = collide(P.x + P.vx * dt, P.z + P.vz * dt, pr);
+        // ağaca/kayaya kafa kafaya girince takılma: yana kayarak etrafından dolaş
+        if (want > 0.01 && Math.hypot(nx - P.x, nz - P.z) < want * 0.35) {
+          for (const a of [0.6, -0.6, 1.2, -1.2]) {
+            const c2 = Math.cos(a), s3 = Math.sin(a), vx = P.vx * c2 - P.vz * s3, vz = P.vx * s3 + P.vz * c2;
+            const [tx, tz] = collide(P.x + vx * dt, P.z + vz * dt, pr);
+            if (Math.hypot(tx - P.x, tz - P.z) > want * 0.5) { nx = tx; nz = tz; break; }
+          }
+        }
+        P.x = nx; P.z = nz;
+      }
       const speed = Math.hypot(P.vx, P.vz);
       if (mag > 0.15 && !(aimP.aiming)) { const want = Math.atan2(-mx, -mz); let dd = want - P.dir; dd = Math.atan2(Math.sin(dd), Math.cos(dd)); P.dir += dd * Math.min(1, dt * 12); }
       if (P.riding) {
@@ -569,6 +613,7 @@ CZ.screens.valley = (function () {
         for (const o of targets) { if (o.dead || o.locked) continue; if (Math.hypot(o.x - s2.m.position.x, o.z - s2.m.position.z) < o.r + 0.35) { hitO = o; break; } }
         if (!hitO && ice.alive && Math.hypot(ice.x - s2.m.position.x, ice.z - s2.m.position.z) < ice.r) { s2.life = 0; if (!V.iceHint2) { V.iceHint2 = true; floatAt(ice, t('valley.needPolar')); } }
         if (hitO) { hit(hitO, W.dmg + B.dmg + (P.riding ? 1 : 0)); s2.life = 0; }
+        else if (solids.some(sd => sd !== ice && Math.hypot(sd.x - s2.m.position.x, sd.z - s2.m.position.z) < sd.r * 0.8)) s2.life = 0;
         if (s2.life <= 0) { scene.remove(s2.m); shots.splice(i, 1); }
       }
       // yerdeki altınlar: sıçrar, sonra oyuncuya çekilir
@@ -593,7 +638,55 @@ CZ.screens.valley = (function () {
       if (V.pending > 0) { const n = Math.min(V.pending, Math.ceil(V.pending * dt * 6)); V.pending -= n; gain(n, true); }
       flame.scale.set(1 + Math.sin(performance.now() / 90) * 0.12, 1 + Math.sin(performance.now() / 70) * 0.18, 1);
       star.rotation.y += dt;
+      mapT -= dt; if (mapT <= 0) { mapT = 0.12; drawMap(); drawEdges(); }
     }
+    // Mini harita: kutular, altın yığınları, yardakçılar, mağara, bineğin ve sen
+    function drawMap() {
+      const W2 = 220, k = W2 / 2 / (WORLD_R + 2), cx = W2 / 2;
+      const X = x => cx + x * k, Z = z => cx + z * k;
+      mctx.clearRect(0, 0, W2, W2);
+      mctx.fillStyle = 'rgba(232,240,252,.92)'; mctx.beginPath(); mctx.arc(cx, cx, cx - 2, 0, 7); mctx.fill();
+      mctx.fillStyle = 'rgba(120,190,235,.8)'; mctx.beginPath(); mctx.arc(X(20), Z(-16), 10.5 * k, 0, 7); mctx.fill();
+      mctx.fillStyle = '#c8302a'; [[-26, 8], [-14, 6], [-28, 20], [-12, 22], [-20, 30], [-33, 12]].forEach(([x, z]) => mctx.fillRect(X(x) - 4, Z(z) - 4, 8, 8));
+      mctx.fillStyle = '#4a8a3a'; mctx.beginPath(); mctx.arc(X(28), Z(26), 7, 0, 7); mctx.fill();
+      mctx.fillStyle = '#7a8296'; mctx.beginPath(); mctx.arc(X(-38), Z(-31), 9, 0, 7); mctx.fill();
+      piles.forEach(p => { mctx.fillStyle = '#f2b81a'; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 3.2, 0, 7); mctx.fill(); });
+      targets.forEach(o => {
+        if (o.dead) return;
+        if (o.type === 'box') { mctx.fillStyle = o.maxHp > 3 ? '#9a4ad0' : '#e0323a'; mctx.fillRect(X(o.x) - 4.5, Z(o.z) - 4.5, 9, 9); mctx.strokeStyle = '#fff'; mctx.lineWidth = 1.5; mctx.strokeRect(X(o.x) - 4.5, Z(o.z) - 4.5, 9, 9); }
+        else if (o.type === 'goblin') { mctx.fillStyle = '#2fa040'; mctx.beginPath(); mctx.arc(X(o.x), Z(o.z), 5, 0, 7); mctx.fill(); mctx.strokeStyle = '#fff'; mctx.stroke(); }
+        else if (o.type === 'chest') { mctx.fillStyle = o.locked ? '#7fd0ff' : '#ffd23a'; mctx.font = 'bold 16px sans-serif'; mctx.textAlign = 'center'; mctx.fillText(o.locked ? '❄' : '★', X(o.x), Z(o.z) + 6); }
+      });
+      if (!P.riding) { mctx.fillStyle = '#7a4a2a'; mctx.beginPath(); mctx.arc(X(M.x), Z(M.z), 5, 0, 7); mctx.fill(); }
+      // görüş alanı ve oyuncu oku
+      mctx.strokeStyle = 'rgba(30,40,80,.35)'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(X(P.x), Z(P.z), RANGE * k, 0, 7); mctx.stroke();
+      mctx.save(); mctx.translate(X(P.x), Z(P.z)); mctx.rotate(-P.dir);
+      mctx.fillStyle = '#ffffff'; mctx.strokeStyle = '#1a2040'; mctx.lineWidth = 3;
+      mctx.beginPath(); mctx.moveTo(0, -10); mctx.lineTo(7, 7); mctx.lineTo(0, 3); mctx.lineTo(-7, 7); mctx.closePath(); mctx.stroke(); mctx.fill();
+      mctx.restore();
+      mctx.strokeStyle = 'rgba(255,255,255,.95)'; mctx.lineWidth = 4; mctx.beginPath(); mctx.arc(cx, cx, cx - 2, 0, 7); mctx.stroke();
+    }
+    // Ekran dışındaki en yakın kutulara kenar okları
+    function drawEdges() {
+      const list = targets.filter(o => !o.dead && !o.locked && o.type !== 'goblin').map(o => ({ o, d: Math.hypot(o.x - P.x, o.z - P.z) }))
+        .filter(x => { v3.set(x.o.x, 0.6, x.o.z).project(camera); return Math.abs(v3.x) > 0.95 || Math.abs(v3.y) > 0.9; })
+        .sort((a, b) => a.d - b.d).slice(0, 3);
+      edgeArrows.forEach((a, i) => {
+        const it = list[i];
+        if (!it) { a.style.display = 'none'; return; }
+        const dx = it.o.x - P.x, dz = it.o.z - P.z, L2 = Math.hypot(dx, dz);
+        const W2 = ui.clientWidth, H2 = ui.clientHeight;
+        const sx = dx / L2, sy = dz / L2;
+        const tt = Math.min((W2 / 2 - 34) / Math.max(0.01, Math.abs(sx)), (H2 / 2 - (sy > 0 ? 190 : 150)) / Math.max(0.01, Math.abs(sy)));   // alttaki düğmelere binmesin
+        a.style.display = 'block';
+        a.style.left = (W2 / 2 + sx * tt) + 'px'; a.style.top = (H2 / 2 + sy * tt) + 'px';
+        a.style.transform = `translate(-50%,-50%) rotate(${Math.atan2(sy, sx)}rad)`;
+        a.firstChild.style.transform = `rotate(${-Math.atan2(sy, sx)}rad)`;
+        a.firstChild.textContent = Math.round(L2) + 'm';
+        a.classList.toggle('big', it.o.type === 'chest' || it.o.maxHp > 3);
+      });
+    }
+    let mapT = 0;
     function gain(n, quiet) {
       V.earned += n;
       goldEl.textContent = V.earned;
@@ -622,8 +715,10 @@ CZ.screens.valley = (function () {
         aim.rotation.set(-Math.PI / 2, 0, Math.atan2(dx, -dz) * -1);
         P.dir = Math.atan2(-dx / L2, -dz / L2);
       }
+      targets.forEach(o => { if (o.bar) { o.bar.g.position.set(o.x, o.type === 'goblin' ? 2.3 : 2.1, o.z); o.bar.g.quaternion.copy(camera.quaternion); } });
       // otomatik hedef halkası
-      const o = nearestTarget(15);
+      const o = nearestTarget(RANGE);
+      rangeRing.visible = aimP.id !== null; rangeRing.position.set(P.x, 0.04, P.z);
       ring.visible = !!o && !aimP.aiming;
       if (o) { ring.position.set(o.x, 0.05, o.z); ring.scale.setScalar(o.r + 0.3 + Math.sin(performance.now() / 150) * 0.06); }
       // Albion gibi yukarıdan, hafif açılı kamera

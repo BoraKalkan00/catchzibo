@@ -615,7 +615,7 @@ CZ.screens.chase = (function () {
         h('b', { class: 'lg-title', text: t('pause.title') }),
         c.endless ? h('p', { class: 'pause-score', text: Math.floor(c.score).toLocaleString() }) : null,
         btn(t('pause.resume'), () => { box.remove(); countdown(() => {}); }, 'primary wide', 'ic:play'),
-        btn(t('pause.sound') + (CZ.state.data.sound ? ': ✓' : ': ✕'), e => { const d = CZ.state.data; d.sound = !d.sound; CZ.state.save(); e.currentTarget.lastChild.textContent = t('pause.sound') + (d.sound ? ': ✓' : ': ✕'); }, 'ghost-dark wide'),
+        CZ.audioPanel(),
         btn(t('pause.quit'), () => CZ.ui.confirmBox(t('pause.quitAsk'), t('pause.quit'), t('common.no'), () => { box.remove(); c.paused = false; if (c.endless) { c.lives = 0; escaped('lives'); } else CZ.ui.go('hub'); }, 'danger'), 'small ghost-dark')));
     c.el.append(box);
   }

@@ -1140,5 +1140,10 @@ CZ.i18n.register('en', 'English', {
   "vil.e.stable": "Mount speed +{n}%",
   "vil.e.forge": "Damage +{n} · fire rate +{c}%",
   "vil.e.lookout": "Raid time +{n} s",
-  "vil.e.tree": "Glory {n}"
+  "vil.e.tree": "Glory {n}",
+  "vol.all": "Master volume",
+  "vol.music": "Music",
+  "vol.sfx": "Sound effects",
+  "vol.voice": "Character voices",
+  "vol.vibration": "Vibration"
 });

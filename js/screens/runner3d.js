@@ -118,8 +118,11 @@ CZ.runner3d = (function () {
     });
   }
 
+  // Aynı renkteki parıltı dokusu bir kez çizilir (eskiden her zümrütte yenisi yaratılıp hiç silinmiyordu)
+  const glowCache = {};
   function glowTex(color) {
-    return canvasTex(64, 64, (x, w) => {
+    if (glowCache[color] && glowCache[color].image) return glowCache[color];
+    return glowCache[color] = canvasTex(64, 64, (x, w) => {
       const g = x.createRadialGradient(32, 32, 2, 32, 32, 32);
       g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
       x.fillStyle = g; x.fillRect(0, 0, w, w);
@@ -333,7 +336,7 @@ CZ.runner3d = (function () {
         merged.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
         merged.setAttribute('color', new THREE.BufferAttribute(col, 3));
         merged.computeBoundingSphere();
-        g.add(new THREE.Mesh(merged, k === 'basic' ? bakedBasic : bakedLambert));
+        const bm = new THREE.Mesh(merged, k === 'basic' ? bakedBasic : bakedLambert); bm.userData.own = true; g.add(bm);
       });
       return g;
     }
@@ -644,7 +647,7 @@ CZ.runner3d = (function () {
         B.wave.scale.setScalar(0.5 + k * 5); B.wave.material.opacity = Math.max(0, 1 - k);
         B.wave.position.z += s.speed * dt; B.ball.position.z += s.speed * dt;
         B.puffs.forEach(q => { q.p.position.addScaledVector(q.v, dt); q.p.position.z += s.speed * dt * 0.6; q.p.scale.setScalar(0.6 + k * 1.6); q.p.material.opacity = Math.max(0, 0.9 - k * 0.9); });
-        if (k >= 1.4) { scene.remove(B.ball, B.wave); B.puffs.forEach(q => scene.remove(q.p)); booms.splice(i, 1); }
+        if (k >= 1.4) { scene.remove(B.ball, B.wave); B.ball.geometry.dispose(); B.ball.material.dispose(); B.wave.material.dispose(); B.puffs.forEach(q => { scene.remove(q.p); q.p.material.dispose(); }); booms.splice(i, 1); }
       }
     }
     const chainMat = new THREE.MeshBasicMaterial({ color: 0xd8dde8 });
@@ -709,6 +712,13 @@ CZ.runner3d = (function () {
     }
 
     /* ---------- Engeller ve toplanacaklar ---------- */
+    // Kaldırılan engelin kendine ait (pişirilmiş) geometrisini ve soluklaşma malzemelerini GPU'dan sil.
+    // Eskiden silinmiyordu: koşu uzadıkça bellek dolup takılma yapıyordu.
+    function drop(o) {
+      scene.remove(o.mesh);
+      o.mesh.traverse(c => { if (c.userData && c.userData.own && c.geometry) c.geometry.dispose(); });
+      if (o.fadeMats) { o.fadeMats.forEach(m => m.dispose()); o.fadeMats = null; }
+    }
     function addObj(o) {
       if (o.mesh.isGroup) { if (o.mesh.userData.wobble) o.mesh.children.forEach(u => u.isGroup && bake(u)); else bake(o.mesh); }
       o.mesh.position.z = SPAWN_Z; scene.add(o.mesh); s.objs.push(o); return o;
@@ -1401,7 +1411,7 @@ CZ.runner3d = (function () {
         o.mesh.position.z += dz + (o.vz || 0) * dt;
         const z = o.mesh.position.z;
         if (o.oncoming && !o.honk && z > -55) { o.honk = true; CZ.audio.sfx('horn'); }
-        if (z > KILL_Z + (o.type === 'deco' ? o.len / 2 : 0)) { scene.remove(o.mesh); s.objs.splice(i, 1); continue; }
+        if (z > KILL_Z + (o.type === 'deco' ? o.len / 2 : 0)) { drop(o); s.objs.splice(i, 1); continue; }
         if (o.type === 'deco') { const inside = z + o.len / 2 > 0 && z - o.len / 2 < 2; if (inside) s.dimHit = 1; continue; }
         if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
         if (o.type === 'train' || o.type === 'wall') {
@@ -1653,7 +1663,7 @@ CZ.runner3d = (function () {
         s.py = s.flyY; s.jumping = s.py > 0.05; s.vy = 0;
         s.invT = Math.max(s.invT, 1.6);
         // iniş yeri temiz olsun
-        for (let i = s.objs.length - 1; i >= 0; i--) { const o = s.objs[i]; if (o.mesh.position.z > -30) { scene.remove(o.mesh); s.objs.splice(i, 1); } }
+        for (let i = s.objs.length - 1; i >= 0; i--) { const o = s.objs[i]; if (o.mesh.position.z > -30) { drop(o); s.objs.splice(i, 1); } }
         if (s.busy) s.busy = s.busy.map(() => 0);
         s.nextRow = 12;
         if (opts.onFly) opts.onFly(false);
@@ -1711,7 +1721,7 @@ CZ.runner3d = (function () {
       o.dead = true;
       o.passed = true;
       const pos = o.mesh.position.clone(); pos.y = 0.7;
-      scene.remove(o.mesh);
+      drop(o);
       s.objs.splice(s.objs.indexOf(o), 1);
       const n = Math.round(o.def.gold * (s.doubleT > 0 ? 2 : 1) * (opts.perk.goldMul || 1));
       s.gold += n;
@@ -1787,10 +1797,23 @@ CZ.runner3d = (function () {
     function onVis() { last = 0; }
     document.addEventListener('visibilitychange', onVis);
 
+    // ISINMA: her engel türü bir kez kurulup gölgelendiricileri derlenir. Böylece ilk tren / tünel / kızak
+    // geldiğinde telefon yarım saniye donmaz (koşunun "takılma" sebebiydi).
+    try {
+      const n0 = s.objs.length;
+      [() => hurdle(0), () => snowman(1), () => banner(2), () => sled(0), () => soldiers(1), () => crate(2), () => train(0, true), () => train(1, false, true), () => tunnel()].forEach(f => { try { f(); } catch (e) { /* tür yoksa geç */ } });
+      const warm = s.objs.splice(n0);
+      const hidden = [];
+      scene.traverse(o => { if (!o.visible && o !== scene) { hidden.push(o); o.visible = true; } });
+      renderer.compile(scene, camera);
+      hidden.forEach(o => { o.visible = false; });
+      warm.forEach(drop);
+    } catch (e) { /* ısınma olmazsa oyun yine çalışır */ }
+
     raf = requestAnimationFrame(loop);
 
     return {
-      ready,
+      ready, renderer,
       state: s,
       go(intro) { s.running = true; last = 0; if (intro) { s.introT = 1; s.introLook = true; } },
       pause(on) { s.paused = !!on; last = 0; },
@@ -1842,11 +1865,11 @@ CZ.runner3d = (function () {
       devTrain(lane, on) { train(lane, !on, !!on); },
       devTunnel() { tunnel(); },
       devPower(k) { collect({ kind: k, mesh: { position: new THREE.Vector3(s.px, 1, 0) } }); },
-      caught() { s.catching = 0.0001; s.ziboForce = 'dizzy'; s.running = false; s.objs.forEach(o => scene.remove(o.mesh)); s.objs = []; },
+      caught() { s.catching = 0.0001; s.ziboForce = 'dizzy'; s.running = false; s.objs.forEach(o => drop(o)); s.objs = []; },
       setDead(v) { s.dead = v; },
       // Reklam/elmasla devam: önündeki engeller temizlenir, kısa süre dokunulmazsın.
       revive() {
-        s.objs.slice().forEach(o => { if (o.mesh.position.z > -30) { scene.remove(o.mesh); s.objs.splice(s.objs.indexOf(o), 1); } });
+        s.objs.slice().forEach(o => { if (o.mesh.position.z > -30) { drop(o); s.objs.splice(s.objs.indexOf(o), 1); } });
         s.hearts = 1; s.dead = false; s.invT = 2.5; s.laughT = 0; s.ziboForce = null;
         s.running = true; last = 0;
       },

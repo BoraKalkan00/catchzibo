@@ -959,5 +959,10 @@ CZ.i18n.register('de', 'Deutsch', {
   "vil.e.stable": "Reittier-Tempo +{n}%",
   "vil.e.forge": "Schaden +{n} · Feuerrate +{c}%",
   "vil.e.lookout": "Raubzug +{n} s",
-  "vil.e.tree": "Pracht {n}"
+  "vil.e.tree": "Pracht {n}",
+  "vol.all": "Gesamtlautstärke",
+  "vol.music": "Musik",
+  "vol.sfx": "Soundeffekte",
+  "vol.voice": "Figurenstimmen",
+  "vol.vibration": "Vibration"
 });

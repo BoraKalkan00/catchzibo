@@ -959,5 +959,10 @@ CZ.i18n.register('pt', 'Português', {
   "vil.e.stable": "Velocidade da montaria +{n}%",
   "vil.e.forge": "Dano +{n} · cadência +{c}%",
   "vil.e.lookout": "Incursão +{n} s",
-  "vil.e.tree": "Glória {n}"
+  "vil.e.tree": "Glória {n}",
+  "vol.all": "Volume geral",
+  "vol.music": "Música",
+  "vol.sfx": "Efeitos sonoros",
+  "vol.voice": "Vozes",
+  "vol.vibration": "Vibração"
 });

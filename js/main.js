@@ -35,7 +35,7 @@
     if (scr && scr.onBack && scr.onBack()) return;
     if (name === 'hub' || name === 'title') {
       CZ.ui.confirmBox(CZ.t('exit.ask'), CZ.t('exit.yes'), CZ.t('common.no'), () => capApp.exitApp(), 'danger');
-    } else if (name === 'chase' || name === 'play' || name === 'gold') {
+    } else if (name === 'chase' || name === 'play' || name === 'valley') {
       CZ.ui.confirmBox(CZ.t('pause.quitAsk'), CZ.t('pause.quit'), CZ.t('common.no'), () => CZ.ui.go('hub'), 'danger');
     } else CZ.ui.go('hub');
   });

@@ -4,6 +4,7 @@ CZ.audio = (function () {
   let ctx = null;
   let master = null;
   let musicBus = null;
+  let musicVol = null, sfxBus = null, voiceBus = null, outGain = null;
   let analyser = null;
   let noiseBuffer = null;
 
@@ -15,11 +16,18 @@ CZ.audio = (function () {
       master = ctx.createDynamicsCompressor();
       analyser = ctx.createAnalyser();
       analyser.fftSize = 2048;
-      master.connect(analyser);
+      // Ayarlar menüsü için ayrı ses kanalları: genel, müzik, efekt, karakter sesi
+      outGain = ctx.createGain();
+      master.connect(outGain);
+      outGain.connect(analyser);
       analyser.connect(ctx.destination);
+      musicVol = ctx.createGain(); musicVol.connect(master);
+      sfxBus = ctx.createGain(); sfxBus.connect(master);
+      voiceBus = ctx.createGain(); voiceBus.connect(master);
       musicBus = ctx.createGain();
       musicBus.gain.value = 0.55;
-      musicBus.connect(master);
+      musicBus.connect(musicVol);
+      applyVolume();
       noiseBuffer = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       const data = noiseBuffer.getChannelData(0);
       for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
@@ -33,7 +41,7 @@ CZ.audio = (function () {
   const midi = n => 440 * Math.pow(2, (n - 69) / 12);
 
   function tone(freq, start, dur, opts) {
-    const o = Object.assign({ type: 'sine', gain: 0.15, to: null, out: master, attack: 0.012 }, opts);
+    const o = Object.assign({ type: 'sine', gain: 0.15, to: null, out: sfxBus, attack: 0.012 }, opts);
     const osc = ctx.createOscillator();
     const amp = ctx.createGain();
     osc.type = o.type;
@@ -50,7 +58,7 @@ CZ.audio = (function () {
   }
 
   function noise(start, dur, opts) {
-    const o = Object.assign({ gain: 0.15, freq: 1500, q: 1, type: 'bandpass', to: null, out: master }, opts);
+    const o = Object.assign({ gain: 0.15, freq: 1500, q: 1, type: 'bandpass', to: null, out: sfxBus }, opts);
     const src = ctx.createBufferSource();
     src.buffer = noiseBuffer;
     src.loop = true;
@@ -113,7 +121,7 @@ CZ.audio = (function () {
       amp.gain.exponentialRampToValueAtTime(0.9, time + 0.018);
       amp.gain.setValueAtTime(0.9, time + dur * 0.6);
       amp.gain.exponentialRampToValueAtTime(0.0001, time + dur);
-      amp.connect(master);
+      amp.connect(voiceBus);
       osc.start(time);
       vibrato.start(time);
       osc.stop(time + dur + 0.02);
@@ -237,7 +245,7 @@ CZ.audio = (function () {
     // art arda altında ses tiz tize yükselir (Subway Surfers'taki gibi ödül hissi)
     src.playbackRate.value = name === 'coin' ? 1 + Math.min(step || 0, 14) * 0.045 : 0.95 + Math.random() * 0.1;
     const g = ctx.createGain(); g.gain.value = S[1];
-    src.connect(g); g.connect(master);
+    src.connect(g); g.connect(sfxBus);
     src.start();
     return true;
   }
@@ -413,6 +421,23 @@ CZ.audio = (function () {
     else ctx.resume();
   });
 
+  // Ses seviyeleri (0..1): data.vol = { all, music, sfx, voice }
+  const vol = () => Object.assign({ all: 1, music: 1, sfx: 1, voice: 1 }, CZ.state.data.vol || {});
+  function applyVolume() {
+    if (!ctx) return;
+    const v = vol(), now = ctx.currentTime;
+    outGain.gain.setTargetAtTime(v.all, now, 0.02);
+    musicVol.gain.setTargetAtTime(v.music, now, 0.02);
+    sfxBus.gain.setTargetAtTime(v.sfx, now, 0.02);
+    voiceBus.gain.setTargetAtTime(v.voice, now, 0.02);
+  }
+  function setVolume(k, x) {
+    const D = CZ.state.data;
+    D.vol = Object.assign(vol(), { [k]: Math.max(0, Math.min(1, x)) });
+    CZ.state.save();
+    applyVolume();
+  }
+
   // Test için: o anki ses seviyesi.
   function level() {
     if (!analyser) return null;
@@ -424,5 +449,33 @@ CZ.audio = (function () {
     return { peak, rms: Math.sqrt(sum / buf.length), state: ctx.state };
   }
 
-  return { unlock, speak, sfx, charge, music, duck, vibrate, level, setTempo: m => { tempo = m; }, get song() { return songName; } };
+  return { unlock, speak, sfx, charge, music, duck, vibrate, level, vol, setVolume, applyVolume, setTempo: m => { tempo = m; }, get song() { return songName; } };
 })();
+
+// Duraklatma menüsündeki ses ayarları: genel ses, müzik, efektler, karakter sesleri ve titreşim.
+CZ.audioPanel = function () {
+  const { h } = CZ.ui;
+  const t = CZ.t;
+  const D = CZ.state.data;
+  const v = CZ.audio.vol();
+  const row = (k, label) => {
+    const val = h('b', { class: 'vol-val', text: Math.round(v[k] * 100) + '%' });
+    const inp = h('input', { type: 'range', min: '0', max: '100', step: '5', value: String(Math.round(v[k] * 100)), class: 'vol-range', 'aria-label': label });
+    inp.addEventListener('input', () => {
+      const x = +inp.value / 100;
+      val.textContent = inp.value + '%';
+      if (k === 'all') D.sound = x > 0;
+      if (k === 'music') D.music = x > 0;
+      CZ.audio.unlock();
+      CZ.audio.setVolume(k, x);
+    });
+    inp.addEventListener('change', () => { if (k !== 'music') CZ.audio.sfx(k === 'voice' ? 'star' : 'coin'); });
+    return h('label', { class: 'vol-row' }, h('span', { text: label }), inp, val);
+  };
+  const vib = h('button', { type: 'button', class: 'vol-toggle' + (D.vibration ? ' on' : ''), onClick: () => {
+    D.vibration = !D.vibration; CZ.state.save(); vib.classList.toggle('on', D.vibration); vib.lastChild.textContent = D.vibration ? t('settings.on') : t('settings.off');
+    CZ.audio.vibrate(40);
+  } }, h('span', { text: t('vol.vibration') }), h('b', { text: D.vibration ? t('settings.on') : t('settings.off') }));
+  return h('div', { class: 'vol-panel' },
+    row('all', t('vol.all')), row('music', t('vol.music')), row('sfx', t('vol.sfx')), row('voice', t('vol.voice')), vib);
+};

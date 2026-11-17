@@ -959,5 +959,10 @@ CZ.i18n.register('ja', '日本語', {
   "vil.e.stable": "乗り物の速さ+{n}%",
   "vil.e.forge": "ダメージ+{n}・連射+{c}%",
   "vil.e.lookout": "探索+{n}秒",
-  "vil.e.tree": "かがやき{n}"
+  "vil.e.tree": "かがやき{n}",
+  "vol.all": "全体の音量",
+  "vol.music": "音楽",
+  "vol.sfx": "効果音",
+  "vol.voice": "キャラの声",
+  "vol.vibration": "振動"
 });

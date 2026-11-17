@@ -1737,3 +1737,30 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .vil-eff > div { flex: 1; padding: 8px; border-radius: 12px; background: rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 2px; }
 .vil-eff > div.next { background: rgba(47,160,90,.15); }
 .vil-eff b { font-size: 14px; }
+
+/* Ses ayarları paneli */
+.vol-panel { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 10px 12px; border-radius: 16px; background: rgba(0,0,0,.07); }
+.vol-row { display: grid; grid-template-columns: 1fr 1.3fr 42px; align-items: center; gap: 8px; font-weight: 800; font-size: 13px; text-align: left; }
+.vol-range { width: 100%; accent-color: #2fa05a; height: 28px; }
+.vol-val { font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+.vol-toggle { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 12px; border: 2px solid rgba(0,0,0,.15); background: #fff; font-weight: 800; font-size: 13px; color: inherit; }
+.vol-toggle b { color: #c8242e; }
+.vol-toggle.on b { color: #2fa05a; }
+.pause-card { max-height: 92vh; overflow-y: auto; }
+.vl-map { position: absolute; left: 10px; top: calc(54px + var(--safe-top, 0px)); width: 104px; height: 104px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,.3); pointer-events: none; }
+.vl-edge { position: absolute; display: none; width: 46px; height: 30px; pointer-events: none; z-index: 5; }
+.vl-edge::before { content: ''; position: absolute; right: 0; top: 50%; margin-top: -11px; border-left: 18px solid #ffd23a; border-top: 11px solid transparent; border-bottom: 11px solid transparent; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+.vl-edge i { position: absolute; left: 0; top: 50%; margin-top: -10px; font-style: normal; font-weight: 900; font-size: 12px; color: #fff; background: rgba(10,16,40,.75); padding: 1px 5px; border-radius: 8px; white-space: nowrap; }
+.vl-edge.big::before { border-left-color: #c77dff; }
+
+/* Büyütülmüş dokunma alanı (::before) taşma gizlendiği için çalışmıyordu: taşmayı aç, dolguyu daireyle kırp */
+.chase-field3d .hook-btn, .sled-btn { overflow: visible; }
+.chase-field3d .hook-cool { top: 0; height: auto; border-radius: 50%; clip-path: inset(calc((1 - var(--cool, 0)) * 100%) 0 0 0); }
+.sled-btn i { top: 0; height: auto; border-radius: 50%; clip-path: inset(calc((1 - var(--fill)) * 100%) 0 0 0); transition: clip-path .2s; }
+/* Duraklatma panelinde koyu yazı (krem zeminde okunmuyordu) */
+.pause-card .vol-panel, .vol-panel { color: #3a2414; }
+.vol-toggle { color: #3a2414; }
+.vol-toggle span { color: #3a2414; }
+.pause-card .vol-toggle span, .pause-card .vol-row span, .vol-row span { color: #3a2414 !important; }
+.vl-float.dmg { color: #fff; font-size: 15px; animation-duration: .7s; }
+.vl-map { width: 122px; height: 122px; }

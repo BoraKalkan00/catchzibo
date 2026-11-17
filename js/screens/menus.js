@@ -477,9 +477,7 @@
           row(t('settings.avatar'), h('div', { class: 'set-avatar' },
             CZ.charArt.img(d.avatar || 'girl', 'front', 'set-avatar-img'),
             btn(t('settings.change'), () => go('chars', { returnTo: 'settings' }), 'small ghost-dark'))),
-          row(t('settings.sound'), toggle('sound')),
-          row(t('settings.music'), toggle('music')),
-          row(t('settings.vibration'), toggle('vibration')),
+          CZ.audioPanel(),
           CZ.notify.available() ? row(t('settings.notify'), h('button', {
             class: 'toggle' + (d.notify !== false ? ' on' : ''), type: 'button', role: 'switch', 'aria-checked': String(d.notify !== false),
             onClick: () => { d.notify = d.notify === false; d.notifyAsked = false; state.save(); if (d.notify) CZ.notify.askOnce(); CZ.notify.schedule(); CZ.ui.refresh(); },

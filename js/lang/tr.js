@@ -1140,5 +1140,10 @@ CZ.i18n.register('tr', 'Türkçe', {
   "vil.e.stable": "Binek hızı +%{n}",
   "vil.e.forge": "Vuruş +{n} · atış hızı +%{c}",
   "vil.e.lookout": "Akın süresi +{n} sn",
-  "vil.e.tree": "Görkem {n}"
+  "vil.e.tree": "Görkem {n}",
+  "vol.all": "Genel ses",
+  "vol.music": "Müzik",
+  "vol.sfx": "Ses efektleri",
+  "vol.voice": "Karakter sesleri",
+  "vol.vibration": "Titreşim"
 });

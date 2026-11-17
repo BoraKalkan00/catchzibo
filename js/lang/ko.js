@@ -959,5 +959,10 @@ CZ.i18n.register('ko', '한국어', {
   "vil.e.stable": "탈것 속도 +{n}%",
   "vil.e.forge": "피해 +{n} · 연사 +{c}%",
   "vil.e.lookout": "습격 +{n}초",
-  "vil.e.tree": "영광 {n}"
+  "vil.e.tree": "영광 {n}",
+  "vol.all": "전체 볼륨",
+  "vol.music": "음악",
+  "vol.sfx": "효과음",
+  "vol.voice": "캐릭터 목소리",
+  "vol.vibration": "진동"
 });
