@@ -562,6 +562,7 @@ CZ.screens.chase = (function () {
   }
 
   function escaped(reason) {
+    if (CZ.pass && c && c.endless) CZ.pass.addXp(Math.min(60, Math.floor((c.score || 0) / 40)));
     if (c.endless) return endlessOver();
     stop();
     CZ.audio.sfx('lose');

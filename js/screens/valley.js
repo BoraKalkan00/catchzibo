@@ -7,10 +7,12 @@ CZ.MOUNTS = [
   { id: 'polar', price: 3500, speed: 10, color: 0xf3f3ee, light: 0xdcd6c8, kind: 'bear' },
   { id: 'deer', price: 6000, speed: 13, color: 0x8a5230, light: 0xe2c49a, kind: 'deer' },
   { id: 'wolf', price: 9000, speed: 14, color: 0xdfe6ee, light: 0xffffff, kind: 'wolf' },
-  { id: 'mammoth', price: 15000, speed: 8.5, color: 0x6a3e22, light: 0x9a6a44, kind: 'mammoth', hp: 10 }
+  { id: 'mammoth', price: 15000, speed: 8.5, color: 0x6a3e22, light: 0x9a6a44, kind: 'mammoth', hp: 10 },
+  { id: 'goldbear', pass: true, speed: 11.5, color: 0xe0a92c, light: 0xfff0a0, kind: 'bear' },
+  { id: 'icewolf', pass: true, speed: 15, color: 0x8ad8ff, light: 0xeaf8ff, kind: 'wolf' }
 ];
 // Bineklerin özel güçleri (binerken sağ alttaki güç düğmesi)
-CZ.MOUNT_POWER = { brown: { id: 'roar', cd: 10 }, polar: { id: 'frost', cd: 12 }, deer: { id: 'dash', cd: 9 }, wolf: { id: 'pounce', cd: 7 }, mammoth: { id: 'quake', cd: 13 } };
+CZ.MOUNT_POWER = { brown: { id: 'roar', cd: 10 }, polar: { id: 'frost', cd: 12 }, deer: { id: 'dash', cd: 9 }, wolf: { id: 'pounce', cd: 7 }, mammoth: { id: 'quake', cd: 13 }, goldbear: { id: 'roar', cd: 7 }, icewolf: { id: 'pounce', cd: 5 } };
 CZ.screens.valley = (function () {
   // Ahırdaki binek resmi: 3D modelden bir kez çizilir
   const mountCache = {};
@@ -579,6 +581,7 @@ CZ.screens.valley = (function () {
       if (o.bar) { scene.remove(o.bar.g); o.bar.fg.material.dispose(); o.bar = null; }
       scene.remove(o.mesh);
       const total = o.coins + (o.stolen || 0);
+      if (o.type === 'goblin' && CZ.pass) CZ.pass.addXp(3);
       if (byTower) { gain(total, true); floatAt(o, '+' + total, 'auto'); CZ.audio.sfx('coin'); V.kills++; }   // kule vurdu: altın kendiliğinden kasaya
       else {
         dropCoins(o.x, o.z, Math.round(total / (o.type === 'chest' ? 4 : 2)), 1.2);
@@ -598,6 +601,8 @@ CZ.screens.valley = (function () {
     const timeEl = h('b', { class: 'vl-time', text: t('def.wave', { n: 1 }) });
     const hpFill = h('i'); const hpBarEl = h('div', { class: 'vl-hp' }, hpFill);
     const panel = h('div', { class: 'def-panel' });
+    const boostBtn = h('button', { type: 'button', class: 'vl-boost' }, h('b', { text: 'x2' }), h('small', { text: t('def.boost') }));
+    boostBtn.addEventListener('click', () => { if (V.boostT > 0) return; CZ.ads.show(() => { V.boostT = 300; CZ.audio.sfx('star'); floatAt(P, t('def.boostOn'), 'wave'); }); });
     // SİLAH GÜCÜ: altınla anında yükselt (vuruş +2, atış hızı +%5 her seviye)
     const POW_MAX = 15;
     const powLv = () => d.vpow || 0;
@@ -628,7 +633,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), goldEl), timeEl),
-      hpBarEl, powBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      hpBarEl, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -797,7 +802,8 @@ CZ.screens.valley = (function () {
       if (V.pending > 0) { const n = Math.min(V.pending, Math.ceil(V.pending * dt * 6)); V.pending -= n; gain(n, true); }
       V.saveT = (V.saveT || 0) - dt; if (V.saveT <= 0) { V.saveT = 3; CZ.state.save(); }
       padNear();
-      V.powT = (V.powT || 0) - dt; if (V.powT <= 0) { V.powT = 0.5; powUi(); }
+      V.powT = (V.powT || 0) - dt; if (V.powT <= 0) { V.powT = 0.5; powUi(); boostBtn.classList.toggle('on', V.boostT > 0); boostBtn.lastChild.textContent = V.boostT > 0 ? Math.ceil(V.boostT / 60) + ' ' + t('def.min') : t('def.boost'); }
+      V.boostT = Math.max(0, (V.boostT || 0) - dt);
 
       // hareket
       V.mpCd = Math.max(0, (V.mpCd || 0) - dt); V.dashT = Math.max(0, (V.dashT || 0) - dt);
@@ -995,7 +1001,8 @@ CZ.screens.valley = (function () {
     const tshots = [], booms = [];
     const cannonGeo = new THREE.SphereGeometry(0.3, 10, 8), cannonMat = toon(0x2a2a32);
     function boomFx(x, z) { const m = new THREE.Mesh(new THREE.SphereGeometry(0.5, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffb04a, transparent: true, opacity: 0.8, depthWrite: false })); m.position.set(x, 0.6, z); scene.add(m); booms.push({ m, t: 0 }); }
-    const downEl = h('div', { class: 'def-down' }, h('b', { text: t('def.down') }));
+    const reviveBtn = btn(t('def.revive'), () => CZ.ads.show(() => { if (!V || P.down <= 0) return; P.down = 0; P.hp = P.maxHp; P.hurtT = 2; downEl.remove(); CZ.audio.sfx('win'); }), 'primary', 'ic:play');
+    const downEl = h('div', { class: 'def-down' }, h('b', { text: t('def.down') }), reviveBtn);
     function hurt(n) {
       if (P.down > 0 || P.hurtT > 0 || V.dashT > 0) return;
       if (P.riding && mountDef.kind === 'mammoth') n = n / 2;   // mamut zırh gibi
@@ -1044,6 +1051,7 @@ CZ.screens.valley = (function () {
       panel.classList.add('on');
     }
     function gain(n, quiet) {
+      if (V.boostT > 0) n *= 2;   // reklamla x2 altın
       V.earned += n;
       d.gold = (d.gold || 0) + n;
       goldEl.textContent = d.gold;

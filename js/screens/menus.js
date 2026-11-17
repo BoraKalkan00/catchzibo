@@ -233,6 +233,8 @@
         h('div', { class: 'hub-rail left' },
           runOpen ? null : heistBtn,
           rb('quests', CZ.icon('list'), t('quest.short'), () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), { dot: CZ.quests.ready(), badge: h('span', {}, q.list.filter(x => x.claimed).length + '/3') }),
+          runOpen ? rb(null, img('ui.gold', 'rb-img'), t('shop.title'), () => CZ.shopUi.open(() => CZ.ui.refresh()), { hot: !(state.data.bought && state.data.bought.starter) }) : null,
+          runOpen ? rb(null, CZ.icon('star'), t('pass.short'), () => CZ.shopUi.openPass(() => CZ.ui.refresh()), { dot: CZ.pass.ready() }) : null,
           runOpen ? rb(null, CZ.icon('trophy'), t('league.short'), () => CZ.league.open(document.getElementById('app')), { badge: h('span', {}, '#' + CZ.league.rankOf()) }) : null,
           runOpen ? rb(null, CZ.icon('gift'), t('adv.short'), () => CZ.advent.open(document.getElementById('app'), () => CZ.ui.refresh()), { hot: CZ.advent.ready(), dot: CZ.advent.ready(), badge: CZ.advent.day() ? null : h('span', {}, String(CZ.advent.daysUntil())) }) : null,
           adBtn),

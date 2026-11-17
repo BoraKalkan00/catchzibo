@@ -1794,3 +1794,42 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .vl-mp b { position: relative; font-size: 12px; line-height: 1.05; text-align: center; padding: 0 4px; }
 .vl-mp.ready { animation: btnpulse .8s ease-in-out infinite; }
 .mount-img { width: 78% !important; margin: 0 auto; display: block; } .mount-tile { padding-bottom: 2px; }
+
+/* ===== Mağaza ve Kış Bileti ===== */
+.shop-modal, .pass-modal { width: min(380px, 94vw); max-height: 88vh; display: flex; flex-direction: column; gap: 8px; }
+.shop-money { display: flex; justify-content: center; gap: 14px; font-weight: 900; }
+.shop-money span { display: flex; align-items: center; gap: 4px; }
+.shop-tabs { display: flex; gap: 6px; }
+.shop-tab { flex: 1; padding: 8px 4px; border-radius: 12px; border: 2px solid rgba(0,0,0,.12); background: #fff; font-weight: 900; color: #3a2414; }
+.shop-tab.on { background: #2fa05a; color: #fff; border-color: #2fa05a; }
+.shop-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow-y: auto; padding: 4px 2px; }
+.shop-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 8px 8px; border-radius: 16px; background: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.12); text-align: center; color: #3a2414; }
+.shop-card .btn { width: 100%; }
+.shop-card.starter, .shop-card.pass-ad, .shop-card.free { grid-column: 1 / -1; }
+.shop-card.starter { background: linear-gradient(135deg, #fff2b8, #ffc94a); border: 3px solid #e0a010; }
+.shop-card.pass-ad { background: linear-gradient(135deg, #d8b8ff, #8a4ad0); color: #fff; }
+.shop-card.noads { grid-column: 1 / -1; }
+.shop-ico { width: 46px; height: 46px; }
+.shop-n { font-size: 20px; }
+.shop-name { font-size: 16px; }
+.shop-tag { position: absolute; top: -8px; right: -4px; padding: 2px 8px; border-radius: 10px; background: #d8282a; color: #fff; font-style: normal; font-weight: 900; font-size: 11px; }
+.shop-card.tag-best .shop-tag { background: #8a4ad0; }
+.pass-head { display: flex; flex-direction: column; gap: 6px; }
+.pass-bar { position: relative; height: 22px; border-radius: 12px; background: rgba(0,0,0,.15); overflow: hidden; }
+.pass-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #7af08a, #2fa05a); }
+.pass-bar span { position: relative; display: block; text-align: center; font-weight: 900; font-size: 13px; line-height: 22px; }
+.pass-cols { display: grid; grid-template-columns: 1fr 34px 1fr; text-align: center; }
+.pass-cols b { grid-column: 1; } .pass-cols b.prem { grid-column: 3; color: #b8860b; }
+.pass-list { overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding: 2px; }
+.pass-row { display: grid; grid-template-columns: 1fr 34px 1fr; align-items: center; gap: 4px; opacity: .55; }
+.pass-row.open { opacity: 1; }
+.pass-n { text-align: center; font-size: 15px; }
+.pass-cell { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 6px; border-radius: 12px; background: #fff; min-height: 44px; }
+.pass-cell.prem { background: linear-gradient(135deg, #fff2b8, #ffd76a); }
+.pass-rw { display: flex; align-items: center; gap: 3px; font-size: 13px; }
+.pass-rw small { font-size: 10px; font-weight: 800; }
+.pass-ok { color: #2fa05a; font-size: 18px; } .pass-lock { font-size: 14px; }
+.vl-boost { position: absolute; right: 10px; top: calc(118px + var(--safe-top, 0px)); display: flex; flex-direction: column; align-items: center; padding: 4px 9px; border-radius: 14px; border: 3px solid #fff; background: linear-gradient(#ffd23a, #e0a010); color: #3a2414; z-index: 6; line-height: 1.05; }
+.vl-boost b { font-size: 16px; } .vl-boost small { font-size: 10px; font-weight: 900; }
+.vl-boost.on { background: linear-gradient(#7af08a, #2fa05a); color: #fff; }
+.def-down { pointer-events: auto; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px; }

@@ -520,6 +520,7 @@ self.CZ_FILES = [
  "js/core/progress.js",
  "js/core/quests.js",
  "js/core/share.js",
+ "js/core/shop.js",
  "js/core/state.js",
  "js/core/ui.js",
  "js/core/village.js",

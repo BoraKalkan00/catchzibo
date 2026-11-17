@@ -91,6 +91,7 @@ CZ.ads = (function () {
   function gameOver(done) {
     done = done || (() => {});
     const d = CZ.state.data;
+    if (d.noAds) return done();   // Reklamsız paketi alındı: zorunlu reklam yok
     d.overs = (d.overs || 0) + 1;
     CZ.state.save();
     if (d.noAds || d.overs <= 3 || Date.now() - lastInter < CZ.ADS.interGapMs || Date.now() - (d.lastInterAt || 0) < CZ.ADS.interGapMs) return done();

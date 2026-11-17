@@ -81,7 +81,7 @@ CZ.state = (function () {
       stars: Math.max(old.stars || 0, stars || 0),
       best: old.best === undefined ? seconds : Math.min(old.best, seconds)
     };
-    data.emeralds += reward;
+    data.emeralds = (data.emeralds || 0) + (reward || 0);
     if (!old.found && !String(id).startsWith('d.')) data.newReturn = id;
     // Eski günlerin soygun kayıtlarını temizle (kayıt şişmesin).
     Object.keys(data.rounds).forEach(k => { if (k.startsWith('d.') && k.slice(2, 12) < today()) delete data.rounds[k]; });

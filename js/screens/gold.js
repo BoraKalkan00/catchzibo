@@ -68,12 +68,13 @@ CZ.screens.gold = (function () {
         class: 'rail-tile mount-tile' + ((d.mount || 'brown') === m.id ? ' on' : '') + (owned ? '' : ' locked'), type: 'button',
         onClick: () => {
           if (owned) { CZ.audio.sfx('button'); d.mount = m.id; CZ.state.save(); return CZ.ui.refresh(); }
+          if (m.pass) { CZ.audio.sfx('button'); return CZ.shopUi.openPass(() => CZ.ui.refresh()); }   // Kış Bileti ödülü
           CZ.ui.confirmBox(t('mount.' + m.id) + ': ' + t('mount.' + m.id + '.desc') + '\n\n' + t('mount.buyAsk', { n: m.price }), String(m.price), t('common.no'), () => {
             if ((d.gold || 0) < m.price) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.goldShort', { n: m.price - (d.gold || 0) })); }
             d.gold -= m.price; d.mounts.push(m.id); d.mount = m.id; CZ.state.save(); CZ.audio.sfx('win'); CZ.ui.refresh();
           }, 'primary');
         }
-      }, im, h('small', { class: 'mount-name', text: t('mount.' + m.id) }), owned ? null : h('span', { class: 'mount-price' }, img('ui.gold', 'mini-ico'), String(m.price)));
+      }, im, h('small', { class: 'mount-name', text: t('mount.' + m.id) }), owned ? null : m.pass ? h('span', { class: 'mount-price', text: '🎟 ' + t('pass.short') }) : h('span', { class: 'mount-price' }, img('ui.gold', 'mini-ico'), String(m.price)));
     };
     const action = ownedW
       ? btn(t('gold.start'), () => { CZ.audio.sfx('button'); peekWeapon = null; CZ.ui.wipeTo('valley'); }, 'primary big pulse wide lobby-go')
