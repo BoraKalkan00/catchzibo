@@ -547,6 +547,7 @@ self.CZ_FILES = [
  "js/screens/runner3d.js",
  "js/screens/story.js",
  "js/screens/toon3d.js",
+ "js/screens/valley.js",
  "js/screens/wardrobe.js",
  "js/vendor/GLTFLoader.js",
  "js/vendor/SkeletonUtils.js",

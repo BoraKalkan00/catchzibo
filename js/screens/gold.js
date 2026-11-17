@@ -59,8 +59,24 @@ CZ.screens.gold = (function () {
       }, st === 'open' ? CZ.charArt.img(c.id, 'front', 'rail-img') : h('img', { class: 'rail-img', src: CZ.chars.front(c.id), alt: '' }),
       st !== 'open' ? CZ.icon('lock', 'rail-lock') : null);
     };
+    if (!d.mounts) d.mounts = ['brown'];
+    const mTile = m => {
+      const owned = d.mounts.includes(m.id);
+      const im = h('img', { class: 'rail-img mount-img', alt: '' });
+      if (CZ.mountPortrait) CZ.mountPortrait(m.id).then(u => { im.src = u; });
+      return h('button', {
+        class: 'rail-tile mount-tile' + ((d.mount || 'brown') === m.id ? ' on' : '') + (owned ? '' : ' locked'), type: 'button',
+        onClick: () => {
+          if (owned) { CZ.audio.sfx('button'); d.mount = m.id; CZ.state.save(); return CZ.ui.refresh(); }
+          CZ.ui.confirmBox(t('mount.' + m.id) + ': ' + t('mount.' + m.id + '.desc') + '\n\n' + t('mount.buyAsk', { n: m.price }), String(m.price), t('common.no'), () => {
+            if ((d.gold || 0) < m.price) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.goldShort', { n: m.price - (d.gold || 0) })); }
+            d.gold -= m.price; d.mounts.push(m.id); d.mount = m.id; CZ.state.save(); CZ.audio.sfx('win'); CZ.ui.refresh();
+          }, 'primary');
+        }
+      }, im, h('small', { class: 'mount-name', text: t('mount.' + m.id) }), owned ? null : h('span', { class: 'mount-price' }, img('ui.gold', 'mini-ico'), String(m.price)));
+    };
     const action = ownedW
-      ? btn(t('gold.start'), () => startRound(el, true), 'primary big pulse wide lobby-go')
+      ? btn(t('gold.start'), () => { CZ.audio.sfx('button'); peekWeapon = null; CZ.ui.wipeTo('valley'); }, 'primary big pulse wide lobby-go')
       : btn(t('gold.buyWeapon', { n: showW.price }), () => { buyWeapon(showW); peekWeapon = null; }, 'big wide lobby-buy', 'ui.gold');
 
     el.append(
@@ -68,7 +84,7 @@ CZ.screens.gold = (function () {
       snow(),
       h('header', { class: 'topbar gold-top' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.back'), onClick: () => { CZ.audio.sfx('button'); peekWeapon = null; CZ.ui.go('hub'); }, text: '‹' }),
-        h('h1', { text: t('hub.gold') }),
+        h('h1', { text: t('valley.title') }),
         goldBadge()),
       h('div', { class: 'lobby' },
         h('div', { class: 'rail left' }, h('small', { class: 'rail-head', text: t('gold.weapons') }), G.weapons.map(wTile)),
@@ -80,7 +96,8 @@ CZ.screens.gold = (function () {
           h('div', { class: 'lobby-info' },
             h('strong', { text: t('weapon.' + showW.id) }),
             h('small', {}, t('gold.dmg', { n: showW.dmg }), ' · ', h('span', { class: 'dmg-bar' }, h('i', { style: `width:${showW.dmg / 9 * 100}%` }))))),
-        h('div', { class: 'rail right' }, h('small', { class: 'rail-head', text: t('chars.title') }), CZ.ROSTER.map(cTile))),
+        // Ahır: binekler (gerçekten binilir; her birinin vadide işe yarayan gücü var)
+        h('div', { class: 'rail right' }, h('small', { class: 'rail-head', text: t('mount.title') }), CZ.MOUNTS.map(mTile))),
       h('div', { class: 'lobby-bottom' },
         btn(t('up.title'), () => upgradesSheet(el), 'ghost-dark wide lobby-up', 'ic:up'),
         action));

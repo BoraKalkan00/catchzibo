@@ -1682,3 +1682,33 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .sp-bar i { display: block; height: 100%; width: 40%; background: #ffe27a; animation: spbar 1.1s ease-in-out infinite; }
 @keyframes spbar { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
 .pause-card .lg-title, .pause-score { color: #2a1a10; text-shadow: none; }
+
+/* ===== Hazine Vadisi ===== */
+.valley-screen { padding: 0 !important; }
+.valley-wrap { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
+.valley-stage, .valley-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.vl-ui { position: absolute; inset: 0; z-index: 5; touch-action: none; user-select: none; }
+.vl-top { position: absolute; top: calc(10px + var(--safe-top, 0px)); left: 12px; right: 70px; display: flex; align-items: center; justify-content: space-between; }
+.vl-top .chase-gold { position: static; }
+.vl-time { padding: 4px 14px; border-radius: 12px; background: rgba(10,16,40,.65); color: #fff; font-size: 22px; font-variant-numeric: tabular-nums; }
+.vl-time.low { background: #d8282a; animation: btnpulse .6s ease-in-out infinite; }
+.vl-pause { top: calc(8px + var(--safe-top, 0px)); }
+.vl-stick { position: fixed; width: 130px; height: 130px; margin: -65px 0 0 -65px; border-radius: 50%; background: rgba(255,255,255,.18); border: 3px solid rgba(255,255,255,.55); display: none; pointer-events: none; z-index: 6; }
+.vl-stick.on { display: block; }
+.vl-stick i { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; background: rgba(255,255,255,.9); box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+.vl-fire { position: absolute; right: 22px; bottom: calc(26px + var(--safe-bottom, 0px)); width: 104px; height: 104px; border-radius: 50%; border: 4px solid #fff; background: radial-gradient(circle at 40% 35%, #ffe27a, #e0a010); box-shadow: 0 6px 0 #a87a14, 0 10px 24px rgba(0,0,0,.4); display: grid; place-items: center; z-index: 6; touch-action: none; }
+.vl-fire::before { content: ''; position: absolute; inset: -28px; border-radius: 50%; }
+.vl-fire.aiming { background: radial-gradient(circle at 40% 35%, #fff2b8, #f2b52a); transform: scale(1.08); }
+.vl-fire-ico { width: 54px; height: 54px; pointer-events: none; }
+.vl-ride { position: absolute; right: 138px; bottom: calc(40px + var(--safe-bottom, 0px)); min-width: 74px; height: 58px; padding: 0 14px; border-radius: 18px; border: 3px solid #fff; background: rgba(10,16,40,.7); color: #fff; font-weight: 900; font-size: 16px; z-index: 6; }
+.vl-ride.near { background: #2fa05a; animation: btnpulse .8s ease-in-out infinite; }
+.vl-floats { position: absolute; inset: 0; pointer-events: none; }
+.vl-float { position: absolute; transform: translate(-50%, -50%); color: #ffe27a; font-weight: 900; font-size: 18px; white-space: nowrap; text-shadow: -2px -2px 0 #2a1a10, 2px -2px 0 #2a1a10, -2px 2px 0 #2a1a10, 2px 2px 0 #2a1a10; animation: vlfloat 1.1s ease-out forwards; }
+@keyframes vlfloat { to { transform: translate(-50%, -160%); opacity: 0; } }
+.vl-tip { top: 18%; font-size: 14px; }
+.vl-over { position: absolute; left: 0; right: 0; bottom: 0; z-index: 40; }
+.mount-tile { position: relative; }
+.mount-img { width: 100%; height: auto; }
+.mount-name { display: block; font-size: 10px; font-weight: 900; line-height: 1.05; }
+.mount-price { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 900; }
+.mount-price .mini-ico { width: 13px; height: 13px; }
