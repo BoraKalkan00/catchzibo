@@ -160,7 +160,7 @@ CZ.screens.valley = (function () {
       const n = Math.sin(x * 0.7) * Math.cos(z * 0.6) * 0.04;
       const road = Math.min(...roads.map(s => distSeg(x, z, s)));
       let c = [0.86 + n, 0.9 + n, 0.98];
-      if (road < 2.2) c = [0.6 + n, 0.54 + n, 0.5];
+      if (road < 2.2) c = [0.8 + n, 0.85 + n, 0.95];   // ezilmiş kar patikası
       if (Math.hypot(x - 20, z + 16) < 10.5) c = [0.62, 0.82, 0.95];   // donmuş göl
       if (y > 3) c = [0.82 + n, 0.86 + n, 0.94];
       col.push(...c);
@@ -213,7 +213,13 @@ CZ.screens.valley = (function () {
     const logs = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 0.4, 8), toon(0x5a3418)); logs.position.set(24, 0.2, 22); scene.add(logs);
     const flame = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.4, 8), new THREE.MeshBasicMaterial({ color: 0xffa83a, transparent: true, opacity: 0.85 })); flame.position.set(24, 1, 22); scene.add(flame);
     // Buz mağarası: sadece kutup ayısı buz duvarını kırabilir; içinde hazine sandığı
-    const cave = new THREE.Mesh(new THREE.SphereGeometry(5, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), toon(0x8a96b0)); cave.position.set(-36, 0, -30); cave.scale.set(1.3, 0.9, 1); scene.add(cave);
+    // kayalık tepe + karanlık mağara ağzı
+    const caveMat = seeThrough(new THREE.MeshLambertMaterial({ color: 0x8a94aa, flatShading: true }));
+    [[-38, -32, 3.4, 3], [-41, -28, 2.8, 2.4], [-35, -35, 2.6, 2.2], [-42, -34, 3, 2.6], [-38.5, -30, 2.2, 3.6]].forEach(([x, z, r2, hh]) => {
+      const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(r2, 0), caveMat); rk.position.set(x, hh * 0.45, z); rk.scale.set(1, hh / r2 * 0.75, 1); rk.rotation.y = x; rk.castShadow = true; scene.add(rk);
+      const cap = new THREE.Mesh(new THREE.DodecahedronGeometry(r2 * 0.6, 0), seeThrough(toon(0xffffff))); cap.position.set(x, hh * 0.45 + hh * 0.6, z); cap.scale.set(1, 0.4, 1); scene.add(cap);
+    });
+    const mouth = new THREE.Mesh(new THREE.CircleGeometry(1.8, 16, 0, Math.PI), new THREE.MeshBasicMaterial({ color: 0x141a28 })); mouth.position.set(-33.4, 0.02, -27.9); mouth.rotation.y = -0.75; scene.add(mouth);
     solids.push({ x: -40, z: -31, r: 4.2 });
     const iceWall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 3.2, 0.8), new THREE.MeshLambertMaterial({ color: 0x9fe0ff, transparent: true, opacity: 0.8 }));
     iceWall.position.set(-32, 1.6, -26.5); iceWall.rotation.y = -0.75; scene.add(iceWall);
@@ -306,8 +312,8 @@ CZ.screens.valley = (function () {
     chestG.add(at(new THREE.Mesh(new THREE.BoxGeometry(1.6, 1, 1.1), toon(0x8a5228)), 0, 0.5, 0));
     const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 1.6, 10, 1, false, 0, Math.PI), toon(0x9a6230)); lid.rotation.z = Math.PI / 2; lid.position.y = 1; chestG.add(lid);
     chestG.add(at(new THREE.Mesh(new THREE.BoxGeometry(1.64, 0.15, 1.14), toon(0xf2c230)), 0, 0.75, 0));
-    chestG.position.set(-36, 0, -30); scene.add(chestG);
-    const chest = { type: 'chest', x: -36, z: -30, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 80, locked: true };
+    chestG.position.set(-34.2, 0, -28.6); chestG.rotation.y = -0.75; scene.add(chestG);
+    const chest = { type: 'chest', x: -34.2, z: -28.6, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 80, locked: true };
     targets.push(chest);
 
     // Zibo'nun yardakçıları: çuvalla kaçar, vurulunca çuvalı düşürür
@@ -337,8 +343,8 @@ CZ.screens.valley = (function () {
     for (let i = 0; i < 4; i++) spawnGoblin();
 
     // nişan göstergesi (yerde ok)
-    const aimTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 256; const x = c.getContext('2d'); const gr = x.createLinearGradient(0, 256, 0, 0); gr.addColorStop(0, 'rgba(255,255,255,.1)'); gr.addColorStop(1, 'rgba(255,255,255,.75)'); x.fillStyle = gr; x.fillRect(16, 40, 32, 216); x.beginPath(); x.moveTo(0, 48); x.lineTo(32, 0); x.lineTo(64, 48); x.fill(); return new THREE.CanvasTexture(c); })();
-    const aim = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 9), new THREE.MeshBasicMaterial({ map: aimTex, transparent: true, depthWrite: false }));
+    const aimTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 256; const x = c.getContext('2d'); const gr = x.createLinearGradient(0, 256, 0, 0); gr.addColorStop(0, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,.95)'); x.fillStyle = gr; x.fillRect(16, 40, 32, 216); x.beginPath(); x.moveTo(0, 48); x.lineTo(32, 0); x.lineTo(64, 48); x.fill(); return new THREE.CanvasTexture(c); })();
+    const aim = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 10), new THREE.MeshBasicMaterial({ map: aimTex, color: 0xffd84a, transparent: true, depthWrite: false, depthTest: false })); aim.renderOrder = 5;
     aim.rotation.x = -Math.PI / 2; aim.visible = false; scene.add(aim);
     const ring = new THREE.Mesh(new THREE.RingGeometry(0.85, 1.1, 24), new THREE.MeshBasicMaterial({ color: 0xffe27a, transparent: true, opacity: 0.9, depthWrite: false }));
     ring.rotation.x = -Math.PI / 2; ring.visible = false; scene.add(ring);
