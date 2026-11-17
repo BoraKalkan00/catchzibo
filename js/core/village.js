@@ -3,7 +3,7 @@
 // Kule baskınlarda savunma verir, kasa altının bir kısmını Zibo'dan saklar.
 // Ahır, demirci ve gözcü kulesi Hazine Vadisi'ni güçlendirir.
 CZ.VB = [
-  { id: 'hall', max: 10, base: 1500, mul: 2.1, tbase: 2 },
+  { id: 'hall', max: 10, base: 1500, mul: 2.1, tbase: 10 },
   { id: 'mine', max: 15, base: 400, mul: 1.62, tbase: 1 },
   { id: 'bakery', max: 15, base: 250, mul: 1.6, tbase: 1 },
   { id: 'vault', max: 15, base: 600, mul: 1.6, tbase: 2 },
