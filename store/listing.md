@@ -2,80 +2,66 @@
 
 Ekran görüntüleri: bu klasördeki `tr_1.jpg … tr_8.jpg` (Türkçe) ve `en_1.jpg … en_8.jpg` (İngilizce), 1080×1920.
 Gizlilik politikası: https://borakalkan00.github.io/catchzibo/privacy.html
-Kategori: Oyun → Gündelik (Casual) · Hedef kitle: 6–12 ve tüm yaşlar (Families politikası) · Reklam içerir: Evet · Uygulama içi satın alma: Hayır
+Kategori: Oyun → Gündelik (Casual) · Hedef kitle: 6–12 ve tüm yaşlar (Families politikası) · Reklam içerir: Evet · Uygulama içi satın alma: Evet (altın/zümrüt paketleri, Kış Bileti, reklamsız)
 
 ---
 
 ## Türkçe
 
-**Uygulama adı (30):** Catch Zibo! Kış Macerası
+**Uygulama adı (30):** Catch Zibo! Goblin Köyü
 
-**Kısa açıklama (80):** Goblin Zibo Noel’i çaldı! Odada ara, eşyanı bul, kovala ve yakala!
+**Kısa açıklama (80):** Ayına bin, goblinleri kovala, altın topla, köyünü kuleyle savun!
 
 **Uzun açıklama:**
 
-Yarın büyük Noel Festivali var… ama o gece şımarık goblin Zibo bütün Karlıdere’nin süslerini, hediyelerini ve senin eşyalarını çaldı! Hepsini tepedeki eğri büğrü köşküne taşıdı. Festivali kurtarmak sana kaldı.
+Şımarık goblin Zibo ve çetesi köyüne dadandı! Mızraklı goblinler sırtlarında altın çuvallarıyla geliyor. Ayına atla, onları kovala, altınlarını geri al ve köyünü kulelerle savun!
 
-🔍 ODADA ARA, EŞYANI BUL
-Zibo’nun odaları çalıntı eşyalarla dolu. Üstteki eşyaları kaldır, kendi eşyanı gör, basılı tutup “Bu benim!” de. Yanlış eşyayı seçersen Zibo güler!
+🐻 BİNEKLERİNE BİN
+Dağ Ayısı, Kutup Ayısı, Ren Geyiği, Kar Kurdu ve dev Mamut! Her birinin kendi süper gücü var: Kükreme, Buz Nefesi, Hız, Atılma ve Deprem.
 
-🏃 KOVALA VE YAKALA
-Eşyanı bulduğun anda Zibo onu kapıp kaçar! Karlı sokakta sağa sola kay, zıpla, eğil; silahını fırlat ve onu yakala. Son anda kaçarsan “Kıl payı!” bonusu, arka arkaya kaçarsan kombo!
+🏰 KÖYÜNÜ KUR VE SAVUN
+Topladığın altınla Kartopu Kulesi ve Top Kulesi dik, köyünün etrafına çit çek. Kuleler goblinleri kendi kendine vurur, altınları sana getirir!
 
-👹 ZİBO’NUN SİNSİ AİLESİ
-Her odanın hırsızı başka: seni donduran Buzbo, uçan Uçubo, çift bomba atan Patlabo ve hepsinin reisi Kral Zibo!
+⛏️ KÖYÜNÜ BÜYÜT
+Altın Madeni ve Fırın sen yokken bile altın üretir. Köy Meydanı, Kasa, Ahır, Demirci ve Dev Noel Ağacı: her seviyede daha görkemli.
 
-🌙 HER GÜN YENİ SOYGUN
-Zibo her gün 3 eşya daha çalar, biri karanlık gece modunda: fenerinle ara! Seriyi bozma, 7. gün büyük sandık.
+🏃 SONSUZ KOŞU
+Zibo’yu karlı sokaklarda kovala: trenlerin üstünde koş, Noel Baba’nın kızağıyla uç, mıknatısla altınları topla, rekorunu kır!
 
-💰 ALTIN ÇUVALI
-Zibo altın çuvalıyla kaçıyor: vur, altınlar dökülsün! Kızak atağıyla öne fırla, rekorunu arkadaşlarınla paylaş.
-
-🐧 YARDIMCI HAYVANLAR VE KARAKTERLER
-Eşyayı koklayan Penguen, feneri büyüten Baykuş, Zibo’ya atılan Tilki… Arda, Ela, Elf, Kardan Çocuk, Ren Geyiği, Şövalye ve Noel Baba: her birinin kendi yeteneği var, seviye atlat!
+🎟️ KIŞ BİLETİ
+Her ay yeni sezon: 30 kademe, Altın Ayı, Buz Kurdu ve binlerce altın.
 
 ✨ VE DAHA FAZLASI
-• 148 sevimli kış eşyası, koleksiyon albümü
-• Günlük görevler ve hediyeler, Zibo’nun gizli günlüğü
+• Haftalık lig, günlük görevler ve Noel takvimi
+• Odada saklanan eşyaları bul, koleksiyonu tamamla
 • 9 dil, internetsiz oynanabilir
-• Gerçek parayla satın alma yok
-
-Zibo’yu yakalayabilir misin?
-
----
 
 ## English
 
-**App name (30):** Catch Zibo! Winter Adventure
+**App name (30):** Catch Zibo! Goblin Village
 
-**Short description (80):** Zibo the goblin stole Christmas! Search, find your stuff, chase and catch him!
+**Short description (80):** Ride your bear, chase goblins, grab gold and defend your village with towers!
 
 **Full description:**
 
-Tomorrow is the big Christmas Festival… but that night Zibo, a spoiled goblin, stole every ornament, every present and all of your things in Snowbrook! He hauled it all up to his crooked mansion on the hill. Saving the festival is up to you.
+Naughty goblin Zibo and his gang are raiding your village! Spear-wielding goblins carry sacks full of gold. Jump on your bear, chase them down, take the gold back and defend your village with towers!
 
-🔍 SEARCH THE ROOM, FIND YOUR STUFF
-Zibo’s rooms are stuffed with stolen goodies. Lift the items on top, spot yours and hold it to shout “That’s mine!” Pick the wrong one and Zibo laughs at you!
+🐻 RIDE YOUR MOUNTS
+Mountain Bear, Polar Bear, Reindeer, Snow Wolf and a giant Mammoth! Each one has a super power: Roar, Frost Breath, Sprint, Pounce and Quake.
 
-🏃 CHASE HIM DOWN
-The moment you find your item, Zibo grabs it and runs! Swipe, jump and slide down the snowy street, throw your weapon and catch him. Dodge at the last second for a “Close call!” bonus and chain dodges into combos!
+🏰 BUILD AND DEFEND
+Spend your gold on Snowball Towers and Cannon Towers, fence in your village. Towers shoot goblins on their own and send the gold to you!
 
-👹 ZIBO’S SNEAKY FAMILY
-Every room has a different thief: Buzbo freezes you, Flybo flies, Boombo throws double bombs, and King Zibo knows every trick!
+⛏️ GROW YOUR VILLAGE
+The Gold Mine and Bakery earn gold even while you're away. Town Hall, Vault, Stable, Forge and a Giant Christmas Tree: grander every level.
 
-🌙 A NEW HEIST EVERY DAY
-Zibo steals 3 more things every day, one of them in pitch-dark night mode: search by flashlight! Keep your streak for a big chest on day 7.
+🏃 ENDLESS RUN
+Chase Zibo through snowy streets: run on train roofs, fly Santa's sleigh, magnet up the coins and beat your record!
 
-💰 THE GOLD SACK
-Zibo runs off with a sack of gold: hit him and watch the coins spill! Sled-dash ahead and share your record with friends.
-
-🐧 HELPER PETS AND HEROES
-A Penguin that sniffs out items, an Owl that brightens your light, a Fox that pounces on Zibo… Leo, Ella, Elf, Snow Kid, Reindeer, Knight and Santa each have their own power: level them up!
+🎟️ WINTER PASS
+A new season every month: 30 tiers, Golden Bear, Ice Wolf and thousands of gold.
 
 ✨ AND MORE
-• 148 cute winter items and a collection album
-• Daily quests and gifts, Zibo’s secret diary
+• Weekly league, daily quests and an advent calendar
+• Find hidden items in rooms and complete your collection
 • 9 languages, plays offline
-• No real-money purchases
-
-Can you catch Zibo?
