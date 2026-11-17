@@ -1,6 +1,11 @@
 // Bilgisayarda yapay zekâyla üretilen 3D modeller (assets/3d/gen/*.glb). Köşe renkli, tek parça.
 // CZ.GEN3D: hangi modellerin hazır olduğu ve oyundaki boyu (h) / yönü (yaw).
-CZ.GEN3D = {};
+CZ.GEN3D = {
+  ayi: { yaw: Math.PI, seat: 0.66 }, kutupayisi: { yaw: Math.PI, seat: 0.64 }, rengeyigi: { yaw: Math.PI, seat: 0.5 },
+  kurt: { yaw: Math.PI, seat: 0.6 }, mamut: { yaw: Math.PI, seat: 0.78 },
+  kartopukulesi: {}, topkulesi: { yaw: Math.PI }, koymeydani: {}, altinmadeni: {}, firin: {}, ahir: {}, demirci: {},
+  cam_lo: {}, hediye_lo: {}, sandik_lo: {}
+};
 CZ.gen3d = (function () {
   const cache = {};
   let P = null;
@@ -13,7 +18,7 @@ CZ.gen3d = (function () {
     P = Promise.all(ids.map(id => new Promise(ok => {
       L.load('assets/3d/gen/' + id + '.glb', g => {
         const root = g.scene;
-        root.traverse(o => { if (o.isMesh) { o.material = new THREE.MeshLambertMaterial({ vertexColors: true }); o.castShadow = true; o.receiveShadow = true; } });
+        root.traverse(o => { if (o.isMesh) { o.geometry.computeVertexNormals(); o.material = new THREE.MeshLambertMaterial({ vertexColors: true }); o.castShadow = true; o.receiveShadow = true; } });
         cache[id] = root; ok();
       }, undefined, () => ok());
     })));
@@ -30,5 +35,7 @@ CZ.gen3d = (function () {
     g.add(inner);
     return g;
   }
-  return { load, has, get };
+  // İlk meshin geometrisi (InstancedMesh için)
+  function geo(id) { let g = null; cache[id].traverse(o => { if (!g && o.isMesh) { g = o.geometry.clone(); o.updateWorldMatrix(true, false); g.applyMatrix4(o.matrixWorld); } }); return g; }
+  return { load, has, get, geo };
 })();

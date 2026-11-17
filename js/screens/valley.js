@@ -305,7 +305,12 @@ CZ.screens.valley = (function () {
       tmp.position.set(tr.x, 4.62 * tr.s, tr.z); tmp.scale.set(tr.s * 0.62, tr.s * 0.5, tr.s * 0.62); tmp.updateMatrix(); snowI.setMatrixAt(i * 2, tmp.matrix);
       tmp.position.set(tr.x, 3.35 * tr.s, tr.z); tmp.scale.set(tr.s * 1.12, tr.s * 0.32, tr.s * 1.12); tmp.updateMatrix(); snowI.setMatrixAt(i * 2 + 1, tmp.matrix);
     });
-    [leafI, trunkI, snowI].forEach(m => { m.castShadow = true; }); scene.add(leafI, trunkI, snowI);
+    if (CZ.gen3d.has('cam_lo')) {
+      const tg = CZ.gen3d.geo('cam_lo');
+      const genT = new THREE.InstancedMesh(tg, seeThrough(new THREE.MeshLambertMaterial({ vertexColors: true })), trees.length);
+      trees.forEach((tr, i) => { tmp.position.set(tr.x, 0, tr.z); tmp.rotation.set(0, rand(0, 6), 0); tmp.scale.setScalar(tr.s * 3.3); tmp.updateMatrix(); genT.setMatrixAt(i, tmp.matrix); genT.setColorAt(i, new THREE.Color().setHSL(0.45, 0.35, 0.62 + rand(-0.08, 0.1))); });
+      genT.castShadow = true; scene.add(genT);
+    } else { [leafI, trunkI, snowI].forEach(m => { m.castShadow = true; }); scene.add(leafI, trunkI, snowI); }
     const rockGeo = new THREE.DodecahedronGeometry(1, 0);
     const rocksN = 40, rockI = new THREE.InstancedMesh(rockGeo, toon(0x8a90a0), rocksN);
     for (let i = 0, k = 0; i < rocksN && k < 400; k++) {
@@ -346,10 +351,11 @@ CZ.screens.valley = (function () {
         const x = rand(-WORLD_R + 3, WORLD_R - 3), z = rand(-WORLD_R + 3, WORLD_R - 3);
         if (!free(x, z, 1) || targets.some(o => Math.hypot(o.x - x, o.z - z) < 3)) continue;
         const g = new THREE.Group();
+        if (CZ.gen3d.has('hediye_lo')) { const gm = CZ.gen3d.get('hediye_lo', 1.25, pick([0xffffff, 0xffffff, 0xb8ffb8, 0xb8d8ff, 0xffe0a0])); gm.position.y = -0.6; g.add(gm); } else {
         g.add(new THREE.Mesh(boxGeo, toon(pick(giftCols))));
         const r1 = new THREE.Mesh(ribGeo, ribMat); g.add(r1);
         const r2 = new THREE.Mesh(ribGeo, ribMat); r2.rotation.y = Math.PI / 2; g.add(r2);
-        [-1, 1].forEach(sd => { const b = new THREE.Mesh(bowGeo, ribMat); b.position.set(sd * 0.2, 0.68, 0); b.rotation.y = Math.PI / 2; g.add(b); });
+        [-1, 1].forEach(sd => { const b = new THREE.Mesh(bowGeo, ribMat); b.position.set(sd * 0.2, 0.68, 0); b.rotation.y = Math.PI / 2; g.add(b); }); }
         const s = big ? 1.5 : rand(0.85, 1.1);
         g.scale.setScalar(s); g.position.set(x, 0.6 * s, z); g.rotation.y = rand(0, 3);
         g.traverse(o => { o.castShadow = true; }); scene.add(g);
@@ -379,6 +385,7 @@ CZ.screens.valley = (function () {
     chestG.add(at(new THREE.Mesh(new THREE.BoxGeometry(1.6, 1, 1.1), toon(0x8a5228)), 0, 0.5, 0));
     const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 1.6, 10, 1, false, 0, Math.PI), toon(0x9a6230)); lid.rotation.z = Math.PI / 2; lid.position.y = 1; chestG.add(lid);
     chestG.add(at(new THREE.Mesh(new THREE.BoxGeometry(1.64, 0.15, 1.14), toon(0xf2c230)), 0, 0.75, 0));
+    if (CZ.gen3d.has('sandik_lo')) { chestG.clear(); chestG.add(CZ.gen3d.get('sandik_lo', 1.6)); }
     chestG.position.set(-34.2, 0, -28.6); chestG.rotation.y = -0.75; scene.add(chestG);
     const chest = { type: 'chest', x: -34.2, z: -28.6, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 80, locked: true };
     targets.push(chest);
