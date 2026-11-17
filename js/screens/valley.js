@@ -107,6 +107,8 @@ CZ.screens.valley = (function () {
     };
   }
 
+  CZ.quadruped = quadruped;
+
   /* ---------- Dünya ---------- */
   function build(el, params) {
     const THREE = window.THREE;
@@ -114,6 +116,7 @@ CZ.screens.valley = (function () {
     let V_move, V_up;
     const stage = h('div', { class: 'valley-stage' });
     const W = (CZ.GOLD.weapons.find(w => w.id === d.weapon) || CZ.GOLD.weapons[0]);
+    const B = CZ.village ? CZ.village.bonus() : { speed: 1, magnet: 0, dmg: 0, cool: 1, time: 0, boxes: 0 };   // köy yükseltmeleri
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     const RATIOS = [Math.min(window.devicePixelRatio || 1, 1.75), 1.25, 1, 0.8];
     let ratioIdx = 0;
@@ -305,7 +308,7 @@ CZ.screens.valley = (function () {
         return;
       }
     }
-    for (let i = 0; i < 26; i++) spawnBox(i < 3);
+    for (let i = 0; i < 26 + B.boxes * 2; i++) spawnBox(i < 3);
     for (let i = 0; i < 30; i++) spawnPile();
     // mağaradaki hazine sandığı (buz kırılınca)
     const chestG = new THREE.Group();
@@ -357,7 +360,7 @@ CZ.screens.valley = (function () {
     const ballMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(W.ball || '#f4fbff') });
     function fire(dx, dz) {
       if (V.cool > 0) return;
-      V.cool = Math.max(0.18, 0.42 - W.dmg * 0.025);
+      V.cool = Math.max(0.14, (0.42 - W.dmg * 0.025) * B.cool);
       const L2 = Math.hypot(dx, dz) || 1; dx /= L2; dz /= L2;
       P.dir = Math.atan2(-dx, -dz);
       let m;
@@ -471,7 +474,7 @@ CZ.screens.valley = (function () {
     pauseB.addEventListener('pointerdown', e => { e.stopPropagation(); pause(); });
 
     V = {
-      el, renderer, scene, stage, wrap, raf: 0, last: 0, time: SESSION, earned: 0, pending: 0, cool: 0, running: true, paused: false, whistle: false,
+      el, renderer, scene, stage, wrap, raf: 0, last: 0, time: SESSION + B.time, earned: 0, pending: 0, cool: 0, running: true, paused: false, whistle: false,
       P, M, hero, camera, solids, targets, goblins, piles, ice, chest, debug: { fire, autoFire, joy, nearestTarget },
       cleanup() {
         window.removeEventListener('resize', resize);
@@ -509,11 +512,11 @@ CZ.screens.valley = (function () {
       timeEl.classList.toggle('low', sec <= 15);
       if (V.time <= 0) return end();
       // altın yağmuru: akının ortasında 12 sn
-      if (!V.rained && V.time < SESSION / 2) { V.rained = true; V.rainT = 12; floatAt(P, t('valley.rain')); CZ.audio.sfx('star'); }
+      if (!V.rained && V.time < (SESSION + B.time) / 2) { V.rained = true; V.rainT = 12; floatAt(P, t('valley.rain')); CZ.audio.sfx('star'); }
       if (V.rainT > 0) { V.rainT -= dt; if (Math.random() < dt * 9) { const m = new THREE.Mesh(coinGeo, coinMat); m.position.set(P.x + rand(-9, 9), 12, P.z + rand(-9, 9)); scene.add(m); drops.push({ m, vx: 0, vz: 0, vy: -2, t: 0, rain: true }); } }
 
       // hareket
-      const sp = P.riding ? mountDef.speed : 6;
+      const sp = P.riding ? mountDef.speed * B.speed : 6;
       let mx = joy.dx, mz = joy.dy;
       const kb = V.keys || {};
       if (kb.ArrowLeft || kb.a) mx = -1; if (kb.ArrowRight || kb.d) mx = 1; if (kb.ArrowUp || kb.w) mz = -1; if (kb.ArrowDown || kb.s) mz = 1;
@@ -565,11 +568,11 @@ CZ.screens.valley = (function () {
         let hitO = null;
         for (const o of targets) { if (o.dead || o.locked) continue; if (Math.hypot(o.x - s2.m.position.x, o.z - s2.m.position.z) < o.r + 0.35) { hitO = o; break; } }
         if (!hitO && ice.alive && Math.hypot(ice.x - s2.m.position.x, ice.z - s2.m.position.z) < ice.r) { s2.life = 0; if (!V.iceHint2) { V.iceHint2 = true; floatAt(ice, t('valley.needPolar')); } }
-        if (hitO) { hit(hitO, W.dmg + (P.riding ? 1 : 0)); s2.life = 0; }
+        if (hitO) { hit(hitO, W.dmg + B.dmg + (P.riding ? 1 : 0)); s2.life = 0; }
         if (s2.life <= 0) { scene.remove(s2.m); shots.splice(i, 1); }
       }
       // yerdeki altınlar: sıçrar, sonra oyuncuya çekilir
-      const magR = P.riding ? 4.5 : 3.2;
+      const magR = (P.riding ? 4.5 : 3.2) + B.magnet;
       for (let i = drops.length - 1; i >= 0; i--) {
         const c = drops[i]; c.t += dt;
         const m = c.m;

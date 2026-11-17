@@ -1712,3 +1712,28 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .mount-name { display: block; font-size: 10px; font-weight: 900; line-height: 1.05; }
 .mount-price { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 900; }
 .mount-price .mini-ico { width: 13px; height: 13px; }
+
+/* ===== Köyüm ===== */
+.village-screen { padding: 0 !important; }
+.vil-ui { pointer-events: none; }
+.vil-ui > * { pointer-events: auto; }
+.vil-ui .vil-labels { pointer-events: none; position: absolute; inset: 0; }
+.vil-top { position: absolute; top: 0; left: 0; right: 0; z-index: 7; }
+.vil-lab { pointer-events: auto; position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 3px 9px 4px; border-radius: 12px; border: 2px solid rgba(255,255,255,.9); background: rgba(10,16,40,.72); color: #fff; line-height: 1.05; white-space: nowrap; }
+.vil-lab b { font-size: 12px; color: #ffe27a; }
+.vil-lab small { font-size: 10px; font-weight: 800; }
+.vil-lab .vil-up { position: absolute; top: -9px; right: -9px; width: 20px; height: 20px; border-radius: 50%; background: #2fa05a; border: 2px solid #fff; font-style: normal; font-size: 10px; display: grid; place-items: center; animation: btnpulse .9s ease-in-out infinite; }
+.vil-lab.has-gold { background: #e0a010; border-color: #fff2b8; animation: btnpulse .9s ease-in-out infinite; }
+.vil-coin { display: flex; align-items: center; gap: 2px; font-weight: 900; font-size: 13px; }
+.vil-coin .mini-ico { width: 14px; height: 14px; }
+.vil-job { position: absolute; left: 12px; right: 12px; top: calc(68px + var(--safe-top, 0px)); display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 16px; background: rgba(10,16,40,.75); color: #fff; font-weight: 800; font-size: 13px; z-index: 6; }
+.vil-job.idle { justify-content: center; background: rgba(47,160,90,.85); }
+.vil-job-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vil-job .btn { flex: none; }
+.vil-bottom { position: absolute; left: 16px; right: 16px; bottom: calc(18px + var(--safe-bottom, 0px)); z-index: 6; }
+.vil-sheet { max-width: 360px; text-align: center; display: flex; flex-direction: column; gap: 8px; }
+.vil-lvl { font-weight: 900; opacity: .75; }
+.vil-eff { display: flex; gap: 8px; }
+.vil-eff > div { flex: 1; padding: 8px; border-radius: 12px; background: rgba(0,0,0,.06); display: flex; flex-direction: column; gap: 2px; }
+.vil-eff > div.next { background: rgba(47,160,90,.15); }
+.vil-eff b { font-size: 14px; }

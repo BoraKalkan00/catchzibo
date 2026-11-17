@@ -239,6 +239,8 @@
         // Ana oyun KOŞ: yan modlar (Altın Avı, soygun, kitap, günlük) "Diğer modlar" altında toplanır.
         runOpen ? h('div', { class: 'hub-rail right' },
           rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
+          rb('gold', img('ui.gold', 'rb-img'), t('valley.title'), () => CZ.ui.wipeTo('gold'), { hot: true }),
+          rb(null, CZ.icon('hammer'), t('hub.village'), () => CZ.ui.wipeTo('village'), { dot: CZ.village.ready() }),
           rb(null, CZ.icon('list'), t('hub.more'), () => {
             const wrap = h('div', { class: 'modal-wrap' });
             const pickBtn = b => { b.addEventListener('click', () => wrap.remove(), true); return b; };

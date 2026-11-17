@@ -204,9 +204,10 @@ CZ.house = (function () {
   function defense(H) {
     let n = 0;
     CZ.PARTS.forEach(p => { if (p.def) n += p.def * lv(H, p.id); });
+    if (CZ.village) n += CZ.village.defense();   // köydeki kartopu kuleleri
     return n;
   }
-  const maxDefense = () => CZ.PARTS.reduce((s, p) => s + (p.def ? p.def * p.levels.length : 0), 0);
+  const maxDefense = () => CZ.PARTS.reduce((s, p) => s + (p.def ? p.def * p.levels.length : 0), 0) + (CZ.VB ? CZ.VB.find(b => b.id === 'tower').max * 3 : 0);
 
   // Kabuk (ilk ev) sırası: oyuncuya "sıradaki adım" olarak gösterilir.
   const SHELL = ['found', 'wall1', 'wall2', 'wall3', 'wall4', 'door', 'win', 'roof'];
@@ -239,7 +240,8 @@ CZ.house = (function () {
       res = { date: today, won: true, gold: R.bounty + Math.round(lvl / 2), attack: Math.round(attack), def };
       d().gold = gold + res.gold;
     } else {
-      const steal = gold < R.minGold ? 0 : Math.min(Math.round(gold * R.stealShare), R.stealBase + lvl * R.stealPerLevel);
+      const open = Math.max(0, gold - (CZ.village ? CZ.village.protect() : 0));   // kasadaki altın güvende
+      const steal = gold < R.minGold ? 0 : Math.min(Math.round(open * R.stealShare), R.stealBase + lvl * R.stealPerLevel);
       // Zibo en zayıf yerden girer: kapı, pencere ya da çit.
       const weak = ['door', 'win', 'fence'].sort((a, b) => lv(H, a) - lv(H, b))[0];
       res = { date: today, won: false, gold: steal, attack: Math.round(attack), def, weak };
