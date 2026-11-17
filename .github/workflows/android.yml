@@ -43,6 +43,9 @@ jobs:
       - name: Dikey ekran ve sürüm ayarları
         run: |
           sed -i 's/<activity/<activity android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
+          # satın alma eklentisi (Google Play Billing) yeni androidx ister: SDK 35 ile derle
+          sed -i 's/compileSdkVersion = 34/compileSdkVersion = 35/; s/targetSdkVersion = 34/targetSdkVersion = 35/' android/variables.gradle
+          echo 'android.suppressUnsupportedCompileSdk=35' >> android/gradle.properties
           # AdMob uygulama kimliği (js/core/ads.js içindeki CZ.ADS.appId ile aynı olmalı)
           APPID=$(grep -o "appId: '[^']*'" ../js/core/ads.js | head -1 | cut -d"'" -f2)
           sed -i "s#</application>#<meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$APPID\"/></application>#" android/app/src/main/AndroidManifest.xml
