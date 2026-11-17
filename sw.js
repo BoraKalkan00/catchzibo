@@ -1,6 +1,6 @@
 // İnternetsiz çalışma. Önce ağı dener (yeni görseller hemen görünsün), ağ yoksa hafızadan verir.
 importScripts('sw-files.js');
-const CACHE = 'catchzibo-v117';
+const CACHE = 'catchzibo-v118';
 
 // İlk açılışta yalnız oyunun çekirdeği (kod, yazı tipi, arayüz) iner; görseller oynadıkça önbelleğe girer.
 // Böylece telefon ilk açılışta yüzlerce dosya indirmez.

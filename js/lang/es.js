@@ -1046,5 +1046,7 @@ CZ.i18n.register('es', 'Español', {
   "mila.back": "¡Bienvenido, jefe! Mientras no estabas ahuyenté {k} goblins y guardé {g} de oro. Estoy agotada, voy a descansar. ¡Ahora te toca a ti!",
   "mila.hi": "¡Bienvenido, jefe! La aldea está a salvo. Voy a descansar, ¡te toca!",
   "mila.bye": "Mila: ¡Jefe, la aldea queda conmigo! La cuido hasta que vuelvas.",
-  "mila.tutDone": "¡Increíble, jefe! La aldea es tuya. Mejora las torres, termina la valla, yo te cubro."
+  "mila.tutDone": "¡Increíble, jefe! La aldea es tuya. Mejora las torres, termina la valla, yo te cubro.",
+  "w.stable": "Establo y armas",
+  "hub.villageSub": "Caza goblins, construye torres"
 });

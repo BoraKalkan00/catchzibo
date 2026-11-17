@@ -1227,5 +1227,7 @@ CZ.i18n.register('en', 'English', {
   "mila.back": "Welcome back, chief! While you were away I chased off {k} goblins and put {g} gold in the vault. I’m exhausted, time to rest. It’s all yours now!",
   "mila.hi": "Welcome back, chief! The village is safe. I’ll rest a bit, it’s all yours!",
   "mila.bye": "Mila: Chief, leave the village to me! I’ll guard it until you’re back.",
-  "mila.tutDone": "Amazing, chief! The village is yours now. Upgrade the towers, finish the fence, I’ve got your back."
+  "mila.tutDone": "Amazing, chief! The village is yours now. Upgrade the towers, finish the fence, I’ve got your back.",
+  "w.stable": "Stable & Weapons",
+  "hub.villageSub": "Chase goblins, build your towers"
 });

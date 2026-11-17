@@ -236,12 +236,10 @@
           runOpen ? rb(null, img('ui.gold', 'rb-img'), t('shop.title'), () => CZ.shopUi.open(() => CZ.ui.refresh()), { hot: !(state.data.bought && state.data.bought.starter) }) : null,
           runOpen ? rb(null, CZ.icon('star'), t('pass.short'), () => CZ.shopUi.openPass(() => CZ.ui.refresh()), { dot: CZ.pass.ready() }) : null,
           runOpen ? rb(null, CZ.icon('trophy'), t('league.short'), () => CZ.league.open(document.getElementById('app')), { badge: h('span', {}, '#' + CZ.league.rankOf()) }) : null,
-          runOpen ? rb(null, CZ.icon('gift'), t('adv.short'), () => CZ.advent.open(document.getElementById('app'), () => CZ.ui.refresh()), { hot: CZ.advent.ready(), dot: CZ.advent.ready(), badge: CZ.advent.day() ? null : h('span', {}, String(CZ.advent.daysUntil())) }) : null,
           adBtn),
         // Ana oyun KOŞ: yan modlar (Altın Avı, soygun, kitap, günlük) "Diğer modlar" altında toplanır.
         runOpen ? h('div', { class: 'hub-rail right' },
           rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
-          rb('gold', img('ui.gold', 'rb-img'), t('valley.title'), () => CZ.ui.wipeTo('gold'), { hot: true }),
           rb(null, CZ.icon('list'), t('hub.more'), () => {
             const wrap = h('div', { class: 'modal-wrap' });
             const pickBtn = b => { b.addEventListener('click', () => wrap.remove(), true); return b; };
@@ -249,22 +247,27 @@
               h('b', { class: 'lg-title', text: t('hub.more') }),
               h('div', { class: 'more-grid' },
                 pickBtn(heistBtn),
-                pickBtn(rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('gold'), { hot: goldFree, dot: goldFree })),
+                pickBtn(rb(null, CZ.icon('lens'), t('hub.enter'), () => CZ.ui.wipeTo('mansion'))),
+                pickBtn(rb(null, CZ.icon('gift'), t('adv.short'), () => CZ.advent.open(document.getElementById('app'), () => CZ.ui.refresh()), { hot: CZ.advent.ready(), dot: CZ.advent.ready() })),
                 pickBtn(rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book'))),
                 pickBtn(rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() }))),
               btn(t('common.close'), () => wrap.remove(), 'small ghost')));
             el.append(wrap);
           }, { dot: !!dNext || goldFree || game.diaryUnread() })) : h('div', { class: 'hub-rail right' },
-          rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('gold'), { hot: goldFree, dot: goldFree }),
+          rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('valley'), { hot: goldFree, dot: goldFree }),
           rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
           rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book')),
           rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() })),
         h('div', { class: 'hub-cta' },
           // Ana oyun: sonsuz kovalamaca. Odalar (hikâye) ikinci düğme.
-          runOpen ? h('button', { class: 'play-big run-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('chase', { endless: true }); } },
+          // Ana oyun KÖYÜM (açık dünya); koşu ikinci düğme. Malikane "Diğer modlar" içinde.
+          runOpen ? h('button', { class: 'play-big run-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('valley'); } },
+            h('b', { text: t('valley.title') }),
+            h('small', { text: t('hub.villageSub') })) : null,
+          runOpen ? h('button', { class: 'play-big play-small', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('chase', { endless: true }); } },
             h('b', { text: t('endless.play') }),
-            h('small', { text: t('endless.best', { n: state.data.bestRun || 0 }) + (endlessMult() > 1 ? '  ·  x' + endlessMult() : '') })) : null,
-          h('button', { class: 'play-big' + (runOpen ? ' play-small' : ''), type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
+            h('small', { text: t('endless.best', { n: state.data.bestRun || 0 }) + (endlessMult() > 1 ? '  ·  x' + endlessMult() : '') }))
+          : h('button', { class: 'play-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
             h('b', { text: t('hub.enter') }),
             h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) }))));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.

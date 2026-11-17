@@ -1046,5 +1046,7 @@ CZ.i18n.register('fr', 'Français', {
   "mila.back": "Bon retour, chef ! Pendant ton absence j’ai chassé {k} gobelins et mis {g} or au coffre. Je suis épuisée, je me repose. À toi de jouer !",
   "mila.hi": "Bon retour, chef ! Le village est sûr. Je me repose, à toi !",
   "mila.bye": "Mila : Chef, le village est entre mes mains ! Je veille jusqu’à ton retour.",
-  "mila.tutDone": "Bravo, chef ! Le village est à toi. Améliore les tours, finis la palissade, je te couvre."
+  "mila.tutDone": "Bravo, chef ! Le village est à toi. Améliore les tours, finis la palissade, je te couvre.",
+  "w.stable": "Écurie et armes",
+  "hub.villageSub": "Chasse les gobelins, bâtis tes tours"
 });

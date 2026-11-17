@@ -1858,3 +1858,7 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .mkt-row span { display: flex; align-items: center; gap: 4px; }
 .mkt-row i { font-style: normal; }
 .def-eff { opacity: .75; }
+.res { font-size: 12px; padding: 2px 6px 2px 3px; }
+.res .mini-ico { width: 14px; height: 14px; }
+.res-bar { max-width: 270px; }
+.vl-time { font-size: 15px !important; white-space: nowrap; padding: 4px 10px !important; }

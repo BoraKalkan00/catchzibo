@@ -1046,5 +1046,7 @@ CZ.i18n.register('pt', 'Português', {
   "mila.back": "Bem-vindo de volta, chefe! Enquanto você esteve fora espantei {k} goblins e guardei {g} de ouro. Estou exausta, vou descansar. Agora é com você!",
   "mila.hi": "Bem-vindo, chefe! A vila está segura. Vou descansar, é com você!",
   "mila.bye": "Mila: Chefe, a vila fica comigo! Eu cuido até você voltar.",
-  "mila.tutDone": "Incrível, chefe! A vila é sua. Melhore as torres, termine a cerca, eu te protejo."
+  "mila.tutDone": "Incrível, chefe! A vila é sua. Melhore as torres, termine a cerca, eu te protejo.",
+  "w.stable": "Estábulo e armas",
+  "hub.villageSub": "Cace goblins, construa torres"
 });

@@ -1046,5 +1046,7 @@ CZ.i18n.register('de', 'Deutsch', {
   "mila.back": "Willkommen zurück, Chef! Während du weg warst, habe ich {k} Goblins verjagt und {g} Gold in die Kasse gelegt. Ich bin erschöpft, jetzt ruhe ich mich aus. Jetzt bist du dran!",
   "mila.hi": "Willkommen zurück, Chef! Das Dorf ist sicher. Ich ruhe mich aus, jetzt bist du dran!",
   "mila.bye": "Mila: Chef, das Dorf ist bei mir in guten Händen! Ich passe auf, bis du zurück bist.",
-  "mila.tutDone": "Super, Chef! Das Dorf gehört jetzt dir. Bau die Türme aus, schließ den Zaun, ich halte dir den Rücken frei."
+  "mila.tutDone": "Super, Chef! Das Dorf gehört jetzt dir. Bau die Türme aus, schließ den Zaun, ich halte dir den Rücken frei.",
+  "w.stable": "Stall & Waffen",
+  "hub.villageSub": "Jage Goblins, baue Türme"
 });
