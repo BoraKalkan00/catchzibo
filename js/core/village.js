@@ -63,7 +63,9 @@ CZ.village = (function () {
     const n = Math.floor(V.store[id] || 0);
     if (n <= 0) return 0;
     V.store[id] -= n;
-    d().gold = (d().gold || 0) + n;
+    // altın yalnız goblinlerden gelir: maden taş, fırın (oduncu) odun üretir
+    const res = id === 'mine' ? 'stone' : 'wood';
+    d()[res] = (d()[res] || 0) + n;
     CZ.state.save();
     return n;
   }
@@ -79,6 +81,18 @@ CZ.village = (function () {
     const m = minutes(id, L);
     V.job = { id, to: L + 1, start: Date.now(), end: Date.now() + m * 60000, ads: 0 };
     if (m <= 0) finish(V);
+    CZ.state.save();
+    return 'ok';
+  }
+  // Kaynaklar dünyadaki daireye akıtıldıysa bedava başlat (fiyat orada ödendi)
+  function startJob(id) {
+    tick();
+    const V = ensure();
+    if (V.job) return 'busy';
+    const L = lv(id);
+    if (L >= cap(id)) return 'cap';
+    const m = minutes(id, L);
+    V.job = { id, to: L + 1, start: Date.now(), end: Date.now() + m * 60000, ads: 0 };
     CZ.state.save();
     return 'ok';
   }
@@ -105,5 +119,5 @@ CZ.village = (function () {
   const fmt = ms => { const s = Math.ceil(ms / 1000), p2 = n => String(n).padStart(2, '0'); return s >= 3600 ? Math.floor(s / 3600) + ':' + p2(Math.floor(s % 3600 / 60)) + ':' + p2(s % 60) : Math.floor(s / 60) + ':' + p2(s % 60); };
   const power = () => CZ.VB.reduce((n, b) => n + lv(b.id) * (b.id === 'hall' ? 5 : 1), 0);
   const ready = () => { tick(); const V = ensure(); return Math.floor(V.store.mine + V.store.bakery) >= 50 || (!V.job && CZ.VB.some(b => lv(b.id) < cap(b.id) && price(b.id, lv(b.id)) <= (d().gold || 0))); };
-  return { ensure, lv, cap, price, minutes, rate, storeCap, protect, defense, bonus, tick, collect, upgrade, left, gemCost, rush, adRush, fmt, power, ready, def };
+  return { ensure, startJob, lv, cap, price, minutes, rate, storeCap, protect, defense, bonus, tick, collect, upgrade, left, gemCost, rush, adRush, fmt, power, ready, def };
 })();

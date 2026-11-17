@@ -1833,3 +1833,28 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .vl-boost b { font-size: 16px; } .vl-boost small { font-size: 10px; font-weight: 900; }
 .vl-boost.on { background: linear-gradient(#7af08a, #2fa05a); color: #fff; }
 .def-down { pointer-events: auto; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px; }
+
+/* ===== Köy dünyası: 4 kaynak, görev, Mila, pazar ===== */
+.res-bar { display: flex; gap: 4px; flex-wrap: wrap; max-width: 250px; }
+.res { display: flex; align-items: center; gap: 3px; padding: 2px 8px 2px 4px; border-radius: 12px; background: rgba(10,16,40,.7); color: #fff; font-size: 14px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.res i { font-style: normal; font-size: 14px; }
+.res .mini-ico { width: 16px; height: 16px; }
+.res.gem { border: 2px solid #2fd08a; }
+.res .res-plus { font-size: 12px; color: #7af0b0; margin-left: 2px; }
+.vl-top { align-items: flex-start !important; }
+.vl-map { top: calc(78px + var(--safe-top, 0px)) !important; }
+.vl-hp { top: calc(206px + var(--safe-top, 0px)) !important; }
+.quest { position: absolute; left: 50%; transform: translateX(-50%); top: calc(84px + var(--safe-top, 0px)); display: flex; align-items: center; gap: 10px; padding: 6px 14px; border-radius: 14px; background: linear-gradient(#ffe27a, #f2b52a); color: #3a2414; font-weight: 900; font-size: 13px; box-shadow: 0 4px 0 #a87a14; z-index: 7; max-width: 52vw; pointer-events: none; }
+.quest i { font-style: normal; background: rgba(0,0,0,.15); border-radius: 8px; padding: 1px 6px; }
+.guide-arrow { position: absolute; display: none; font-size: 30px; color: #ffd23a; text-shadow: 0 2px 0 #a87a14, 0 0 8px rgba(0,0,0,.4); pointer-events: none; z-index: 6; animation: guidebob .7s ease-in-out infinite alternate; }
+@keyframes guidebob { to { margin-top: -10px; } }
+.mila-bubble { position: absolute; transform: translate(-50%, -100%); max-width: 240px; padding: 8px 12px; border-radius: 14px; background: #fff; color: #3a2414; font-size: 13px; font-weight: 700; line-height: 1.25; box-shadow: 0 4px 14px rgba(0,0,0,.3); z-index: 9; pointer-events: none; }
+.mila-bubble b { display: block; color: #d6337a; font-size: 12px; }
+.mila-bubble::after { content: ''; position: absolute; left: 50%; bottom: -8px; margin-left: -8px; border: 8px solid transparent; border-top-color: #fff; border-bottom: 0; }
+.vl-float.res { color: #fff; font-size: 15px; }
+.vl-edge::before { border-left-color: #e0323a !important; }
+.mkt { gap: 8px; }
+.mkt-row { display: grid; grid-template-columns: 1fr 20px 1fr auto; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 12px; background: rgba(0,0,0,.06); font-weight: 900; color: #3a2414; }
+.mkt-row span { display: flex; align-items: center; gap: 4px; }
+.mkt-row i { font-style: normal; }
+.def-eff { opacity: .75; }

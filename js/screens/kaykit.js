@@ -563,5 +563,5 @@
     return { root, update };
   }
 
-  CZ.kk = { load, ready, hero, zibo, portrait, santaClaus };
+  CZ.kk = { load, ready, hero, zibo, portrait, santaClaus, clipNames: () => Object.keys(clips || {}) };
 })();

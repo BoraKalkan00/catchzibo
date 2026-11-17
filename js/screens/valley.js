@@ -3,13 +3,13 @@
 // basılı tut + sürükle = Mobile Legends gibi kendin nişan al). Ayılara ve geyiğe gerçekten binilir.
 // 3 dakikalık akın: kutuları kır, altın yığınlarını topla, Zibo'nun yardakçılarından çuvalları düşür.
 CZ.MOUNTS = [
-  { id: 'brown', price: 0, speed: 10.5, color: 0x7a4a2a, light: 0xc89a6a, kind: 'bear' },
-  { id: 'polar', price: 3500, speed: 10, color: 0xf3f3ee, light: 0xdcd6c8, kind: 'bear' },
-  { id: 'deer', price: 6000, speed: 13, color: 0x8a5230, light: 0xe2c49a, kind: 'deer' },
-  { id: 'wolf', price: 9000, speed: 14, color: 0xdfe6ee, light: 0xffffff, kind: 'wolf' },
-  { id: 'mammoth', price: 15000, speed: 8.5, color: 0x6a3e22, light: 0x9a6a44, kind: 'mammoth', hp: 10 },
-  { id: 'goldbear', pass: true, speed: 11.5, color: 0xe0a92c, light: 0xfff0a0, kind: 'bear' },
-  { id: 'icewolf', pass: true, speed: 15, color: 0x8ad8ff, light: 0xeaf8ff, kind: 'wolf' }
+  { id: 'brown', price: 0, speed: 8, color: 0x7a4a2a, light: 0xc89a6a, kind: 'bear' },
+  { id: 'polar', price: 3500, speed: 7.8, color: 0xf3f3ee, light: 0xdcd6c8, kind: 'bear' },
+  { id: 'deer', price: 6000, speed: 9.5, color: 0x8a5230, light: 0xe2c49a, kind: 'deer' },
+  { id: 'wolf', price: 9000, speed: 10, color: 0xdfe6ee, light: 0xffffff, kind: 'wolf' },
+  { id: 'mammoth', price: 15000, speed: 6.6, color: 0x6a3e22, light: 0x9a6a44, kind: 'mammoth', hp: 10 },
+  { id: 'goldbear', pass: true, speed: 8.6, color: 0xe0a92c, light: 0xfff0a0, kind: 'bear' },
+  { id: 'icewolf', pass: true, speed: 10.6, color: 0x8ad8ff, light: 0xeaf8ff, kind: 'wolf' }
 ];
 // Bineklerin özel güçleri (binerken sağ alttaki güç düğmesi)
 CZ.MOUNT_POWER = { brown: { id: 'roar', cd: 10 }, polar: { id: 'frost', cd: 12 }, deer: { id: 'dash', cd: 9 }, wolf: { id: 'pounce', cd: 7 }, mammoth: { id: 'quake', cd: 13 }, goldbear: { id: 'roar', cd: 7 }, icewolf: { id: 'pounce', cd: 5 } };
@@ -36,24 +36,27 @@ CZ.screens.valley = (function () {
   let V = null;
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = a => a[Math.floor(Math.random() * a.length)];
-  const WORLD_R = 58;
+  const WORLD_R = 100;   // dünya büyüdü: ormanlar, nehir, göller
   const SESSION = 180;
   const RANGE = 8.5;
   const FENCE_R = 15.5;   // köy çiti yarıçapı
   const CORE_R = 7;       // goblin buraya girerse altın çalar
   const PAD_R = 12;       // kule yerleri (çitin içinde)
   // Savunma: kule türleri ve çit. Fiyat ve süreler (dk). Yapınca hemen görünür, süre dolunca çalışır.
+  // Maliyetler seviye seviye: odun < taş < altın < zümrüt. Sarı dairenin üstünde durunca kaynaklar akar (Kingshot gibi).
   const DEF = {
-    snow: { price: 500, up: [0, 900, 1800, 3600, 7000], min: [2, 10, 20, 60, 120], range: 10.5, rate: 0.85, dmg: 1, dmgUp: 1 },
-    cannon: { price: 900, up: [0, 1500, 3000, 6000, 11000], min: [2, 10, 20, 60, 120], range: 12.5, rate: 2.2, dmg: 3, dmgUp: 2, splash: 2.6 },
-    fence: { price: 250, up: [0, 700, 1600], min: [1, 10, 20], hp: 30, hpUp: 30 }
+    snow: { cost: [{ wood: 20 }, { wood: 90, stone: 40 }, { stone: 140, gold: 60 }, { stone: 280, gold: 180 }, { stone: 520, gold: 420 }], min: [2, 10, 20, 60, 120], range: 10.5, rate: 0.85, dmg: 1, dmgUp: 1 },
+    cannon: { cost: [{ wood: 35, stone: 15 }, { stone: 140, gold: 50 }, { stone: 260, gold: 140 }, { stone: 450, gold: 320 }, { stone: 850, gold: 650 }], min: [2, 10, 20, 60, 120], range: 12.5, rate: 2.2, dmg: 3, dmgUp: 2, splash: 2.6 },
+    fence: { cost: [{ wood: 15 }, { wood: 70, stone: 70 }, { stone: 220, gold: 90 }], min: [1, 10, 20], hp: 30, hpUp: 30 }
   };
+  const RES = ['wood', 'stone', 'gold'];
+  const RES_COL = { wood: '#b8763a', stone: '#9aa3b4', gold: '#ffc928', gems: '#2fd08a' };
   const RUSH_BUILD = 200;
   const rushPrice = ms => Math.max(RUSH_BUILD, Math.ceil(ms / 60000) * 20);   // atış menzili: haritanın öbür ucuna ateş edilmez
 
   /* ---------- Dört ayaklı binekler (kodla, çizgi film tarzı) ---------- */
   // Yapay zekâ modeli varsa onu kullan (hazır değilse aşağıdaki kodla çizilmiş hayvan)
-  const MOUNT_GEN = { brown: ['ayi', 1.7], polar: ['kutupayisi', 1.75], deer: ['rengeyigi', 2.1], wolf: ['kurt', 1.5], mammoth: ['mamut', 2.7], goldbear: ['ayi', 1.8, 0xffd04a], icewolf: ['kurt', 1.55, 0x9adcff] };
+  const MOUNT_GEN = { aurora: ['rengeyigi', 2.0, 0xffd8f2], brown: ['ayi', 1.7], polar: ['kutupayisi', 1.75], deer: ['rengeyigi', 2.1], wolf: ['kurt', 1.5], mammoth: ['mamut', 2.7], goldbear: ['ayi', 1.8, 0xffd04a], icewolf: ['kurt', 1.55, 0x9adcff] };
   function genMount(THREE, def) {
     const [id, hh, tint] = MOUNT_GEN[def.id];
     const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
@@ -201,53 +204,94 @@ CZ.screens.valley = (function () {
     };
     const toonSee = c => seeThrough(new THREE.MeshLambertMaterial({ color: c }));
 
-    // Zemin: kar, yollar ve doku için köşe renkleri
-    const groundGeo = new THREE.PlaneGeometry(170, 170, 85, 85);
+    // ===== ARAZİ: nehir, dere, donmuş göller, çimen yamaları, toprak yollar =====
+    const roads = [[0, 0, 0, -95], [0, 0, 0, 95], [0, 0, 95, 0], [0, 0, -95, 0]];
+    const distSeg = (x, z, s) => { const [ax, az, bx, bz] = s; const vx = bx - ax, vz = bz - az; const tt = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / (vx * vx + vz * vz))); return Math.hypot(x - (ax + vx * tt), z - (az + vz * tt)); };
+    const riverZ = x => 44 + 8 * Math.sin(x / 17) + 4 * Math.sin(x / 7.3);          // güneyde batıdan doğuya nehir
+    const creekX = z => 50 + 6 * Math.sin(z / 13);                                      // doğuda kuzeyden nehre dere
+    const RIVER_W = 2.8, CREEK_W = 1.7;
+    const lakes = [[-52, -48, 13], [38, -62, 10], [-70, 20, 8]];
+    const bridges = [[0, riverZ(0)], [-58, riverZ(-58)], [62, riverZ(62)], [creekX(0), 0], [creekX(-50), -50]];
+    const inRiver = (x, z) => Math.abs(z - riverZ(x)) < RIVER_W || (z < riverZ(x) && Math.abs(x - creekX(z)) < CREEK_W);
+    const onBridge = (x, z) => bridges.some(([bx, bz]) => Math.abs(x - bx) < 2.4 && Math.abs(z - bz) < 4.2) || bridges.some(([bx, bz]) => Math.abs(z - bz) < 2.4 && Math.abs(x - bx) < 4.2 && bx > 40 && Math.abs(bz) < 60);
+    const water = (x, z) => inRiver(x, z) && !onBridge(x, z);
+    const inLake = (x, z, pad) => lakes.some(([lx, lz, lr]) => Math.hypot(x - lx, z - lz) < lr + (pad || 0));
+    const noise = (x, z) => Math.sin(x * 0.083) * Math.cos(z * 0.071) + 0.6 * Math.sin(x * 0.031 + z * 0.047) + 0.35 * Math.cos(x * 0.19 - z * 0.13);
+    const GS = 280, groundGeo = new THREE.PlaneGeometry(GS, GS, 160, 160);
     groundGeo.rotateX(-Math.PI / 2);
     const pos = groundGeo.attributes.position, col = [];
-    const roads = [[0, 0, 0, -50], [0, 0, 0, 50], [0, 0, 50, 0], [0, 0, -50, 0]];
-    const distSeg = (x, z, s) => { const [ax, az, bx, bz] = s; const vx = bx - ax, vz = bz - az; const tt = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / (vx * vx + vz * vz))); return Math.hypot(x - (ax + vx * tt), z - (az + vz * tt)); };
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), z = pos.getZ(i);
       const r = Math.hypot(x, z);
       let y = 0;
-      if (r > WORLD_R + 4) y = (r - WORLD_R - 4) * 0.9 + Math.sin(x * 0.3) * Math.cos(z * 0.27) * 2.5;   // vadiyi çevreleyen tepeler
+      if (r > WORLD_R + 4) y = (r - WORLD_R - 4) * 0.8 + Math.sin(x * 0.2) * Math.cos(z * 0.17) * 3;
+      const nz = noise(x, z), n = Math.sin(x * 0.7) * Math.cos(z * 0.6) * 0.03;
+      let c = [0.66 + n, 0.72 + n, 0.86];                                       // kar
+      if (nz > 0.75) c = [0.5 + n, 0.62 + n, 0.42];                               // karı erimiş çimen
+      else if (nz > 0.55) c = [0.58 + n, 0.68 + n, 0.6];                          // ince kar + çimen
+      else if (nz < -1.1) c = [0.6 + n, 0.6 + n, 0.66];                           // kayalık
+      const rd = Math.min(...roads.map(s2 => distSeg(x, z, s2)));
+      if (rd < 2.3) c = [0.52 + n, 0.44 + n, 0.36];                               // toprak yol
+      else if (rd < 3) c = [0.6 + n, 0.56 + n, 0.52];
+      const dr = Math.min(Math.abs(z - riverZ(x)), z < riverZ(x) ? Math.abs(x - creekX(z)) : 99);
+      if (dr < RIVER_W + 1.6) { c = [0.42 + n, 0.38 + n, 0.32]; }                 // nehir kıyısı: çamur
+      if (inRiver(x, z)) { c = [0.16, 0.3, 0.42]; y = -0.5; }                     // nehir yatağı
+      if (inLake(x, z)) c = [0.6, 0.8, 0.93];                                     // donmuş göl
+      if (r < FENCE_R + 0.5) c = [0.58 + n, 0.52 + n, 0.46];                      // köy meydanı: toprak
+      if (y > 3) c = [0.72 + n, 0.77 + n, 0.9];
       pos.setY(i, y);
-      const n = Math.sin(x * 0.7) * Math.cos(z * 0.6) * 0.04;
-      const road = Math.min(...roads.map(s => distSeg(x, z, s)));
-      let c = [0.6 + n, 0.67 + n, 0.82];
-      if (road < 2.2) c = [0.55 + n, 0.5 + n, 0.48];   // ezilmiş kar patikası
-      if (Math.hypot(x - 34, z + 30) < 9.5) c = [0.62, 0.82, 0.95];   // donmuş göl
-      if (r < FENCE_R + 0.5) c = [0.62 + n, 0.6 + n, 0.62];   // köy meydanı: sıkışmış toprak-kar
-      if (y > 3) c = [0.7 + n, 0.75 + n, 0.88];
       col.push(...c);
     }
     groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     groundGeo.computeVertexNormals();
     const snowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
       x.fillStyle = '#ffffff'; x.fillRect(0, 0, 256, 256);
-      for (let i = 0; i < 90; i++) { const gx = Math.random() * 256, gy = Math.random() * 256, rr = 10 + Math.random() * 30; const gg = x.createRadialGradient(gx, gy, 0, gx, gy, rr); gg.addColorStop(0, 'rgba(150,170,215,.18)'); gg.addColorStop(1, 'rgba(150,170,215,0)'); x.fillStyle = gg; x.fillRect(gx - rr, gy - rr, rr * 2, rr * 2); }
-      for (let i = 0; i < 260; i++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,1)' : 'rgba(170,190,230,.55)'; x.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); }
-      const tx = new THREE.CanvasTexture(c); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(26, 26); tx.anisotropy = 4; return tx; })();
+      for (let i = 0; i < 90; i++) { const gx = Math.random() * 256, gy = Math.random() * 256, rr = 10 + Math.random() * 30; const gg = x.createRadialGradient(gx, gy, 0, gx, gy, rr); gg.addColorStop(0, 'rgba(120,140,170,.16)'); gg.addColorStop(1, 'rgba(120,140,170,0)'); x.fillStyle = gg; x.fillRect(gx - rr, gy - rr, rr * 2, rr * 2); }
+      for (let i = 0; i < 300; i++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,1)' : 'rgba(110,130,150,.35)'; x.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); }
+      const tx = new THREE.CanvasTexture(c); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(44, 44); tx.anisotropy = 4; return tx; })();
     const ground = new THREE.Mesh(groundGeo, new THREE.MeshLambertMaterial({ vertexColors: true, map: snowTex })); ground.receiveShadow = true; scene.add(ground);
-    // gölün parlaklığı
-    const lake = new THREE.Mesh(new THREE.CircleGeometry(10.2, 40), new THREE.MeshLambertMaterial({ color: 0xa8dcf6, transparent: true, opacity: 0.55 }));
-    lake.scale.setScalar(0.92); lake.rotation.x = -Math.PI / 2; lake.position.set(34, 0.03, -30); scene.add(lake);
+    // akan su: nehir ve dere şeritleri, kayan dalga dokusu
+    const waterTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d');
+      x.fillStyle = '#3d8fd6'; x.fillRect(0, 0, 64, 128);
+      for (let i = 0; i < 22; i++) { x.fillStyle = `rgba(255,255,255,${0.12 + Math.random() * 0.25})`; x.fillRect(Math.random() * 64, Math.random() * 128, 6 + Math.random() * 14, 2); }
+      const tx = new THREE.CanvasTexture(c); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; return tx; })();
+    const waterMat = new THREE.MeshLambertMaterial({ map: waterTex, transparent: true, opacity: 0.88, emissive: 0x0a2a4a });
+    function strip(pts, w) {
+      const v = [], uv = [], idx = [];
+      pts.forEach((p, i) => { const q = pts[Math.min(pts.length - 1, i + 1)], o = pts[Math.max(0, i - 1)]; let dx = q[0] - o[0], dz = q[1] - o[1]; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
+        v.push(p[0] - dz * w, 0.05, p[1] + dx * w, p[0] + dz * w, 0.05, p[1] - dx * w); uv.push(0, i * 0.25, 1, i * 0.25); if (i) idx.push(i * 2 - 2, i * 2 - 1, i * 2, i * 2 - 1, i * 2 + 1, i * 2); });
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+      const m = new THREE.Mesh(g, waterMat); scene.add(m); return m;
+    }
+    const rp = []; for (let x = -GS / 2; x <= GS / 2; x += 2) rp.push([x, riverZ(x)]);
+    const cp = []; for (let z = -GS / 2; z <= riverZ(creekX(0)); z += 2) cp.push([creekX(z), z]);
+    strip(rp, RIVER_W + 0.3); strip(cp, CREEK_W + 0.3);
+    // köprüler
+    const plank = toon(0x8a5a30), rail = toon(0x6a4024);
+    bridges.forEach(([bx, bz], k) => {
+      const g = new THREE.Group(); const alongX = k >= 3;   // derenin köprüleri yan
+      const L = alongX ? CREEK_W * 2 + 4 : RIVER_W * 2 + 4;
+      for (let i = 0; i < 9; i++) { const pl = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.18, L / 9 - 0.08), plank); pl.position.set(0, 0.32, -L / 2 + (i + 0.5) * L / 9); pl.castShadow = true; g.add(pl); }
+      [-1, 1].forEach(sd => { const rl = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.5, L), rail); rl.position.set(sd * 1.75, 0.65, 0); g.add(rl); });
+      g.position.set(bx, 0, bz); if (alongX) g.rotation.y = Math.PI / 2; scene.add(g);
+    });
+    // donmuş göller (üstünde yürünür, kayar gibi parlar)
+    lakes.forEach(([lx, lz, lr]) => { const m = new THREE.Mesh(new THREE.CircleGeometry(lr, 48), new THREE.MeshLambertMaterial({ color: 0xbfe8ff, transparent: true, opacity: 0.6, emissive: 0x2a4a6a })); m.rotation.x = -Math.PI / 2; m.position.set(lx, 0.04, lz); scene.add(m); });
 
     // dışarıda kalan dağ zirveleri
     const peakGeo = new THREE.ConeGeometry(1, 1, 7);
-    const peaks = new THREE.InstancedMesh(peakGeo, toon(0xe8eef8), 26);
+    const peaks = new THREE.InstancedMesh(peakGeo, toon(0xe8eef8), 40);
     const tmp = new THREE.Object3D();
-    for (let i = 0; i < 26; i++) {
-      const a = i / 26 * Math.PI * 2 + rand(-0.1, 0.1), r = rand(74, 82);
-      tmp.position.set(Math.cos(a) * r, 6, Math.sin(a) * r); tmp.scale.set(rand(9, 14), rand(16, 26), rand(9, 14)); tmp.rotation.y = rand(0, 6); tmp.updateMatrix();
+    for (let i = 0; i < 40; i++) {
+      const a = i / 40 * Math.PI * 2 + rand(-0.06, 0.06), rr = rand(122, 134);
+      tmp.position.set(Math.cos(a) * rr, 10, Math.sin(a) * rr); tmp.scale.set(rand(14, 22), rand(24, 38), rand(14, 22)); tmp.rotation.y = rand(0, 6); tmp.updateMatrix();
       peaks.setMatrixAt(i, tmp.matrix);
     }
     scene.add(peaks);
 
     // Engeller (çarpışma için daireler)
     const solids = [];
-    const free = (x, z, r) => Math.hypot(x, z) < WORLD_R - 2 && Math.hypot(x, z) > FENCE_R + 4 + r && Math.hypot(x - 34, z + 30) > 10.5 + r && Math.min(...roads.map(s => distSeg(x, z, s))) > 2.6 + r && !solids.some(s => Math.hypot(s.x - x, s.z - z) < s.r + r + 1);
+    const free = (x, z, r) => Math.hypot(x, z) < WORLD_R - 2 && Math.hypot(x, z) > FENCE_R + 4 + r && !inLake(x, z, 1 + r) && Math.abs(z - riverZ(x)) > RIVER_W + 1.5 + r && !(z < riverZ(x) && Math.abs(x - creekX(z)) < CREEK_W + 1.5 + r) && Math.min(...roads.map(s => distSeg(x, z, s))) > 2.8 + r && !solids.some(s => Math.hypot(s.x - x, s.z - z) < s.r + r + 1);
     // OYUNCUNUN KENDİ KÖYÜ: Köyüm ekranındaki binalar, aynı seviyelerle ortada durur
     const VS = 0.68;
     const vilGroup = new THREE.Group(); scene.add(vilGroup);
@@ -284,42 +328,52 @@ CZ.screens.valley = (function () {
     const ice = { x: -32, z: -26.5, r: 1.9, mesh: iceWall, alive: true };
     solids.push(ice);
 
-    // Ağaçlar (tek çizim: InstancedMesh) ve kayalar
-    const trees = [];
-    for (let k = 0; k < 900 && trees.length < 170; k++) {
+    // ===== KAYNAKLAR: ağaçlar (balta → odun) ve kayalar (kazma → taş). Parçalara bölünmüş InstancedMesh =====
+    const CH = 28;
+    const chunks = {};
+    const chunkOf = (kind, x, z) => { const k = kind + Math.floor(x / CH) + ',' + Math.floor(z / CH); return chunks[k] || (chunks[k] = { kind, items: [], cx: (Math.floor(x / CH) + 0.5) * CH, cz: (Math.floor(z / CH) + 0.5) * CH }); };
+    const trees = [], rocks = [];
+    for (let k = 0; k < 6000 && trees.length < 620; k++) {
       const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R);
+      const dens = noise(x * 1.3 + 40, z * 1.3 - 20);   // ormanlık bölgeler
+      if (dens < 0.15 && Math.random() > 0.08) continue;
+      if (Math.hypot(x, z) < FENCE_R + 9) continue;
       if (!free(x, z, 0.8)) continue;
-      trees.push({ x, z, s: rand(0.8, 1.35) });
-      solids.push({ x, z, r: 0.75 });
+      const sol = { x, z, r: 0.7 };
+      const tr = { kind: 'tree', x, z, s: rand(0.85, 1.3), hp: 3, maxHp: 3, solid: sol, alive: true };
+      solids.push(sol); trees.push(tr); chunkOf('t', x, z).items.push(tr);
     }
-    const leafGeo = new THREE.ConeGeometry(1.5, 3, 8), trunkGeo = new THREE.CylinderGeometry(0.25, 0.3, 1, 6), snowTop = new THREE.ConeGeometry(0.8, 1, 8);
-    const leafI = new THREE.InstancedMesh(leafGeo, toonSee(0xffffff), trees.length * 3), trunkI = new THREE.InstancedMesh(trunkGeo, toonSee(0x6a4024), trees.length), snowI = new THREE.InstancedMesh(snowTop, toonSee(0xffffff), trees.length * 2);
-    const greens = [0x1f6a3e, 0x2a7a46, 0x1a5a3a, 0x307f4a].map(c => new THREE.Color(c));
-    trees.forEach((tr, i) => {
-      tmp.rotation.set(0, rand(0, 6), 0);
-      tmp.position.set(tr.x, 0.5 * tr.s, tr.z); tmp.scale.set(tr.s, tr.s, tr.s); tmp.updateMatrix(); trunkI.setMatrixAt(i, tmp.matrix);
-      const gc = greens[i % greens.length];
-      tmp.position.set(tr.x, 1.9 * tr.s, tr.z); tmp.scale.set(tr.s * 1.1, tr.s * 0.85, tr.s * 1.1); tmp.updateMatrix(); leafI.setMatrixAt(i * 3, tmp.matrix); leafI.setColorAt(i * 3, gc);
-      tmp.position.set(tr.x, 3.0 * tr.s, tr.z); tmp.scale.set(tr.s * 0.82, tr.s * 0.75, tr.s * 0.82); tmp.updateMatrix(); leafI.setMatrixAt(i * 3 + 1, tmp.matrix); leafI.setColorAt(i * 3 + 1, gc);
-      tmp.position.set(tr.x, 4.0 * tr.s, tr.z); tmp.scale.set(tr.s * 0.55, tr.s * 0.65, tr.s * 0.55); tmp.updateMatrix(); leafI.setMatrixAt(i * 3 + 2, tmp.matrix); leafI.setColorAt(i * 3 + 2, gc);
-      tmp.position.set(tr.x, 4.62 * tr.s, tr.z); tmp.scale.set(tr.s * 0.62, tr.s * 0.5, tr.s * 0.62); tmp.updateMatrix(); snowI.setMatrixAt(i * 2, tmp.matrix);
-      tmp.position.set(tr.x, 3.35 * tr.s, tr.z); tmp.scale.set(tr.s * 1.12, tr.s * 0.32, tr.s * 1.12); tmp.updateMatrix(); snowI.setMatrixAt(i * 2 + 1, tmp.matrix);
+    for (let k = 0; k < 4000 && rocks.length < 170; k++) {
+      const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R), sc = rand(0.7, 1.35);
+      if (noise(x - 30, z + 60) > -0.2 && Math.random() > 0.12) continue;   // kayalık bölgeler
+      if (Math.hypot(x, z) < FENCE_R + 7) continue;
+      if (!free(x, z, sc)) continue;
+      const sol = { x, z, r: sc * 0.85 };
+      const rk = { kind: 'rock', x, z, s: sc, hp: 4, maxHp: 4, solid: sol, alive: true, rot: rand(0, 6) };
+      solids.push(sol); rocks.push(rk); chunkOf('r', x, z).items.push(rk);
+    }
+    // köy yakınında da birkaç tane olsun (öğretici için)
+    const treeGeo = CZ.gen3d.has('cam_lo') ? CZ.gen3d.geo('cam_lo') : (() => { const g = new THREE.ConeGeometry(0.45, 1, 8); g.translate(0, 0.5, 0); const c = []; for (let i = 0; i < g.attributes.position.count; i++) c.push(0.2, 0.5, 0.3); g.setAttribute('color', new THREE.Float32BufferAttribute(c, 3)); return g; })();
+    const rockGeo = (() => { const g = new THREE.DodecahedronGeometry(1, 1); const p2 = g.attributes.position, c = [];
+      for (let i = 0; i < p2.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(p2, i); v.multiplyScalar(1 + (Math.sin(v.x * 5) * Math.cos(v.z * 4)) * 0.12); p2.setXYZ(i, v.x, v.y * 0.72, v.z); const k = 0.5 + v.y * 0.12 + Math.random() * 0.04; c.push(k, k + 0.02, k + 0.07); if (v.y > 0.55) c.splice(-3, 3, 0.92, 0.95, 1); }
+      g.setAttribute('color', new THREE.Float32BufferAttribute(c, 3)); g.computeVertexNormals(); g.translate(0, 0.5, 0); return g; })();
+    const resMatT = seeThrough(new THREE.MeshLambertMaterial({ vertexColors: true }));
+    const resMatR = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });
+    function setInst(it) {
+      const c = it.chunk;
+      if (!it.alive) tmp.scale.setScalar(0.0001);
+      else if (it.kind === 'tree') tmp.scale.setScalar(it.s * 3.3 * (it.shrink || 1));
+      else tmp.scale.set(it.s, it.s, it.s);
+      tmp.position.set(it.x, 0, it.z); tmp.rotation.set(it.kind === 'tree' ? (it.tilt || 0) : 0, it.kind === 'tree' ? it.yaw : it.rot, 0); tmp.updateMatrix();
+      c.mesh.setMatrixAt(it.idx, tmp.matrix); c.mesh.instanceMatrix.needsUpdate = true;
+    }
+    Object.values(chunks).forEach(c => {
+      c.mesh = new THREE.InstancedMesh(c.kind === 't' ? treeGeo : rockGeo, c.kind === 't' ? resMatT : resMatR, c.items.length);
+      c.mesh.frustumCulled = false; c.mesh.castShadow = true; c.mesh.receiveShadow = c.kind === 'r';
+      c.items.forEach((it, i) => { it.chunk = c; it.idx = i; it.yaw = rand(0, 6); setInst(it); if (c.kind === 't') c.mesh.setColorAt(i, new THREE.Color().setHSL(0.45, 0.35, 0.6 + rand(-0.08, 0.1))); });
+      scene.add(c.mesh);
     });
-    if (CZ.gen3d.has('cam_lo')) {
-      const tg = CZ.gen3d.geo('cam_lo');
-      const genT = new THREE.InstancedMesh(tg, seeThrough(new THREE.MeshLambertMaterial({ vertexColors: true })), trees.length);
-      trees.forEach((tr, i) => { tmp.position.set(tr.x, 0, tr.z); tmp.rotation.set(0, rand(0, 6), 0); tmp.scale.setScalar(tr.s * 3.3); tmp.updateMatrix(); genT.setMatrixAt(i, tmp.matrix); genT.setColorAt(i, new THREE.Color().setHSL(0.45, 0.35, 0.62 + rand(-0.08, 0.1))); });
-      genT.castShadow = true; scene.add(genT);
-    } else { [leafI, trunkI, snowI].forEach(m => { m.castShadow = true; }); scene.add(leafI, trunkI, snowI); }
-    const rockGeo = new THREE.DodecahedronGeometry(1, 0);
-    const rocksN = 40, rockI = new THREE.InstancedMesh(rockGeo, toon(0x8a90a0), rocksN);
-    for (let i = 0, k = 0; i < rocksN && k < 400; k++) {
-      const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R), s = rand(0.6, 1.4);
-      if (!free(x, z, s)) continue;
-      tmp.position.set(x, s * 0.4, z); tmp.scale.set(s, s * 0.7, s); tmp.rotation.set(rand(0, 3), rand(0, 3), 0); tmp.updateMatrix(); rockI.setMatrixAt(i++, tmp.matrix);
-      solids.push({ x, z, r: s * 0.9 });
-    }
-    rockI.castShadow = true; scene.add(rockI);
+    const chunkList = Object.values(chunks);
 
     // Yağan kar: oyuncunun etrafında dönen nokta bulutu
     const flakeN = 420, flakePos = new Float32Array(flakeN * 3);
@@ -378,8 +432,7 @@ CZ.screens.valley = (function () {
         return;
       }
     }
-    for (let i = 0; i < 18 + B.boxes * 2; i++) spawnBox(i < 2);
-    for (let i = 0; i < 22; i++) spawnPile();
+    // altın yalnız goblinlerden gelir (yerde kutu/yığın yok)
     // mağaradaki hazine sandığı (buz kırılınca)
     const chestG = new THREE.Group();
     chestG.add(at(new THREE.Mesh(new THREE.BoxGeometry(1.6, 1, 1.1), toon(0x8a5228)), 0, 0.5, 0));
@@ -387,7 +440,7 @@ CZ.screens.valley = (function () {
     chestG.add(at(new THREE.Mesh(new THREE.BoxGeometry(1.64, 0.15, 1.14), toon(0xf2c230)), 0, 0.75, 0));
     if (CZ.gen3d.has('sandik_lo')) { chestG.clear(); chestG.add(CZ.gen3d.get('sandik_lo', 1.6)); }
     chestG.position.set(-34.2, 0, -28.6); chestG.rotation.y = -0.75; scene.add(chestG);
-    const chest = { type: 'chest', x: -34.2, z: -28.6, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 80, locked: true };
+    const chest = { type: 'chest', x: -34.2, z: -28.6, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 0, gems: 15, locked: true };
     targets.push(chest);
 
     // ZİBO'NUN GOBLİNLERİ: dışarıdan sonsuz gelir, elinde mızrak, sırtında altın çuvalı.
@@ -406,12 +459,12 @@ CZ.screens.valley = (function () {
       spear.position.set(0.42, 0.75, -0.1); spear.rotation.x = -1.2; z3.root.add(spear);
       const sack = new THREE.Mesh(sackGeo, sackMat); sack.scale.set(1, 1.15, 0.8); sack.position.set(0, 0.95, 0.38); z3.root.add(sack);
       const rope = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.035, 5, 10), ropeMat); rope.rotation.x = Math.PI / 2; rope.position.set(0, 1.28, 0.38); z3.root.add(rope);
-      const a = rand(0, Math.PI * 2), rr = WORLD_R - 3;
-      let x = Math.cos(a) * rr, z = Math.sin(a) * rr;
-      if (Math.hypot(x - P.x, z - P.z) < 14) { x = -x; z = -z; }
+      // oyuncunun etrafında, ekran dışında doğar (köyün içinde ve nehirde değil)
+      let x = 0, z = 0;
+      for (let k = 0; k < 30; k++) { const a = rand(0, Math.PI * 2), rr = rand(26, 38); x = P.x + Math.cos(a) * rr; z = P.z + Math.sin(a) * rr; if (Math.hypot(x, z) > FENCE_R + 6 && Math.hypot(x, z) < WORLD_R - 3 && !water(x, z)) break; }
       z3.root.position.set(x, 0, z); z3.root.traverse(o => { o.castShadow = true; }); scene.add(z3.root);
-      const hp = Math.round((tough ? 6 : 3) + V.wave * 0.4);
-      const gb = { type: 'goblin', x, z, r: 0.7, hp, maxHp: hp, mesh: z3.root, z3, spear, coins: Math.round((tough ? 35 : 15) + V.wave * 2), stolen: 0, vx: 0, vz: 0, think: 0, stun: 0, atk: rand(0.5, 1.2), lunge: 0, speed: (tough ? 3.0 : 3.6) + Math.min(1.2, V.wave * 0.08), dmg: tough ? 2 : 1, flee: false };
+      const hp = Math.round((tough ? 5 : 2) + V.wave * 0.3);
+      const gb = { type: 'goblin', x, z, r: 0.7, hp, maxHp: hp, mesh: z3.root, z3, spear, coins: Math.round((tough ? 14 : 5) + V.wave * 1.2), stolen: 0, village: V.wave >= 6 && Math.random() < 0.35, vx: 0, vz: 0, think: 0, stun: 0, atk: rand(0.5, 1.2), lunge: 0, speed: (tough ? 2.8 : 3.3) + Math.min(1, V.wave * 0.06), dmg: 1, flee: false };
       goblins.push(gb); targets.push(gb); hpBar(gb);
     }
 
@@ -419,19 +472,22 @@ CZ.screens.valley = (function () {
     const DD = d.vil ? d.vil : (CZ.village ? CZ.village.ensure() : (d.vil = {}));
     if (!DD.def) DD.def = { t: [null, null, null, null, null, null, null, null], f: [null, null, null, null, null, null, null, null] };
     const DS = DD.def;
-    const padTex = text => { const c = document.createElement('canvas'); c.width = 256; c.height = 256; const x = c.getContext('2d');
-      x.fillStyle = 'rgba(10,16,40,.55)'; x.beginPath(); x.arc(128, 128, 120, 0, 7); x.fill();
-      x.strokeStyle = '#ffd23a'; x.lineWidth = 12; x.setLineDash([22, 14]); x.beginPath(); x.arc(128, 128, 112, 0, 7); x.stroke();
-      x.fillStyle = '#ffd23a'; x.beginPath(); x.arc(128, 92, 30, 0, 7); x.fill(); x.fillStyle = '#b88a10'; x.font = 'bold 34px sans-serif'; x.textAlign = 'center'; x.fillText('$', 128, 104);
-      x.fillStyle = '#fff'; x.font = 'bold 54px sans-serif'; x.fillText(text, 128, 182);
-      const tx = new THREE.CanvasTexture(c); return tx; };
+    // Daire dokusu: kalan kaynakları renkli şeritlerle gösterir
+    const padTex = (lines, title) => { const c = document.createElement('canvas'); c.width = 256; c.height = 256; const x = c.getContext('2d');
+      x.fillStyle = 'rgba(10,16,40,.6)'; x.beginPath(); x.arc(128, 128, 122, 0, 7); x.fill();
+      x.strokeStyle = '#ffd23a'; x.lineWidth = 12; x.setLineDash([22, 14]); x.beginPath(); x.arc(128, 128, 112, 0, 7); x.stroke(); x.setLineDash([]);
+      x.textAlign = 'center'; x.fillStyle = '#fff'; x.font = 'bold 26px sans-serif'; if (title) x.fillText(title, 128, 72);
+      lines.forEach((ln, k) => { const y = 112 + k * 46; x.fillStyle = RES_COL[ln.r]; x.beginPath(); x.arc(70, y - 10, 15, 0, 7); x.fill(); x.fillStyle = '#fff'; x.font = 'bold 40px sans-serif'; x.textAlign = 'left'; x.fillText(String(ln.n), 96, y + 4); x.textAlign = 'center'; });
+      return new THREE.CanvasTexture(c); };
     const pads = [];
     for (let i = 0; i < 8; i++) {
       const a = (i + 0.5) / 8 * Math.PI * 2;
-      pads.push({ kind: 't', i, x: Math.cos(a) * PAD_R, z: Math.sin(a) * PAD_R, a });
+      pads.push({ kind: 't', i, x: Math.cos(a) * PAD_R, z: Math.sin(a) * PAD_R, a, type: i % 2 ? 'cannon' : 'snow' });
       const fa = (i + 0.5) / 8 * Math.PI * 2;
       pads.push({ kind: 'f', i, x: Math.cos(fa) * (FENCE_R + 2.2), z: Math.sin(fa) * (FENCE_R + 2.2), a: fa });
     }
+    // köy binalarının önünde yükseltme daireleri
+    if (CZ.VB && CZ.VILLAGE_SPOTS) CZ.VB.forEach(b => { const [sx, sz] = CZ.VILLAGE_SPOTS[b.id]; pads.push({ kind: 'v', id: b.id, x: sx * 0.68, z: sz * 0.68 + (b.id === 'hall' ? 3.4 : 2.6) }); });
     const padGeo = new THREE.PlaneGeometry(2.6, 2.6);
     const scaffoldMat = new THREE.MeshLambertMaterial({ color: 0xf2c230 });
     function cannonModel(L) {
@@ -466,26 +522,52 @@ CZ.screens.valley = (function () {
       if (!stone) [0.5, 1.1].forEach(y => { for (let k = 0; k < n; k++) { const a = a0 + (a1 - a0) * (k + 0.5) / n; const rail = new THREE.Mesh(new THREE.BoxGeometry(FENCE_R * (a1 - a0) / n + 0.1, 0.12, 0.08), mat); rail.position.set(Math.cos(a) * FENCE_R, y, Math.sin(a) * FENCE_R); rail.rotation.y = -a + Math.PI / 2; g.add(rail); } });
       return g;
     }
-    const slot = p => DS[p.kind][p.i];
-    const defOf = p => DEF[p.kind === 'f' ? 'fence' : slot(p).type];
+    const slot = p => p.kind === 'v' ? null : DS[p.kind][p.i];
+    const defOf = p => DEF[p.kind === 'f' ? 'fence' : p.type];
+    // bir sonraki seviyenin maliyeti ve ödenen kısım
+    const VIL_COST = id => { const pr = CZ.village.price(id, CZ.village.lv(id)); return { wood: Math.round(pr * 0.35), stone: Math.round(pr * 0.3), gold: Math.round(pr * 0.12) }; };
+    function need(p) {
+      if (p.kind === 'v') { const L = CZ.village.lv(p.id); if (L >= CZ.village.def(p.id).max) return null; return VIL_COST(p.id); }
+      const it = slot(p), D2 = defOf(p), L = it ? it.lv : 0;
+      if (it && it.job) return null;
+      return D2.cost[L] || null;
+    }
+    const paidKey = p => p.kind === 'v' ? 'v' + p.id : p.kind + p.i;
+    const paid = p => { DS.pp = DS.pp || {}; return DS.pp[paidKey(p)] || (DS.pp[paidKey(p)] = { wood: 0, stone: 0, gold: 0 }); };
+    const left = p => { const n = need(p); if (!n) return null; const pd = paid(p); return RES.map(r2 => ({ r: r2, n: Math.max(0, (n[r2] || 0) - pd[r2]) })).filter(x => (n[x.r] || 0) > 0); };
     function jobLeft(it) { return it && it.job ? Math.max(0, it.job.end - Date.now()) : 0; }
     function finishJob(p) { const it = slot(p); if (!it || !it.job) return; it.lv = it.job.to; it.job = null; CZ.state.save(); drawPad(p); CZ.audio.sfx('win'); floatAt(p, t('def.ready')); }
+    // daire nerede durur: kule kurulduysa kulenin dışına kayar
+    const markPos = p => { if (p.kind === 't' && slot(p)) return [Math.cos(p.a) * (PAD_R + 2.8), Math.sin(p.a) * (PAD_R + 2.8)]; return [p.x, p.z]; };
+    // daireler yavaş yavaş açılır (Kingshot gibi): önce 2 kule yeri, kule kurdukça yenisi, sonra çit, görevler bitince köy binaları
+    function padVisible(p) {
+      const built = DS.t.filter(Boolean).length;
+      if (p.kind === 't') return !!slot(p) || p.i < 2 + built;
+      if (p.kind === 'f') return !!slot(p) || built >= 1;
+      return (d.tutV || 0) >= 5;
+    }
+    function drawMark(p) {
+      if (p.mark) { scene.remove(p.mark); p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
+      if (!padVisible(p)) return;
+      const L2 = left(p);
+      if (!L2 || !L2.length) return;
+      let title = '';
+      if (p.kind === 'v') { const lv = CZ.village.lv(p.id); title = (lv ? t('vil.lv', { n: lv + 1 }) : t('vil.build')); if (CZ.village.ensure().job || lv >= CZ.village.cap(p.id)) title = '🔒'; }
+      else { const it = slot(p); title = it ? t('vil.lv', { n: it.lv + 1 }) : (p.kind === 'f' ? t('def.fence') : t('def.' + p.type)); }
+      p.mark = new THREE.Mesh(padGeo, new THREE.MeshBasicMaterial({ map: padTex(L2, title), transparent: true, depthWrite: false }));
+      const [mx, mz] = markPos(p);
+      p.mark.rotation.x = -Math.PI / 2; p.mark.position.set(mx, 0.06, mz); p.mark.renderOrder = 2; scene.add(p.mark);
+    }
     function drawPad(p) {
+      drawMark(p);
+      if (p.kind === 'v') return;
       const it = slot(p);
       if (p.g) { scene.remove(p.g); p.g = null; }
-      if (p.mark) { scene.remove(p.mark); p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
       if (p.barG) { scene.remove(p.barG); p.barG = null; }
       const building = it && it.job;
-      if (!it || p.kind === 't' || building) {
-        const price = !it ? (p.kind === 'f' ? DEF.fence.price : DEF.snow.price) : null;
-        if (!it) {
-          p.mark = new THREE.Mesh(padGeo, new THREE.MeshBasicMaterial({ map: padTex(String(price)), transparent: true, depthWrite: false }));
-          p.mark.rotation.x = -Math.PI / 2; p.mark.position.set(p.x, 0.05, p.z); scene.add(p.mark);
-        }
-      }
       if (!it) { if (p.kind === 'f') { p.hp = 0; } return; }
       const lv = building && it.lv === 0 ? 1 : it.lv;
-      p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(it.type, lv);
+      p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(p.type, lv);
       if (p.kind === 't') p.g.position.set(p.x, 0, p.z);
       if (building) {
         // inşaat: hemen görünür ama yarı saydam + iskele
@@ -505,27 +587,42 @@ CZ.screens.valley = (function () {
       if (p.kind === 'f') p.hp = p.hpMax = DEF.fence.hp + DEF.fence.hpUp * (it.lv - 1);
       p.pop = 0.35;
     }
-    function payBuild(p, type) {
-      const price = p.kind === 'f' ? DEF.fence.price : DEF[type].price;
-      if ((d.gold || 0) < price) { CZ.audio.sfx('wrong'); CZ.ui.toast(t('chars.goldShort', { n: price - (d.gold || 0) })); return; }
-      d.gold -= price; goldEl.textContent = d.gold;
-      DS[p.kind][p.i] = { type: p.kind === 'f' ? 'fence' : type, lv: 0, job: { to: 1, end: Date.now() + (p.kind === 'f' ? DEF.fence : DEF[type]).min[0] * 60000 } };
-      CZ.state.save(); CZ.audio.sfx('buy'); CZ.audio.vibrate([30, 20, 50]);
-      drawPad(p); padUi(true);
+    // KAYNAK AKIŞI: oyuncu dairenin üstündeyken her an biraz kaynak daireye akar
+    const flyGeo = new THREE.BoxGeometry(0.22, 0.22, 0.22);
+    const flyMats = { wood: toon(0xb8763a), stone: toon(0x9aa3b4), gold: new THREE.MeshLambertMaterial({ color: 0xffc928, emissive: 0x5a3a00 }) };
+    const flies = [];
+    function flowTick(p, dt) {
+      const n = need(p); if (!n) return;
+      if (p.kind === 'v') { const V2 = CZ.village.ensure(); if (V2.job || CZ.village.lv(p.id) >= CZ.village.cap(p.id)) { if (!V.lockHint) { V.lockHint = true; floatAt(P, V2.job ? t('vil.busy') : t('vil.needHall', { n: Math.ceil((CZ.village.lv(p.id) + 1) / 2) }), 'wave'); setTimeout(() => { if (V) V.lockHint = false; }, 2500); } return; } }
+      const pd = paid(p); let moved = 0, lacking = false;
+      const [mx, mz] = markPos(p);
+      RES.forEach(r2 => {
+        const rest = (n[r2] || 0) - pd[r2]; if (rest <= 0) return;
+        const have = Math.floor(d[r2] || 0); if (have <= 0) { lacking = true; return; }
+        const amt = Math.min(rest, have, Math.max(1, Math.ceil((n[r2] || 0) * dt * 1.4)));
+        d[r2] = have - amt; pd[r2] += amt; moved += amt;
+        if (Math.random() < 0.7) { const m = new THREE.Mesh(flyGeo, flyMats[r2]); m.position.set(P.x, 1.2, P.z); scene.add(m); flies.push({ m, t: 0, tx: mx, tz: mz, sx: P.x, sz: P.z }); }
+      });
+      if (moved) { resUi(); V.flowSfx = (V.flowSfx || 0) - dt; if (V.flowSfx <= 0) { V.flowSfx = 0.12; CZ.audio.sfx('coin', 3); } p.dirty = true; }
+      else if (lacking && !V.lackHint) { V.lackHint = true; floatAt(P, t('def.lacking'), 'wave'); setTimeout(() => { if (V) V.lackHint = false; }, 3000); }
+      if (left(p).every(x => x.n <= 0)) complete(p);
     }
-    function payUpgrade(p) {
-      const it = slot(p), D2 = defOf(p);
-      if (it.job || it.lv >= D2.up.length) return;
-      const price = D2.up[it.lv];
-      if ((d.gold || 0) < price) { CZ.audio.sfx('wrong'); CZ.ui.toast(t('chars.goldShort', { n: price - (d.gold || 0) })); return; }
-      d.gold -= price; goldEl.textContent = d.gold;
-      it.job = { to: it.lv + 1, end: Date.now() + D2.min[it.lv] * 60000 };
-      CZ.state.save(); CZ.audio.sfx('buy'); drawPad(p); padUi(true);
+    function complete(p) {
+      delete DS.pp[paidKey(p)];
+      if (p.kind === 'v') { CZ.village.startJob(p.id); floatAt(p, t('def.building'), 'wave'); }
+      else {
+        const it = slot(p), D2 = defOf(p);
+        if (!it) DS[p.kind][p.i] = { type: p.kind === 'f' ? 'fence' : p.type, lv: 0, job: { to: 1, end: Date.now() + D2.min[0] * 60000 } };
+        else it.job = { to: it.lv + 1, end: Date.now() + D2.min[it.lv] * 60000 };
+        if (V.tut) V.tut.on('build');
+      }
+      CZ.state.save(); CZ.audio.sfx('buy'); CZ.audio.vibrate([30, 20, 50]);
+      drawPad(p); pads.forEach(q => { if (q !== p) drawMark(q); }); padUi(true);
     }
     function rushGold(p) {
       const it = slot(p); const c = it.lv === 0 ? RUSH_BUILD : rushPrice(jobLeft(it));
       if ((d.gold || 0) < c) { CZ.audio.sfx('wrong'); CZ.ui.toast(t('chars.goldShort', { n: c - (d.gold || 0) })); return; }
-      d.gold -= c; goldEl.textContent = d.gold; finishJob(p); padUi(true);
+      d.gold -= c; resUi(); finishJob(p); padUi(true);
     }
     function rushAd(p) { CZ.ads.show(() => { if (V && slot(p) && slot(p).job) { finishJob(p); padUi(true); } }); }
 
@@ -541,6 +638,16 @@ CZ.screens.valley = (function () {
     const mount = quadruped(THREE, mountDef);
     const M = { x: 5.5, z: 3.8, dir: Math.PI, speed: 0 };
     mount.root.position.set(M.x, 0, M.z); mount.root.traverse(o => { if (o.geometry && o.geometry.type !== 'CircleGeometry') o.castShadow = true; }); scene.add(mount.root);
+    // MİLA: köyün bekçisi. Kendi bineği Işıltı (satılmaz). Sen yokken köyü o korur; sen varken dinlenir ama köye giren goblini vurur.
+    const MILA = { x: -3.2, z: 2.4, dir: 0, cd: 0, say: null };
+    const milaMount = quadruped(THREE, { id: 'aurora', kind: 'deer', color: 0xfff0fa, light: 0xffc8e8, speed: 9 });
+    const milaHero = CZ.kk.hero(THREE, (d.avatar === 'elf' ? 'girl' : 'elf'));
+    milaHero.root.scale.setScalar(1.35);
+    milaMount.root.position.set(MILA.x, 0, MILA.z); milaMount.root.rotation.y = Math.PI * 0.85;
+    milaMount.root.traverse(o => { if (o.isMesh) o.castShadow = true; }); milaHero.root.traverse(o => { o.castShadow = true; });
+    scene.add(milaMount.root, milaHero.root);
+    solids.push({ x: MILA.x, z: MILA.z, r: 1.1 });
+    const bubble = h('div', { class: 'mila-bubble' }, h('b', { text: 'Mila' }), h('span'));
 
     // nişan göstergesi (yerde ok)
     const aimTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 256; const x = c.getContext('2d'); const gr = x.createLinearGradient(0, 256, 0, 0); gr.addColorStop(0, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,.95)'); x.fillStyle = gr; x.fillRect(16, 40, 32, 216); x.beginPath(); x.moveTo(0, 48); x.lineTo(32, 0); x.lineTo(64, 48); x.fill(); return new THREE.CanvasTexture(c); })();
@@ -611,6 +718,7 @@ CZ.screens.valley = (function () {
       scene.remove(o.mesh);
       const total = o.coins + (o.stolen || 0);
       if (o.type === 'goblin' && CZ.pass) CZ.pass.addXp(3);
+      if (o.type === 'goblin' && V.tut) V.tut.on('goblin');
       if (byTower) { gain(total, true); floatAt(o, '+' + total, 'auto'); CZ.audio.sfx('coin'); V.kills++; }   // kule vurdu: altın kendiliğinden kasaya
       else {
         dropCoins(o.x, o.z, Math.round(total / (o.type === 'chest' ? 4 : 2)), 1.2);
@@ -619,14 +727,14 @@ CZ.screens.valley = (function () {
       }
       bump(total);
       if (o.type === 'goblin' && !byTower) { CZ.audio.sfx('win'); floatAt(o, t('valley.sack', { n: total })); }
-      if (o.type === 'chest') { CZ.audio.sfx('win'); floatAt(o, t('valley.chest', { n: o.coins })); CZ.audio.vibrate([40, 30, 80]); }
+      if (o.type === 'chest') { d.emeralds = (d.emeralds || 0) + o.gems; resUi(); CZ.audio.sfx('win'); floatAt(o, '+' + o.gems + ' 💎'); CZ.audio.vibrate([40, 30, 80]); }
       const i = targets.indexOf(o); if (i >= 0) targets.splice(i, 1);
       if (o.type === 'box') setTimeout(() => { if (V) spawnBox(Math.random() < 0.1); }, rand(12000, 22000));
       if (o.type === 'goblin') { const j = goblins.indexOf(o); if (j >= 0) goblins.splice(j, 1); }
     }
 
     /* ---------- Arayüz ---------- */
-    const goldEl = h('b', { text: String(d.gold || 0) });
+    const goldEl = h('b', { text: String(d.gold || 0) }), woodEl = h('b', { text: '0' }), stoneEl = h('b', { text: '0' }), gemEl = h('b', { text: '0' });
     const timeEl = h('b', { class: 'vl-time', text: t('def.wave', { n: 1 }) });
     const hpFill = h('i'); const hpBarEl = h('div', { class: 'vl-hp' }, hpFill);
     const panel = h('div', { class: 'def-panel' });
@@ -646,7 +754,7 @@ CZ.screens.valley = (function () {
       if (powLv() >= POW_MAX) return;
       const c = powPrice();
       if ((d.gold || 0) < c) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.goldShort', { n: c - (d.gold || 0) })); }
-      d.gold -= c; d.vpow = powLv() + 1; CZ.state.save(); goldEl.textContent = d.gold;
+      d.gold -= c; d.vpow = powLv() + 1; CZ.state.save(); resUi();
       CZ.audio.sfx('buy'); CZ.audio.vibrate([20, 20, 40]); floatAt(P, t('def.powUp', { n: d.vpow * 2 + W.dmg * 2 }), 'wave'); powUi();
     });
     const floats = h('div', { class: 'vl-floats' });
@@ -661,7 +769,7 @@ CZ.screens.valley = (function () {
     const mpBtn = h('button', { class: 'vl-mp', type: 'button' }, h('i'), h('b', { text: t('mp.' + MP.id) }));
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
-      h('div', { class: 'vl-top' }, h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), goldEl), timeEl),
+      h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl),
       hpBarEl, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
@@ -679,6 +787,19 @@ CZ.screens.valley = (function () {
       floats.append(f); setTimeout(() => f.remove(), 1100);
     }
     function bump() { goldEl.parentNode.classList.remove('bump'); void goldEl.offsetWidth; goldEl.parentNode.classList.add('bump'); }
+    // PAZAR: zümrüt ⇄ altın, altın → odun / taş (odun ve taş geri dönmez)
+    function openMarket() {
+      if (V && !V.paused) V.paused = true;
+      const rows = [['gems', 1, 'gold', 90], ['gold', 120, 'gems', 1], ['gold', 10, 'wood', 25], ['gold', 10, 'stone', 15], ['gold', 100, 'wood', 260], ['gold', 100, 'stone', 160]];
+      const key = { gems: 'emeralds', gold: 'gold', wood: 'wood', stone: 'stone' };
+      const ico = r2 => r2 === 'gold' ? img('ui.gold', 'mini-ico') : r2 === 'gems' ? img('ui.emerald', 'mini-ico') : h('i', { text: r2 === 'wood' ? '🪵' : '🪨' });
+      const box = h('div', { class: 'pause-menu' });
+      const draw2 = () => box.replaceChildren(h('div', { class: 'pause-card mkt' }, h('b', { class: 'lg-title', text: t('mkt.title') }), h('small', { text: t('mkt.rule') }),
+        ...rows.map(([a, na, b2, nb]) => h('div', { class: 'mkt-row' }, h('span', {}, ico(a), String(na)), h('b', { text: '→' }), h('span', {}, ico(b2), String(nb)),
+          btn(t('mkt.swap'), () => { if ((d[key[a]] || 0) < na) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('mkt.short')); } d[key[a]] -= na; d[key[b2]] = (d[key[b2]] || 0) + nb; CZ.state.save(); CZ.audio.sfx('buy'); resUi(); draw2(); }, 'small primary'))),
+        btn(t('common.close'), () => { box.remove(); if (V) { V.paused = false; V.last = 0; } }, 'small ghost-dark')));
+      draw2(); wrap.append(box);
+    }
 
     // Yön çubuğu: sol yarıda nereye basarsan orada açılır (Brawl Stars)
     const joy = { id: null, x0: 0, y0: 0, dx: 0, dy: 0 };
@@ -738,14 +859,14 @@ CZ.screens.valley = (function () {
     }
     rideBtn.addEventListener('click', () => {
       if (P.riding) { P.riding = false; P.x += Math.cos(P.dir) * 1.6; P.z -= Math.sin(P.dir) * 1.6; CZ.audio.sfx('land'); }
-      else if (Math.hypot(M.x - P.x, M.z - P.z) < 3.2) { P.riding = true; CZ.audio.sfx('jump'); }
+      else if (Math.hypot(M.x - P.x, M.z - P.z) < 3.2) { P.riding = true; CZ.audio.sfx('jump'); if (V.tut) V.tut.on('ride'); }
       else { V.whistle = true; CZ.audio.sfx('star'); floatAt(M, t('valley.coming')); }
     });
     pauseB.addEventListener('pointerdown', e => { e.stopPropagation(); pause(); });
 
     V = {
       el, renderer, scene, stage, wrap, raf: 0, last: 0, wave: 1, waveT: 0, spawnT: 2, kills: 0, earned: 0, pending: 0, cool: 0, running: true, paused: false, whistle: false,
-      P, M, hero, camera, solids, targets, goblins, piles, ice, chest, pads, DS, debug: { fire, autoFire, joy, nearestTarget, payBuild, payUpgrade, rushGold, finishJob, spawnGoblin },
+      P, M, hero, camera, solids, targets, goblins, piles, ice, chest, pads, DS, debug: { fire, autoFire, joy, nearestTarget, rushGold, finishJob, spawnGoblin, complete, flowTick },
       cleanup() {
         window.removeEventListener('resize', resize);
         window.removeEventListener('pointermove', V_move);
@@ -779,7 +900,7 @@ CZ.screens.valley = (function () {
     /* ---------- Döngü ---------- */
     const perf = { acc: 0, n: 0, slow: 0 };
     const collide = (x, z, r) => {
-      for (const s of solids) { if (s === ice && !ice.alive) continue; const dx = x - s.x, dz = z - s.z, dd = Math.hypot(dx, dz), m = s.r + r; if (dd < m && dd > 0.001) { x = s.x + dx / dd * m; z = s.z + dz / dd * m; } }
+      for (const s of solids) { if (s.off || (s === ice && !ice.alive)) continue; const dx = x - s.x, dz = z - s.z, dd = Math.hypot(dx, dz), m = s.r + r; if (dd < m && dd > 0.001) { x = s.x + dx / dd * m; z = s.z + dz / dd * m; } }
       const rr = Math.hypot(x, z); if (rr > WORLD_R) { x *= WORLD_R / rr; z *= WORLD_R / rr; }
       return [x, z];
     };
@@ -787,11 +908,11 @@ CZ.screens.valley = (function () {
       V.cool -= dt;
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
       V.waveT += dt;
-      if (V.waveT > 45) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); }
+      if (V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); }
       timeEl.textContent = t('def.wave', { n: V.wave });
       V.spawnT -= dt;
-      const cap = Math.min(14, 2 + V.wave * 2);
-      if (V.spawnT <= 0 && goblins.length < cap) { V.spawnT = Math.max(1.4, 5 - V.wave * 0.35); spawnGoblin(); }
+      const cap = Math.min(10, 2 + V.wave);
+      if (V.spawnT <= 0 && goblins.length < cap) { V.spawnT = Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); }
       // inşaat süreleri
       pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
       // KULELER: menzildeki en yakın goblini kendileri vurur
@@ -823,6 +944,11 @@ CZ.screens.valley = (function () {
         q.m.position.x += dx / L2 * st; q.m.position.y += dy / L2 * st + (q.type === 'cannon' ? Math.sin(Math.min(1, q.t * 2) * Math.PI) * dt * 3 : 0); q.m.position.z += dz / L2 * st;
       }
       for (let i = booms.length - 1; i >= 0; i--) { const b2 = booms[i]; b2.t += dt; b2.m.scale.setScalar(0.5 + b2.t * 7); b2.m.material.opacity = Math.max(0, 0.8 - b2.t * 2.4); if (b2.t > 0.35) { scene.remove(b2.m); b2.m.material.dispose(); booms.splice(i, 1); } }
+      MILA.cd -= dt;
+      if (MILA.cd <= 0) {
+        const g = goblins.find(o => !o.dead && Math.hypot(o.x, o.z) < FENCE_R + 4);
+        if (g) { MILA.cd = 1.1; milaMount.root.rotation.y = Math.atan2(-(g.x - MILA.x), -(g.z - MILA.z)); if (milaHero.throwNow) milaHero.throwNow(); const m = new THREE.Mesh(ballGeo, ballMat); m.position.set(MILA.x, 2.6, MILA.z); scene.add(m); tshots.push({ m, o: g, type: 'snow', dmg: 2, sp: 22, t: 0 }); }
+      }
       // CAN: köyün içinde yavaşça dolar; bayılınca köyde uyanırsın
       P.hurtT = Math.max(0, P.hurtT - dt);
       if (P.down > 0) { P.down -= dt; if (P.down <= 0) { P.hp = P.maxHp; P.x = 2.5; P.z = 6.5; P.riding = false; M.x = 5.5; M.z = 3.8; downEl.remove(); } return; }
@@ -830,7 +956,7 @@ CZ.screens.valley = (function () {
       hpFill.style.width = (P.hp / P.maxHp * 100) + '%'; hpBarEl.classList.toggle('low', P.hp / P.maxHp < 0.35);
       if (V.pending > 0) { const n = Math.min(V.pending, Math.ceil(V.pending * dt * 6)); V.pending -= n; gain(n, true); }
       V.saveT = (V.saveT || 0) - dt; if (V.saveT <= 0) { V.saveT = 3; CZ.state.save(); }
-      padNear();
+      padNear(dt);
       V.powT = (V.powT || 0) - dt; if (V.powT <= 0) { V.powT = 0.5; powUi(); boostBtn.classList.toggle('on', V.boostT > 0); boostBtn.lastChild.textContent = V.boostT > 0 ? Math.ceil(V.boostT / 60) + ' ' + t('def.min') : t('def.boost'); }
       V.boostT = Math.max(0, (V.boostT || 0) - dt);
 
@@ -845,7 +971,7 @@ CZ.screens.valley = (function () {
         [P.x, P.z] = collide(P.x + fx * 22 * dt, P.z + fz * 22 * dt, 1.0);
         goblins.forEach(o => { if (!o.dead && !V.pounceHit.has(o) && Math.hypot(o.x - P.x, o.z - P.z) < 2) { V.pounceHit.add(o); o.stun = 1; hit(o, 6 + powLv() * 2); } });
       }
-      const sp = P.riding ? mountDef.speed * B.speed * (V.dashT > 0 ? 1.8 : 1) : 6;
+      const sp = P.riding ? mountDef.speed * B.speed * (V.dashT > 0 ? 1.6 : 1) : 5;
       let mx = joy.dx, mz = joy.dy;
       const kb = V.keys || {};
       if (kb.ArrowLeft || kb.a) mx = -1; if (kb.ArrowRight || kb.d) mx = 1; if (kb.ArrowUp || kb.w) mz = -1; if (kb.ArrowDown || kb.s) mz = 1;
@@ -862,8 +988,15 @@ CZ.screens.valley = (function () {
             if (Math.hypot(tx - P.x, tz - P.z) > want * 0.5) { nx = tx; nz = tz; break; }
           }
         }
+        // nehre giremezsin: köprüden geç (yan eksende kaymayı dene)
+        if (water(nx, nz)) { if (!water(nx, P.z)) nz = P.z; else if (!water(P.x, nz)) nx = P.x; else { nx = P.x; nz = P.z; } if (!V.waterHint) { V.waterHint = true; floatAt(P, t('w.bridge'), 'wave'); setTimeout(() => { if (V) V.waterHint = false; }, 4000); } }
         P.x = nx; P.z = nz;
       }
+      harvest(dt);
+      // akan kaynaklar ve görünür parçalar
+      for (let i = flies.length - 1; i >= 0; i--) { const f = flies[i]; f.t += dt * 3; const k = Math.min(1, f.t); f.m.position.set(f.sx + (f.tx - f.sx) * k, 1.2 + Math.sin(k * Math.PI) * 1.6 - k * 1.1, f.sz + (f.tz - f.sz) * k); f.m.rotation.x += dt * 9; if (k >= 1) { scene.remove(f.m); flies.splice(i, 1); } }
+      V.chT = (V.chT || 0) - dt; if (V.chT <= 0) { V.chT = 0.25; chunkList.forEach(c => { c.mesh.visible = Math.hypot(c.cx - P.x, c.cz - P.z) < 62; }); }
+      waterTex.offset.y -= dt * 0.25;
       const speed = Math.hypot(P.vx, P.vz);
       if (mag > 0.15 && !(aimP.aiming)) { const want = Math.atan2(-mx, -mz); let dd = want - P.dir; dd = Math.atan2(Math.sin(dd), Math.cos(dd)); P.dir += dd * Math.min(1, dt * 12); }
       if (P.riding) {
@@ -894,8 +1027,9 @@ CZ.screens.valley = (function () {
         const rc = Math.hypot(o.x, o.z);
         let tx = 0, tz = 0, sp = o.speed, attackFence = null;
         if (o.flee) { tx = o.x / (rc || 1) * 80; tz = o.z / (rc || 1) * 80; sp = o.speed * 1.15; if (rc > WORLD_R - 2) { o.dead = true; scene.remove(o.mesh); if (o.bar) { scene.remove(o.bar.g); o.bar = null; } targets.splice(targets.indexOf(o), 1); goblins.splice(goblins.indexOf(o), 1); return; } }
+        else if (!o.village && P.down <= 0) { tx = P.x; tz = P.z; }   // önce sadece seni kovalarlar
         else if (dp < 13 && P.down <= 0) { tx = P.x; tz = P.z; }
-        else if (V.wave <= 2) { o.roam = o.roam || [o.x * 0.75, o.z * 0.75]; tx = o.roam[0]; tz = o.roam[1]; if (Math.hypot(tx - o.x, tz - o.z) < 2) { const a = rand(0, 6.28), rr = rand(FENCE_R + 6, WORLD_R - 6); o.roam = [Math.cos(a) * rr, Math.sin(a) * rr]; } }   // ilk dalgalar: köye girmez, dışarıda dolaşır
+        else if (!o.village) { o.roam = o.roam || [o.x * 0.75, o.z * 0.75]; tx = o.roam[0]; tz = o.roam[1]; if (Math.hypot(tx - o.x, tz - o.z) < 2) { const a = rand(0, 6.28), rr = rand(FENCE_R + 6, WORLD_R - 6); o.roam = [Math.cos(a) * rr, Math.sin(a) * rr]; } }   // ilk dalgalar: köye girmez, dışarıda dolaşır
         else {
           // köyün merkezine yürü; çit parçası sağlamsa ona takıl
           const seg = ((Math.floor(((Math.atan2(o.z, o.x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8);
@@ -909,7 +1043,7 @@ CZ.screens.valley = (function () {
           if (o.atk <= 0 && o.stun <= 0) { o.atk = 1.3; o.lunge = 0.25; attackFence.hp -= o.dmg; if (attackFence.hp <= 0) { const it = slot(attackFence); DS.f[attackFence.i] = null; CZ.state.save(); drawPad(attackFence); floatAt(attackFence, t('def.fenceBroke'), 'wave'); CZ.audio.sfx('crack'); } }
         } else if (!o.flee && dp < 1.5 && P.down <= 0) {
           o.vx = o.vz = 0;
-          if (o.atk <= 0 && o.stun <= 0) { o.atk = 1.25; o.lunge = 0.25; hurt(o.dmg); }
+          if (o.atk <= 0 && o.stun <= 0) { o.atk = 1.7; o.lunge = 0.25; hurt(o.dmg); }
         } else {
           const ddx = tx - o.x, ddz = tz - o.z, L2 = Math.hypot(ddx, ddz) || 1;
           o.vx = ddx / L2 * sp; o.vz = ddz / L2 * sp; mv = 1;
@@ -927,7 +1061,7 @@ CZ.screens.valley = (function () {
         // köyün kalbine ulaştı: altın çalıp kaçar
         if (!o.flee && Math.hypot(o.x, o.z) < CORE_R) {
           const steal = Math.max(0, Math.min(V.earned - (V.lost || 0), 10 + V.wave * 2, 20, d.gold || 0)); V.lost = (V.lost || 0) + steal;   // bankadaki altın güvende
-          d.gold = (d.gold || 0) - steal; goldEl.textContent = d.gold; o.stolen += steal; o.flee = true;
+          d.gold = (d.gold || 0) - steal; resUi(); o.stolen += steal; o.flee = true;
           if (steal > 0) { floatAt(o, t('def.stole', { n: steal }), 'wave'); CZ.audio.sfx('wrong'); }
         }
         o.mesh.position.set(o.x, 0, o.z);
@@ -980,20 +1114,26 @@ CZ.screens.valley = (function () {
       const W2 = 220, k = W2 / 2 / (WORLD_R + 2), cx = W2 / 2;
       const X = x => cx + x * k, Z = z => cx + z * k;
       mctx.clearRect(0, 0, W2, W2);
-      mctx.fillStyle = 'rgba(232,240,252,.92)'; mctx.beginPath(); mctx.arc(cx, cx, cx - 2, 0, 7); mctx.fill();
-      mctx.fillStyle = 'rgba(120,190,235,.8)'; mctx.beginPath(); mctx.arc(X(34), Z(-30), 9.5 * k, 0, 7); mctx.fill();
+      if (!V.mapBg) {   // arazi bir kez çizilir: kar, çimen, nehir, göller, orman ve kayalıklar
+        const c = document.createElement('canvas'); c.width = c.height = W2; const x = c.getContext('2d');
+        x.save(); x.beginPath(); x.arc(cx, cx, cx - 2, 0, 7); x.clip();
+        for (let py = 0; py < W2; py += 4) for (let px = 0; px < W2; px += 4) { const wx = (px - cx) / k, wz = (py - cx) / k; const nz = noise(wx, wz);
+          x.fillStyle = inRiver(wx, wz) ? '#3d8fd6' : inLake(wx, wz) ? '#a8dcf6' : nz > 0.75 ? '#9ec08a' : nz > 0.55 ? '#c4d8c4' : '#e8eef8'; x.fillRect(px, py, 4, 4); }
+        chunkList.forEach(ch => ch.items.forEach(it => { x.fillStyle = it.kind === 'tree' ? 'rgba(40,110,60,.55)' : 'rgba(110,116,130,.6)'; x.fillRect(X(it.x) - 1, Z(it.z) - 1, 2.5, 2.5); }));
+        bridges.forEach(([bx, bz]) => { x.fillStyle = '#8a5a30'; x.fillRect(X(bx) - 3, Z(bz) - 3, 6, 6); });
+        x.restore(); V.mapBg = c;
+      }
+      mctx.drawImage(V.mapBg, 0, 0);
       mctx.fillStyle = 'rgba(200,210,230,.9)'; mctx.beginPath(); mctx.arc(cx, cx, FENCE_R * k, 0, 7); mctx.fill();
       pads.forEach(p => { const it = slot(p); if (p.kind === 'f') { if (it && it.lv) { mctx.strokeStyle = it.job ? '#4ab0ff' : '#8a5a2a'; mctx.lineWidth = 3; mctx.beginPath(); mctx.arc(cx, cx, FENCE_R * k, p.i / 8 * Math.PI * 2, (p.i + 1) / 8 * Math.PI * 2); mctx.stroke(); } }
         else if (it) { mctx.fillStyle = it.type === 'cannon' ? '#3a3a44' : '#5a7ab8'; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 4.5, 0, 7); mctx.fill(); }
         else { mctx.strokeStyle = '#d8a010'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 3.5, 0, 7); mctx.stroke(); } });
       mctx.fillStyle = '#c8302a'; mctx.fillRect(cx - 4, cx - 5, 8, 8);
-      mctx.fillStyle = '#4a8a3a'; mctx.beginPath(); mctx.arc(X(38), Z(34), 6, 0, 7); mctx.fill();
-      mctx.fillStyle = '#7a8296'; mctx.beginPath(); mctx.arc(X(-38), Z(-31), 9, 0, 7); mctx.fill();
-      piles.forEach(p => { mctx.fillStyle = '#f2b81a'; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 3.2, 0, 7); mctx.fill(); });
+      mctx.fillStyle = '#7a8296'; mctx.beginPath(); mctx.arc(X(-38), Z(-31), 5, 0, 7); mctx.fill();
       targets.forEach(o => {
         if (o.dead) return;
         if (o.type === 'box') { mctx.fillStyle = o.maxHp > 3 ? '#9a4ad0' : '#e0323a'; mctx.fillRect(X(o.x) - 4.5, Z(o.z) - 4.5, 9, 9); mctx.strokeStyle = '#fff'; mctx.lineWidth = 1.5; mctx.strokeRect(X(o.x) - 4.5, Z(o.z) - 4.5, 9, 9); }
-        else if (o.type === 'goblin') { mctx.fillStyle = '#2fa040'; mctx.beginPath(); mctx.arc(X(o.x), Z(o.z), 5, 0, 7); mctx.fill(); mctx.strokeStyle = '#fff'; mctx.stroke(); }
+        else if (o.type === 'goblin') { mctx.fillStyle = '#e0323a'; mctx.beginPath(); mctx.arc(X(o.x), Z(o.z), 3.6, 0, 7); mctx.fill(); mctx.strokeStyle = '#fff'; mctx.lineWidth = 1; mctx.stroke(); }
         else if (o.type === 'chest') { mctx.fillStyle = o.locked ? '#7fd0ff' : '#ffd23a'; mctx.font = 'bold 16px sans-serif'; mctx.textAlign = 'center'; mctx.fillText(o.locked ? '❄' : '★', X(o.x), Z(o.z) + 6); }
       });
       if (!P.riding) { mctx.fillStyle = '#7a4a2a'; mctx.beginPath(); mctx.arc(X(M.x), Z(M.z), 5, 0, 7); mctx.fill(); }
@@ -1007,7 +1147,7 @@ CZ.screens.valley = (function () {
     }
     // Ekran dışındaki en yakın kutulara kenar okları
     function drawEdges() {
-      const list = targets.filter(o => !o.dead && !o.locked && o.type !== 'goblin').map(o => ({ o, d: Math.hypot(o.x - P.x, o.z - P.z) }))
+      const list = targets.filter(o => !o.dead && !o.locked && o.type === 'goblin').map(o => ({ o, d: Math.hypot(o.x - P.x, o.z - P.z) }))
         .filter(x => { v3.set(x.o.x, 0.6, x.o.z).project(camera); return Math.abs(v3.x) > 0.95 || Math.abs(v3.y) > 0.9; })
         .sort((a, b) => a.d - b.d).slice(0, 3);
       edgeArrows.forEach((a, i) => {
@@ -1041,49 +1181,90 @@ CZ.screens.valley = (function () {
       if (P.hp <= 0) { P.hp = 0; P.down = 3; P.riding = false; wrap.append(downEl); CZ.audio.sfx('lose'); }
     }
     // Kule / çit yerinin yanına gelince panel açılır
-    let nearPad = null, panelKey = '';
-    function padNear() {
-      let best = null, bd = 2.6;
-      pads.forEach(p => { const it = slot(p); const cx = p.kind === 'f' && it ? Math.cos(p.a) * (FENCE_R + 2.2) : p.x, cz = p.kind === 'f' && it ? Math.sin(p.a) * (FENCE_R + 2.2) : p.z; const dd = Math.hypot(cx - P.x, cz - P.z); if (dd < bd) { bd = dd; best = p; } });
+    let nearPad = null, panelKey = '', onPad = null;
+    function padNear(dt) {
+      let best = null, bd = 3.2; onPad = null;
+      pads.forEach(p => { if (!padVisible(p)) return; const [mx, mz] = markPos(p); const dd = Math.hypot(mx - P.x, mz - P.z); if (dd < bd) { bd = dd; best = p; } if (dd < 1.5) onPad = p; });
+      if (onPad && P.down <= 0) flowTick(onPad, dt);
       if (best !== nearPad) { nearPad = best; padUi(true); }
-      else if (nearPad && slot(nearPad) && slot(nearPad).job) padUi(false);
+      else if (nearPad) padUi(false);
+      pads.forEach(p => { if (p.dirty) { p.redraw = (p.redraw || 0) - dt; if (p.redraw <= 0) { p.redraw = 0.15; p.dirty = false; drawMark(p); } } });
     }
+    // bilgi paneli: ne yapılıyor, inşaat süresi ve hızlandırma (satın alma düğmesi yok: daireye girince akar)
     function padUi(force) {
       const p = nearPad;
       if (!p) { panel.classList.remove('on'); panel.replaceChildren(); panelKey = ''; return; }
       const it = slot(p);
-      const left = jobLeft(it);
-      const key = p.kind + p.i + JSON.stringify(it) + Math.ceil(left / 1000) + (d.gold >= 0);
+      const jl = jobLeft(it);
+      const L2 = left(p);
+      const key = (p.kind + (p.i != null ? p.i : p.id)) + JSON.stringify(it) + Math.ceil(jl / 1000) + JSON.stringify(L2);
       if (!force && key === panelKey) return;
       panelKey = key;
       const kids = [];
-      const name = p.kind === 'f' ? t('def.fence') : it ? t('def.' + it.type) : t('def.towerSpot');
-      kids.push(h('b', { class: 'def-title', text: name + (it && it.lv ? ' · ' + t('vil.lv', { n: it.lv }) : '') }));
-      if (!it) {
-        if (p.kind === 'f') kids.push(h('div', { class: 'def-row' }, btn(String(DEF.fence.price), () => payBuild(p), 'primary', 'ui.gold')));
-        else kids.push(h('div', { class: 'def-row' },
-          h('div', { class: 'def-opt' }, h('small', { text: t('def.snowD') }), btn(t('def.snow') + ' ' + DEF.snow.price, () => payBuild(p, 'snow'), 'primary', 'ui.gold')),
-          h('div', { class: 'def-opt' }, h('small', { text: t('def.cannonD') }), btn(t('def.cannon') + ' ' + DEF.cannon.price, () => payBuild(p, 'cannon'), 'primary', 'ui.gold'))));
-      } else if (it.job) {
-        const s2 = Math.ceil(left / 1000);
+      let name;
+      if (p.kind === 'v') name = t('vil.b.' + p.id) + ' · ' + t('vil.lv', { n: CZ.village.lv(p.id) });
+      else name = (p.kind === 'f' ? t('def.fence') : t('def.' + p.type)) + (it && it.lv ? ' · ' + t('vil.lv', { n: it.lv }) : '');
+      kids.push(h('b', { class: 'def-title', text: name }));
+      if (it && it.job) {
+        const s2 = Math.ceil(jl / 1000);
         kids.push(h('small', { text: (it.lv === 0 ? t('def.building') : t('def.upgrading', { n: it.job.to })) + ' · ' + Math.floor(s2 / 60) + ':' + String(s2 % 60).padStart(2, '0') }));
         kids.push(h('div', { class: 'def-row' },
-          btn(t('def.now') + ' ' + (it.lv === 0 ? RUSH_BUILD : rushPrice(left)), () => rushGold(p), 'primary', 'ui.gold'),
+          btn(t('def.now') + ' ' + (it.lv === 0 ? RUSH_BUILD : rushPrice(jl)), () => rushGold(p), 'primary', 'ui.gold'),
           btn(t('def.ad'), () => rushAd(p), 'ghost-dark', 'ic:play')));
-      } else {
-        const D2 = defOf(p);
-        if (p.kind === 'f') kids.push(h('small', { text: t('def.fenceHp', { n: Math.max(0, Math.ceil(p.hp || 0)), m: p.hpMax || 0 }) }));
-        if (it.lv < D2.up.length) kids.push(h('div', { class: 'def-row' }, btn(t('def.up', { n: it.lv + 1 }) + ' · ' + D2.up[it.lv], () => payUpgrade(p), 'primary', 'ui.gold'), h('small', { text: '⏱ ' + D2.min[it.lv] + ' ' + t('def.min') })));
-        else kids.push(h('small', { text: t('up.max') }));
-      }
-      panel.replaceChildren(...kids);
+      } else if (p.kind === 'v' && CZ.village.ensure().job && CZ.village.ensure().job.id === p.id) {
+        const V2 = CZ.village.ensure(), s2 = Math.ceil(CZ.village.left() / 1000);
+        kids.push(h('small', { text: t('def.upgrading', { n: V2.job.to }) + ' · ' + Math.floor(s2 / 3600) + ':' + String(Math.floor(s2 % 3600 / 60)).padStart(2, '0') + ':' + String(s2 % 60).padStart(2, '0') }));
+        kids.push(h('div', { class: 'def-row' },
+          btn(String(CZ.village.gemCost()), () => { if (CZ.village.rush() === 'short') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.gemShort')); } placeVillage(); resUi(); padUi(true); }, 'primary', 'ui.emerald'),
+          V2.job.ads < 3 ? btn('-30 ' + t('def.min'), () => CZ.ads.show(() => { CZ.village.adRush(); placeVillage(); padUi(true); }), 'ghost-dark', 'ic:play') : null));
+      } else if (L2 && L2.length) {
+        kids.push(h('small', { text: t('def.standHere') }));
+        if (p.kind === 'f' && it) kids.push(h('small', { text: t('def.fenceHp', { n: Math.max(0, Math.ceil(p.hp || 0)), m: p.hpMax || 0 }) }));
+        if (p.kind === 'v') kids.push(h('small', { class: 'def-eff', text: t('vil.d.' + p.id) }));
+      } else kids.push(h('small', { text: t('up.max') }));
+      panel.replaceChildren(...kids.filter(Boolean));
       panel.classList.add('on');
+    }
+    // TOPLAYICILIK: ağacın yanına gelince baltayla kes (odun), kayanın yanına gelince kazmayla kır (taş)
+    const chips = [], chipGeo = new THREE.BoxGeometry(0.16, 0.16, 0.16), chipMats = { tree: toon(0xc8884a), rock: toon(0xb0b6c4) };
+    function harvest(dt) {
+      for (let i = chips.length - 1; i >= 0; i--) { const c = chips[i]; c.vy -= 16 * dt; c.m.position.x += c.vx * dt; c.m.position.y += c.vy * dt; c.m.position.z += c.vz * dt; c.m.rotation.x += dt * 10; if (c.m.position.y < 0) { scene.remove(c.m); chips.splice(i, 1); } }
+      trees.concat(rocks).forEach(it => { if (it.tilt > 0) { it.tilt = Math.max(0, it.tilt - dt * 0.8); setInst(it); } });
+      V.hT = (V.hT || 0) - dt;
+      if (V.hT > 0 || aimP.aiming || P.down > 0) return;
+      let best = null, bd = 99;
+      chunkList.forEach(c => { if (Math.hypot(c.cx - P.x, c.cz - P.z) > CH) return; c.items.forEach(it => { if (!it.alive) return; const dd = Math.hypot(it.x - P.x, it.z - P.z) - it.solid.r; if (dd < bd) { bd = dd; best = it; } }); });
+      const reach = P.riding ? 1.7 : 1.15;
+      if (!best || bd > reach) { V.harv = null; return; }
+      V.harv = best;
+      V.hT = P.riding ? 0.42 : 0.55;
+      if (Math.hypot(P.vx, P.vz) < 1.5) P.dir = Math.atan2(-(best.x - P.x), -(best.z - P.z));
+      if (hero.throwNow) hero.throwNow();
+      const dmg = P.riding ? 2 : 1, kind = best.kind, res = kind === 'tree' ? 'wood' : 'stone';
+      best.hp -= dmg; best.tilt = kind === 'tree' ? 0.14 : 0; if (kind === 'tree') setInst(best);
+      for (let k = 0; k < 4; k++) { const m = new THREE.Mesh(chipGeo, chipMats[kind]); m.position.set(best.x, kind === 'tree' ? 1.1 : 0.7, best.z); scene.add(m); chips.push({ m, vx: rand(-3, 3), vy: rand(3, 6), vz: rand(-3, 3) }); }
+      let n = dmg;
+      CZ.audio.sfx(kind === 'tree' ? 'hit' : 'crack');
+      if (best.hp <= 0) {
+        n += kind === 'tree' ? 3 : 3;
+        best.alive = false; best.solid.off = true; setInst(best);
+        const it = best;
+        setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 2) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000));
+      }
+      d[res] = (d[res] || 0) + n; resUi();
+      floatAt(best, '+' + n + (res === 'wood' ? ' 🪵' : ' 🪨'), 'res');
+      if (V.tut) V.tut.on(res);
+    }
+    // dört para birimi: odun, taş, altın, zümrüt
+    function resUi() {
+      woodEl.textContent = Math.floor(d.wood || 0); stoneEl.textContent = Math.floor(d.stone || 0);
+      goldEl.textContent = Math.floor(d.gold || 0); gemEl.textContent = Math.floor(d.emeralds || 0);
     }
     function gain(n, quiet) {
       if (V.boostT > 0) n *= 2;   // reklamla x2 altın
       V.earned += n;
       d.gold = (d.gold || 0) + n;
-      goldEl.textContent = d.gold;
+      resUi();
       if (!quiet) { V.streak = performance.now() - (V.lastGain || 0) < 450 ? (V.streak || 0) + 1 : 0; V.lastGain = performance.now(); CZ.audio.sfx('coin', V.streak); bump(); }
     }
     function draw(dt) {
@@ -1110,6 +1291,11 @@ CZ.screens.valley = (function () {
         P.dir = Math.atan2(-dx / L2, -dz / L2);
       }
       targets.forEach(o => { if (o.bar) { o.bar.g.position.set(o.x, o.type === 'goblin' ? 2.7 : 2.2, o.z); o.bar.g.quaternion.copy(camera.quaternion); } });
+      milaMount.update(dt, 0);
+      milaHero.root.position.set(MILA.x, milaMount.seatY - 0.12, MILA.z); milaHero.root.rotation.y = milaMount.root.rotation.y;
+      milaHero.update(dt, { sit: true });
+      if (bubble.isConnected) { v3.set(MILA.x, 4.6, MILA.z).project(camera); const W2 = ui.clientWidth, H2 = ui.clientHeight; bubble.style.left = Math.max(130, Math.min(W2 - 130, (v3.x + 1) / 2 * W2)) + 'px'; bubble.style.top = Math.max(260, Math.min(H2 - 200, (1 - v3.y) / 2 * H2)) + 'px'; }
+      if (V.tut && guide.isConnected) { const g = V.tut.target(); if (g) { v3.set(g.x, 3, g.z).project(camera); const inS = Math.abs(v3.x) < 0.9 && Math.abs(v3.y) < 0.85; const W2 = ui.clientWidth, H2 = ui.clientHeight; let gx = (v3.x + 1) / 2 * W2, gy = (1 - v3.y) / 2 * H2; let rot = 0; if (!inS) { const ax = g.x - P.x, az = g.z - P.z; rot = Math.atan2(az, ax) - Math.PI / 2; const L3 = Math.hypot(ax, az) || 1; gx = W2 / 2 + ax / L3 * (W2 / 2 - 40); gy = H2 / 2 + az / L3 * (H2 / 2 - 170); } guide.style.display = 'block'; guide.style.left = gx + 'px'; guide.style.top = gy + 'px'; guide.style.transform = `translate(-50%,-100%) rotate(${rot}rad)`; guide.classList.toggle('edge', !inS); } else guide.style.display = 'none'; }
       // otomatik hedef halkası
       const o = nearestTarget(RANGE);
       rangeRing.visible = aimP.id !== null; rangeRing.position.set(P.x, 0.04, P.z);
@@ -1152,7 +1338,51 @@ CZ.screens.valley = (function () {
     CZ.audio.music('play');
     if (CZ.ads.playing) CZ.ads.playing();
     // ilk girişte kısa ipucu
-    if (!d.valleyTut2) { d.valleyTut2 = true; CZ.state.save(); const tip = h('div', { class: 'tut-tip vl-tip' }, h('span', { text: t('valley.tut') })); wrap.append(tip); setTimeout(() => tip.classList.add('out'), 6000); setTimeout(() => tip.remove(), 6600); }
+    // Mila karşılar: sen yokken ne yaptığını anlatır
+    function milaSay(text, ms) { bubble.lastChild.textContent = text; if (!bubble.isConnected) wrap.append(bubble); clearTimeout(MILA.say); MILA.say = setTimeout(() => bubble.remove(), ms || 6500); }
+    {
+      const VV = CZ.village.ensure(); const now = Date.now();
+      if (!d.milaMet) { d.milaMet = true; milaSay(t('mila.first'), 9000); }
+      else {
+        const hrs = Math.min(12, Math.max(0, (now - (VV.leftAt || now)) / 3600000));
+        const towers = DS.t.filter(x => x && x.lv > 0).length;
+        const kills = Math.floor(hrs * 8 * (1 + towers * 0.3));
+        const g = Math.min(400, kills * 3);
+        if (g > 0) { d.gold = (d.gold || 0) + g; resUi(); }
+        milaSay(kills > 0 ? t('mila.back', { k: kills, g }) : t('mila.hi'), 7500);
+      }
+      CZ.state.save();
+    }
+    // GÖREVLER: oyunda ne yapacağını adım adım gösterir
+    const TUT = [{ id: 'wood', n: 8 }, { id: 'stone', n: 4 }, { id: 'build', n: 1 }, { id: 'goblin', n: 3 }, { id: 'ride', n: 1 }];
+    const tutEl = h('div', { class: 'quest' }, h('b'), h('i'));
+    const guide = h('div', { class: 'guide-arrow', text: '▼' });
+    V.tut = {
+      on(kind) {
+        const st = d.tutV || 0; if (st >= TUT.length || TUT[st].id !== kind) return;
+        d.tutN = (d.tutN || 0) + 1;
+        if (d.tutN >= TUT[st].n) { d.tutV = st + 1; d.tutN = 0; CZ.audio.sfx('win'); d.gold = (d.gold || 0) + 20; resUi(); floatAt(P, t('quest.done') + ' +20', 'wave'); if (d.tutV >= TUT.length) { milaSay(t('mila.tutDone'), 7000); pads.forEach(drawMark); } }
+        CZ.state.save(); this.ui();
+      },
+      ui() {
+        const st = d.tutV || 0;
+        if (st >= TUT.length) { tutEl.remove(); guide.remove(); return; }
+        if (!tutEl.isConnected) ui.append(tutEl, guide);
+        tutEl.firstChild.textContent = t('quest.' + TUT[st].id);
+        tutEl.lastChild.textContent = (d.tutN || 0) + '/' + TUT[st].n;
+      },
+      target() {
+        const st = d.tutV || 0; if (st >= TUT.length) return null;
+        const id = TUT[st].id; let best = null, bd = 1e9;
+        const near = arr => arr.forEach(o => { if (o.alive === false || o.dead) return; const dd = Math.hypot(o.x - P.x, o.z - P.z); if (dd < bd) { bd = dd; best = o; } });
+        if (id === 'wood') near(trees); else if (id === 'stone') near(rocks); else if (id === 'goblin') near(goblins);
+        else if (id === 'build') { const p = pads.find(q => q.kind === 't' && !slot(q) && padVisible(q)); if (p) { const L3 = left(p) || []; const lack = L3.find(x => x.n > 0 && (d[x.r] || 0) <= 0); if (lack && lack.r !== 'gold') near(lack.r === 'wood' ? trees : rocks); else { const [mx, mz] = markPos(p); best = { x: mx, z: mz }; } } }
+        else if (id === 'ride' && !P.riding) best = M;
+        return best;
+      }
+    };
+    V.tut.ui();
+    resUi();
   }
 
   /* ---------- Akın sonu ---------- */
@@ -1195,6 +1425,8 @@ CZ.screens.valley = (function () {
   }
   function leave() {
     if (!V) return;
+    if (CZ.village) { CZ.village.ensure().leftAt = Date.now(); CZ.state.save(); }
+    CZ.ui.toast(t('mila.bye'));
     if (CZ.notify) CZ.notify.schedule();
     if (V.running) { const d = CZ.state.data; d.gold = (d.gold || 0) + V.pending; CZ.state.save(); }
     cancelAnimationFrame(V.raf);
