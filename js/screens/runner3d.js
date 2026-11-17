@@ -1071,10 +1071,11 @@ CZ.runner3d = (function () {
     function slide() {
       if (!s.running || s.flyT > 0) return;
       // Gerçek bir insan gibi: takla bitmeden yenisi yok, bitince kısa bir toparlanma.
-      if (s.slideT > 0 || (s.slideCD || 0) > 0) return;
+      if (s.slideT > 0.12 || (s.slideCD || 0) > 0.12) { s.slideBuf = 0.35; return; }   // erken basış saklanır
       if (s.jumping) { s.vy = -R.jumpV * 1.4; }      // havadaysan hızla in
+      s.slideBuf = 0;
       s.slideT = R.slideSec;
-      s.slideCD = R.slideSec + 0.25;
+      s.slideCD = R.slideSec + 0.05;
       if (opts.onAct) opts.onAct('roll');
       CZ.audio.sfx('slide');
     }
@@ -1146,6 +1147,7 @@ CZ.runner3d = (function () {
       if (s.slowT > 0) { s.slowT -= dt; dt *= 0.32; }
       last = now;
       const t0 = performance.now();
+      if (s.paused) { renderer.render(scene, camera); return; }
       if (s.running) step(dt);
       else if (s.catching) catchStep(dt);
       else idle(dt);
@@ -1327,6 +1329,7 @@ CZ.runner3d = (function () {
       }
       s.slideT = Math.max(0, s.slideT - dt);
       s.slideCD = Math.max(0, (s.slideCD || 0) - dt);
+      if (s.slideBuf > 0) { s.slideBuf -= dt; if (s.slideT <= 0 && s.slideCD <= 0) slide(); }
       s.invT = Math.max(0, s.invT - dt);
       s.magnetT = Math.max(0, s.magnetT - dt);
       s.doubleT = Math.max(0, s.doubleT - dt);
@@ -1359,6 +1362,15 @@ CZ.runner3d = (function () {
       const airY = s.py - (s.floor || 0);
       camera.position.y = camBase.y + s.camFloor * 0.85 + airY * (s.flyT > 0 ? 0.9 : s.superT > 0 ? 0.55 : 0.25);
       camera.position.z = camBase.z + (s.flyT > 0 ? 1.4 : 0) * Math.min(1, (s.py || 0) / FLY_H);
+      if (s.introT > 0) {
+        // koşu başında kamera yukarıdan ve arkadan süzülerek yerine oturur
+        s.introT = Math.max(0, s.introT - dt * 1.1);
+        const k = s.introT * s.introT * (3 - 2 * s.introT);
+        camera.position.x += (0 - camera.position.x) * k;
+        camera.position.y += 4.2 * k;
+        camera.position.z += 5.5 * k;
+        camera.lookAt(0, 0.9 - 0.6 * k, -9);
+      } else if (s.introLook) { s.introLook = false; camera.lookAt(0, 0.9, -9); }
       if (s.shake > 0) { s.shake -= dt; camera.position.x += rand(-0.12, 0.12); camera.position.y += rand(-0.08, 0.08); }
 
       // Zibo önde koşar
@@ -1405,7 +1417,7 @@ CZ.runner3d = (function () {
         if (o.hitFlash) { o.hitFlash -= dt; o.mesh.scale.setScalar(o.hitFlash > 0 ? 1.08 : 1); }
         if (o.passed || o.dead) continue;
         if (s.flyT > 0 && s.py > 1.5) continue;     // kızakla uçarken yerdekiler değmez
-        const half = o.len / 2 + 0.3;
+        const half = o.len / 2 + (o.type === 'train' ? 0.3 : 0.12);
         if (Math.abs(z) > half) {
           if (z > half && !o.passed) { o.passed = true; if (o.type !== 'crate' && Math.abs(s.px - laneX(o.lane)) < 0.7) dodged(o); }
           continue;
@@ -1420,9 +1432,9 @@ CZ.runner3d = (function () {
           if (s.invT <= 0) { o.passed = true; crash(o); }
           continue;
         }
-        if (Math.abs(s.px - laneX(o.lane)) > 0.62) continue;
+        if (Math.abs(s.px - laneX(o.lane)) > 0.5) continue;
         let hit = false;
-        if (o.type === 'low' || o.type === 'crate') hit = s.py < o.top - 0.05;
+        if (o.type === 'low' || o.type === 'crate') hit = s.py < o.top - 0.22;
         else if (o.type === 'high') hit = !sliding;
         else hit = true;
         if (hit && s.invT <= 0) { o.passed = true; crash(o); }
@@ -1780,7 +1792,8 @@ CZ.runner3d = (function () {
     return {
       ready,
       state: s,
-      go() { s.running = true; last = 0; },
+      go(intro) { s.running = true; last = 0; if (intro) { s.introT = 1; s.introLook = true; } },
+      pause(on) { s.paused = !!on; last = 0; },
       move, jump, slide, shoot,
       stop() {
         s.running = false;

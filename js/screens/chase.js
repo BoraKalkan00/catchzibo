@@ -36,7 +36,9 @@ CZ.screens.chase = (function () {
     c.floats = h('div', { class: 'run-floats' });
     c.field = h('div', { class: 'chase-field3d' }, c.stage, c.bubble, c.floats);
     const W = c.W = CZ.GOLD.weapons.find(w => w.id === CZ.state.data.weapon) || CZ.GOLD.weapons[0];
+    const loading = CZ.ui.loading ? CZ.ui.loading(el) : null;
     c.readyP = CZ.runner3d.load().then(() => {
+      if (loading) loading.done();
       if (!c || c.el !== el) return;
       c.run = CZ.runner3d.start(c.stage, {
         mode: 'chase', lanes: 3, speed: 17, endless: E, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
@@ -81,6 +83,13 @@ CZ.screens.chase = (function () {
         c.clock),
       c.field);
     c.field.append(h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), c.goldText), c.hookBtn);
+    c.pauseBtn = h('button', { class: 'pause-btn', type: 'button', 'aria-label': t('pause.title'), onPointerDown: e => { e.stopPropagation(); pause(); } }, h('i'), h('i'));
+    c.field.append(c.pauseBtn);
+    // bildirim gelince / uygulama arka plana geçince otomatik durur
+    c.onHide = () => { if (document.hidden) pause(); };
+    c.onBlur = () => pause();
+    document.addEventListener('visibilitychange', c.onHide);
+    window.addEventListener('blur', c.onBlur);
     if (E && c.mult > 1) c.field.append(h('div', { class: 'mult-chip' }, 'x' + c.mult));
     if (E) c.field.append(c.powerHud);
     if (E) {
@@ -122,9 +131,10 @@ CZ.screens.chase = (function () {
   function start() {
     if (!c || c.running) return;
     c.running = true;
-    if (c.run) c.run.go();
+    if (c.run) c.run.go(true);
     c.last = performance.now();
     c.loop = requestAnimationFrame(loop);
+    if (c.endless) { if (c.run) c.run.state.invT = 2.4; countdown(() => {}, true); }
     c.nextSwitch = c.sim + byLevel(C.laneSwitchMs) * (c.boss.switchMul || 1);
     c.nextBomb = c.sim + 1500;
     CZ.audio.music('play');
@@ -138,7 +148,7 @@ CZ.screens.chase = (function () {
     // Oyun saati: 3D motorla aynı sınır (50 ms). Yavaş telefonda bomba görüntüsü ile patlama ayrışmaz.
     const dt = Math.min(now - c.last, 50) / 1000;
     c.last = now;
-    if (!document.hidden) { c.sim += dt * 1000; step(dt, c.sim); }
+    if (!document.hidden && !c.paused) { c.sim += dt * 1000; step(dt, c.sim); }
     c.loop = requestAnimationFrame(loop);
   }
 
@@ -594,10 +604,55 @@ CZ.screens.chase = (function () {
     say('zibo.chase.again');
   }
 
+  /* ---------- Duraklatma ---------- */
+  function pause() {
+    if (!c || !c.running || c.paused || c.counting) return;
+    c.paused = true;
+    if (c.run) c.run.pause(true);
+    CZ.audio.duck(0.15, 9999);
+    const box = c.pauseBox = h('div', { class: 'pause-menu' },
+      h('div', { class: 'pause-card' },
+        h('b', { class: 'lg-title', text: t('pause.title') }),
+        c.endless ? h('p', { class: 'pause-score', text: Math.floor(c.score).toLocaleString() }) : null,
+        btn(t('pause.resume'), () => { box.remove(); countdown(() => {}); }, 'primary wide', 'ic:play'),
+        btn(t('pause.sound') + (CZ.state.data.sound ? ': ✓' : ': ✕'), e => { const d = CZ.state.data; d.sound = !d.sound; CZ.state.save(); e.currentTarget.lastChild.textContent = t('pause.sound') + (d.sound ? ': ✓' : ': ✕'); }, 'ghost-dark wide'),
+        btn(t('pause.quit'), () => CZ.ui.confirmBox(t('pause.quitAsk'), t('pause.quit'), t('common.no'), () => { box.remove(); c.paused = false; if (c.endless) { c.lives = 0; escaped('lives'); } else CZ.ui.go('hub'); }, 'danger'), 'small ghost-dark')));
+    c.el.append(box);
+  }
+  // 3-2-1: duraklatmadan dönüşte (ve sonsuz koşu başında) oyun bu sayımla başlar
+  function countdown(done, first) {
+    if (!c) return;
+    c.counting = true;
+    c.paused = true;
+    if (c.run) c.run.pause(!first);
+    const n = h('b', { class: 'cd-num' });
+    const box = h('div', { class: 'countdown' }, n);
+    c.el.append(box);
+    let k = 3;
+    const tickNum = () => {
+      if (!c) return;
+      if (k === 0) {
+        box.remove(); c.counting = false; c.paused = false; c.last = performance.now();
+        if (c.run) c.run.pause(false);
+        CZ.audio.duck(0.55, 0.01); CZ.audio.sfx('star');
+        return done();
+      }
+      n.textContent = k; n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop');
+      CZ.audio.sfx('tick');
+      k -= 1;
+      c.timers.push(setTimeout(tickNum, 650));
+    };
+    tickNum();
+  }
+  // Android geri tuşu: oyundaysan durdurur
+  function onBack() { if (c && c.running && !c.paused) { pause(); return true; } return false; }
+
   function adThen(done) { c.adTimer = CZ.ads.show(done); }
 
   function leave() {
     if (!c) return;
+    document.removeEventListener('visibilitychange', c.onHide);
+    window.removeEventListener('blur', c.onBlur);
     stop();
     if (c.gold) { CZ.state.data.gold = (CZ.state.data.gold || 0) + c.gold; CZ.state.save(); }
     clearInterval(c.adTimer);
@@ -607,5 +662,5 @@ CZ.screens.chase = (function () {
     c = null;
   }
 
-  return { render, leave, music: null, get debug() { return c; }, devEnd() { if (c && c.running) { c.lives = 0; escaped('lives'); } } };
+  return { render, leave, onBack, music: null, get debug() { return c; }, devEnd() { if (c && c.running) { c.lives = 0; escaped('lives'); } } };
 })();

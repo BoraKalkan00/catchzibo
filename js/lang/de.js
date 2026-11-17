@@ -884,5 +884,18 @@ CZ.i18n.register('de', 'Deutsch', {
   "tut.roll": "Nach unten wischen: rollen",
   "tut.ramp": "Über die Rampen auf die Züge laufen",
   "tut.power": "Extras sammeln: Magnet, x2, Supersprung, Weihnachtsschlitten",
-  "tut.throw": "Triff Zibo mit „Werfen“ und fang ihn!"
+  "tut.throw": "Triff Zibo mit „Werfen“ und fang ihn!",
+  "pause.title": "Pause",
+  "pause.resume": "Weiter",
+  "pause.sound": "Ton",
+  "pause.quit": "Lauf beenden",
+  "pause.quitAsk": "Willst du den Lauf beenden?",
+  "exit.ask": "Willst du das Spiel verlassen?",
+  "exit.yes": "Verlassen",
+  "tip.1": "Tipp: Lauf über Rampen auf die Züge.",
+  "tip.2": "Tipp: Der Weihnachtsschlitten lässt dich fliegen, mit Zibo-Münzen in der Luft!",
+  "tip.3": "Tipp: Erledige Missionen, dein Multiplikator steigt dauerhaft.",
+  "tip.4": "Tipp: Münzen in Folge klingen immer höher. Halte die Kette!",
+  "tip.5": "Tipp: Hupe voraus? Sofort die Spur wechseln.",
+  "tip.6": "Tipp: Wisch früh nach unten, dann rollst du gleich wieder."
 });

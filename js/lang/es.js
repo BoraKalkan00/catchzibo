@@ -884,5 +884,18 @@ CZ.i18n.register('es', 'Español', {
   "tut.roll": "Desliza abajo: rueda",
   "tut.ramp": "Sube a los trenes por las rampas",
   "tut.power": "Coge poderes: imán, x2, súper salto, trineo de Papá Noel",
-  "tut.throw": "¡Golpea a Zibo con Lanzar y atrápalo!"
+  "tut.throw": "¡Golpea a Zibo con Lanzar y atrápalo!",
+  "pause.title": "Pausa",
+  "pause.resume": "Seguir",
+  "pause.sound": "Sonido",
+  "pause.quit": "Terminar carrera",
+  "pause.quitAsk": "¿Quieres terminar la carrera?",
+  "exit.ask": "¿Quieres salir del juego?",
+  "exit.yes": "Salir",
+  "tip.1": "Consejo: Sube a los trenes por las rampas.",
+  "tip.2": "Consejo: ¡El trineo de Papá Noel te hace volar, con monedas de Zibo en el aire!",
+  "tip.3": "Consejo: Completa misiones para subir tu multiplicador.",
+  "tip.4": "Consejo: Las monedas seguidas suenan cada vez más agudo. ¡No rompas la cadena!",
+  "tip.5": "Consejo: ¿Oyes una bocina? Cambia de carril ya.",
+  "tip.6": "Consejo: Desliza abajo antes y volverás a rodar en cuanto termines."
 });

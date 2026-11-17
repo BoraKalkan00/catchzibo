@@ -193,7 +193,9 @@ CZ.screens.gold = (function () {
         g.powers, g.floatBox, g.bubble = h('div', { class: 'bubble chase-bubble run-bubble' }, h('em', { class: 'bubble-goblin' }), h('span', { class: 'bubble-line' })), g.hint, g.count));
     drawHearts(G.runner.hearts + (perk().trapMul ? 1 : 0));
     g.count.textContent = '…';
+    const loading = CZ.ui.loading(el);
     CZ.runner3d.load().then(() => {
+      loading.done();
       if (!g || g.el !== el) return;
       if (CZ.ads.playing) CZ.ads.playing();
       g.run = CZ.runner3d.start(g.stage, {

@@ -1065,5 +1065,18 @@ CZ.i18n.register('tr', 'Türkçe', {
   "tut.roll": "Aşağı kaydır: takla at, engelin altından geç",
   "tut.ramp": "Trenlere rampadan koşarak çık",
   "tut.power": "Güçleri topla: mıknatıs, x2, süper zıplama, Noel kızağı",
-  "tut.throw": "At düğmesiyle Zibo'yu vur, yakala!"
+  "tut.throw": "At düğmesiyle Zibo'yu vur, yakala!",
+  "pause.title": "Durdu",
+  "pause.resume": "Devam et",
+  "pause.sound": "Ses",
+  "pause.quit": "Koşuyu bitir",
+  "pause.quitAsk": "Koşuyu bitirmek istiyor musun?",
+  "exit.ask": "Oyundan çıkmak istiyor musun?",
+  "exit.yes": "Çık",
+  "tip.1": "İpucu: Rampadan koşarak trenlerin üstüne çık.",
+  "tip.2": "İpucu: Noel Baba kızağı seni uçurur, havada Zibo altınları var!",
+  "tip.3": "İpucu: Görevleri bitir, skor çarpanın kalıcı artsın.",
+  "tip.4": "İpucu: Art arda topladığın altınların sesi gittikçe incelir. Zinciri bozma!",
+  "tip.5": "İpucu: Karşıdan korna sesi gelirse hemen şerit değiştir.",
+  "tip.6": "İpucu: Erken takla atarsan, karakterin bir öncekini bitirir bitirmez yine yuvarlanır."
 });

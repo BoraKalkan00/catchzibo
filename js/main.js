@@ -25,6 +25,21 @@
 
   // Ses tarayıcıda ancak ilk dokunuştan sonra açılabilir.
   document.addEventListener('pointerdown', CZ.audio.unlock, { passive: true });
+  // Android geri tuşu: oyundaysan durdurur; menüdeyken bir önceki ekrana döner;
+  // merkezde / açılışta "Oyundan çıkmak istiyor musun?" diye sorar (kazara çıkış olmasın).
+  const capApp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+  if (capApp && capApp.addListener) capApp.addListener('backButton', () => {
+    if (document.querySelector('.modal-wrap, .confirm-wrap')) { const m = document.querySelectorAll('.modal-wrap, .confirm-wrap'); m[m.length - 1].remove(); return; }
+    const name = CZ.ui.current;
+    const scr = CZ.screens[name];
+    if (scr && scr.onBack && scr.onBack()) return;
+    if (name === 'hub' || name === 'title') {
+      CZ.ui.confirmBox(CZ.t('exit.ask'), CZ.t('exit.yes'), CZ.t('common.no'), () => capApp.exitApp(), 'danger');
+    } else if (name === 'chase' || name === 'play' || name === 'gold') {
+      CZ.ui.confirmBox(CZ.t('pause.quitAsk'), CZ.t('pause.quit'), CZ.t('common.no'), () => CZ.ui.go('hub'), 'danger');
+    } else CZ.ui.go('hub');
+  });
+
   // Uzun basmada telefonun menü açmasını engeller.
   document.addEventListener('contextmenu', e => e.preventDefault());
 
@@ -45,3 +60,6 @@
     navigator.serviceWorker.register('sw.js').catch(err => console.warn('Çevrimdışı mod açılamadı.', err));
   }
 })();
+
+// Açılış (yükleme) ekranı: oyun hazır olunca yumuşakça kaybolur.
+(function () { const sp = document.getElementById('splash'); if (sp) setTimeout(() => { sp.classList.add('out'); setTimeout(() => sp.remove(), 450); }, 700); })();

@@ -57,6 +57,31 @@ CZ.ui = (function () {
     return box;
   }
 
+  // Temalı yükleme ekranı: koşan Zibo, kar, ipucu ve dolan çubuk. done() ile kapanır.
+  function loading(parent, opts) {
+    opts = opts || {};
+    const tips = ['tip.1', 'tip.2', 'tip.3', 'tip.4', 'tip.5', 'tip.6'];
+    const bar = h('i');
+    const box = h('div', { class: 'loading-screen' },
+      snow(14),
+      h('div', { class: 'ld-zibo' }, img('zibo.sack', 'ld-zibo-img')),
+      h('b', { class: 'ld-title', text: CZ.t('title.name') }),
+      h('div', { class: 'ld-bar' }, bar),
+      h('p', { class: 'ld-tip', text: CZ.t(tips[Math.floor(Math.random() * tips.length)]) }));
+    (parent || document.getElementById('app')).append(box);
+    let p = 0, closed = false;
+    const tm = setInterval(() => { p = Math.min(0.92, p + (1 - p) * 0.08); bar.style.width = p * 100 + '%'; }, 60);
+    const t0 = performance.now();
+    return {
+      done() {
+        if (closed) return; closed = true;
+        clearInterval(tm); bar.style.width = '100%';
+        const wait = Math.max(0, (opts.min || 450) - (performance.now() - t0));
+        setTimeout(() => { box.classList.add('out'); setTimeout(() => box.remove(), 350); }, wait);
+      }
+    };
+  }
+
   const GAME = ['play', 'chase'];
   function go(name, params) {
     params = params || {};
@@ -154,7 +179,7 @@ CZ.ui = (function () {
   }
 
   return {
-    fly, h, img, btn, emeralds, header, snow, go, wipeTo, refresh, toast, confirmBox,
+    fly, h, img, btn, emeralds, header, snow, go, wipeTo, refresh, toast, confirmBox, loading,
     mount: el => { root = el; watchRewards(el); },
     get current() { return active && active.name; }
   };

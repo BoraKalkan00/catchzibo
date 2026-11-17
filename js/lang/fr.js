@@ -884,5 +884,18 @@ CZ.i18n.register('fr', 'Français', {
   "tut.roll": "Glisse vers le bas : roulade",
   "tut.ramp": "Monte sur les trains par les rampes",
   "tut.power": "Ramasse les bonus : aimant, x2, super saut, traîneau",
-  "tut.throw": "Touche Zibo avec Lancer et attrape-le !"
+  "tut.throw": "Touche Zibo avec Lancer et attrape-le !",
+  "pause.title": "Pause",
+  "pause.resume": "Reprendre",
+  "pause.sound": "Son",
+  "pause.quit": "Terminer la course",
+  "pause.quitAsk": "Veux-tu terminer la course ?",
+  "exit.ask": "Veux-tu quitter le jeu ?",
+  "exit.yes": "Quitter",
+  "tip.1": "Astuce : Monte sur les trains par les rampes.",
+  "tip.2": "Astuce : Le traîneau du Père Noël te fait voler, avec des pièces de Zibo !",
+  "tip.3": "Astuce : Termine les missions pour augmenter ton multiplicateur.",
+  "tip.4": "Astuce : Les pièces à la suite sonnent de plus en plus aigu. Garde la chaîne !",
+  "tip.5": "Astuce : Un klaxon devant ? Change de voie tout de suite.",
+  "tip.6": "Astuce : Glisse vers le bas tôt et tu roules à nouveau dès la fin."
 });

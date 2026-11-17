@@ -226,7 +226,7 @@ CZ.audio = (function () {
     Object.values(SAMPLES).forEach(([f]) => [].concat(f).forEach(n => names.add(n)));
     names.forEach(n => fetch('assets/sfx/' + n + '.ogg').then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b => { buffers[n] = b; }).catch(() => {}));
   }
-  function playSample(name) {
+  function playSample(name, step) {
     const S = SAMPLES[name];
     if (!S) return false;
     const list = [].concat(S[0]);
@@ -234,7 +234,8 @@ CZ.audio = (function () {
     if (!buf) return false;
     const src = ctx.createBufferSource();
     src.buffer = buf;
-    src.playbackRate.value = 0.95 + Math.random() * 0.1;
+    // art arda altında ses tiz tize yükselir (Subway Surfers'taki gibi ödül hissi)
+    src.playbackRate.value = name === 'coin' ? 1 + Math.min(step || 0, 14) * 0.045 : 0.95 + Math.random() * 0.1;
     const g = ctx.createGain(); g.gain.value = S[1];
     src.connect(g); g.connect(master);
     src.start();
@@ -243,7 +244,9 @@ CZ.audio = (function () {
   function sfx(name, step) {
     if (!enabled()) return;
     loadSamples();
-    if (playSample(name)) {
+    if (playSample(name, step)) {
+      // altına parlak bir çın katmanı: daha dolgun ve tatmin edici
+      if (name === 'coin') tone(1568 * (1 + Math.min(step || 0, 14) * 0.045), ctx.currentTime + 0.03, 0.12, { type: 'triangle', gain: 0.035 });
       // patlama ve çarpmada üretilmiş katman da kalsın (daha dolgun)
       if (name === 'crack' && SFX.crack) SFX.crack(ctx.currentTime + 0.005, step);
       return;

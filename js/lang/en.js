@@ -1065,5 +1065,18 @@ CZ.i18n.register('en', 'English', {
   "tut.roll": "Swipe down: roll under things",
   "tut.ramp": "Run up the ramps onto trains",
   "tut.power": "Grab power-ups: magnet, x2, super jump, Santa's sleigh",
-  "tut.throw": "Hit Zibo with the Throw button and catch him!"
+  "tut.throw": "Hit Zibo with the Throw button and catch him!",
+  "pause.title": "Paused",
+  "pause.resume": "Resume",
+  "pause.sound": "Sound",
+  "pause.quit": "End run",
+  "pause.quitAsk": "Do you want to end this run?",
+  "exit.ask": "Do you want to leave the game?",
+  "exit.yes": "Leave",
+  "tip.1": "Tip: Run up the ramps to get on top of trains.",
+  "tip.2": "Tip: Santa's sleigh makes you fly, with Zibo coins in the air!",
+  "tip.3": "Tip: Finish missions to raise your score multiplier for good.",
+  "tip.4": "Tip: Coins in a row ring higher and higher. Keep the chain going!",
+  "tip.5": "Tip: Hear a horn ahead? Change lanes right away.",
+  "tip.6": "Tip: Swipe down early and you roll again as soon as the last roll ends."
 });

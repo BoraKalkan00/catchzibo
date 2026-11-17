@@ -884,5 +884,18 @@ CZ.i18n.register('pt', 'Português', {
   "tut.roll": "Deslize para baixo: rola",
   "tut.ramp": "Suba nos trens pelas rampas",
   "tut.power": "Pegue poderes: ímã, x2, super pulo, trenó do Papai Noel",
-  "tut.throw": "Acerte o Zibo com Lançar e pegue-o!"
+  "tut.throw": "Acerte o Zibo com Lançar e pegue-o!",
+  "pause.title": "Pausado",
+  "pause.resume": "Continuar",
+  "pause.sound": "Som",
+  "pause.quit": "Encerrar corrida",
+  "pause.quitAsk": "Quer encerrar a corrida?",
+  "exit.ask": "Quer sair do jogo?",
+  "exit.yes": "Sair",
+  "tip.1": "Dica: Suba nos trens pelas rampas.",
+  "tip.2": "Dica: O trenó do Papai Noel te faz voar, com moedas do Zibo no ar!",
+  "tip.3": "Dica: Termine missões para aumentar seu multiplicador.",
+  "tip.4": "Dica: Moedas seguidas soam cada vez mais agudo. Não quebre a sequência!",
+  "tip.5": "Dica: Ouviu uma buzina? Troque de faixa já.",
+  "tip.6": "Dica: Deslize para baixo antes e você rola de novo logo em seguida."
 });
