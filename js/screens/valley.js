@@ -346,9 +346,9 @@ CZ.screens.valley = (function () {
       let x = Math.cos(a) * rr, z = Math.sin(a) * rr;
       if (Math.hypot(x - P.x, z - P.z) < 14) { x = -x; z = -z; }
       z3.root.position.set(x, 0, z); z3.root.traverse(o => { o.castShadow = true; }); scene.add(z3.root);
-      const hp = Math.round((tough ? 7 : 3) + V.wave * 0.6);
+      const hp = Math.round((tough ? 6 : 3) + V.wave * 0.4);
       const gb = { type: 'goblin', x, z, r: 0.7, hp, maxHp: hp, mesh: z3.root, z3, spear, coins: Math.round((tough ? 35 : 15) + V.wave * 2), stolen: 0, vx: 0, vz: 0, think: 0, stun: 0, atk: rand(0.5, 1.2), lunge: 0, speed: (tough ? 3.0 : 3.6) + Math.min(1.2, V.wave * 0.08), dmg: tough ? 2 : 1, flee: false };
-      goblins.push(gb); targets.push(gb);
+      goblins.push(gb); targets.push(gb); hpBar(gb);
     }
 
     /* ---------- Savunma: kule yerleri ve çit ---------- */
@@ -431,7 +431,7 @@ CZ.screens.valley = (function () {
         p.g.add(sc);
         const bar = new THREE.Group();
         const bg = new THREE.Mesh(barGeo, barBg); bg.scale.set(2.2, 1.4, 1); bar.add(bg);
-        const fg = new THREE.Mesh(barGeo, new THREE.MeshBasicMaterial({ color: 0x4ab0ff, depthTest: false })); fg.scale.set(2.1, 0.9, 1); fg.position.z = 0.01; bar.add(fg);
+        const fg = new THREE.Mesh(barGeo, new THREE.MeshBasicMaterial({ color: 0x4ab0ff, depthTest: false, transparent: true })); fg.scale.set(2.1, 0.9, 1); fg.position.z = 0.01; bar.add(fg);
         bar.renderOrder = 8; bg.renderOrder = 8; fg.renderOrder = 9;
         bar.position.set(cx, 4, cz); scene.add(bar); p.barG = bar; p.barFg = fg;
       }
@@ -493,7 +493,7 @@ CZ.screens.valley = (function () {
     const ballMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(W.ball || '#f4fbff') });
     function fire(dx, dz) {
       if (V.cool > 0) return;
-      V.cool = Math.max(0.14, (0.42 - W.dmg * 0.025) * B.cool);
+      V.cool = Math.max(0.12, (0.42 - W.dmg * 0.025) * B.cool * Math.pow(0.95, powLv()));
       const L2 = Math.hypot(dx, dz) || 1; dx /= L2; dz /= L2;
       P.dir = Math.atan2(-dx, -dz);
       let m;
@@ -516,18 +516,18 @@ CZ.screens.valley = (function () {
       return best;
     }
     const barBg = new THREE.MeshBasicMaterial({ color: 0x1a2040, depthTest: false, transparent: true, opacity: 0.8 });
-    const barFg = new THREE.MeshBasicMaterial({ color: 0x4ade6a, depthTest: false });
-    const barGeo = new THREE.PlaneGeometry(1, 0.16);
+    const barFg = new THREE.MeshBasicMaterial({ color: 0x4ade6a, depthTest: false, transparent: true });
+    const barGeo = new THREE.PlaneGeometry(1, 0.24);
     function hpBar(o) {
       if (!o.bar) {
         const g = new THREE.Group();
-        const bg = new THREE.Mesh(barGeo, barBg); bg.scale.x = 1.3; g.add(bg);
-        const fg = new THREE.Mesh(barGeo, barFg.clone()); fg.scale.set(1.24, 0.7, 1); fg.position.z = 0.01; g.add(fg);
+        const bg = new THREE.Mesh(barGeo, barBg); bg.scale.set(1.7, 1.25, 1); g.add(bg);
+        const fg = new THREE.Mesh(barGeo, barFg.clone()); fg.scale.set(1.62, 0.85, 1); fg.position.z = 0.01; g.add(fg);
         g.renderOrder = 6; bg.renderOrder = 6; fg.renderOrder = 7;
         scene.add(g); o.bar = { g, fg };
       }
       const k = Math.max(0, o.hp / o.maxHp);
-      o.bar.fg.scale.x = 1.24 * k; o.bar.fg.position.x = -0.62 * (1 - k);
+      o.bar.fg.scale.x = 1.62 * k; o.bar.fg.position.x = -0.81 * (1 - k);
       o.bar.fg.material.color.setHex(k > 0.5 ? 0x4ade6a : k > 0.25 ? 0xffc928 : 0xff4a4a);
     }
     function hit(o, dmg, byTower) {
@@ -563,6 +563,23 @@ CZ.screens.valley = (function () {
     const timeEl = h('b', { class: 'vl-time', text: t('def.wave', { n: 1 }) });
     const hpFill = h('i'); const hpBarEl = h('div', { class: 'vl-hp' }, hpFill);
     const panel = h('div', { class: 'def-panel' });
+    // SİLAH GÜCÜ: altınla anında yükselt (vuruş +2, atış hızı +%5 her seviye)
+    const POW_MAX = 15;
+    const powLv = () => d.vpow || 0;
+    const powPrice = () => Math.round(150 * Math.pow(1.6, powLv()) / 10) * 10;
+    const powBtn = h('button', { type: 'button', class: 'vl-pow' });
+    function powUi() {
+      const L = powLv();
+      powBtn.replaceChildren(h('b', { text: '⚔ ' + t('vil.lv', { n: L }) }), L >= POW_MAX ? h('small', { text: t('up.max') }) : h('small', {}, img('ui.gold', 'mini-ico'), String(powPrice())));
+      powBtn.classList.toggle('can', L < POW_MAX && (d.gold || 0) >= powPrice());
+    }
+    powBtn.addEventListener('click', () => {
+      if (powLv() >= POW_MAX) return;
+      const c = powPrice();
+      if ((d.gold || 0) < c) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.goldShort', { n: c - (d.gold || 0) })); }
+      d.gold -= c; d.vpow = powLv() + 1; CZ.state.save(); goldEl.textContent = d.gold;
+      CZ.audio.sfx('buy'); CZ.audio.vibrate([20, 20, 40]); floatAt(P, t('def.powUp', { n: d.vpow * 2 + W.dmg * 2 }), 'wave'); powUi();
+    });
     const floats = h('div', { class: 'vl-floats' });
     const mapC = h('canvas', { class: 'vl-map', width: '220', height: '220' });
     const mctx = mapC.getContext('2d');
@@ -573,7 +590,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), goldEl), timeEl),
-      hpBarEl, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      hpBarEl, powBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -681,8 +698,8 @@ CZ.screens.valley = (function () {
       if (V.waveT > 45) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); }
       timeEl.textContent = t('def.wave', { n: V.wave });
       V.spawnT -= dt;
-      const cap = Math.min(16, 4 + V.wave * 2);
-      if (V.spawnT <= 0 && goblins.length < cap) { V.spawnT = Math.max(1.1, 4.2 - V.wave * 0.35); spawnGoblin(); }
+      const cap = Math.min(14, 2 + V.wave * 2);
+      if (V.spawnT <= 0 && goblins.length < cap) { V.spawnT = Math.max(1.4, 5 - V.wave * 0.35); spawnGoblin(); }
       // inşaat süreleri
       pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
       // KULELER: menzildeki en yakın goblini kendileri vurur
@@ -722,6 +739,7 @@ CZ.screens.valley = (function () {
       if (V.pending > 0) { const n = Math.min(V.pending, Math.ceil(V.pending * dt * 6)); V.pending -= n; gain(n, true); }
       V.saveT = (V.saveT || 0) - dt; if (V.saveT <= 0) { V.saveT = 3; CZ.state.save(); }
       padNear();
+      V.powT = (V.powT || 0) - dt; if (V.powT <= 0) { V.powT = 0.5; powUi(); }
 
       // hareket
       const sp = P.riding ? mountDef.speed * B.speed : 6;
@@ -774,6 +792,7 @@ CZ.screens.valley = (function () {
         let tx = 0, tz = 0, sp = o.speed, attackFence = null;
         if (o.flee) { tx = o.x / (rc || 1) * 80; tz = o.z / (rc || 1) * 80; sp = o.speed * 1.15; if (rc > WORLD_R - 2) { o.dead = true; scene.remove(o.mesh); if (o.bar) { scene.remove(o.bar.g); o.bar = null; } targets.splice(targets.indexOf(o), 1); goblins.splice(goblins.indexOf(o), 1); return; } }
         else if (dp < 13 && P.down <= 0) { tx = P.x; tz = P.z; }
+        else if (V.wave <= 2) { o.roam = o.roam || [o.x * 0.75, o.z * 0.75]; tx = o.roam[0]; tz = o.roam[1]; if (Math.hypot(tx - o.x, tz - o.z) < 2) { const a = rand(0, 6.28), rr = rand(FENCE_R + 6, WORLD_R - 6); o.roam = [Math.cos(a) * rr, Math.sin(a) * rr]; } }   // ilk dalgalar: köye girmez, dışarıda dolaşır
         else {
           // köyün merkezine yürü; çit parçası sağlamsa ona takıl
           const seg = ((Math.floor(((Math.atan2(o.z, o.x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8);
@@ -804,9 +823,9 @@ CZ.screens.valley = (function () {
         o.x = nx; o.z = nz;
         // köyün kalbine ulaştı: altın çalıp kaçar
         if (!o.flee && Math.hypot(o.x, o.z) < CORE_R) {
-          const steal = Math.min(d.gold || 0, 8 + V.wave * 3);
+          const steal = Math.max(0, Math.min(V.earned - (V.lost || 0), 10 + V.wave * 2, 20)); V.lost = (V.lost || 0) + steal;   // bankadaki altın güvende
           d.gold = (d.gold || 0) - steal; goldEl.textContent = d.gold; o.stolen += steal; o.flee = true;
-          floatAt(o, t('def.stole', { n: steal }), 'wave'); CZ.audio.sfx('wrong');
+          if (steal > 0) { floatAt(o, t('def.stole', { n: steal }), 'wave'); CZ.audio.sfx('wrong'); }
         }
         o.mesh.position.set(o.x, 0, o.z);
         const face = (o.vx || o.vz) ? Math.atan2(-o.vx, -o.vz) : Math.atan2(-dxp, -dzp);
@@ -825,7 +844,7 @@ CZ.screens.valley = (function () {
         let hitO = null;
         for (const o of targets) { if (o.dead || o.locked) continue; if (Math.hypot(o.x - s2.m.position.x, o.z - s2.m.position.z) < o.r + 0.35) { hitO = o; break; } }
         if (!hitO && ice.alive && Math.hypot(ice.x - s2.m.position.x, ice.z - s2.m.position.z) < ice.r) { s2.life = 0; if (!V.iceHint2) { V.iceHint2 = true; floatAt(ice, t('valley.needPolar')); } }
-        if (hitO) { hit(hitO, W.dmg + B.dmg + (P.riding ? 1 : 0)); s2.life = 0; }
+        if (hitO) { hit(hitO, W.dmg * 2 + B.dmg + powLv() * 2 + (P.riding ? 1 : 0)); s2.life = 0; }
         else if (solids.some(sd => sd !== ice && Math.hypot(sd.x - s2.m.position.x, sd.z - s2.m.position.z) < sd.r * 0.8)) s2.life = 0;
         if (s2.life <= 0) { scene.remove(s2.m); shots.splice(i, 1); }
       }
@@ -982,7 +1001,7 @@ CZ.screens.valley = (function () {
         aim.rotation.set(-Math.PI / 2, 0, Math.atan2(dx, -dz) * -1);
         P.dir = Math.atan2(-dx / L2, -dz / L2);
       }
-      targets.forEach(o => { if (o.bar) { o.bar.g.position.set(o.x, o.type === 'goblin' ? 2.3 : 2.1, o.z); o.bar.g.quaternion.copy(camera.quaternion); } });
+      targets.forEach(o => { if (o.bar) { o.bar.g.position.set(o.x, o.type === 'goblin' ? 2.7 : 2.2, o.z); o.bar.g.quaternion.copy(camera.quaternion); } });
       // otomatik hedef halkası
       const o = nearestTarget(RANGE);
       rangeRing.visible = aimP.id !== null; rangeRing.position.set(P.x, 0.04, P.z);

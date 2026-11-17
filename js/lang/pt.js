@@ -982,5 +982,6 @@ CZ.i18n.register('pt', 'Português', {
   "def.min": "min",
   "def.fenceBroke": "Cerca quebrada!",
   "def.stole": "Roubou {n} de ouro!",
-  "def.down": "Nocauteado! Acordando na vila..."
+  "def.down": "Nocauteado! Acordando na vila...",
+  "def.powUp": "Poder de ataque {n}!"
 });

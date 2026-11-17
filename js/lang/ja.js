@@ -982,5 +982,6 @@ CZ.i18n.register('ja', '日本語', {
   "def.min": "分",
   "def.fenceBroke": "さくが壊れた！",
   "def.stole": "{n}ゴールド盗まれた！",
-  "def.down": "やられた！村で目覚める…"
+  "def.down": "やられた！村で目覚める…",
+  "def.powUp": "攻撃力{n}！"
 });

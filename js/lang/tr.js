@@ -1163,5 +1163,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   "def.min": "dk",
   "def.fenceBroke": "Çit kırıldı!",
   "def.stole": "{n} altın çaldı!",
-  "def.down": "Bayıldın! Köyde uyanıyorsun..."
+  "def.down": "Bayıldın! Köyde uyanıyorsun...",
+  "def.powUp": "Vuruş gücü {n}!"
 });

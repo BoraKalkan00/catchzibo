@@ -982,5 +982,6 @@ CZ.i18n.register('ko', '한국어', {
   "def.min": "분",
   "def.fenceBroke": "울타리가 부서졌다!",
   "def.stole": "{n} 골드를 훔쳤다!",
-  "def.down": "기절! 마을에서 깨어나요..."
+  "def.down": "기절! 마을에서 깨어나요...",
+  "def.powUp": "공격력 {n}!"
 });

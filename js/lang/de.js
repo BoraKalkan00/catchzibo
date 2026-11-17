@@ -982,5 +982,6 @@ CZ.i18n.register('de', 'Deutsch', {
   "def.min": "Min",
   "def.fenceBroke": "Zaun kaputt!",
   "def.stole": "{n} Gold gestohlen!",
-  "def.down": "K.o.! Du wachst im Dorf auf..."
+  "def.down": "K.o.! Du wachst im Dorf auf...",
+  "def.powUp": "Schlagkraft {n}!"
 });

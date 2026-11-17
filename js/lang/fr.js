@@ -982,5 +982,6 @@ CZ.i18n.register('fr', 'Français', {
   "def.min": "min",
   "def.fenceBroke": "Palissade cassée !",
   "def.stole": "{n} or volé !",
-  "def.down": "K.-O. ! Tu te réveilles au village..."
+  "def.down": "K.-O. ! Tu te réveilles au village...",
+  "def.powUp": "Puissance {n} !"
 });

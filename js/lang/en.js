@@ -1163,5 +1163,6 @@ CZ.i18n.register('en', 'English', {
   "def.min": "min",
   "def.fenceBroke": "Fence broken!",
   "def.stole": "Stole {n} gold!",
-  "def.down": "Knocked out! Waking up in the village..."
+  "def.down": "Knocked out! Waking up in the village...",
+  "def.powUp": "Hit power {n}!"
 });

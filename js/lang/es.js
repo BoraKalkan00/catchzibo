@@ -982,5 +982,6 @@ CZ.i18n.register('es', 'Español', {
   "def.min": "min",
   "def.fenceBroke": "¡Valla rota!",
   "def.stole": "¡Robó {n} de oro!",
-  "def.down": "¡Noqueado! Despiertas en la aldea..."
+  "def.down": "¡Noqueado! Despiertas en la aldea...",
+  "def.powUp": "¡Poder de golpe {n}!"
 });
