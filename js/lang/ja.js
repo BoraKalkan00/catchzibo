@@ -1027,5 +1027,6 @@ CZ.i18n.register('ja', '日本語', {
   "mount.goldbear": "ゴールドベア",
   "mount.icewolf": "アイスウルフ",
   "mount.goldbear.desc": "パスの報酬。金色にかがやく。",
-  "mount.icewolf.desc": "パスの報酬。いちばん速い乗り物。"
+  "mount.icewolf.desc": "パスの報酬。いちばん速い乗り物。",
+  "notif.built": "タワー完成！ゴブリンが来るよ、村を守ろう！"
 });

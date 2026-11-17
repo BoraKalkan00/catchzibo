@@ -1188,6 +1188,7 @@ CZ.screens.valley = (function () {
   }
   function leave() {
     if (!V) return;
+    if (CZ.notify) CZ.notify.schedule();
     if (V.running) { const d = CZ.state.data; d.gold = (d.gold || 0) + V.pending; CZ.state.save(); }
     cancelAnimationFrame(V.raf);
     document.removeEventListener('visibilitychange', V.onHide);

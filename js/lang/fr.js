@@ -1027,5 +1027,6 @@ CZ.i18n.register('fr', 'Français', {
   "mount.goldbear": "Ours doré",
   "mount.icewolf": "Loup de glace",
   "mount.goldbear.desc": "Récompense du pass. Éclat doré, rugissement puissant.",
-  "mount.icewolf.desc": "Récompense du pass. Monture la plus rapide."
+  "mount.icewolf.desc": "Récompense du pass. Monture la plus rapide.",
+  "notif.built": "Ta tour est prête ! Les gobelins arrivent, défends ton village !"
 });

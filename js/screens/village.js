@@ -329,6 +329,6 @@ CZ.screens.village = (function () {
     const D = CZ.state.data;
     if (!D.vilTut) { D.vilTut = true; CZ.state.save(); const tip = h('div', { class: 'tut-tip vl-tip' }, h('span', { text: t('vil.tut') })); wrap.append(tip); setTimeout(() => tip.classList.add('out'), 6500); setTimeout(() => tip.remove(), 7100); }
   }
-  function leave() { if (!S) return; cancelAnimationFrame(S.raf); S.cleanup(); S = null; }
+  function leave() { if (CZ.notify) CZ.notify.schedule(); if (!S) return; cancelAnimationFrame(S.raf); S.cleanup(); S = null; }
   return { render, leave, get debug() { return S; } };
 })();

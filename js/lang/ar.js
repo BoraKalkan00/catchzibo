@@ -1027,5 +1027,6 @@ CZ.i18n.register('ar', 'العربية', {
   "mount.goldbear": "الدب الذهبي",
   "mount.icewolf": "ذئب الجليد",
   "mount.goldbear.desc": "مكافأة التذكرة. لمعان ذهبي.",
-  "mount.icewolf.desc": "مكافأة التذكرة. أسرع مطية."
+  "mount.icewolf.desc": "مكافأة التذكرة. أسرع مطية.",
+  "notif.built": "برجك جاهز! العفاريت قادمة، دافع عن قريتك!"
 });

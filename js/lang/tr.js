@@ -1208,5 +1208,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   "mount.goldbear": "Altın Ayı",
   "mount.icewolf": "Buz Kurdu",
   "mount.goldbear.desc": "Kış Bileti ödülü. Altın parıltılı, güçlü kükreme.",
-  "mount.icewolf.desc": "Kış Bileti ödülü. Oyundaki en hızlı binek."
+  "mount.icewolf.desc": "Kış Bileti ödülü. Oyundaki en hızlı binek.",
+  "notif.built": "Kulen hazır! Goblinler köyüne geliyor, savunmaya koş!"
 });

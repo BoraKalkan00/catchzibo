@@ -1027,5 +1027,6 @@ CZ.i18n.register('ko', '한국어', {
   "mount.goldbear": "황금곰",
   "mount.icewolf": "얼음늑대",
   "mount.goldbear.desc": "패스 보상. 황금빛 포효.",
-  "mount.icewolf.desc": "패스 보상. 가장 빠른 탈것."
+  "mount.icewolf.desc": "패스 보상. 가장 빠른 탈것.",
+  "notif.built": "탑이 완성됐어요! 고블린이 와요, 마을을 지켜요!"
 });

@@ -1027,5 +1027,6 @@ CZ.i18n.register('pt', 'Português', {
   "mount.goldbear": "Urso Dourado",
   "mount.icewolf": "Lobo de Gelo",
   "mount.goldbear.desc": "Prêmio do passe. Brilho dourado, rugido forte.",
-  "mount.icewolf.desc": "Prêmio do passe. A montaria mais rápida."
+  "mount.icewolf.desc": "Prêmio do passe. A montaria mais rápida.",
+  "notif.built": "Sua torre está pronta! Goblins chegando, defenda sua vila!"
 });

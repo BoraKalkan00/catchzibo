@@ -1208,5 +1208,6 @@ CZ.i18n.register('en', 'English', {
   "mount.goldbear": "Golden Bear",
   "mount.icewolf": "Ice Wolf",
   "mount.goldbear.desc": "Winter Pass reward. Golden shine, mighty roar.",
-  "mount.icewolf.desc": "Winter Pass reward. Fastest mount in the game."
+  "mount.icewolf.desc": "Winter Pass reward. Fastest mount in the game.",
+  "notif.built": "Your tower is ready! Goblins are coming, defend your village!"
 });

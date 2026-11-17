@@ -1027,5 +1027,6 @@ CZ.i18n.register('es', 'Español', {
   "mount.goldbear": "Oso Dorado",
   "mount.icewolf": "Lobo de Hielo",
   "mount.goldbear.desc": "Premio del pase. Brillo dorado, rugido potente.",
-  "mount.icewolf.desc": "Premio del pase. La montura más rápida."
+  "mount.icewolf.desc": "Premio del pase. La montura más rápida.",
+  "notif.built": "¡Tu torre está lista! Vienen goblins, ¡defiende tu aldea!"
 });

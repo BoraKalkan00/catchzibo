@@ -1027,5 +1027,6 @@ CZ.i18n.register('de', 'Deutsch', {
   "mount.goldbear": "Goldbär",
   "mount.icewolf": "Eiswolf",
   "mount.goldbear.desc": "Winterpass-Belohnung. Goldglanz, starkes Brüllen.",
-  "mount.icewolf.desc": "Winterpass-Belohnung. Schnellstes Reittier."
+  "mount.icewolf.desc": "Winterpass-Belohnung. Schnellstes Reittier.",
+  "notif.built": "Dein Turm ist fertig! Goblins kommen, verteidige dein Dorf!"
 });
