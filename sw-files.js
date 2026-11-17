@@ -511,6 +511,7 @@ self.CZ_FILES = [
  "js/core/avatar.js",
  "js/core/charart.js",
  "js/core/game.js",
+ "js/core/gen3d.js",
  "js/core/house.js",
  "js/core/houseart.js",
  "js/core/i18n.js",

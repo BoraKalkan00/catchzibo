@@ -7,7 +7,14 @@ CZ.screens.village = (function () {
   // Binaların köydeki yerleri (x, z)
   const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7] };
 
+  // Yapay zekâ modelleri (varsa): bina -> [model, boy]
+  const VGEN = { hall: ['koymeydani', 6.2], mine: ['altinmadeni', 3.6], bakery: ['firin', 4.2], stable: ['ahir', 4.2], forge: ['demirci', 4], tower: ['kartopukulesi', 4.5] };
   function model(THREE, id, L) {
+    if (L > 0 && VGEN[id] && CZ.gen3d && CZ.gen3d.has(VGEN[id][0])) {
+      const g = new THREE.Group();
+      g.add(CZ.gen3d.get(VGEN[id][0], VGEN[id][1] * (0.85 + Math.min(10, L) * 0.04)));
+      return g;
+    }
     const toon = c => new THREE.MeshLambertMaterial({ color: c });
     const g = new THREE.Group();
     const add = (geo, mat, x, y, z, ry) => { const m = new THREE.Mesh(geo, typeof mat === 'number' ? toon(mat) : mat); m.position.set(x, y, z); if (ry) m.rotation.y = ry; m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
@@ -99,7 +106,7 @@ CZ.screens.village = (function () {
   function render(el) {
     el.classList.add('village-screen');
     const loading = CZ.ui.loading(el);
-    CZ.runner3d.load().then(() => { loading.done(); build(el); })
+    CZ.runner3d.load().then(() => CZ.gen3d.load()).then(() => { loading.done(); build(el); })
       .catch(err => { console.error('village', err && err.stack || err); loading.done(); CZ.ui.toast(t('run.noGl')); });
   }
 

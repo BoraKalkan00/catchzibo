@@ -1,0 +1,34 @@
+// Bilgisayarda yapay zekâyla üretilen 3D modeller (assets/3d/gen/*.glb). Köşe renkli, tek parça.
+// CZ.GEN3D: hangi modellerin hazır olduğu ve oyundaki boyu (h) / yönü (yaw).
+CZ.GEN3D = {};
+CZ.gen3d = (function () {
+  const cache = {};
+  let P = null;
+  function load() {
+    if (P) return P;
+    const THREE = window.THREE;
+    const ids = Object.keys(CZ.GEN3D);
+    if (!ids.length || !THREE || !THREE.GLTFLoader) return (P = Promise.resolve());
+    const L = new THREE.GLTFLoader();
+    P = Promise.all(ids.map(id => new Promise(ok => {
+      L.load('assets/3d/gen/' + id + '.glb', g => {
+        const root = g.scene;
+        root.traverse(o => { if (o.isMesh) { o.material = new THREE.MeshLambertMaterial({ vertexColors: true }); o.castShadow = true; o.receiveShadow = true; } });
+        cache[id] = root; ok();
+      }, undefined, () => ok());
+    })));
+    return P;
+  }
+  const has = id => !!cache[id];
+  // Boyu h olan, tabanı y=0'da, öne (-z) bakan kopya. tint verilirse renk çarpılır.
+  function get(id, h, tint) {
+    const THREE = window.THREE, C = CZ.GEN3D[id] || {};
+    const m = cache[id].clone(true);
+    if (tint) m.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.color.setHex(tint); } });
+    const g = new THREE.Group(), inner = new THREE.Group();
+    inner.add(m); inner.rotation.y = (C.yaw || 0); inner.scale.setScalar(h || C.h || 1);
+    g.add(inner);
+    return g;
+  }
+  return { load, has, get };
+})();

@@ -16,7 +16,7 @@ CZ.MOUNT_POWER = { brown: { id: 'roar', cd: 10 }, polar: { id: 'frost', cd: 12 }
 CZ.screens.valley = (function () {
   // Ahırdaki binek resmi: 3D modelden bir kez çizilir
   const mountCache = {};
-  CZ.mountPortrait = id => mountCache[id] || (mountCache[id] = CZ.runner3d.load().then(() => {
+  CZ.mountPortrait = id => mountCache[id] || (mountCache[id] = CZ.runner3d.load().then(() => CZ.gen3d.load()).then(() => {
     const THREE = window.THREE;
     const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     r.setPixelRatio(1); r.setSize(220, 220); r.setClearColor(0, 0);
@@ -52,7 +52,27 @@ CZ.screens.valley = (function () {
   const rushPrice = ms => Math.max(RUSH_BUILD, Math.ceil(ms / 60000) * 20);   // atış menzili: haritanın öbür ucuna ateş edilmez
 
   /* ---------- Dört ayaklı binekler (kodla, çizgi film tarzı) ---------- */
+  // Yapay zekâ modeli varsa onu kullan (hazır değilse aşağıdaki kodla çizilmiş hayvan)
+  const MOUNT_GEN = { brown: ['ayi', 1.7], polar: ['kutupayisi', 1.75], deer: ['rengeyigi', 2.1], wolf: ['kurt', 1.5], mammoth: ['mamut', 2.7], goldbear: ['ayi', 1.8, 0xffd04a], icewolf: ['kurt', 1.55, 0x9adcff] };
+  function genMount(THREE, def) {
+    const [id, hh, tint] = MOUNT_GEN[def.id];
+    const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
+    body.add(CZ.gen3d.get(id, hh, tint));
+    let ph = 0;
+    return {
+      root: g, seatY: hh * ((CZ.GEN3D[id] || {}).seat || 0.62),
+      update(dt, speed) {
+        const k = Math.min(1, speed / 6);
+        ph += dt * (5 + speed * 0.9);
+        body.position.y = Math.abs(Math.sin(ph)) * 0.16 * k;
+        body.rotation.x = Math.sin(ph * 2) * 0.07 * k;
+        body.rotation.z = Math.sin(ph) * 0.04 * k;
+        body.scale.y = 1 + (1 - k) * Math.sin(ph * 0.4) * 0.015;   // durunca nefes alır
+      }
+    };
+  }
   function quadruped(THREE, def) {
+    if (MOUNT_GEN[def.id] && CZ.gen3d && CZ.gen3d.has(MOUNT_GEN[def.id][0])) return genMount(THREE, def);
     const toon = c => new THREE.MeshLambertMaterial({ color: c });
     const fur = toon(def.color), light = toon(def.light), dark = toon(0x2a1a12);
     const g = new THREE.Group();
@@ -418,6 +438,8 @@ CZ.screens.valley = (function () {
       return g;
     }
     function towerModel(type, L) {
+      const gid = type === 'cannon' ? 'topkulesi' : 'kartopukulesi';
+      if (CZ.gen3d.has(gid)) { const g = new THREE.Group(); g.add(CZ.gen3d.get(gid, (type === 'cannon' ? 3.0 : 3.8) * (0.85 + L * 0.08))); return g; }
       if (type === 'cannon') return cannonModel(L);
       const g = CZ.villageModel ? CZ.villageModel(THREE, 'tower', Math.max(1, L * 2)) : new THREE.Group();
       g.scale.setScalar(0.8);
@@ -1158,7 +1180,7 @@ CZ.screens.valley = (function () {
   function render(el, params) {
     el.classList.add('valley-screen');
     const loading = CZ.ui.loading(el);
-    CZ.runner3d.load().then(() => {
+    CZ.runner3d.load().then(() => CZ.gen3d.load()).then(() => {
       loading.done();
       if (!CZ.kk || !CZ.kk.ready()) throw new Error('no3d');
       build(el, params || {});
