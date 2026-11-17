@@ -917,9 +917,9 @@ CZ.i18n.register('ja', '日本語', {
   "mount.brown": "ヒグマ",
   "mount.polar": "シロクマ",
   "mount.deer": "トナカイ",
-  "mount.brown.desc": "箱をふみつぶし、ジボの手下をたおす。",
-  "mount.polar.desc": "洞くつの氷のかべを割り、箱をつぶす。",
-  "mount.deer.desc": "いちばん速い。遠くのゴールドも引きよせる。",
+  "mount.brown.desc": "箱をつぶす。パワー：ほえてゴブリンをひるませる。",
+  "mount.polar.desc": "氷を割る。パワー：前のゴブリンをこおらせる。",
+  "mount.deer.desc": "とても速い。パワー：3秒ダッシュ、ダメージなし。",
   "mount.buyAsk": "{n}ゴールドで買う？",
   "vil.title": "マイ村",
   "hub.village": "村",
@@ -983,5 +983,14 @@ CZ.i18n.register('ja', '日本語', {
   "def.fenceBroke": "さくが壊れた！",
   "def.stole": "{n}ゴールド盗まれた！",
   "def.down": "やられた！村で目覚める…",
-  "def.powUp": "攻撃力{n}！"
+  "def.powUp": "攻撃力{n}！",
+  "mp.roar": "ほえる",
+  "mp.frost": "こおりの息",
+  "mp.dash": "ダッシュ",
+  "mp.pounce": "とびかかり",
+  "mp.quake": "じしん",
+  "mount.wolf": "ユキオオカミ",
+  "mount.mammoth": "マンモス",
+  "mount.wolf.desc": "いちばん速い。パワー：とびかかってゴブリンをかむ。",
+  "mount.mammoth.desc": "おそいけど大きい、ダメージ半分。パワー：じしん。"
 });

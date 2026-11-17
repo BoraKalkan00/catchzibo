@@ -233,6 +233,19 @@
         add(chest, sph, gold, [0, 0.05, 0.45], null, [0.1, 0.1, 0.1]);
       } else if (a === 'goblinEars') {
         [-1, 1].forEach(sd => add(head, cone, mat.skin, [sd * 0.7, 0.55, 0], [0, 0, -sd * 1.45], [0.16, 0.8, 0.09]));
+      } else if (a === 'goblinFace') {
+        // Zibo'nun yüzü: kocaman parlak gözler, çatık kaşlar, sivri burun, sinsi sırıtış
+        const eyeW = m(0xfffbe8), pupil = m(0x15121a), skinD = mat.skin, mouthM = m(0x4a1018), tooth = m(0xfffbe8), brow = m(0x23401a);
+        [-1, 1].forEach(sd => {
+          add(head, sph, eyeW, [sd * 0.2, 0.5, 0.45], null, [0.17, 0.21, 0.12]);
+          add(head, sph, pupil, [sd * 0.17, 0.5, 0.56], null, [0.08, 0.1, 0.04]);
+          add(head, sph, eyeW, [sd * 0.14 + 0.03, 0.54, 0.59], null, [0.027, 0.027, 0.01]);
+          add(head, sph, brow, [sd * 0.21, 0.73, 0.5], [0, 0, sd * 0.38], [0.17, 0.045, 0.06]);
+        });
+        add(head, cone, skinD, [0, 0.38, 0.66], [Math.PI / 2 - 0.35, 0, 0], [0.085, 0.3, 0.085]);
+        const smile = new G.Mesh(new G.TorusGeometry(0.2, 0.05, 8, 18, Math.PI), mouthM);
+        smile.position.set(0, 0.27, 0.5); smile.rotation.set(-0.2, 0, Math.PI); smile.scale.set(1.15, 0.7, 1); head.add(smile);
+        [-0.12, 0.12].forEach(x => add(head, cone, tooth, [x, 0.215, 0.53], [Math.PI, 0, 0], [0.032, 0.065, 0.032]));
       } else if (a === 'sack') {
         add(chest, sph, m(0xc8a060), [0.12, 0.2, -0.5], null, [0.34, 0.4, 0.3]);
         add(chest, tor, m(0x7a4a24), [0.12, 0.58, -0.5], [Math.PI / 2, 0, 0], [0.12, 0.12, 0.25]);
@@ -433,7 +446,7 @@
       knight: { '0,0': face, '1,0': dark }
     }, 'zibo:' + skin);
     const skinMat = new T.MeshToonMaterial({ color: dark, gradientMap: grad() });
-    accessories(model, ['goblinEars', 'santaHatZibo', 'sack'], { skin: skinMat });
+    accessories(model, ['goblinEars', 'goblinFace', 'santaHatZibo', 'sack'], { skin: skinMat });
     const root = new T.Group();
     const holder = new T.Group();
     holder.rotation.y = Math.PI;

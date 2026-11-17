@@ -917,9 +917,9 @@ CZ.i18n.register('fr', 'Français', {
   "mount.brown": "Ours des montagnes",
   "mount.polar": "Ours polaire",
   "mount.deer": "Renne",
-  "mount.brown.desc": "Écrase les caisses, renverse les aides de Zibo.",
-  "mount.polar.desc": "Brise le mur de glace de la grotte, écrase les caisses.",
-  "mount.deer.desc": "La monture la plus rapide, attire l’or de plus loin.",
+  "mount.brown.desc": "Écrase les caisses. Pouvoir : rugissement étourdissant.",
+  "mount.polar.desc": "Brise la glace. Pouvoir : souffle glacé qui gèle.",
+  "mount.deer.desc": "Très rapide. Pouvoir : sprint de 3 s sans dégâts.",
   "mount.buyAsk": "Acheter pour {n} pièces ?",
   "vil.title": "Mon Village",
   "hub.village": "Village",
@@ -983,5 +983,14 @@ CZ.i18n.register('fr', 'Français', {
   "def.fenceBroke": "Palissade cassée !",
   "def.stole": "{n} or volé !",
   "def.down": "K.-O. ! Tu te réveilles au village...",
-  "def.powUp": "Puissance {n} !"
+  "def.powUp": "Puissance {n} !",
+  "mp.roar": "Rugissement",
+  "mp.frost": "Souffle glacé",
+  "mp.dash": "Sprint",
+  "mp.pounce": "Bond",
+  "mp.quake": "Séisme",
+  "mount.wolf": "Loup des neiges",
+  "mount.mammoth": "Mammouth",
+  "mount.wolf.desc": "Monture la plus rapide. Pouvoir : bondit et mord les gobelins.",
+  "mount.mammoth.desc": "Lent mais énorme, dégâts réduits de moitié. Pouvoir : séisme."
 });

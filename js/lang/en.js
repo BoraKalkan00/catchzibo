@@ -1098,9 +1098,9 @@ CZ.i18n.register('en', 'English', {
   "mount.brown": "Mountain Bear",
   "mount.polar": "Polar Bear",
   "mount.deer": "Reindeer",
-  "mount.brown.desc": "Smashes boxes, knocks over Zibo's helpers.",
-  "mount.polar.desc": "Breaks the ice cave wall, smashes boxes.",
-  "mount.deer.desc": "Fastest mount, pulls gold from further away.",
+  "mount.brown.desc": "Smashes boxes. Power: Roar stuns nearby goblins.",
+  "mount.polar.desc": "Breaks ice. Power: Frost Breath freezes goblins in front.",
+  "mount.deer.desc": "Very fast. Power: 3 s sprint, no damage taken.",
   "mount.buyAsk": "Buy for {n} gold?",
   "vil.title": "My Village",
   "hub.village": "Village",
@@ -1164,5 +1164,14 @@ CZ.i18n.register('en', 'English', {
   "def.fenceBroke": "Fence broken!",
   "def.stole": "Stole {n} gold!",
   "def.down": "Knocked out! Waking up in the village...",
-  "def.powUp": "Hit power {n}!"
+  "def.powUp": "Hit power {n}!",
+  "mp.roar": "Roar",
+  "mp.frost": "Frost Breath",
+  "mp.dash": "Sprint",
+  "mp.pounce": "Pounce",
+  "mp.quake": "Quake",
+  "mount.wolf": "Snow Wolf",
+  "mount.mammoth": "Mammoth",
+  "mount.wolf.desc": "Fastest mount. Power: pounces forward biting goblins on the way.",
+  "mount.mammoth.desc": "Slow but huge, takes half damage. Power: quake that blasts everyone nearby."
 });

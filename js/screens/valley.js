@@ -5,8 +5,12 @@
 CZ.MOUNTS = [
   { id: 'brown', price: 0, speed: 10.5, color: 0x7a4a2a, light: 0xc89a6a, kind: 'bear' },
   { id: 'polar', price: 3500, speed: 10, color: 0xf3f3ee, light: 0xdcd6c8, kind: 'bear' },
-  { id: 'deer', price: 6000, speed: 13, color: 0x8a5230, light: 0xe2c49a, kind: 'deer' }
+  { id: 'deer', price: 6000, speed: 13, color: 0x8a5230, light: 0xe2c49a, kind: 'deer' },
+  { id: 'wolf', price: 9000, speed: 14, color: 0xdfe6ee, light: 0xffffff, kind: 'wolf' },
+  { id: 'mammoth', price: 15000, speed: 8.5, color: 0x6a3e22, light: 0x9a6a44, kind: 'mammoth', hp: 10 }
 ];
+// Bineklerin özel güçleri (binerken sağ alttaki güç düğmesi)
+CZ.MOUNT_POWER = { brown: { id: 'roar', cd: 10 }, polar: { id: 'frost', cd: 12 }, deer: { id: 'dash', cd: 9 }, wolf: { id: 'pounce', cd: 7 }, mammoth: { id: 'quake', cd: 13 } };
 CZ.screens.valley = (function () {
   // Ahırdaki binek resmi: 3D modelden bir kez çizilir
   const mountCache = {};
@@ -51,8 +55,8 @@ CZ.screens.valley = (function () {
     const fur = toon(def.color), light = toon(def.light), dark = toon(0x2a1a12);
     const g = new THREE.Group();
     const body = new THREE.Group(); g.add(body);
-    const bear = def.kind === 'bear';
-    const L = bear ? { len: 1.15, r: 0.55, leg: 0.62, legR: 0.17, neck: 0 } : { len: 1.0, r: 0.36, leg: 0.95, legR: 0.08, neck: 0.5 };
+    const kind = def.kind, bear = kind !== 'deer';
+    const L = kind === 'bear' ? { len: 1.15, r: 0.55, leg: 0.62, legR: 0.17, neck: 0 } : kind === 'wolf' ? { len: 1.2, r: 0.4, leg: 0.82, legR: 0.1, neck: 0 } : kind === 'mammoth' ? { len: 1.55, r: 0.82, leg: 0.9, legR: 0.26, neck: 0 } : { len: 1.0, r: 0.36, leg: 0.95, legR: 0.08, neck: 0.5 };
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(L.r, L.len, 6, 12), fur);
     torso.rotation.x = Math.PI / 2; torso.position.y = L.leg + L.r * 0.8; body.add(torso);
     const belly = new THREE.Mesh(new THREE.SphereGeometry(L.r * 0.85, 12, 8), light);
@@ -71,14 +75,29 @@ CZ.screens.valley = (function () {
       const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.17, 0.75, 8), fur);
       neck.position.set(0, L.leg + L.r * 1.3 + 0.3, -(L.len / 2 + 0.15)); neck.rotation.x = 0.5; body.add(neck);
     }
-    const hr = bear ? 0.42 : 0.22;
-    const skull = new THREE.Mesh(new THREE.SphereGeometry(hr, 14, 10), fur); skull.scale.set(1, 0.95, bear ? 1.05 : 1.4); head.add(skull);
-    const snout = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.5, 10, 8), light); snout.scale.set(1, 0.8, 1.2); snout.position.set(0, -hr * 0.2, -hr * 0.85); head.add(snout);
-    const nose = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.18, 8, 6), dark); nose.position.set(0, -hr * 0.05, -hr * 1.35); head.add(nose);
+    const hr = kind === 'bear' ? 0.42 : kind === 'wolf' ? 0.3 : kind === 'mammoth' ? 0.62 : 0.22;
+    const skull = new THREE.Mesh(new THREE.SphereGeometry(hr, 14, 10), fur); skull.scale.set(1, 0.95, kind === 'bear' || kind === 'mammoth' ? 1.05 : 1.4); head.add(skull);
+    if (kind === 'wolf') {
+      const sn = new THREE.Mesh(new THREE.ConeGeometry(hr * 0.42, hr * 1.5, 8), light); sn.rotation.x = -Math.PI / 2; sn.position.set(0, -hr * 0.25, -hr * 1.25); head.add(sn);
+      const nz = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.13, 8, 6), dark); nz.position.set(0, -hr * 0.2, -hr * 1.95); head.add(nz);
+    } else if (kind === 'mammoth') {
+      const hump = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.75, 10, 8), toon(0x4a2a16)); hump.position.set(0, hr * 0.65, hr * 0.1); head.add(hump);
+      // hortum: aşağı kıvrılan üç parça
+      let tp = new THREE.Group(); tp.position.set(0, -hr * 0.2, -hr * 0.85); tp.rotation.x = 0.5; head.add(tp);
+      [0.24, 0.19, 0.14].forEach((rr, k) => { const seg = new THREE.Mesh(new THREE.CylinderGeometry(rr * 0.8, rr, 0.45, 8), fur); seg.position.y = -0.2; tp.add(seg); const nx = new THREE.Group(); nx.position.y = -0.42; nx.rotation.x = 0.35 + k * 0.15; tp.add(nx); tp = nx; });
+      [-1, 1].forEach(sd => { const tk = new THREE.Mesh(new THREE.ConeGeometry(0.09, 1.0, 8), toon(0xfff6e0)); tk.position.set(sd * hr * 0.45, -hr * 0.55, -hr * 0.95); tk.rotation.set(-2.2, 0, sd * 0.35); head.add(tk); });
+    } else {
+      const snout = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.5, 10, 8), light); snout.scale.set(1, 0.8, 1.2); snout.position.set(0, -hr * 0.2, -hr * 0.85); head.add(snout);
+      const nose = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.18, 8, 6), dark); nose.position.set(0, -hr * 0.05, -hr * 1.35); head.add(nose);
+    }
     [-1, 1].forEach(sd => {
       const eye = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.12, 8, 6), dark); eye.position.set(sd * hr * 0.42, hr * 0.2, -hr * 0.82); head.add(eye);
       const shine = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.045, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffffff })); shine.position.set(sd * hr * 0.42 + 0.02, hr * 0.25, -hr * 0.92); head.add(shine);
-      if (bear) {
+      if (kind === 'wolf') {
+        const ear = new THREE.Mesh(new THREE.ConeGeometry(hr * 0.28, hr * 0.7, 6), fur); ear.position.set(sd * hr * 0.55, hr * 0.85, 0); ear.rotation.z = -sd * 0.2; head.add(ear);
+      } else if (kind === 'mammoth') {
+        const ear = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.5, 8, 6), fur); ear.scale.set(0.25, 1, 0.9); ear.position.set(sd * hr * 0.95, hr * 0.05, hr * 0.15); head.add(ear);
+      } else if (bear) {
         const ear = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.3, 8, 6), fur); ear.scale.set(1, 1, 0.5); ear.position.set(sd * hr * 0.7, hr * 0.75, 0); head.add(ear);
         const inner = new THREE.Mesh(new THREE.SphereGeometry(hr * 0.17, 8, 6), light); inner.scale.set(1, 1, 0.4); inner.position.set(sd * hr * 0.7, hr * 0.75, -hr * 0.1); head.add(inner);
       } else {
@@ -99,7 +118,7 @@ CZ.screens.valley = (function () {
       const paw = new THREE.Mesh(new THREE.SphereGeometry(L.legR * (bear ? 1.25 : 1.1), 8, 6), bear ? light : dark); paw.scale.set(1, 0.6, 1.3); paw.position.set(0, -L.leg + 0.02, -0.04); lg.add(paw);
       legs.push({ lg, ph: (i === 0 || i === 3) ? 0 : Math.PI });
     });
-    const tail = new THREE.Mesh(new THREE.SphereGeometry(bear ? 0.13 : 0.1, 8, 6), light); tail.position.set(0, L.leg + L.r * 1.0, L.len / 2 + L.r * 0.9); body.add(tail);
+    const tail = new THREE.Mesh(new THREE.SphereGeometry(kind === 'wolf' ? 0.2 : bear ? 0.13 : 0.1, 8, 6), light); tail.position.set(0, L.leg + L.r * 1.0, L.len / 2 + L.r * 0.9); if (kind === 'wolf') { tail.scale.set(1, 1, 2.6); tail.position.z += 0.3; tail.position.y += 0.15; tail.rotation.x = -0.5; } body.add(tail);
     // gölge
     const sh = new THREE.Mesh(new THREE.CircleGeometry(1, 20), new THREE.MeshBasicMaterial({ color: 0x0a1030, transparent: true, opacity: 0.22, depthWrite: false }));
     sh.visible = false; sh.rotation.x = -Math.PI / 2; sh.position.y = 0.02; sh.scale.set(L.r * 1.6, (L.len + L.r * 2) * 0.9, 1); g.add(sh);
@@ -139,8 +158,8 @@ CZ.screens.valley = (function () {
     scene.background = new THREE.Color(SKY);
     scene.fog = new THREE.Fog(SKY, 40, 75);
     const camera = new THREE.PerspectiveCamera(46, 1, 0.5, 160);
-    scene.add(new THREE.HemisphereLight(0xeef4ff, 0x7a88a8, 0.8));
-    const sun = new THREE.DirectionalLight(0xfff0d8, 0.75); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
+    scene.add(new THREE.HemisphereLight(0xdfeaff, 0x56648a, 0.62));
+    const sun = new THREE.DirectionalLight(0xffe0b0, 1.08); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
     sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
     Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 5, far: 90 }); sun.shadow.bias = -0.002;
@@ -174,16 +193,21 @@ CZ.screens.valley = (function () {
       pos.setY(i, y);
       const n = Math.sin(x * 0.7) * Math.cos(z * 0.6) * 0.04;
       const road = Math.min(...roads.map(s => distSeg(x, z, s)));
-      let c = [0.86 + n, 0.9 + n, 0.98];
-      if (road < 2.2) c = [0.8 + n, 0.85 + n, 0.95];   // ezilmiş kar patikası
+      let c = [0.6 + n, 0.67 + n, 0.82];
+      if (road < 2.2) c = [0.55 + n, 0.5 + n, 0.48];   // ezilmiş kar patikası
       if (Math.hypot(x - 34, z + 30) < 9.5) c = [0.62, 0.82, 0.95];   // donmuş göl
-      if (r < FENCE_R + 0.5) c = [0.8 + n, 0.84 + n, 0.93];   // köy meydanı
-      if (y > 3) c = [0.82 + n, 0.86 + n, 0.94];
+      if (r < FENCE_R + 0.5) c = [0.62 + n, 0.6 + n, 0.62];   // köy meydanı: sıkışmış toprak-kar
+      if (y > 3) c = [0.7 + n, 0.75 + n, 0.88];
       col.push(...c);
     }
     groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     groundGeo.computeVertexNormals();
-    const ground = new THREE.Mesh(groundGeo, new THREE.MeshLambertMaterial({ vertexColors: true })); ground.receiveShadow = true; scene.add(ground);
+    const snowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 90; i++) { const gx = Math.random() * 256, gy = Math.random() * 256, rr = 10 + Math.random() * 30; const gg = x.createRadialGradient(gx, gy, 0, gx, gy, rr); gg.addColorStop(0, 'rgba(150,170,215,.18)'); gg.addColorStop(1, 'rgba(150,170,215,0)'); x.fillStyle = gg; x.fillRect(gx - rr, gy - rr, rr * 2, rr * 2); }
+      for (let i = 0; i < 260; i++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,1)' : 'rgba(170,190,230,.55)'; x.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); }
+      const tx = new THREE.CanvasTexture(c); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(26, 26); tx.anisotropy = 4; return tx; })();
+    const ground = new THREE.Mesh(groundGeo, new THREE.MeshLambertMaterial({ vertexColors: true, map: snowTex })); ground.receiveShadow = true; scene.add(ground);
     // gölün parlaklığı
     const lake = new THREE.Mesh(new THREE.CircleGeometry(10.2, 40), new THREE.MeshLambertMaterial({ color: 0xa8dcf6, transparent: true, opacity: 0.55 }));
     lake.scale.setScalar(0.92); lake.rotation.x = -Math.PI / 2; lake.position.set(34, 0.03, -30); scene.add(lake);
@@ -247,13 +271,17 @@ CZ.screens.valley = (function () {
       solids.push({ x, z, r: 0.75 });
     }
     const leafGeo = new THREE.ConeGeometry(1.5, 3, 8), trunkGeo = new THREE.CylinderGeometry(0.25, 0.3, 1, 6), snowTop = new THREE.ConeGeometry(0.8, 1, 8);
-    const leafI = new THREE.InstancedMesh(leafGeo, toonSee(0x2a7a4a), trees.length * 2), trunkI = new THREE.InstancedMesh(trunkGeo, toonSee(0x6a4024), trees.length), snowI = new THREE.InstancedMesh(snowTop, toonSee(0xffffff), trees.length);
+    const leafI = new THREE.InstancedMesh(leafGeo, toonSee(0xffffff), trees.length * 3), trunkI = new THREE.InstancedMesh(trunkGeo, toonSee(0x6a4024), trees.length), snowI = new THREE.InstancedMesh(snowTop, toonSee(0xffffff), trees.length * 2);
+    const greens = [0x1f6a3e, 0x2a7a46, 0x1a5a3a, 0x307f4a].map(c => new THREE.Color(c));
     trees.forEach((tr, i) => {
       tmp.rotation.set(0, rand(0, 6), 0);
       tmp.position.set(tr.x, 0.5 * tr.s, tr.z); tmp.scale.set(tr.s, tr.s, tr.s); tmp.updateMatrix(); trunkI.setMatrixAt(i, tmp.matrix);
-      tmp.position.set(tr.x, 2.2 * tr.s, tr.z); tmp.updateMatrix(); leafI.setMatrixAt(i * 2, tmp.matrix);
-      tmp.position.set(tr.x, 3.5 * tr.s, tr.z); tmp.scale.set(tr.s * 0.75, tr.s * 0.8, tr.s * 0.75); tmp.updateMatrix(); leafI.setMatrixAt(i * 2 + 1, tmp.matrix);
-      tmp.position.set(tr.x, 4.55 * tr.s, tr.z); tmp.scale.set(tr.s, tr.s * 0.6, tr.s); tmp.updateMatrix(); snowI.setMatrixAt(i, tmp.matrix);
+      const gc = greens[i % greens.length];
+      tmp.position.set(tr.x, 1.9 * tr.s, tr.z); tmp.scale.set(tr.s * 1.1, tr.s * 0.85, tr.s * 1.1); tmp.updateMatrix(); leafI.setMatrixAt(i * 3, tmp.matrix); leafI.setColorAt(i * 3, gc);
+      tmp.position.set(tr.x, 3.0 * tr.s, tr.z); tmp.scale.set(tr.s * 0.82, tr.s * 0.75, tr.s * 0.82); tmp.updateMatrix(); leafI.setMatrixAt(i * 3 + 1, tmp.matrix); leafI.setColorAt(i * 3 + 1, gc);
+      tmp.position.set(tr.x, 4.0 * tr.s, tr.z); tmp.scale.set(tr.s * 0.55, tr.s * 0.65, tr.s * 0.55); tmp.updateMatrix(); leafI.setMatrixAt(i * 3 + 2, tmp.matrix); leafI.setColorAt(i * 3 + 2, gc);
+      tmp.position.set(tr.x, 4.62 * tr.s, tr.z); tmp.scale.set(tr.s * 0.62, tr.s * 0.5, tr.s * 0.62); tmp.updateMatrix(); snowI.setMatrixAt(i * 2, tmp.matrix);
+      tmp.position.set(tr.x, 3.35 * tr.s, tr.z); tmp.scale.set(tr.s * 1.12, tr.s * 0.32, tr.s * 1.12); tmp.updateMatrix(); snowI.setMatrixAt(i * 2 + 1, tmp.matrix);
     });
     [leafI, trunkI, snowI].forEach(m => { m.castShadow = true; }); scene.add(leafI, trunkI, snowI);
     const rockGeo = new THREE.DodecahedronGeometry(1, 0);
@@ -265,6 +293,13 @@ CZ.screens.valley = (function () {
       solids.push({ x, z, r: s * 0.9 });
     }
     rockI.castShadow = true; scene.add(rockI);
+
+    // Yağan kar: oyuncunun etrafında dönen nokta bulutu
+    const flakeN = 420, flakePos = new Float32Array(flakeN * 3);
+    for (let i = 0; i < flakeN; i++) { flakePos[i * 3] = rand(-22, 22); flakePos[i * 3 + 1] = rand(0, 18); flakePos[i * 3 + 2] = rand(-22, 22); }
+    const flakeGeo = new THREE.BufferGeometry(); flakeGeo.setAttribute('position', new THREE.BufferAttribute(flakePos, 3));
+    const flakes = new THREE.Points(flakeGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.22, transparent: true, opacity: 0.85, depthWrite: false }));
+    scene.add(flakes);
 
     /* ---------- Altın kaynakları ---------- */
     const coinGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.07, 14); coinGeo.rotateX(Math.PI / 2);
@@ -587,10 +622,13 @@ CZ.screens.valley = (function () {
     const stick = h('div', { class: 'vl-stick' }, h('i'));
     const fireBtn = h('button', { class: 'vl-fire', type: 'button' }, img(W.art, 'vl-fire-ico'));
     const rideBtn = h('button', { class: 'vl-ride', type: 'button', text: t('valley.ride') });
+    // BİNEK GÜCÜ: her binek farklı (kükreme, buz nefesi, hız, atılma, deprem)
+    const MP = CZ.MOUNT_POWER[mountDef.id] || CZ.MOUNT_POWER.brown;
+    const mpBtn = h('button', { class: 'vl-mp', type: 'button' }, h('i'), h('b', { text: t('mp.' + MP.id) }));
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'chase-gold' }, img('ui.gold', 'mini-ico'), goldEl), timeEl),
-      hpBarEl, powBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      hpBarEl, powBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -643,6 +681,26 @@ CZ.screens.valley = (function () {
     function autoFire() {
       const o = nearestTarget(RANGE);
       if (o) fire(o.x - P.x, o.z - P.z); else fire(-Math.sin(P.dir), -Math.cos(P.dir));
+    }
+    mpBtn.addEventListener('pointerdown', e => { e.stopPropagation(); usePower(); });
+    function ringFx(x, z, rad, color) { const m = new THREE.Mesh(new THREE.RingGeometry(0.8, 1, 40), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.position.set(x, 0.15, z); scene.add(m); rings.push({ m, rad, t: 0 }); }
+    function usePower() {
+      if (!P.riding || V.mpCd > 0 || P.down > 0) return;
+      V.mpCd = MP.cd;
+      const fx = -Math.sin(P.dir), fz = -Math.cos(P.dir);
+      const near = rad => goblins.filter(o => !o.dead && Math.hypot(o.x - P.x, o.z - P.z) < rad);
+      const pw = powLv();
+      CZ.audio.vibrate([40, 30, 60]);
+      if (MP.id === 'roar') { near(7).forEach(o => { o.stun = 2.5; hit(o, 3 + pw); }); ringFx(P.x, P.z, 7, 0xffc04a); CZ.audio.sfx('horn'); }
+      else if (MP.id === 'frost') {
+        goblins.filter(o => !o.dead).forEach(o => { const dx = o.x - P.x, dz = o.z - P.z, dd = Math.hypot(dx, dz); if (dd < 9 && (dx * fx + dz * fz) / (dd || 1) > 0.25) { o.stun = 4; hit(o, 2 + pw); } });
+        if (ice.alive && Math.hypot(ice.x - P.x, ice.z - P.z) < 9) { ice.alive = false; scene.remove(ice.mesh); chest.locked = false; floatAt(ice, t('valley.iceBroke')); }
+        ringFx(P.x + fx * 4, P.z + fz * 4, 5, 0x8ad8ff); CZ.audio.sfx('crack');
+      }
+      else if (MP.id === 'dash') { V.dashT = 3; CZ.audio.sfx('star'); ringFx(P.x, P.z, 3, 0xffffff); }
+      else if (MP.id === 'pounce') { V.pounceT = 0.35; V.pounceHit = new Set(); CZ.audio.sfx('jump'); }
+      else if (MP.id === 'quake') { near(8.5).forEach(o => { const dx = o.x - P.x, dz = o.z - P.z, dd = Math.hypot(dx, dz) || 1; o.x += dx / dd * 3; o.z += dz / dd * 3; o.stun = 1.5; hit(o, 8 + pw * 2); }); ringFx(P.x, P.z, 8.5, 0xa8783a); V.shake = 0.4; CZ.audio.sfx('hit'); }
+      floatAt(P, t('mp.' + MP.id) + '!', 'wave');
     }
     rideBtn.addEventListener('click', () => {
       if (P.riding) { P.riding = false; P.x += Math.cos(P.dir) * 1.6; P.z -= Math.sin(P.dir) * 1.6; CZ.audio.sfx('land'); }
@@ -742,7 +800,17 @@ CZ.screens.valley = (function () {
       V.powT = (V.powT || 0) - dt; if (V.powT <= 0) { V.powT = 0.5; powUi(); }
 
       // hareket
-      const sp = P.riding ? mountDef.speed * B.speed : 6;
+      V.mpCd = Math.max(0, (V.mpCd || 0) - dt); V.dashT = Math.max(0, (V.dashT || 0) - dt);
+      mpBtn.classList.toggle('on', P.riding); mpBtn.classList.toggle('ready', P.riding && V.mpCd <= 0);
+      mpBtn.firstChild.style.height = (V.mpCd / MP.cd * 100) + '%';
+      for (let i = rings.length - 1; i >= 0; i--) { const q = rings[i]; q.t += dt; const k = Math.min(1, q.t / 0.45); q.m.scale.setScalar(0.5 + q.rad * k); q.m.material.opacity = 0.85 * (1 - k); if (q.t > 0.45) { scene.remove(q.m); q.m.geometry.dispose(); q.m.material.dispose(); rings.splice(i, 1); } }
+      if (V.pounceT > 0) {
+        V.pounceT -= dt;
+        const fx = -Math.sin(P.dir), fz = -Math.cos(P.dir);
+        [P.x, P.z] = collide(P.x + fx * 22 * dt, P.z + fz * 22 * dt, 1.0);
+        goblins.forEach(o => { if (!o.dead && !V.pounceHit.has(o) && Math.hypot(o.x - P.x, o.z - P.z) < 2) { V.pounceHit.add(o); o.stun = 1; hit(o, 6 + powLv() * 2); } });
+      }
+      const sp = P.riding ? mountDef.speed * B.speed * (V.dashT > 0 ? 1.8 : 1) : 6;
       let mx = joy.dx, mz = joy.dy;
       const kb = V.keys || {};
       if (kb.ArrowLeft || kb.a) mx = -1; if (kb.ArrowRight || kb.d) mx = 1; if (kb.ArrowUp || kb.w) mz = -1; if (kb.ArrowDown || kb.s) mz = 1;
@@ -766,7 +834,7 @@ CZ.screens.valley = (function () {
       if (P.riding) {
         M.x = P.x; M.z = P.z; M.dir = P.dir; M.speed = speed;
         // ayı kutuları ve yardakçıları ezer; kutup ayısı buzu kırar
-        targets.slice().forEach(o => { if (!o.dead && !o.locked && o.type === 'box' && mountDef.kind === 'bear' && Math.hypot(o.x - P.x, o.z - P.z) < o.r + 1.1 && speed > 3) kill(o); });
+        targets.slice().forEach(o => { if (!o.dead && !o.locked && o.type === 'box' && mountDef.kind !== 'deer' && Math.hypot(o.x - P.x, o.z - P.z) < o.r + 1.1 && speed > 3) kill(o); });
         goblins.forEach(o => { if (Math.hypot(o.x - P.x, o.z - P.z) < 1.6 && speed > 3 && !o.stun) { o.stun = 1; hit(o, 2); } });
         if (ice.alive && mountDef.id === 'polar' && Math.hypot(ice.x - P.x, ice.z - P.z) < 3.1) { ice.alive = false; scene.remove(ice.mesh); chest.locked = false; CZ.audio.sfx('crack'); CZ.audio.vibrate([60, 30, 60]); floatAt(ice, t('valley.iceBroke')); }
       } else {
@@ -823,7 +891,7 @@ CZ.screens.valley = (function () {
         o.x = nx; o.z = nz;
         // köyün kalbine ulaştı: altın çalıp kaçar
         if (!o.flee && Math.hypot(o.x, o.z) < CORE_R) {
-          const steal = Math.max(0, Math.min(V.earned - (V.lost || 0), 10 + V.wave * 2, 20)); V.lost = (V.lost || 0) + steal;   // bankadaki altın güvende
+          const steal = Math.max(0, Math.min(V.earned - (V.lost || 0), 10 + V.wave * 2, 20, d.gold || 0)); V.lost = (V.lost || 0) + steal;   // bankadaki altın güvende
           d.gold = (d.gold || 0) - steal; goldEl.textContent = d.gold; o.stolen += steal; o.flee = true;
           if (steal > 0) { floatAt(o, t('def.stole', { n: steal }), 'wave'); CZ.audio.sfx('wrong'); }
         }
@@ -867,6 +935,7 @@ CZ.screens.valley = (function () {
         if (Math.hypot(p.x - P.x, p.z - P.z) < (P.riding ? 1.6 : 1.1)) { scene.remove(p.mesh); piles.splice(i, 1); gain(p.value); floatAt(p, '+' + p.value); setTimeout(() => { if (V) spawnPile(); }, rand(9000, 16000)); }
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
+      { const a = flakeGeo.attributes.position; for (let i = 0; i < flakeN; i++) { let y = a.array[i * 3 + 1] - dt * 2.2; if (y < 0) y += 18; a.array[i * 3 + 1] = y; a.array[i * 3] += Math.sin(y + i) * dt * 0.4; } a.needsUpdate = true; flakes.position.set(P.x, 0, P.z); }
       flame.scale.set(1 + Math.sin(performance.now() / 90) * 0.12, 1 + Math.sin(performance.now() / 70) * 0.18, 1);
       star.rotation.y += dt;
       mapT -= dt; if (mapT <= 0) { mapT = 0.12; drawMap(); drawEdges(); }
@@ -922,12 +991,14 @@ CZ.screens.valley = (function () {
       });
     }
     let mapT = 0;
+    const rings = [];
     const tshots = [], booms = [];
     const cannonGeo = new THREE.SphereGeometry(0.3, 10, 8), cannonMat = toon(0x2a2a32);
     function boomFx(x, z) { const m = new THREE.Mesh(new THREE.SphereGeometry(0.5, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffb04a, transparent: true, opacity: 0.8, depthWrite: false })); m.position.set(x, 0.6, z); scene.add(m); booms.push({ m, t: 0 }); }
     const downEl = h('div', { class: 'def-down' }, h('b', { text: t('def.down') }));
     function hurt(n) {
-      if (P.down > 0 || P.hurtT > 0) return;
+      if (P.down > 0 || P.hurtT > 0 || V.dashT > 0) return;
+      if (P.riding && mountDef.kind === 'mammoth') n = n / 2;   // mamut zırh gibi
       P.hurtT = 0.35; P.hp -= n;
       CZ.audio.sfx('hit'); CZ.audio.vibrate(40);
       wrap.classList.remove('hurt'); void wrap.offsetWidth; wrap.classList.add('hurt');

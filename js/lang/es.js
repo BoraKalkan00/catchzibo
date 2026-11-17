@@ -917,9 +917,9 @@ CZ.i18n.register('es', 'Español', {
   "mount.brown": "Oso de montaña",
   "mount.polar": "Oso polar",
   "mount.deer": "Reno",
-  "mount.brown.desc": "Aplasta cajas, derriba a los ayudantes de Zibo.",
-  "mount.polar.desc": "Rompe el muro de hielo de la cueva, aplasta cajas.",
-  "mount.deer.desc": "La montura más rápida, atrae el oro desde más lejos.",
+  "mount.brown.desc": "Aplasta cajas. Poder: Rugido aturde goblins.",
+  "mount.polar.desc": "Rompe hielo. Poder: Aliento helado congela goblins.",
+  "mount.deer.desc": "Muy rápido. Poder: sprint de 3 s sin daño.",
   "mount.buyAsk": "¿Comprar por {n} de oro?",
   "vil.title": "Mi Aldea",
   "hub.village": "Aldea",
@@ -983,5 +983,14 @@ CZ.i18n.register('es', 'Español', {
   "def.fenceBroke": "¡Valla rota!",
   "def.stole": "¡Robó {n} de oro!",
   "def.down": "¡Noqueado! Despiertas en la aldea...",
-  "def.powUp": "¡Poder de golpe {n}!"
+  "def.powUp": "¡Poder de golpe {n}!",
+  "mp.roar": "Rugido",
+  "mp.frost": "Aliento helado",
+  "mp.dash": "Sprint",
+  "mp.pounce": "Salto",
+  "mp.quake": "Terremoto",
+  "mount.wolf": "Lobo de nieve",
+  "mount.mammoth": "Mamut",
+  "mount.wolf.desc": "La montura más rápida. Poder: salta y muerde goblins.",
+  "mount.mammoth.desc": "Lento pero enorme, recibe la mitad de daño. Poder: terremoto."
 });

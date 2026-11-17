@@ -1098,9 +1098,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   "mount.brown": "Dağ Ayısı",
   "mount.polar": "Kutup Ayısı",
   "mount.deer": "Ren Geyiği",
-  "mount.brown.desc": "Kutuları ezerek kırar, yardakçıları devirir.",
-  "mount.polar.desc": "Buz mağarasının duvarını kırar, kutuları ezer.",
-  "mount.deer.desc": "En hızlı binek, altınları daha uzaktan çeker.",
+  "mount.brown.desc": "Kutuları ezer. Gücü: Kükreme, etraftaki goblinleri sersemletir.",
+  "mount.polar.desc": "Buzu kırar. Gücü: Buz Nefesi, öndeki goblinleri dondurur.",
+  "mount.deer.desc": "Çok hızlı. Gücü: 3 sn uçar gibi koşar, hasar almaz.",
   "mount.buyAsk": "{n} altına alınsın mı?",
   "vil.title": "Köyüm",
   "hub.village": "Köyüm",
@@ -1164,5 +1164,14 @@ CZ.i18n.register('tr', 'Türkçe', {
   "def.fenceBroke": "Çit kırıldı!",
   "def.stole": "{n} altın çaldı!",
   "def.down": "Bayıldın! Köyde uyanıyorsun...",
-  "def.powUp": "Vuruş gücü {n}!"
+  "def.powUp": "Vuruş gücü {n}!",
+  "mp.roar": "Kükreme",
+  "mp.frost": "Buz Nefesi",
+  "mp.dash": "Hız",
+  "mp.pounce": "Atıl",
+  "mp.quake": "Deprem",
+  "mount.wolf": "Kar Kurdu",
+  "mount.mammoth": "Mamut",
+  "mount.wolf.desc": "En hızlı binek. Gücü: ileri atılıp yoldaki goblinleri ısırır.",
+  "mount.mammoth.desc": "Yavaş ama dev. Aldığı hasar yarıya iner. Gücü: deprem, etraftaki herkesi uçurur."
 });

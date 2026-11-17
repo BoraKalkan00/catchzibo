@@ -917,9 +917,9 @@ CZ.i18n.register('de', 'Deutsch', {
   "mount.brown": "Bergbär",
   "mount.polar": "Eisbär",
   "mount.deer": "Rentier",
-  "mount.brown.desc": "Zertrampelt Kisten, wirft Zibos Helfer um.",
-  "mount.polar.desc": "Bricht die Eiswand der Höhle, zertrampelt Kisten.",
-  "mount.deer.desc": "Schnellstes Reittier, zieht Gold von weiter her.",
+  "mount.brown.desc": "Zertrampelt Kisten. Kraft: Brüllen betäubt Goblins.",
+  "mount.polar.desc": "Bricht Eis. Kraft: Frostatem friert Goblins ein.",
+  "mount.deer.desc": "Sehr schnell. Kraft: 3 s Sprint ohne Schaden.",
   "mount.buyAsk": "Für {n} Gold kaufen?",
   "vil.title": "Mein Dorf",
   "hub.village": "Dorf",
@@ -983,5 +983,14 @@ CZ.i18n.register('de', 'Deutsch', {
   "def.fenceBroke": "Zaun kaputt!",
   "def.stole": "{n} Gold gestohlen!",
   "def.down": "K.o.! Du wachst im Dorf auf...",
-  "def.powUp": "Schlagkraft {n}!"
+  "def.powUp": "Schlagkraft {n}!",
+  "mp.roar": "Brüllen",
+  "mp.frost": "Frostatem",
+  "mp.dash": "Sprint",
+  "mp.pounce": "Sprung",
+  "mp.quake": "Beben",
+  "mount.wolf": "Schneewolf",
+  "mount.mammoth": "Mammut",
+  "mount.wolf.desc": "Schnellstes Reittier. Kraft: springt vor und beißt Goblins.",
+  "mount.mammoth.desc": "Langsam, aber riesig, halber Schaden. Kraft: Beben schleudert alle weg."
 });

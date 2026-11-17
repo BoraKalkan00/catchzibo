@@ -917,9 +917,9 @@ CZ.i18n.register('ko', '한국어', {
   "mount.brown": "산곰",
   "mount.polar": "북극곰",
   "mount.deer": "순록",
-  "mount.brown.desc": "상자를 부수고 지보의 부하를 넘어뜨려요.",
-  "mount.polar.desc": "동굴의 얼음벽을 깨고 상자를 부숴요.",
-  "mount.deer.desc": "가장 빠른 탈것, 골드를 더 멀리서 끌어와요.",
+  "mount.brown.desc": "상자를 부숴요. 능력: 포효로 고블린 기절.",
+  "mount.polar.desc": "얼음을 깨요. 능력: 앞의 고블린을 얼려요.",
+  "mount.deer.desc": "매우 빠름. 능력: 3초 질주, 피해 없음.",
   "mount.buyAsk": "{n} 골드에 살까요?",
   "vil.title": "내 마을",
   "hub.village": "마을",
@@ -983,5 +983,14 @@ CZ.i18n.register('ko', '한국어', {
   "def.fenceBroke": "울타리가 부서졌다!",
   "def.stole": "{n} 골드를 훔쳤다!",
   "def.down": "기절! 마을에서 깨어나요...",
-  "def.powUp": "공격력 {n}!"
+  "def.powUp": "공격력 {n}!",
+  "mp.roar": "포효",
+  "mp.frost": "얼음 숨결",
+  "mp.dash": "질주",
+  "mp.pounce": "덮치기",
+  "mp.quake": "지진",
+  "mount.wolf": "눈늑대",
+  "mount.mammoth": "매머드",
+  "mount.wolf.desc": "가장 빠른 탈것. 능력: 앞으로 덮쳐 고블린을 물어요.",
+  "mount.mammoth.desc": "느리지만 거대, 피해 절반. 능력: 지진."
 });

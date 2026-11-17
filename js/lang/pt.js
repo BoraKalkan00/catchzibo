@@ -917,9 +917,9 @@ CZ.i18n.register('pt', 'Português', {
   "mount.brown": "Urso da montanha",
   "mount.polar": "Urso-polar",
   "mount.deer": "Rena",
-  "mount.brown.desc": "Esmaga caixas, derruba os ajudantes do Zibo.",
-  "mount.polar.desc": "Quebra a parede de gelo da caverna, esmaga caixas.",
-  "mount.deer.desc": "A montaria mais rápida, puxa ouro de mais longe.",
+  "mount.brown.desc": "Esmaga caixas. Poder: Rugido atordoa goblins.",
+  "mount.polar.desc": "Quebra gelo. Poder: Sopro gelado congela goblins.",
+  "mount.deer.desc": "Muito rápido. Poder: corrida de 3 s sem dano.",
   "mount.buyAsk": "Comprar por {n} de ouro?",
   "vil.title": "Minha Vila",
   "hub.village": "Vila",
@@ -983,5 +983,14 @@ CZ.i18n.register('pt', 'Português', {
   "def.fenceBroke": "Cerca quebrada!",
   "def.stole": "Roubou {n} de ouro!",
   "def.down": "Nocauteado! Acordando na vila...",
-  "def.powUp": "Poder de ataque {n}!"
+  "def.powUp": "Poder de ataque {n}!",
+  "mp.roar": "Rugido",
+  "mp.frost": "Sopro gelado",
+  "mp.dash": "Corrida",
+  "mp.pounce": "Bote",
+  "mp.quake": "Terremoto",
+  "mount.wolf": "Lobo da neve",
+  "mount.mammoth": "Mamute",
+  "mount.wolf.desc": "Montaria mais rápida. Poder: dá um bote mordendo goblins.",
+  "mount.mammoth.desc": "Lento mas enorme, leva metade do dano. Poder: terremoto."
 });
