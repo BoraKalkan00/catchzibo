@@ -1048,5 +1048,7 @@ CZ.i18n.register('de', 'Deutsch', {
   "mila.bye": "Mila: Chef, das Dorf ist bei mir in guten Händen! Ich passe auf, bis du zurück bist.",
   "mila.tutDone": "Super, Chef! Das Dorf gehört jetzt dir. Bau die Türme aus, schließ den Zaun, ich halte dir den Rücken frei.",
   "w.stable": "Stall & Waffen",
-  "hub.villageSub": "Jage Goblins, baue Türme"
+  "hub.villageSub": "Jage Goblins, baue Türme",
+  "boss.come": "Der Goblin-Häuptling kommt!",
+  "boss.down": "Häuptling besiegt! +{n} Smaragde"
 });

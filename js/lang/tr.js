@@ -1229,5 +1229,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "mila.bye": "Mila: Şef, köy bize emanet! Sen gelene kadar ben korurum.",
   "mila.tutDone": "Harikasın şef! Artık köy senin. Kuleleri yükselt, çiti tamamla, ben de arkanı kollarım.",
   "w.stable": "Ahır ve Silahlar",
-  "hub.villageSub": "Goblinleri kovala, kuleni dik"
+  "hub.villageSub": "Goblinleri kovala, kuleni dik",
+  "boss.come": "Goblin Şefi geliyor!",
+  "boss.down": "Goblin Şefi yenildi! +{n} zümrüt"
 });

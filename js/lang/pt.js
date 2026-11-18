@@ -1048,5 +1048,7 @@ CZ.i18n.register('pt', 'Português', {
   "mila.bye": "Mila: Chefe, a vila fica comigo! Eu cuido até você voltar.",
   "mila.tutDone": "Incrível, chefe! A vila é sua. Melhore as torres, termine a cerca, eu te protejo.",
   "w.stable": "Estábulo e armas",
-  "hub.villageSub": "Cace goblins, construa torres"
+  "hub.villageSub": "Cace goblins, construa torres",
+  "boss.come": "O Chefe Goblin está vindo!",
+  "boss.down": "Chefe derrotado! +{n} esmeraldas"
 });

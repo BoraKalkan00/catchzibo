@@ -1048,5 +1048,7 @@ CZ.i18n.register('fr', 'Français', {
   "mila.bye": "Mila : Chef, le village est entre mes mains ! Je veille jusqu’à ton retour.",
   "mila.tutDone": "Bravo, chef ! Le village est à toi. Améliore les tours, finis la palissade, je te couvre.",
   "w.stable": "Écurie et armes",
-  "hub.villageSub": "Chasse les gobelins, bâtis tes tours"
+  "hub.villageSub": "Chasse les gobelins, bâtis tes tours",
+  "boss.come": "Le chef gobelin arrive !",
+  "boss.down": "Chef vaincu ! +{n} émeraudes"
 });

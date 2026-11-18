@@ -232,6 +232,16 @@ CZ.screens.valley = (function () {
     const inRiver = (x, z) => Math.abs(z - riverZ(x)) < RIVER_W || (z < riverZ(x) && Math.abs(x - creekX(z)) < CREEK_W);
     const onBridge = (x, z) => bridges.some(([bx, bz]) => Math.abs(x - bx) < 2.4 && Math.abs(z - bz) < 4.2) || bridges.some(([bx, bz]) => Math.abs(z - bz) < 2.4 && Math.abs(x - bx) < 4.2 && bx > 40 && Math.abs(bz) < 60);
     const water = (x, z) => inRiver(x, z) && !onBridge(x, z);
+    // Yol bulma: düz çizgi sudan geçiyorsa en uygun köprünün girişini, köprüdeysen çıkışını döndür
+    const bridgeEnds = (k, side) => { const [bx, bz] = bridges[k]; return k < 3 ? [[bx, bz - side * 5], [bx, bz + side * 5]] : [[bx - side * 4.5, bz], [bx + side * 4.5, bz]]; };
+    function route(fx, fz, tx, tz) {
+      // hangi su: ana nehir mi dere mi (ilk karşılaşılan)
+      let wet = 0; for (let i = 1; i <= 20; i++) { const k = i / 20, x = fx + (tx - fx) * k, z = fz + (tz - fz) * k; if (onBridge(x, z)) continue; if (Math.abs(z - riverZ(x)) < RIVER_W) { wet = 1; break; } if (z < riverZ(x) && Math.abs(x - creekX(z)) < CREEK_W) { wet = 2; break; } }
+      if (!wet) return null;
+      let best = null, bc = 1e9;
+      bridges.forEach((b, k) => { if ((wet === 1) !== (k < 3)) return; const side = k < 3 ? (tz > b[1] ? 1 : -1) : (tx > b[0] ? 1 : -1); const [en, ex] = bridgeEnds(k, side); const c = Math.hypot(en[0] - fx, en[1] - fz) + 10 + Math.hypot(tx - ex[0], tz - ex[1]); if (c < bc) { bc = c; best = Math.hypot(en[0] - fx, en[1] - fz) < 1.6 || onBridge(fx, fz) ? ex : en; } });
+      return best;
+    }
     const inLake = (x, z, pad) => lakes.some(([lx, lz, lr]) => Math.hypot(x - lx, z - lz) < lr + (pad || 0));
     const noise = (x, z) => Math.sin(x * 0.083) * Math.cos(z * 0.071) + 0.6 * Math.sin(x * 0.031 + z * 0.047) + 0.35 * Math.cos(x * 0.19 - z * 0.13);
     const GS = 280, groundGeo = new THREE.PlaneGeometry(GS, GS, 160, 160);
@@ -404,6 +414,7 @@ CZ.screens.valley = (function () {
     const coinMat = new THREE.MeshLambertMaterial({ color: 0xffc020, emissive: 0x3a2600 });
     const drops = [];   // yerdeki tek tek altınlar
     function dropCoins(x, z, n, y) {
+      if (water(x, z) || inLake(x, z)) { V.pending += n; return; }
       for (let i = 0; i < n; i++) {
         const m = new THREE.Mesh(coinGeo, coinMat);
         m.position.set(x, (y || 1) + rand(0, 0.5), z);
@@ -465,10 +476,11 @@ CZ.screens.valley = (function () {
     const goblins = [];
     const spearWood = toon(0x7a4a24), spearTip = toon(0xcfd6e2), sackMat = toon(0x9a6a3a), ropeMat = toon(0xf2c230);
     const spearGeo = new THREE.CylinderGeometry(0.035, 0.035, 1.5, 5), tipGeo2 = new THREE.ConeGeometry(0.08, 0.26, 5), sackGeo = new THREE.SphereGeometry(0.32, 8, 6);
-    function spawnGoblin() {
-      const tough = Math.random() < Math.min(0.35, V.wave * 0.04);
+    function spawnGoblin(boss) {
+      const tough = boss || Math.random() < Math.min(0.35, V.wave * 0.04);
       const z3 = CZ.kk.zibo(THREE, tough ? pick([0x8a3a8a, 0x3a5aa8]) : pick([0x4f9a32, 0x6aa83a, 0x3f8a5a]));
-      z3.root.scale.setScalar(tough ? 1.15 : 0.95);
+      z3.root.scale.setScalar(boss ? 1.9 : tough ? 1.15 : 0.95);
+      if (boss && z3.setCrown) z3.setCrown(true);
       // mızrak (sağ elde) ve çuval (sırtta)
       const spear = new THREE.Group();
       spear.add(new THREE.Mesh(spearGeo, spearWood));
@@ -481,7 +493,8 @@ CZ.screens.valley = (function () {
       for (let k = 0; k < 30; k++) { const a = rand(0, Math.PI * 2), rr = rand(26, 38); x = P.x + Math.cos(a) * rr; z = P.z + Math.sin(a) * rr; if (Math.hypot(x, z) > FENCE_R + 6 && Math.hypot(x, z) < WORLD_R - 3 && !water(x, z)) break; }
       z3.root.position.set(x, 0, z); z3.root.traverse(o => { o.castShadow = true; }); scene.add(z3.root); addOutline(z3.root, 0.02);
       const hp = Math.round((tough ? 5 : 2) + V.wave * 0.3);
-      const gb = { type: 'goblin', x, z, r: 0.7, hp, maxHp: hp, mesh: z3.root, z3, spear, coins: Math.round((tough ? 14 : 5) + V.wave * 1.2), stolen: 0, village: V.wave >= 6 && Math.random() < 0.35, vx: 0, vz: 0, think: 0, stun: 0, atk: rand(0.5, 1.2), lunge: 0, speed: (tough ? 2.8 : 3.3) + Math.min(1, V.wave * 0.06), dmg: 1, flee: false };
+      const gb = { type: 'goblin', x, z, r: 0.7, hp, maxHp: hp, mesh: z3.root, z3, spear, coins: Math.round((tough ? 10 : 4) + V.wave * 0.5), stolen: 0, village: V.wave >= 6 && Math.random() < 0.35, vx: 0, vz: 0, think: 0, stun: 0, atk: rand(0.5, 1.2), lunge: 0, speed: (tough ? 2.8 : 3.3) + Math.min(1, V.wave * 0.06), dmg: 1 + Math.floor(V.wave / 8), flee: false };
+      if (boss) { gb.boss = true; gb.hp = gb.maxHp = 30 + V.wave * 4; gb.coins = 80 + V.wave * 6; gb.gems = 3; gb.speed = 2.6; gb.dmg = 3; gb.r = 1.3; gb.village = false; floatAt(P, t('boss.come'), 'wave'); CZ.audio.sfx('horn'); CZ.audio.vibrate([80, 40, 80]); }
       goblins.push(gb); targets.push(gb); hpBar(gb);
     }
 
@@ -542,7 +555,7 @@ CZ.screens.valley = (function () {
     const slot = p => p.kind === 'v' ? null : DS[p.kind][p.i];
     const defOf = p => DEF[p.kind === 'f' ? 'fence' : p.type];
     // bir sonraki seviyenin maliyeti ve ödenen kısım
-    const VIL_COST = id => { const pr = CZ.village.price(id, CZ.village.lv(id)); return { wood: Math.round(pr * 0.35), stone: Math.round(pr * 0.3), gold: Math.round(pr * 0.12) }; };
+    const VIL_COST = id => { const pr = CZ.village.price(id, CZ.village.lv(id)); return { wood: Math.round(pr * 0.09 / 5) * 5, stone: Math.round(pr * 0.07 / 5) * 5, gold: Math.round(pr * 0.3 / 10) * 10 }; };
     function need(p) {
       if (p.kind === 'v') { const L = CZ.village.lv(p.id); if (L >= CZ.village.def(p.id).max) return null; return VIL_COST(p.id); }
       const it = slot(p), D2 = defOf(p), L = it ? it.lv : 0;
@@ -738,6 +751,7 @@ CZ.screens.valley = (function () {
       const total = o.coins + (o.stolen || 0);
       if (o.type === 'goblin' && CZ.pass) CZ.pass.addXp(3);
       if (o.type === 'goblin' && V.tut) V.tut.on('goblin');
+      if (o.boss) { d.emeralds = (d.emeralds || 0) + o.gems; resUi(); floatAt(o, t('boss.down', { n: o.gems }), 'wave'); CZ.audio.vibrate([60, 30, 120]); }
       if (byTower) { gain(total, true); floatAt(o, '+' + total, 'auto'); CZ.audio.sfx('coin'); V.kills++; }   // kule vurdu: altın kendiliğinden kasaya
       else {
         dropCoins(o.x, o.z, Math.round(total / (o.type === 'chest' ? 4 : 2)), 1.2);
@@ -885,7 +899,7 @@ CZ.screens.valley = (function () {
 
     V = {
       el, renderer, scene, stage, wrap, raf: 0, last: 0, wave: 1, waveT: 0, spawnT: 2, kills: 0, earned: 0, pending: 0, cool: 0, running: true, paused: false, whistle: false,
-      P, M, hero, camera, solids, targets, goblins, piles, ice, chest, pads, DS, debug: { fire, autoFire, joy, nearestTarget, rushGold, finishJob, spawnGoblin, complete, flowTick },
+      P, M, hero, camera, solids, targets, goblins, piles, ice, chest, pads, DS, trees, rocks, left, debug: { route, fire, autoFire, joy, nearestTarget, rushGold, finishJob, spawnGoblin, complete, flowTick, sim(sec, cb) { for (let t2 = 0; t2 < sec; t2 += 0.05) { if (cb) cb(); if (V.running && !V.paused) step(0.05); draw(0.05); } } },
       cleanup() {
         window.removeEventListener('resize', resize);
         window.removeEventListener('pointermove', V_move);
@@ -928,7 +942,7 @@ CZ.screens.valley = (function () {
       V.cool -= dt;
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
       V.waveT += dt;
-      if (V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); }
+      if (V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true); }
       timeEl.textContent = t('def.wave', { n: V.wave });
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave);
@@ -1013,6 +1027,7 @@ CZ.screens.valley = (function () {
         if (water(nx, nz)) { if (!water(nx, P.z)) nz = P.z; else if (!water(P.x, nz)) nx = P.x; else { nx = P.x; nz = P.z; } if (!V.waterHint) { V.waterHint = true; floatAt(P, t('w.bridge'), 'wave'); setTimeout(() => { if (V) V.waterHint = false; }, 4000); } }
         P.x = nx; P.z = nz;
       }
+      if (water(P.x, P.z)) { if (P.safe) { P.x = P.safe[0]; P.z = P.safe[1]; } } else P.safe = [P.x, P.z];
       harvest(dt);
       // akan kaynaklar ve görünür parçalar
       for (let i = flies.length - 1; i >= 0; i--) { const f = flies[i]; f.t += dt * 3; const k = Math.min(1, f.t); f.m.position.set(f.sx + (f.tx - f.sx) * k, 1.2 + Math.sin(k * Math.PI) * 1.6 - k * 1.1, f.sz + (f.tz - f.sz) * k); f.m.rotation.x += dt * 9; if (k >= 1) { scene.remove(f.m); flies.splice(i, 1); } }
@@ -1070,7 +1085,10 @@ CZ.screens.valley = (function () {
           o.vx = ddx / L2 * sp; o.vz = ddz / L2 * sp; mv = 1;
         }
         const k = o.stun > 0 ? 0 : 1;
+        // nehir arada kalıyorsa köprüye yönel (giriş → çıkış)
+        if ((o.vx || o.vz) && !attackFence) { const tx2 = o.x + o.vx * 6, tz2 = o.z + o.vz * 6; const w2 = route(o.x, o.z, o.flee ? tx2 : (dp < 40 && !o.village ? P.x : tx2), o.flee ? tz2 : (dp < 40 && !o.village ? P.z : tz2)); if (w2) { const L4 = Math.hypot(w2[0] - o.x, w2[1] - o.z) || 1; o.vx = (w2[0] - o.x) / L4 * o.speed; o.vz = (w2[1] - o.z) / L4 * o.speed; } }
         let [nx, nz] = collide(o.x + o.vx * dt * k, o.z + o.vz * dt * k, 0.45);
+        if (water(nx, nz)) { if (!water(nx, o.z)) nz = o.z; else if (!water(o.x, nz)) nx = o.x; else { nx = o.x; nz = o.z; } }
         // sağlam çitten geçemez
         const nr = Math.hypot(nx, nz);
         if (!o.flee && rc >= FENCE_R && nr < FENCE_R + 0.6) {
@@ -1261,13 +1279,13 @@ CZ.screens.valley = (function () {
       V.hT = P.riding ? 0.42 : 0.55;
       if (Math.hypot(P.vx, P.vz) < 1.5) P.dir = Math.atan2(-(best.x - P.x), -(best.z - P.z));
       if (hero.throwNow) hero.throwNow();
-      const dmg = P.riding ? 2 : 1, kind = best.kind, res = kind === 'tree' ? 'wood' : 'stone';
+      const dmg = P.riding ? 3 : 2, kind = best.kind, res = kind === 'tree' ? 'wood' : 'stone';
       best.hp -= dmg; best.tilt = kind === 'tree' ? 0.14 : 0; if (kind === 'tree') setInst(best);
       for (let k = 0; k < 4; k++) { const m = new THREE.Mesh(chipGeo, chipMats[kind]); m.position.set(best.x, kind === 'tree' ? 1.1 : 0.7, best.z); scene.add(m); chips.push({ m, vx: rand(-3, 3), vy: rand(3, 6), vz: rand(-3, 3) }); }
       let n = dmg;
       CZ.audio.sfx(kind === 'tree' ? 'hit' : 'crack');
       if (best.hp <= 0) {
-        n += kind === 'tree' ? 3 : 3;
+        n += kind === 'tree' ? 6 : 8;
         best.alive = false; best.solid.off = true; setInst(best);
         const it = best;
         setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 2) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000));

@@ -1048,5 +1048,7 @@ CZ.i18n.register('es', 'Español', {
   "mila.bye": "Mila: ¡Jefe, la aldea queda conmigo! La cuido hasta que vuelvas.",
   "mila.tutDone": "¡Increíble, jefe! La aldea es tuya. Mejora las torres, termina la valla, yo te cubro.",
   "w.stable": "Establo y armas",
-  "hub.villageSub": "Caza goblins, construye torres"
+  "hub.villageSub": "Caza goblins, construye torres",
+  "boss.come": "¡Viene el Jefe Goblin!",
+  "boss.down": "¡Jefe derrotado! +{n} esmeraldas"
 });

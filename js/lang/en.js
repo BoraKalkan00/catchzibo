@@ -1229,5 +1229,7 @@ CZ.i18n.register('en', 'English', {
   "mila.bye": "Mila: Chief, leave the village to me! I’ll guard it until you’re back.",
   "mila.tutDone": "Amazing, chief! The village is yours now. Upgrade the towers, finish the fence, I’ve got your back.",
   "w.stable": "Stable & Weapons",
-  "hub.villageSub": "Chase goblins, build your towers"
+  "hub.villageSub": "Chase goblins, build your towers",
+  "boss.come": "The Goblin Chief is coming!",
+  "boss.down": "Goblin Chief defeated! +{n} emeralds"
 });
