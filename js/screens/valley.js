@@ -764,7 +764,7 @@ CZ.screens.valley = (function () {
       }
       if (H.role === 'freeze' && BUD.cd <= 0) {
         const g = nearGob(8);
-        if (g) { BUD.cd = Math.max(3, 6.5 - L * 0.3); goblins.forEach(o => { if (!o.dead && Math.hypot(o.x - BUD.x, o.z - BUD.z) < 5.5 + L * 0.2) { o.stun = Math.max(o.stun || 0, 1.4 + L * 0.12); hit(o, 1 + L * 0.4, true); } }); ringFx(BUD.x, BUD.z, 5.5 + L * 0.2, 0x9adcff); CZ.audio.sfx('star'); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
+        if (g) { BUD.cd = Math.max(3, 6.5 - L * 0.3); goblins.forEach(o => { if (!o.dead && Math.hypot(o.x - BUD.x, o.z - BUD.z) < 5.5 + L * 0.2) { hit(o, 1 + L * 0.4, true); o.stun = Math.max(o.stun || 0, 1.4 + L * 0.12); o.frozen = o.stun; } }); ringFx(BUD.x, BUD.z, 5.5 + L * 0.2, 0x9adcff); CZ.audio.sfx('star'); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
       }
       if (H.role === 'gift' && BUD.cd <= 0) {
         const g = nearGob(10);
