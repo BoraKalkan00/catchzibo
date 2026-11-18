@@ -481,18 +481,29 @@ CZ.screens.valley = (function () {
     const goblins = [];
     const spearWood = toon(0x7a4a24), spearTip = toon(0xcfd6e2), sackMat = toon(0x9a6a3a), ropeMat = toon(0xf2c230);
     const spearGeo = new THREE.CylinderGeometry(0.035, 0.035, 1.5, 5), tipGeo2 = new THREE.ConeGeometry(0.08, 0.26, 5), sackGeo = new THREE.SphereGeometry(0.32, 8, 6);
+    // Yeni goblin modelleri (yerel yapay zekâ ile üretildi); yoksa eski modele döner. Yürürken zıplar, sersemleyince sallanır.
+    function goblinBody(boss, tough) {
+      const id = boss || tough ? 'goblinsef' : 'goblin';
+      if (!CZ.gen3d || !CZ.gen3d.has(id)) { const z = CZ.kk.zibo(THREE, tough ? pick([0x8a3a8a, 0x3a5aa8]) : pick([0x4f9a32, 0x6aa83a, 0x3f8a5a])); z.root.scale.setScalar(boss ? 1.9 : tough ? 1.15 : 0.95); if (boss && z.setCrown) z.setCrown(true); return z; }
+      const root = new THREE.Group(), body = CZ.gen3d.get(id, boss ? 3.2 : tough ? 1.75 : 1.45);
+      root.add(body); let ph = Math.random() * 6;
+      return { root, gen: true, update(dt, o) {
+        ph += dt * (o.running ? 13 : 3);
+        body.position.y = o.running ? Math.abs(Math.sin(ph)) * 0.22 : Math.sin(ph) * 0.03;
+        body.rotation.z = o.dizzy ? Math.sin(ph * 2.2) * 0.35 : o.running ? Math.sin(ph) * 0.12 : 0;
+        body.rotation.x = o.running ? 0.12 : 0;
+      } };
+    }
     function spawnGoblin(boss) {
       const tough = boss || Math.random() < Math.min(0.35, V.wave * 0.04);
-      const z3 = CZ.kk.zibo(THREE, tough ? pick([0x8a3a8a, 0x3a5aa8]) : pick([0x4f9a32, 0x6aa83a, 0x3f8a5a]));
-      z3.root.scale.setScalar(boss ? 1.9 : tough ? 1.15 : 0.95);
-      if (boss && z3.setCrown) z3.setCrown(true);
+      const z3 = goblinBody(boss, tough);
       // mızrak (sağ elde) ve çuval (sırtta)
       const spear = new THREE.Group();
       spear.add(new THREE.Mesh(spearGeo, spearWood));
       const tp = new THREE.Mesh(tipGeo2, spearTip); tp.position.y = 0.85; spear.add(tp);
-      spear.position.set(0.42, 0.75, -0.1); spear.rotation.x = -1.2; z3.root.add(spear);
-      const sack = new THREE.Mesh(sackGeo, sackMat); sack.scale.set(1, 1.15, 0.8); sack.position.set(0, 0.95, 0.38); z3.root.add(sack);
-      const rope = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.035, 5, 10), ropeMat); rope.rotation.x = Math.PI / 2; rope.position.set(0, 1.28, 0.38); z3.root.add(rope);
+      spear.position.set(0.42, 0.75, -0.1); spear.rotation.x = -1.2; if (!z3.gen) z3.root.add(spear);
+      if (!z3.gen) { const sack = new THREE.Mesh(sackGeo, sackMat); sack.scale.set(1, 1.15, 0.8); sack.position.set(0, 0.95, 0.38); z3.root.add(sack);
+      const rope = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.035, 5, 10), ropeMat); rope.rotation.x = Math.PI / 2; rope.position.set(0, 1.28, 0.38); z3.root.add(rope); }
       // oyuncunun etrafında, ekran dışında doğar (köyün içinde ve nehirde değil)
       let x = 0, z = 0;
       for (let k = 0; k < 30; k++) { const a = rand(0, Math.PI * 2), rr = rand(26, 38); x = P.x + Math.cos(a) * rr; z = P.z + Math.sin(a) * rr; if (Math.hypot(x, z) > FENCE_R + 6 && Math.hypot(x, z) < WORLD_R - 3 && !water(x, z)) break; }
@@ -933,6 +944,14 @@ CZ.screens.valley = (function () {
         btn(t('w.stable'), () => { box.remove(); V.paused = false; CZ.ui.go('gold'); }, 'ghost-dark wide'),
         btn(t('pause.quit'), () => { box.remove(); V.paused = false; CZ.audio.duck(0.55, 0.1); end(); }, 'small ghost-dark')));
       wrap.append(box);
+    }
+    // Köy süsleri: kuyu, fıçılar, fenerler (yeni yapay zekâ modelleri)
+    if (CZ.gen3d) {
+      const free = (x, z, r) => !water(x, z) && !pads.some(q => Math.hypot(q.x - x, q.z - z) < 2.2 + r) && !solids.some(q => Math.hypot(q.x - x, q.z - z) < q.r + r + 0.6) && Math.hypot(x - MILA.x, z - MILA.z) > 2.5;
+      const put = (id, hgt, x, z, r, rot) => { if (!CZ.gen3d.has(id) || !free(x, z, r)) return false; const g = CZ.gen3d.get(id, hgt); g.position.set(x, 0, z); g.rotation.y = rot || 0; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.material = seeThrough(o.material.clone()); } }); scene.add(g); solids.push({ x, z, r }); V.decor = (V.decor || 0) + 1; return true; };
+      [[3.2, 6.2], [-3, 6.4], [2.6, -5.2], [-9.5, 0.5], [9.5, 0.5]].some(([x, z]) => put('kuyu', 2.4, x, z, 1.0, 0.4));
+      for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + 0.2; put('fener', 1.9, Math.cos(a) * 10.6, Math.sin(a) * 10.6, 0.35, -a); }
+      [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.2, -4.2], [7.4, -4.4], [8, -5.6]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
     }
     pads.forEach(drawPad);
     try {
