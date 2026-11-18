@@ -5,7 +5,7 @@ CZ.GEN3D = {
   kurt: { yaw: Math.PI, seat: 0.6 }, mamut: { yaw: Math.PI, seat: 0.78 },
   kartopukulesi: {}, topkulesi: { yaw: Math.PI }, koymeydani: {}, altinmadeni: {}, firin: {}, ahir: {}, demirci: {},
   cam_lo: {}, hediye_lo: {}, sandik_lo: {},
-  goblin: { yaw: Math.PI }, goblinsef: { yaw: Math.PI }, kuyu: {}, fici: {}, fener: {}
+  goblin: { yaw: Math.PI }, zibo: { yaw: Math.PI }, goblinsef: { yaw: Math.PI }, kuyu: {}, fici: {}, fener: {}
 };
 CZ.gen3d = (function () {
   const cache = {};

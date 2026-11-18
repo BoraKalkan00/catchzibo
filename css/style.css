@@ -1905,3 +1905,38 @@ body.paused *, body.paused *::before, body.paused *::after { animation-play-stat
 .gift-items span { display: inline-flex; align-items: center; gap: 2px; }
 .gift-check { position: absolute; top: 2px; right: 6px; color: #2fbf4a; font-style: normal; font-weight: 900; }
 @keyframes giftPulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+/* kahramanlar */
+.vl-heroes { position: absolute; left: 10px; top: calc(228px + var(--safe-top, 0px)); width: 64px; padding: 4px 4px 3px; border-radius: 16px; border: 3px solid #fff; background: linear-gradient(#8a4ad0, #5a2a98); color: #fff; z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.vl-heroes img { width: 40px; height: 44px; object-fit: contain; }
+.vl-heroes i { font-style: normal; font-size: 30px; line-height: 44px; }
+.vl-heroes b { font-size: 10px; }
+.vl-heroes em { position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; border-radius: 50%; background: #ff3a3a; border: 2px solid #fff; font-style: normal; font-weight: 900; font-size: 13px; display: grid; place-items: center; animation: btnpulse .9s ease-in-out infinite; }
+.hero-modal { width: min(420px, 96vw); max-height: 88vh; display: flex; flex-direction: column; gap: 6px; }
+.hero-head { display: flex; align-items: center; justify-content: space-between; }
+.hero-x { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(0,0,0,.08); font-size: 18px; font-weight: 900; color: #3a2414; }
+.hero-sub { opacity: .75; font-size: 12px; }
+.hero-list { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 6px; }
+.hero-card { display: flex; gap: 10px; padding: 8px; border-radius: 16px; background: #fff; border: 3px solid #b8c0cc; box-shadow: 0 3px 0 rgba(0,0,0,.08); }
+.hero-card.rare { border-color: #3a8ae0; }
+.hero-card.legend { border-color: #f2b120; background: linear-gradient(160deg, #fffaf0, #fff0c4); }
+.hero-card.buddy { box-shadow: 0 0 0 3px #2fbf4a; }
+.hero-card.locked .hero-pic img { filter: grayscale(.85) brightness(.75); }
+.hero-pic { position: relative; width: 76px; flex: none; display: grid; place-items: center; border-radius: 12px; background: radial-gradient(circle at 50% 40%, #e6f0ff, #c4d4f0); }
+.hero-card.legend .hero-pic { background: radial-gradient(circle at 50% 40%, #fff6d0, #f2c860); }
+.hero-pic img { width: 70px; height: 92px; object-fit: contain; }
+.hero-lv { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); padding: 1px 8px; border-radius: 10px; background: #1b2a44; color: #fff; font-size: 11px; white-space: nowrap; }
+.hero-lv.lock { background: transparent; font-size: 18px; }
+.hero-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.hero-name { display: flex; align-items: baseline; gap: 6px; }
+.hero-name b { font-size: 16px; }
+.hero-rar { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #7a8494; }
+.hero-card.rare .hero-rar { color: #2a6ac0; } .hero-card.legend .hero-rar { color: #c08000; }
+.hero-desc { font-size: 11.5px; line-height: 1.25; opacity: .8; }
+.hero-bar { position: relative; height: 18px; border-radius: 9px; background: #e2e6ee; overflow: hidden; }
+.hero-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(#8ad0ff, #3a8ae0); border-radius: 9px; }
+.hero-bar.full i { background: linear-gradient(#7af08a, #2fa05a); }
+.hero-bar span { position: relative; display: block; text-align: center; font-size: 11px; font-weight: 900; line-height: 18px; color: #1b2a44; }
+.hero-acts { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.hero-acts .btn { padding: 6px 10px; font-size: 12px; min-height: 0; }
+.hero-acts .btn-icon { width: 14px; height: 14px; }
+.hero-with { font-size: 12px; font-weight: 900; color: #2fa05a; padding: 0 4px; }

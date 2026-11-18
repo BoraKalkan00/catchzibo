@@ -498,7 +498,10 @@ CZ.screens.valley = (function () {
     function goblinBody(boss, tough) {
       const id = boss || tough ? 'goblinsef' : 'goblin';
       if (!CZ.gen3d || !CZ.gen3d.has(id)) { const z = CZ.kk.zibo(THREE, tough ? pick([0x8a3a8a, 0x3a5aa8]) : pick([0x4f9a32, 0x6aa83a, 0x3f8a5a])); z.root.scale.setScalar(boss ? 1.9 : tough ? 1.15 : 0.95); if (boss && z.setCrown) z.setCrown(true); return z; }
-      const root = new THREE.Group(), body = CZ.gen3d.get(id, boss ? 3.2 : tough ? 1.75 : 1.45);
+      return genBody(id, boss ? 3.2 : tough ? 1.75 : 1.45);
+    }
+    function genBody(id, hh) {
+      const root = new THREE.Group(), body = CZ.gen3d.get(id, hh);
       root.add(body); let ph = Math.random() * 6;
       return { root, gen: true, update(dt, o) {
         ph += dt * (o.running ? 13 : 3);
@@ -711,6 +714,66 @@ CZ.screens.valley = (function () {
     solids.push({ x: MILA.x, z: MILA.z, r: 1.1 });
     const bubble = h('div', { class: 'mila-bubble' }, h('b', { text: 'Mila' }), h('span'));
 
+    // ===================== KAHRAMAN: yanında koşan yardımcı (Rudi odun keser, Ela taş kırar, Buzbaş dondurur, Demir dövüşür, Noel Baba hediye bombası atar)
+    const BUD = { id: null, hero: null, x: 0, z: 0, cd: 1, act: 0, task: null, dir: 0 };
+    function spawnBuddy() {
+      if (BUD.hero) { scene.remove(BUD.hero.root); BUD.hero = null; }
+      BUD.id = CZ.heroes ? CZ.heroes.buddy() : null;
+      if (!BUD.id) return;
+      const H = CZ.heroes.def(BUD.id);
+      BUD.hero = CZ.kk.hero(THREE, H.look); BUD.hero.root.scale.setScalar(1.25);
+      BUD.hero.root.traverse(o => { o.castShadow = true; }); scene.add(BUD.hero.root); addOutline(BUD.hero.root, 0.02);
+      BUD.x = P.x + 1.6; BUD.z = P.z + 1.2; BUD.cd = 1.5; BUD.task = null;
+    }
+    function budChop(it) {   // ağaç/kaya kesme (oyuncununkiyle aynı kurallar)
+      const L = CZ.heroes.lv(BUD.id), res = it.kind === 'tree' ? 'wood' : 'stone';
+      it.hp -= 2; if (it.kind === 'tree') { it.tilt = 0.14; setInst(it); }
+      let n = 1 + Math.ceil(L / 2);
+      for (let k = 0; k < 3; k++) { const m = new THREE.Mesh(chipGeo, chipMats[it.kind]); m.position.set(it.x, it.kind === 'tree' ? 1.1 : 0.7, it.z); scene.add(m); chips.push({ m, vx: rand(-3, 3), vy: rand(3, 6), vz: rand(-3, 3) }); }
+      CZ.audio.sfx(it.kind === 'tree' ? 'hit' : 'crack');
+      if (it.hp <= 0) { n += 8; it.alive = false; it.solid.off = true; setInst(it); BUD.task = null;
+        setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 2) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000)); }
+      d[res] = (d[res] || 0) + n; resUi(); floatAt(it, '+' + n + (res === 'wood' ? ' 🪵' : ' 🪨'), 'auto');
+    }
+    function buddyUpd(dt) {
+      if (!BUD.hero) return;
+      const H = CZ.heroes.def(BUD.id), L = CZ.heroes.lv(BUD.id);
+      BUD.cd -= dt; BUD.act -= dt;
+      const dP = Math.hypot(BUD.x - P.x, BUD.z - P.z);
+      if (dP > 24) { BUD.x = P.x + 1.5; BUD.z = P.z + 1.5; BUD.task = null; }
+      // görev seç
+      const nearGob = rr => { let b = null, bd = rr; goblins.forEach(o => { if (o.dead) return; const dd = Math.hypot(o.x - BUD.x, o.z - BUD.z); if (dd < bd && Math.hypot(o.x - P.x, o.z - P.z) < 12) { bd = dd; b = o; } }); return b; };
+      if (BUD.task && (BUD.task.dead || BUD.task.alive === false || Math.hypot(BUD.task.x - P.x, BUD.task.z - P.z) > 13)) BUD.task = null;
+      if (!BUD.task && (H.role === 'wood' || H.role === 'stone')) {
+        let b = null, bd = 9; chunkList.forEach(c => { if (Math.hypot(c.cx - P.x, c.cz - P.z) > CH + 6) return; c.items.forEach(it => { if (!it.alive || it.kind !== (H.role === 'wood' ? 'tree' : 'rock')) return; const dd = Math.hypot(it.x - P.x, it.z - P.z); if (dd < bd && dd > 1.6) { bd = dd; b = it; } }); });
+        BUD.task = b;
+      }
+      if (H.role === 'fight') BUD.task = nearGob(10);
+      // hareket: görev varsa ona, yoksa oyuncunun arkasına
+      let tx, tz, stopAt;
+      if (BUD.task) { tx = BUD.task.x; tz = BUD.task.z; stopAt = (BUD.task.solid ? BUD.task.solid.r : 0.5) + 0.9; }
+      else { const a = P.dir + 0.6; tx = P.x + Math.sin(a) * 2.2; tz = P.z + Math.cos(a) * 2.2; stopAt = 0.6; }
+      const dx = tx - BUD.x, dz = tz - BUD.z, dd = Math.hypot(dx, dz);
+      let moving = false;
+      if (dd > stopAt) { const sp = Math.min(dd * 3, P.riding ? 13 : 9) * dt; let [nx, nz] = collide(BUD.x + dx / dd * sp, BUD.z + dz / dd * sp, 0.4); if (water(nx, nz)) { nx = BUD.x; nz = BUD.z; } const mv = Math.hypot(nx - BUD.x, nz - BUD.z); BUD.stk = mv < sp * 0.2 ? (BUD.stk || 0) + dt : 0; if (BUD.stk > 1.2 && dP > 5) { const a2 = P.dir + 0.6; nx = P.x + Math.sin(a2) * 2; nz = P.z + Math.cos(a2) * 2; BUD.task = null; BUD.stk = 0; } BUD.x = nx; BUD.z = nz; BUD.dir = Math.atan2(-dx, -dz); moving = mv > 0.005; }
+      else if (BUD.task) BUD.dir = Math.atan2(-dx, -dz);
+      // yetenekler
+      if (BUD.task && dd <= stopAt + 0.2 && BUD.cd <= 0) {
+        if (H.role === 'wood' || H.role === 'stone') { BUD.cd = Math.max(0.5, 1.1 - L * 0.05); budChop(BUD.task); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
+        else if (H.role === 'fight') { BUD.cd = Math.max(0.45, 0.9 - L * 0.04); hit(BUD.task, 2 + L * 0.8, true); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
+      }
+      if (H.role === 'freeze' && BUD.cd <= 0) {
+        const g = nearGob(8);
+        if (g) { BUD.cd = Math.max(3, 6.5 - L * 0.3); goblins.forEach(o => { if (!o.dead && Math.hypot(o.x - BUD.x, o.z - BUD.z) < 5.5 + L * 0.2) { o.stun = Math.max(o.stun || 0, 1.4 + L * 0.12); hit(o, 1 + L * 0.4, true); } }); ringFx(BUD.x, BUD.z, 5.5 + L * 0.2, 0x9adcff); CZ.audio.sfx('star'); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
+      }
+      if (H.role === 'gift' && BUD.cd <= 0) {
+        const g = nearGob(10);
+        if (g) { BUD.cd = Math.max(3, 7 - L * 0.3); const m = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.45), toon(pick([0xe0302e, 0x2fa040, 0x2f6fd8]))); m.position.set(BUD.x, 2.2, BUD.z); scene.add(m); tshots.push({ m, o: g, type: 'cannon', dmg: 3 + L, sp: 14, t: 0 }); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
+      }
+      BUD.hero.root.position.set(BUD.x, 0, BUD.z); BUD.hero.root.rotation.y = BUD.dir;
+      BUD.hero.update(dt, { idle: !moving, speed: moving ? 8 : 0 });
+    }
+
     // nişan göstergesi (yerde ok)
     const aimTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 256; const x = c.getContext('2d'); const gr = x.createLinearGradient(0, 256, 0, 0); gr.addColorStop(0, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,.95)'); x.fillStyle = gr; x.fillRect(16, 40, 32, 216); x.beginPath(); x.moveTo(0, 48); x.lineTo(32, 0); x.lineTo(64, 48); x.fill(); return new THREE.CanvasTexture(c); })();
     const aim = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 10), new THREE.MeshBasicMaterial({ map: aimTex, color: 0xffd84a, transparent: true, depthWrite: false, depthTest: false })); aim.renderOrder = 5;
@@ -780,7 +843,9 @@ CZ.screens.valley = (function () {
       o.dead = true;
       if (o.bar) { scene.remove(o.bar.g); o.bar.fg.material.dispose(); o.bar = null; }
       scene.remove(o.mesh);
-      const total = o.coins + (o.stolen || 0);
+      let total = o.coins + (o.stolen || 0);
+      if (o.type === 'goblin' && BUD.id === 'noel') total = Math.round(total * (1.05 + CZ.heroes.lv('noel') * 0.02));
+      if (o.type === 'goblin' && CZ.heroes && (d.tutV || 0) >= 5) { const sh = o.boss ? 4 : (Math.random() < 0.03 ? 1 : 0); if (sh) { const hid = CZ.heroes.randomDrop(sh); if (hid) { setTimeout(() => { if (V) floatAt(o, t('hero.shardGot', { n: sh, name: t('hero.n.' + hid) }), 'wave'); }, o.boss ? 900 : 0); heroUi(); } } }
       if (o.type === 'goblin' && CZ.pass) CZ.pass.addXp(3);
       if (o.type === 'goblin' && V.tut) V.tut.on('goblin');
       if (o.boss) { d.emeralds = (d.emeralds || 0) + o.gems; resUi(); floatAt(o, t('boss.down', { n: o.gems }), 'wave'); CZ.audio.vibrate([60, 30, 120]); }
@@ -822,6 +887,46 @@ CZ.screens.valley = (function () {
       d.gold -= c; d.vpow = powLv() + 1; CZ.state.save(); resUi();
       CZ.audio.sfx('buy'); CZ.audio.vibrate([20, 20, 40]); floatAt(P, t('def.powUp', { n: d.vpow * 2 + W.dmg * 2 }), 'wave'); powUi();
     });
+    // KAHRAMANLAR düğmesi
+    const heroBtn = h('button', { type: 'button', class: 'vl-heroes' });
+    function heroUi() {
+      if (!CZ.heroes) return;
+      const b = CZ.heroes.buddy();
+      heroBtn.replaceChildren(b ? h('img', { src: CZ.heroes.portrait(b), alt: '' }) : h('i', { text: '🦸' }), h('b', { text: t('hero.btn') }), CZ.heroes.hasNews() ? h('em', { text: '!' }) : null);
+      heroBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none';
+    }
+    heroBtn.addEventListener('click', () => openHeroes());
+    function openHeroes() {
+      if (!CZ.heroes) return;
+      V.paused = true;
+      const box = h('div', { class: 'modal-wrap hero-wrap' });
+      const close = () => { box.remove(); V.paused = false; V.last = 0; heroUi(); resUi(); };
+      const RAR = ['common', 'rare', 'legend'];
+      function card(H) {
+        const S = CZ.heroes.st(H.id), own = S.lv > 0, need = own ? CZ.heroes.upNeed(H.id) : { sh: CZ.heroes.unlockNeed(H.id), gold: 0 }, max = S.lv >= CZ.heroes.MAX;
+        const pct = max ? 100 : Math.min(100, S.sh / need.sh * 100);
+        const isB = CZ.heroes.buddy() === H.id;
+        const acts = [];
+        if (!own && CZ.heroes.canUnlock(H.id)) acts.push(btn(t('hero.unlock'), () => { CZ.heroes.unlock(H.id); CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 90]); if (!CZ.heroes.buddy() && H.id !== 'mila') { CZ.heroes.setBuddy(H.id); spawnBuddy(); } draw(); }, 'primary'));
+        if (own && !max) acts.push(btn(t('hero.up') + ' · ' + need.gold, () => { if (!CZ.heroes.up(H.id)) { CZ.audio.sfx('wrong'); return CZ.ui.toast(S.sh < need.sh ? t('hero.needSh', { n: need.sh - S.sh }) : t('chars.goldShort', { n: need.gold - (d.gold || 0) })); } CZ.audio.sfx('buy'); CZ.audio.vibrate([20, 20, 50]); resUi(); draw(); }, CZ.heroes.canUp(H.id) ? 'primary' : 'ghost-dark', 'ui.gold'));
+        if (own && H.id !== 'mila') acts.push(isB ? h('span', { class: 'hero-with', text: t('hero.with') }) : btn(t('hero.take'), () => { CZ.heroes.setBuddy(H.id); spawnBuddy(); CZ.audio.sfx('star'); draw(); }, 'ghost-dark'));
+        if (!max) acts.push(btn('+5 🧩 · 10', () => { if ((d.emeralds || 0) < 10) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.gemShort')); } d.emeralds -= 10; CZ.heroes.add(H.id, 5); CZ.audio.sfx('coin'); resUi(); draw(); }, 'ghost-dark', 'ui.emerald'));
+        return h('div', { class: 'hero-card ' + RAR[H.rar] + (own ? '' : ' locked') + (isB ? ' buddy' : '') },
+          h('div', { class: 'hero-pic' }, h('img', { src: CZ.heroes.portrait(H.id), alt: '' }), own ? h('b', { class: 'hero-lv', text: t('vil.lv', { n: S.lv }) }) : h('b', { class: 'hero-lv lock', text: '🔒' })),
+          h('div', { class: 'hero-info' },
+            h('div', { class: 'hero-name' }, h('b', { text: t('hero.n.' + H.id) }), h('small', { class: 'hero-rar', text: t('hero.rar' + H.rar) })),
+            h('small', { class: 'hero-desc', text: t('hero.d.' + H.id) }),
+            h('div', { class: 'hero-bar' + (pct >= 100 ? ' full' : '') }, h('i', { style: 'width:' + pct + '%' }), h('span', { text: max ? t('up.max') : '🧩 ' + S.sh + ' / ' + need.sh })),
+            h('div', { class: 'hero-acts' }, ...acts)));
+      }
+      function draw() {
+        box.replaceChildren(h('div', { class: 'modal hero-modal' },
+          h('div', { class: 'hero-head' }, h('b', { class: 'lg-title', text: t('hero.title') }), h('button', { class: 'hero-x', type: 'button', text: '✕', onClick: close })),
+          h('small', { class: 'hero-sub', text: t('hero.sub') }),
+          h('div', { class: 'hero-list' }, CZ.HEROES.map(card))));
+      }
+      draw(); wrap.append(box);
+    }
     const floats = h('div', { class: 'vl-floats' });
     const mapC = h('canvas', { class: 'vl-map', width: '220', height: '220' });
     const mctx = mapC.getContext('2d');
@@ -835,7 +940,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl),
-      hpBarEl, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      hpBarEl, heroBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -931,7 +1036,7 @@ CZ.screens.valley = (function () {
 
     V = {
       el, renderer, scene, stage, wrap, raf: 0, last: 0, wave: 1, waveT: 0, spawnT: 2, kills: 0, earned: 0, pending: 0, cool: 0, running: true, paused: false, whistle: false,
-      P, M, hero, camera, solids, targets, goblins, piles, ice, chest, pads, DS, trees, rocks, left, seeU, debug: { route, fire, autoFire, joy, nearestTarget, rushGold, finishJob, spawnGoblin, complete, flowTick, sim(sec, cb) { for (let t2 = 0; t2 < sec; t2 += 0.05) { if (cb) cb(); if (V.running && !V.paused) step(0.05); draw(0.05); } } },
+      P, M, hero, camera, BUD, solids, targets, goblins, piles, ice, chest, pads, DS, trees, rocks, left, seeU, debug: { route, fire, autoFire, joy, nearestTarget, rushGold, finishJob, spawnGoblin, complete, flowTick, sim(sec, cb) { for (let t2 = 0; t2 < sec; t2 += 0.05) { if (cb) cb(); if (V.running && !V.paused) step(0.05); draw(0.05); } } },
       cleanup() {
         window.removeEventListener('resize', resize);
         window.removeEventListener('pointermove', V_move);
@@ -967,6 +1072,7 @@ CZ.screens.valley = (function () {
       [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.6, -6.8]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
     }
     pads.forEach(drawPad);
+    spawnBuddy(); heroUi();
     try {
       const warm = new THREE.Group();
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
@@ -1027,8 +1133,9 @@ CZ.screens.valley = (function () {
       MILA.cd -= dt;
       if (MILA.cd <= 0) {
         const g = goblins.find(o => !o.dead && Math.hypot(o.x, o.z) < FENCE_R + 4);
-        if (g) { MILA.cd = 1.1; milaMount.root.rotation.y = Math.atan2(-(g.x - MILA.x), -(g.z - MILA.z)); if (milaHero.throwNow) milaHero.throwNow(); const m = new THREE.Mesh(ballGeo, ballMat); m.position.set(MILA.x, 2.6, MILA.z); scene.add(m); tshots.push({ m, o: g, type: 'snow', dmg: 2, sp: 22, t: 0 }); }
+        if (g) { const mL = CZ.heroes ? CZ.heroes.lv('mila') : 1; MILA.cd = Math.max(0.5, 1.2 - mL * 0.07); milaMount.root.rotation.y = Math.atan2(-(g.x - MILA.x), -(g.z - MILA.z)); if (milaHero.throwNow) milaHero.throwNow(); const m = new THREE.Mesh(ballGeo, ballMat); m.position.set(MILA.x, 2.6, MILA.z); scene.add(m); tshots.push({ m, o: g, type: 'snow', dmg: 1.5 + mL * 0.5, sp: 22, t: 0 }); }
       }
+      buddyUpd(dt);
       // CAN: köyün içinde yavaşça dolar; bayılınca köyde uyanırsın
       P.hurtT = Math.max(0, P.hurtT - dt);
       if (P.down > 0) { P.down -= dt; if (P.down <= 0) { P.hp = P.maxHp; P.x = 2.5; P.z = 6.5; P.riding = false; M.x = 5.5; M.z = 3.8; downEl.remove(); } return; }
@@ -1039,7 +1146,7 @@ CZ.screens.valley = (function () {
       V.vT = (V.vT || 0) - dt; if (V.vT <= 0) { V.vT = 1; const VV = CZ.village.ensure(), had = VV.job; CZ.village.tick(); if (had && !VV.job) { const id = VV.done; VV.done = null; placeVillage(); pads.forEach(drawMark); CZ.audio.sfx('win'); if (id) floatAt(P, t('vil.doneT', { b: t('vil.b.' + id), n: CZ.village.lv(id) }), 'wave'); } }
       padNear(dt);
       if (V.story && V.story.tick) V.story.tick(dt);
-      V.powT = (V.powT || 0) - dt; if (V.powT <= 0) { V.powT = 0.5; powUi(); boostBtn.classList.toggle('on', V.boostT > 0); boostBtn.lastChild.textContent = V.boostT > 0 ? Math.ceil(V.boostT / 60) + ' ' + t('def.min') : t('def.boost'); }
+      V.powT = (V.powT || 0) - dt; if (V.powT <= 0) { V.powT = 0.5; powUi(); V.hT2 = (V.hT2 || 0) + 1; if (V.hT2 % 4 === 0) heroUi(); boostBtn.classList.toggle('on', V.boostT > 0); boostBtn.lastChild.textContent = V.boostT > 0 ? Math.ceil(V.boostT / 60) + ' ' + t('def.min') : t('def.boost'); }
       V.boostT = Math.max(0, (V.boostT || 0) - dt);
 
       // hareket
@@ -1479,7 +1586,7 @@ CZ.screens.valley = (function () {
         if (raiders >= 3) {
           const towerPow = DS.t.reduce((n, x) => n + (x && x.lv > 0 ? (x.type === 'cannon' ? 2.2 : 1.5) * x.lv : 0), 0);
           const fenceN = DS.f.filter(x => x && x.lv > 0).length;
-          const defense = 2 + towerPow * 1.2 + fenceN * 0.8;   // Mila tek başına ~2 goblin durdurur (saatte)
+          const defense = 2 + towerPow * 1.2 + fenceN * 0.8 + (CZ.heroes ? CZ.heroes.defense() : 0);   // Mila tek başına ~2 goblin durdurur (saatte)
           const stopped = Math.min(raiders, Math.round(defense * Math.min(hrs, 6) * 0.45));
           const through = raiders - stopped;
           const safe = CZ.village.protect();
@@ -1516,8 +1623,8 @@ CZ.screens.valley = (function () {
       const L = d.login || (d.login = { last: 0, n: 0 });
       if (L.last === today) return;
       const n = L.last === yest ? (L.n % 7) + 1 : 1;
-      const R = [{ gold: 60, wood: 40 }, { wood: 120, stone: 60 }, { emeralds: 3 }, { gold: 250 }, { wood: 200, stone: 140 }, { emeralds: 6 }, { emeralds: 12, gold: 600 }];
-      const ic = k => k === 'gold' ? img('ui.gold', 'mini-ico') : k === 'emeralds' ? img('ui.emerald', 'mini-ico') : h('i', { text: k === 'wood' ? '🪵' : '🪨' });
+      const R = [{ gold: 60, wood: 40 }, { wood: 120, stone: 60 }, { emeralds: 3, sh: 3 }, { gold: 250 }, { wood: 200, stone: 140, sh: 5 }, { emeralds: 6 }, { emeralds: 12, gold: 600, sh: 12 }];
+      const ic = k => k === 'gold' ? img('ui.gold', 'mini-ico') : k === 'emeralds' ? img('ui.emerald', 'mini-ico') : h('i', { text: k === 'wood' ? '🪵' : k === 'sh' ? '🧩' : '🪨' });
       const box = h('div', { class: 'modal-wrap gift-wrap' }, h('div', { class: 'modal gift-rep' },
         h('b', { class: 'lg-title', text: t('gift.title') }),
         h('small', { text: t('gift.sub', { n }) }),
@@ -1526,7 +1633,7 @@ CZ.screens.valley = (function () {
           h('div', { class: 'gift-items' }, Object.entries(r).map(([k, v]) => h('span', {}, ic(k), h('b', { text: String(v) })))),
           i + 1 < n ? h('i', { class: 'gift-check', text: '✓' }) : null))),
         btn(t('gift.claim'), () => {
-          Object.entries(R[n - 1]).forEach(([k, v]) => { d[k] = (d[k] || 0) + v; });
+          Object.entries(R[n - 1]).forEach(([k, v]) => { if (k === 'sh') { if (CZ.heroes) { const hid = CZ.heroes.randomDrop(v); if (hid) setTimeout(() => CZ.ui.toast(t('hero.shardGot', { n: v, name: t('hero.n.' + hid) })), 400); } } else d[k] = (d[k] || 0) + v; }); heroUi();
           L.last = today; L.n = n; CZ.state.save(); resUi(); CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]);
           box.remove(); V.paused = false; V.last = 0;
         }, 'primary wide')));
@@ -1542,7 +1649,7 @@ CZ.screens.valley = (function () {
       on(kind) {
         const st = d.tutV || 0; if (st >= TUT.length || TUT[st].id !== kind) return;
         d.tutN = (d.tutN || 0) + 1;
-        if (d.tutN >= TUT[st].n) { d.tutV = st + 1; d.tutN = 0; pads.forEach(drawMark); CZ.audio.sfx('win'); d.gold = (d.gold || 0) + 20; resUi(); floatAt(P, t('quest.done') + ' +20', 'wave'); if (d.tutV >= TUT.length) { milaSay(t('mila.tutDone'), 7000); pads.forEach(drawMark); } }
+        if (d.tutN >= TUT[st].n) { d.tutV = st + 1; d.tutN = 0; pads.forEach(drawMark); CZ.audio.sfx('win'); d.gold = (d.gold || 0) + 20; resUi(); floatAt(P, t('quest.done') + ' +20', 'wave'); if (d.tutV >= TUT.length) { milaSay(t('mila.tutDone'), 7000); pads.forEach(drawMark); if (CZ.heroes && !CZ.heroes.owned('rudi')) { CZ.heroes.st('rudi').lv = 1; CZ.heroes.setBuddy('rudi'); spawnBuddy(); heroUi(); setTimeout(() => { if (V) milaSay(t('hero.rudiJoin'), 8000); }, 7500); } } }
         CZ.state.save(); this.ui();
       },
       ui() {
@@ -1573,7 +1680,7 @@ CZ.screens.valley = (function () {
       V.cine = true;
       d.tutV = 0; d.tutN = 0;
       // Zibo: taçlı, sırtında köyün hazine sandığı
-      const zb = CZ.kk.zibo(THREE); zb.root.scale.setScalar(1.45); if (zb.setCrown) zb.setCrown(true);
+      const zb = CZ.gen3d && CZ.gen3d.has('zibo') ? genBody('zibo', 2.2) : CZ.kk.zibo(THREE); if (!zb.gen) { zb.root.scale.setScalar(1.45); if (zb.setCrown) zb.setCrown(true); }
       const loot = CZ.gen3d.has('sandik_lo') ? CZ.gen3d.get('sandik_lo', 0.75) : new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.5), toon(0x8a5228));
       loot.position.set(0, 1.55, 0.35); loot.visible = false; zb.root.add(loot);
       zb.root.traverse(o => { o.castShadow = true; }); addOutline(zb.root, 0.02);
@@ -1582,7 +1689,7 @@ CZ.screens.valley = (function () {
       const hallChest = CZ.gen3d.has('sandik_lo') ? CZ.gen3d.get('sandik_lo', 1.0) : new THREE.Mesh(new THREE.BoxGeometry(1, 0.7, 0.7), toon(0x8a5228));
       hallChest.position.set(0, 0, 1.2); scene.add(hallChest);
       const crew = [];
-      for (let i = 0; i < 4; i++) { const g = CZ.kk.zibo(THREE, pick([0x4f9a32, 0x6aa83a, 0x3f8a5a])); g.root.scale.setScalar(0.9); g.root.traverse(o => { o.castShadow = true; }); addOutline(g.root, 0.02); g.root.position.set(rand(-3, 3), 0, -46 - i * 1.5); scene.add(g.root); crew.push({ g, x: g.root.position.x, z: g.root.position.z, ox: (i - 1.5) * 1.6 }); }
+      for (let i = 0; i < 4; i++) { const g = goblinBody(false, false); if (!g.gen) g.root.scale.setScalar(0.9); g.root.traverse(o => { o.castShadow = true; }); addOutline(g.root, 0.02); g.root.position.set(rand(-3, 3), 0, -46 - i * 1.5); scene.add(g.root); crew.push({ g, x: g.root.position.x, z: g.root.position.z, ox: (i - 1.5) * 1.6 }); }
       // oyuncu evinin önünde uyuyor, ayı yanında
       P.x = 6; P.z = 9; P.dir = 0.6; M.x = 8.2; M.z = 8.5;
       // ---- arayüz: sinema bantları, konuşma kutusu, geç düğmesi
@@ -1590,7 +1697,7 @@ CZ.screens.valley = (function () {
       const cap = h('div', { class: 'cine-cap' });
       const skip = h('button', { class: 'cine-skip', type: 'button', text: t('pro.skip') + ' ›' });
       const box = h('div', { class: 'talk' }, h('img', { class: 'talk-face', alt: '' }), h('div', { class: 'talk-body' }, h('b', { class: 'talk-name' }), h('p', { class: 'talk-text' })), h('i', { class: 'talk-next', text: '▼' }));
-      const faces = { zibo: 'assets/zibo/png/laugh.webp', mila: (() => { try { return CZ.kk.portrait(d.avatar === 'elf' ? 'girl' : 'elf', 'wave'); } catch (e) { return ''; } })(), you: (() => { try { return CZ.kk.portrait(d.avatar || 'boy', 'front'); } catch (e) { return ''; } })() };
+      const faces = { zibo: CZ.gen3d && CZ.gen3d.has('zibo') ? 'assets/zibo/png/z3d.webp' : 'assets/zibo/png/laugh.webp', mila: (() => { try { return CZ.kk.portrait(d.avatar === 'elf' ? 'girl' : 'elf', 'wave'); } catch (e) { return ''; } })(), you: (() => { try { return CZ.kk.portrait(d.avatar || 'boy', 'front'); } catch (e) { return ''; } })() };
       ui.classList.add('cine-on'); wrap.append(bars, cap, skip);
       let skipping = false, typing = null, waitTap = null;
       const wait = ms => new Promise(ok => { if (skipping) return ok(); const id = setTimeout(ok, ms); V.story.cancel = () => { clearTimeout(id); ok(); }; });
