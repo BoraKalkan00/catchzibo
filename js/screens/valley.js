@@ -1417,7 +1417,7 @@ CZ.screens.valley = (function () {
       milaMount.update(dt, 0);
       milaHero.root.position.set(MILA.x, milaMount.seatY - 0.12, MILA.z); milaHero.root.rotation.y = milaMount.root.rotation.y;
       milaHero.update(dt, { sit: true });
-      if (bubble.isConnected) { v3.set(MILA.x, 4.6, MILA.z).project(camera); const W2 = ui.clientWidth, H2 = ui.clientHeight; bubble.style.left = Math.max(130, Math.min(W2 - 130, (v3.x + 1) / 2 * W2)) + 'px'; bubble.style.top = Math.max(260, Math.min(H2 - 200, (1 - v3.y) / 2 * H2)) + 'px'; }
+      if (bubble.isConnected) { v3.set(MILA.x, 4.6, MILA.z).project(camera); const W2 = ui.clientWidth, H2 = ui.clientHeight; bubble.style.left = Math.max(130, Math.min(W2 - 130, (v3.x + 1) / 2 * W2)) + 'px'; bubble.style.top = Math.max(350, Math.min(H2 - 200, (1 - v3.y) / 2 * H2)) + 'px'; }
       if (V.tut && guide.isConnected) { const g = V.tut.target(); if (g) { v3.set(g.x, 3, g.z).project(camera); const inS = Math.abs(v3.x) < 0.9 && Math.abs(v3.y) < 0.85; const W2 = ui.clientWidth, H2 = ui.clientHeight; let gx = (v3.x + 1) / 2 * W2, gy = (1 - v3.y) / 2 * H2; let rot = 0; if (!inS) { const ax = g.x - P.x, az = g.z - P.z; rot = Math.atan2(az, ax) - Math.PI / 2; const L3 = Math.hypot(ax, az) || 1; gx = W2 / 2 + ax / L3 * (W2 / 2 - 40); gy = H2 / 2 + az / L3 * (H2 / 2 - 170); } guide.style.display = 'block'; guide.style.left = gx + 'px'; guide.style.top = gy + 'px'; guide.style.transform = `translate(-50%,-100%) rotate(${rot}rad)`; guide.classList.toggle('edge', !inS); } else guide.style.display = 'none'; }
       // otomatik hedef halkası
       const o = nearestTarget(RANGE);
@@ -1564,7 +1564,7 @@ CZ.screens.valley = (function () {
     };
     // ===================== PROLOG: Noel gecesi Zibo köyün hazinesini çalar =====================
     if (!d.introDone) {
-      const NIGHT = { bg: new THREE.Color(0x141c3a), hemiS: new THREE.Color(0x4a5a9a), hemiG: new THREE.Color(0x10142a), hi: 0.42, sun: new THREE.Color(0x8aa0ff), si: 0.28 };
+      const NIGHT = { bg: new THREE.Color(0x141c3a), hemiS: new THREE.Color(0x6a7cc4), hemiG: new THREE.Color(0x1c2448), hi: 0.62, sun: new THREE.Color(0x9ab0ff), si: 0.45 };
       const DAY = { bg: new THREE.Color(SKY), hemiS: hemi.color.clone(), hemiG: hemi.groundColor.clone(), hi: hemi.intensity, sun: sun.color.clone(), si: sun.intensity };
       const setSky = k => { scene.background.copy(NIGHT.bg).lerp(DAY.bg, k); scene.fog.color.copy(scene.background); hemi.color.copy(NIGHT.hemiS).lerp(DAY.hemiS, k); hemi.groundColor.copy(NIGHT.hemiG).lerp(DAY.hemiG, k); hemi.intensity = NIGHT.hi + (DAY.hi - NIGHT.hi) * k; sun.color.copy(NIGHT.sun).lerp(DAY.sun, k); sun.intensity = NIGHT.si + (DAY.si - NIGHT.si) * k; lamps.forEach(l => { l.intensity = 1.6 * (1 - k); }); };
       const lamps = [[-4, -1], [4, -1], [0, 5], [-5, 6], [5, 6]].map(([x, z]) => { const l = new THREE.PointLight(0xffb060, 1.6, 11); l.position.set(x, 2.5, z); scene.add(l); return l; });
