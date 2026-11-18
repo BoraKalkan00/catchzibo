@@ -935,6 +935,11 @@ CZ.screens.valley = (function () {
       wrap.append(box);
     }
     pads.forEach(drawPad);
+    try {
+      const warm = new THREE.Group();
+      [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
+      warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
+    } catch (e) { /* ısınma olmazsa yine çalışır */ }
     V.pause = pause;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
@@ -1232,9 +1237,10 @@ CZ.screens.valley = (function () {
     // Kule / çit yerinin yanına gelince panel açılır
     let nearPad = null, panelKey = '', onPad = null;
     function padNear(dt) {
-      let best = null, bd = 3.2; onPad = null;
+      let best = null, bd = 2.4; onPad = null;
       pads.forEach(p => { if (!padVisible(p)) return; const [mx, mz] = markPos(p); const dd = Math.hypot(mx - P.x, mz - P.z); if (dd < bd) { bd = dd; best = p; } if (dd < 1.5) onPad = p; });
       if (onPad && P.down <= 0) flowTick(onPad, dt);
+      if (best && !onPad && Math.hypot(P.vx, P.vz) > 2.2) best = null;   // koşarken panel ekranı kapatmasın
       if (best !== nearPad) { nearPad = best; padUi(true); }
       else if (nearPad) padUi(false);
       pads.forEach(p => { if (p.dirty) { p.redraw = (p.redraw || 0) - dt; if (p.redraw <= 0) { p.redraw = 0.15; p.dirty = false; drawMark(p); } } });
@@ -1415,7 +1421,7 @@ CZ.screens.valley = (function () {
         if (raiders >= 3) {
           const towerPow = DS.t.reduce((n, x) => n + (x && x.lv > 0 ? (x.type === 'cannon' ? 2.2 : 1.5) * x.lv : 0), 0);
           const fenceN = DS.f.filter(x => x && x.lv > 0).length;
-          const defense = 2 + towerPow * 3 + fenceN * 1.2;   // Mila tek başına ~2 goblin durdurur (saatte)
+          const defense = 2 + towerPow * 1.2 + fenceN * 0.8;   // Mila tek başına ~2 goblin durdurur (saatte)
           const stopped = Math.min(raiders, Math.round(defense * Math.min(hrs, 6) * 0.45));
           const through = raiders - stopped;
           const safe = CZ.village.protect();
@@ -1539,7 +1545,7 @@ CZ.screens.valley = (function () {
         await caption('pro.c2', 2600);
         // Zibo ve çetesi kuzeyden sessizce köye girer
         crewOn = true; ziboGoal = [0, 2.6, 5.5];
-        camTo([2, 10, 13], [0, 1, 1.5], 3);
+        camTo([8, 7, 7], [0, 1.2, 2.4], 3);
         await wait(3600);
         hallChest.visible = false; loot.visible = true; CZ.audio.sfx('coin');
         await say('zibo', 'pro.z1');
