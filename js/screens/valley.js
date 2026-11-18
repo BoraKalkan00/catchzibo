@@ -60,7 +60,19 @@ CZ.screens.valley = (function () {
   function genMount(THREE, def) {
     const [id, hh, tint] = MOUNT_GEN[def.id];
     const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
-    body.add(CZ.gen3d.get(id, hh, tint));
+    const mdl = CZ.gen3d.get(id, hh, tint); body.add(mdl);
+    // Bacak animasyonu: modelin alt kısmı (bacaklar) köşe gölgelendiricisinde ileri-geri sallanır, çapraz bacaklar birlikte (tırıs)
+    const LEG = { rengeyigi: 0.5, kurt: 0.42, mamut: 0.38, ayi: 0.36, kutupayisi: 0.36 }[id] || 0.38;
+    const U = { uPh: { value: 0 }, uAmp: { value: 0 } };
+    mdl.traverse(o => { if (!o.isMesh) return; o.material = o.material.clone();
+      o.material.onBeforeCompile = sh => { sh.uniforms.uPh = U.uPh; sh.uniforms.uAmp = U.uAmp;
+        sh.vertexShader = 'uniform float uPh; uniform float uAmp;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+          float lw = clamp((${LEG.toFixed(2)} - position.y) / ${LEG.toFixed(2)}, 0.0, 1.0);
+          float sg = sign(position.x + 0.0001) * sign(position.z + 0.0001);
+          float sw = sin(uPh) * sg;
+          transformed.z += sw * uAmp * lw * 0.22;
+          transformed.y += max(0.0, cos(uPh) * sg) * uAmp * lw * 0.08;`); };
+      o.material.customProgramCacheKey = () => 'legs' + LEG; });
     let ph = 0;
     return {
       root: g, seatY: hh * ((CZ.GEN3D[id] || {}).seat || 0.62),
@@ -71,6 +83,7 @@ CZ.screens.valley = (function () {
         body.rotation.x = Math.sin(ph * 2) * 0.07 * k;
         body.rotation.z = Math.sin(ph) * 0.04 * k;
         body.scale.y = 1 + (1 - k) * Math.sin(ph * 0.4) * 0.015;   // durunca nefes alır
+        U.uPh.value = ph; U.uAmp.value = k;
       }
     };
   }
@@ -686,7 +699,7 @@ CZ.screens.valley = (function () {
     const mountDef = CZ.MOUNTS.find(m => m.id === (d.mount || 'brown')) || CZ.MOUNTS[0];
     const mount = quadruped(THREE, mountDef);
     const M = { x: 5.5, z: 3.8, dir: Math.PI, speed: 0 };
-    mount.root.position.set(M.x, 0, M.z); mount.root.traverse(o => { if (o.geometry && o.geometry.type !== 'CircleGeometry') o.castShadow = true; }); scene.add(mount.root); if (MOUNT_GEN[mountDef.id] && CZ.gen3d.has(MOUNT_GEN[mountDef.id][0])) addOutline(mount.root, 0.012);
+    mount.root.position.set(M.x, 0, M.z); mount.root.traverse(o => { if (o.geometry && o.geometry.type !== 'CircleGeometry') o.castShadow = true; }); scene.add(mount.root);   // (bacaklar gölgelendiricide oynadığı için dış çizgi yok)
     // MİLA: köyün bekçisi. Kendi bineği Işıltı (satılmaz). Sen yokken köyü o korur; sen varken dinlenir ama köye giren goblini vurur.
     const MILA = { x: -1.6, z: 9.5, dir: 0, cd: 0, say: null };
     const milaMount = quadruped(THREE, { id: 'aurora', kind: 'deer', color: 0xfff0fa, light: 0xffc8e8, speed: 9 });
@@ -951,7 +964,7 @@ CZ.screens.valley = (function () {
       const put = (id, hgt, x, z, r, rot) => { if (!CZ.gen3d.has(id) || !free(x, z, r)) return false; const g = CZ.gen3d.get(id, hgt); g.position.set(x, 0, z); g.rotation.y = rot || 0; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.material = seeThrough(o.material.clone()); } }); scene.add(g); solids.push({ x, z, r }); V.decor = (V.decor || 0) + 1; return true; };
       [[3.2, 6.2], [-3, 6.4], [2.6, -5.2], [-9.5, 0.5], [9.5, 0.5]].some(([x, z]) => put('kuyu', 2.4, x, z, 1.0, 0.4));
       for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + 0.2; put('fener', 1.9, Math.cos(a) * 10.6, Math.sin(a) * 10.6, 0.35, -a); }
-      [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.2, -4.2], [7.4, -4.4], [8, -5.6]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
+      [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.6, -6.8]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
     }
     pads.forEach(drawPad);
     try {
@@ -1253,12 +1266,35 @@ CZ.screens.valley = (function () {
       wrap.classList.remove('hurt'); void wrap.offsetWidth; wrap.classList.add('hurt');
       if (P.hp <= 0) { P.hp = 0; P.down = 3; P.riding = false; wrap.append(downEl); CZ.audio.sfx('lose'); }
     }
+    // Maden (taş) ve oduncu (odun) kendi kendine üretir: üstlerinde balon çıkar, yanına gelince toplanır
+    const PROD = [{ id: 'mine', res: 'stone' }, { id: 'bakery', res: 'wood' }];
+    let prodT = 0;
+    function prodTick(dt) {
+      prodT -= dt; if (prodT > 0 || !CZ.village || !CZ.VILLAGE_SPOTS) return; prodT = 0.5;
+      CZ.village.tick(); const VV = CZ.village.ensure();
+      PROD.forEach(q => {
+        const [sx, sz] = CZ.VILLAGE_SPOTS[q.id], x = sx * VS, z = sz * VS, n = Math.floor(VV.store[q.id] || 0), L = CZ.village.lv(q.id);
+        if (!q.spr) { q.spr = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); q.spr.scale.set(2.2, 1.1, 1); q.spr.position.set(x, 4.6, z); q.spr.renderOrder = 5; scene.add(q.spr); }
+        const show = L > 0 && n >= 5, key = Math.floor(n / 5);
+        q.spr.visible = show;
+        if (show && key !== q.key) { q.key = key; const c = document.createElement('canvas'); c.width = 256; c.height = 128; const x2 = c.getContext('2d');
+          x2.fillStyle = '#fff'; x2.strokeStyle = '#1b2a44'; x2.lineWidth = 8; x2.beginPath(); if (x2.roundRect) x2.roundRect(8, 8, 240, 92, 40); else x2.rect(8, 8, 240, 92); x2.fill(); x2.stroke();
+          x2.beginPath(); x2.moveTo(110, 98); x2.lineTo(128, 122); x2.lineTo(146, 98); x2.fill();
+          x2.font = 'bold 54px sans-serif'; x2.textAlign = 'center'; x2.textBaseline = 'middle'; x2.fillStyle = '#1b2a44'; x2.fillText((q.res === 'wood' ? '🪵' : '🪨') + ' ' + n, 128, 56);
+          if (q.spr.material.map) q.spr.material.map.dispose(); q.spr.material.map = new THREE.CanvasTexture(c); q.spr.material.needsUpdate = true; }
+        if (show) q.spr.position.y = 4.6 + Math.sin(performance.now() / 300) * 0.15;
+        if (L > 0 && n >= 1 && Math.hypot(P.x - x, P.z - z) < 4.6) { const got = CZ.village.collect(q.id); if (got) { floatAt({ x, z }, '+' + got + (q.res === 'wood' ? ' 🪵' : ' 🪨'), 'auto'); resUi(); CZ.audio.sfx('coin'); q.key = -1; } }
+      });
+    }
     // Kule / çit yerinin yanına gelince panel açılır
     let nearPad = null, panelKey = '', onPad = null;
     function padNear(dt) {
       let best = null, bd = 2.4; onPad = null;
       pads.forEach(p => { if (!padVisible(p)) return; const [mx, mz] = markPos(p); const dd = Math.hypot(mx - P.x, mz - P.z); if (dd < bd) { bd = dd; best = p; } if (dd < 1.5) onPad = p; });
       if (onPad && P.down <= 0) flowTick(onPad, dt);
+      prodTick(dt);
+      // köy daireleri uzaktayken küçülür (kalabalık görünmesin), yaklaşınca büyür
+      pads.forEach(p => { if (p.kind !== 'v' || !p.mark) return; const [mx, mz] = markPos(p); const tg = Math.hypot(mx - P.x, mz - P.z) < 5.5 ? 0.8 : 0.42; const sc = p.mark.scale.x + (tg - p.mark.scale.x) * Math.min(1, dt * 8); p.mark.scale.setScalar(sc); p.mark.material.opacity = 0.35 + (sc - 0.42) / 0.38 * 0.65; });
       if (best && !onPad && Math.hypot(P.vx, P.vz) > 2.2) best = null;   // koşarken panel ekranı kapatmasın
       if (best !== nearPad) { nearPad = best; padUi(true); }
       else if (nearPad) padUi(false);
@@ -1293,6 +1329,9 @@ CZ.screens.valley = (function () {
           V2.job.ads < 3 ? btn('-30 ' + t('def.min'), () => CZ.ads.show(() => { CZ.village.adRush(); placeVillage(); padUi(true); }), 'ghost-dark', 'ic:play') : null));
       } else if (L2 && L2.length) {
         kids.push(h('small', { text: t('def.standHere') }));
+        { const dd = CZ.state.data, sw = Math.max(0, ((L2.find(x => x.r === 'wood') || {}).n || 0) - (dd.wood || 0)), ss = Math.max(0, ((L2.find(x => x.r === 'stone') || {}).n || 0) - (dd.stone || 0));
+          const cost = Math.ceil(sw * 0.4 + ss * 0.67), gNeed = (L2.find(x => x.r === 'gold') || {}).n || 0;
+          if (cost > 0 && (dd.gold || 0) >= cost + Math.min(gNeed, 1)) kids.push(h('div', { class: 'def-row' }, btn(t('def.buyShort') + ' · ' + cost, () => { if ((dd.gold || 0) < cost) return; dd.gold -= cost; dd.wood = (dd.wood || 0) + sw; dd.stone = (dd.stone || 0) + ss; CZ.state.save(); resUi(); CZ.audio.sfx('coin'); padUi(true); }, 'primary', 'ui.gold'))); }
         if (p.kind === 'f' && it) kids.push(h('small', { text: t('def.fenceHp', { n: Math.max(0, Math.ceil(p.hp || 0)), m: p.hpMax || 0 }) }));
         if (p.kind === 'v') kids.push(h('small', { class: 'def-eff', text: t('vil.d.' + p.id) }));
       } else kids.push(h('small', { text: t('up.max') }));
@@ -1330,7 +1369,7 @@ CZ.screens.valley = (function () {
       let n = dmg;
       CZ.audio.sfx(kind === 'tree' ? 'hit' : 'crack');
       if (best.hp <= 0) {
-        n += kind === 'tree' ? 6 : 10;
+        n += 10;
         best.alive = false; best.solid.off = true; setInst(best);
         const it = best;
         setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 2) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000));

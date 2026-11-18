@@ -1266,5 +1266,6 @@ CZ.i18n.register('en', 'English', {
   "raid.tip": "More towers and fences = a safer village at night.",
   "raid.ok": "OK",
   "mila.rest": "I'm exhausted, chief. Time to rest, the village is yours now!",
-  "def.lacking": "Not enough: chop wood, break rocks, hunt goblins or buy with gold at the 💎 ⇄ Market!"
+  "def.lacking": "Not enough: chop wood, break rocks, hunt goblins or buy with gold at the 💎 ⇄ Market!",
+  "def.buyShort": "Buy missing wood/stone"
 });

@@ -1084,5 +1084,6 @@ CZ.i18n.register('pt', 'Português', {
   "raid.fence": "cerca quebrada",
   "raid.tip": "Mais torres e cercas = vila mais segura à noite.",
   "raid.ok": "OK",
-  "mila.rest": "Estou exausta, chefe. Agora é com você!"
+  "mila.rest": "Estou exausta, chefe. Agora é com você!",
+  "def.buyShort": "Comprar madeira/pedra em falta"
 });

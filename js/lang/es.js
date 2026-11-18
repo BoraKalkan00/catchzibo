@@ -1084,5 +1084,6 @@ CZ.i18n.register('es', 'Español', {
   "raid.fence": "valla rota",
   "raid.tip": "Más torres y vallas = aldea más segura de noche.",
   "raid.ok": "OK",
-  "mila.rest": "Estoy agotada, jefe. ¡Te toca!"
+  "mila.rest": "Estoy agotada, jefe. ¡Te toca!",
+  "def.buyShort": "Comprar madera/piedra que falta"
 });

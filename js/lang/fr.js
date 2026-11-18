@@ -1084,5 +1084,6 @@ CZ.i18n.register('fr', 'Français', {
   "raid.fence": "palissade cassée",
   "raid.tip": "Plus de tours et de palissades = village plus sûr la nuit.",
   "raid.ok": "OK",
-  "mila.rest": "Je suis épuisée, chef. À toi !"
+  "mila.rest": "Je suis épuisée, chef. À toi !",
+  "def.buyShort": "Acheter bois/pierre manquants"
 });

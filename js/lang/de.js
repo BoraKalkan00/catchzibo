@@ -1084,5 +1084,6 @@ CZ.i18n.register('de', 'Deutsch', {
   "raid.fence": "Zaun kaputt",
   "raid.tip": "Mehr Türme und Zäune = sichereres Dorf in der Nacht.",
   "raid.ok": "OK",
-  "mila.rest": "Ich bin erschöpft, Chef. Jetzt bist du dran!"
+  "mila.rest": "Ich bin erschöpft, Chef. Jetzt bist du dran!",
+  "def.buyShort": "Fehlendes Holz/Stein kaufen"
 });

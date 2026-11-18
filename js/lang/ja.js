@@ -1084,5 +1084,6 @@ CZ.i18n.register('ja', '日本語', {
   "raid.fence": "さくがこわれた",
   "raid.tip": "タワーとさくが多いほど夜も安全。",
   "raid.ok": "OK",
-  "mila.rest": "もうへとへと、村長。あとはまかせた！"
+  "mila.rest": "もうへとへと、村長。あとはまかせた！",
+  "def.buyShort": "足りない木材/石を買う"
 });
