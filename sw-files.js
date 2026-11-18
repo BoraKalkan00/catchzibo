@@ -579,5 +579,10 @@ self.CZ_FILES = [
  "js/vendor/GLTFLoader.js",
  "js/vendor/SkeletonUtils.js",
  "js/vendor/three.LICENSE.txt",
- "js/vendor/three.min.js"
+ "js/vendor/three.min.js",
+ "assets/3d/gen/h_buzbas.glb",
+ "assets/3d/gen/h_demir.glb",
+ "assets/3d/gen/h_ela.glb",
+ "assets/3d/gen/h_noel.glb",
+ "assets/3d/gen/h_rudi.glb"
 ];

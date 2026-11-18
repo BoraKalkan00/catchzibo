@@ -721,7 +721,10 @@ CZ.screens.valley = (function () {
       BUD.id = CZ.heroes ? CZ.heroes.buddy() : null;
       if (!BUD.id) return;
       const H = CZ.heroes.def(BUD.id);
-      BUD.hero = CZ.kk.hero(THREE, H.look); BUD.hero.root.scale.setScalar(1.25);
+      if (CZ.gen3d && CZ.gen3d.has('h_' + BUD.id)) {   // kahramana özel 3D model: zıplayarak yürür, yetenekte öne atılır
+        const gb = genBody('h_' + BUD.id, 1.95); let kick = 0;
+        BUD.hero = { root: gb.root, throwNow() { kick = 0.25; }, update(dt, o) { gb.update(dt, { running: !o.idle }); kick = Math.max(0, kick - dt); gb.root.children[0].rotation.x = (o.idle ? 0 : 0.12) + Math.sin(kick / 0.25 * Math.PI) * 0.35; } };
+      } else { BUD.hero = CZ.kk.hero(THREE, H.look); BUD.hero.root.scale.setScalar(1.25); }
       BUD.hero.root.traverse(o => { o.castShadow = true; }); scene.add(BUD.hero.root); addOutline(BUD.hero.root, 0.02);
       BUD.x = P.x + 1.6; BUD.z = P.z + 1.2; BUD.cd = 1.5; BUD.task = null;
     }
@@ -892,7 +895,7 @@ CZ.screens.valley = (function () {
     function heroUi() {
       if (!CZ.heroes) return;
       const b = CZ.heroes.buddy();
-      heroBtn.replaceChildren(b ? h('img', { src: CZ.heroes.portrait(b), alt: '' }) : h('i', { text: '🦸' }), h('b', { text: t('hero.btn') }), CZ.heroes.hasNews() ? h('em', { text: '!' }) : null);
+      heroBtn.replaceChildren(b ? h('img', { src: CZ.heroes.portrait(b), alt: '' }) : h('i', { text: '🦸' }), h('b', { text: t('hero.btn') }), ...(CZ.heroes.hasNews() ? [h('em', { text: '!' })] : []));
       heroBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none';
     }
     heroBtn.addEventListener('click', () => openHeroes());

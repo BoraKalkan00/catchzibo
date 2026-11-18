@@ -12,7 +12,7 @@ Google Play hesabı 3 Aralık'ta açılıyor. Hedef: çok indirme + gelir (garan
   ([{ad, istem, n}]), `URET5.bat` üretir → `cikti/*.glb, *.png`. Bora'ya çalıştırtma: Claude Explorer'da
   (yalnız tıklama izni) This PC → C: → Users → kalka → Documents → Zibo3D → URET5.bat'a çift tıklar.
   isler.json'u gönderirken her seferinde YENİ bir outputs klasörü yolu kullan (eski kopya önbelleğe takılıyor).
-- 3D işleme: trimesh ile `clean` + `paint.py` (görüntüden boyama) → `assets/3d/gen/*.glb` → `js/core/gen3d.js` CZ.GEN3D'ye ekle.
+- 3D işleme: trimesh ile `clean` + `paint.py` (oturumla silinir; önden izdüşümle köşe boyama, 4000 yüz, boy=1, taban y=0) (görüntüden boyama) → `assets/3d/gen/*.glb` → `js/core/gen3d.js` CZ.GEN3D'ye ekle.
 - Yayın: `/tmp/sync.py` (sw dosya listesi) → commit → `git pull --rebase` → push → `gh run list`.
 
 ## Oyun (ana mod: js/screens/valley.js, ~1900 satır)
@@ -38,8 +38,8 @@ Playwright + swiftshader. `CZ.screens.valley.debug` = V (P, BUD, goblins, pads, 
 Gift popup'ı kapatmak için `CZ.state.data.login={last:bugünYYYYMMDD,n:1}`.
 
 ## Sıradaki işler
-1. Her kahramana özel 3D model (şu an KayKit karakterleri; Rudi gerçek ren geyiği değil).
-2. Donmuş goblinlere mavi renk, kahraman yeteneklerine ses/efekt.
+1. ✅ (18 Kas) Yardımcı kahramanlar kendi 3D modelinde (assets/3d/gen/h_*.glb, valley.js spawnBuddy). Mila hâlâ KayKit (binekte oturuyor). Telefonda nasıl göründüğüne Bora karar versin; kötü ise KayKit'e dönmek için GEN3D'den h_* sil.
+2. ✅ Donmuş goblin buz kabuğu, buz/hediye/kılıç sesleri, hediye konfetisi.
 3. Gerçek telefonda performans testi (Bora'dan geri bildirim).
 4. Mağaza görselleri (store/gorseller taslak; öne çıkan görsel 2D, oyun 3D — yeniden yap).
 5. Arkadaş köyüne baskın (sunucu gerekir, sonra).
