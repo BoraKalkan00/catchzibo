@@ -1254,5 +1254,17 @@ CZ.i18n.register('tr', 'Türkçe', {
   "zibo.hub.back": "Geri mi geldin?! Kulelerin bu gece yıkılacak!",
   "zibo.hub.resting": "Köyünde bir sürü altın var... hihihi!",
   "zibo.hub.worried": "Kulelerin çok mu güçlendi ne? Hmph!",
-  "zibo.hub.done": "Bir gün o köy benim olacak, görürsün!"
+  "zibo.hub.done": "Bir gün o köy benim olacak, görürsün!",
+  "raid.title": "Gece Baskını Raporu",
+  "raid.bad": "Şef, gece Zibo'nun çetesi saldırdı! Elimden geleni yaptım ama bazıları altın kaptı.",
+  "raid.good": "Şef, gece Zibo'nun çetesi saldırdı ama kulelerimiz hepsini püskürttü!",
+  "raid.came": "geldi",
+  "raid.stopped": "durduruldu",
+  "raid.stolen": "çalındı",
+  "raid.loot": "ganimet",
+  "raid.fence": "çit kırıldı",
+  "raid.tip": "Daha çok kule ve çit = gece daha güvenli köy.",
+  "raid.ok": "Tamam",
+  "mila.rest": "Çok yoruldum şef, biraz dinleneyim. Artık köy sende!",
+  "def.lacking": "Kaynağın yetmiyor: odun kes, taş kır, goblin avla ya da üstteki 💎 ⇄ Pazar'dan altınla al!"
 });

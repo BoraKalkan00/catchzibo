@@ -1073,5 +1073,16 @@ CZ.i18n.register('ja', '日本語', {
   "zibo.hub.back": "また来たのか！？今夜タワーをこわしてやる！",
   "zibo.hub.resting": "村にゴールドがいっぱい…ヒヒヒ！",
   "zibo.hub.worried": "タワーが強くなった？フン！",
-  "zibo.hub.done": "いつかあの村はオレのものだ、見てろよ！"
+  "zibo.hub.done": "いつかあの村はオレのものだ、見てろよ！",
+  "raid.title": "夜の襲撃レポート",
+  "raid.bad": "村長、夜にジボの仲間がおそってきた！がんばったけど、ゴールドを少し取られちゃった。",
+  "raid.good": "村長、夜にジボの仲間がおそってきたけど、タワーが全部追いはらったよ！",
+  "raid.came": "来た",
+  "raid.stopped": "止めた",
+  "raid.stolen": "盗まれた",
+  "raid.loot": "戦利品",
+  "raid.fence": "さくがこわれた",
+  "raid.tip": "タワーとさくが多いほど夜も安全。",
+  "raid.ok": "OK",
+  "mila.rest": "もうへとへと、村長。あとはまかせた！"
 });

@@ -1073,5 +1073,16 @@ CZ.i18n.register('fr', 'Français', {
   "zibo.hub.back": "Encore toi ?! Tes tours tomberont cette nuit !",
   "zibo.hub.resting": "Tant d’or dans ton village... hihihi !",
   "zibo.hub.worried": "Tes tours sont plus fortes ? Pff !",
-  "zibo.hub.done": "Un jour ce village sera à moi, tu verras !"
+  "zibo.hub.done": "Un jour ce village sera à moi, tu verras !",
+  "raid.title": "Rapport du raid nocturne",
+  "raid.bad": "Chef, la bande de Zibo a attaqué cette nuit ! J’ai fait de mon mieux mais certains ont pris de l’or.",
+  "raid.good": "Chef, la bande de Zibo a attaqué cette nuit mais nos tours les ont tous repoussés !",
+  "raid.came": "venus",
+  "raid.stopped": "stoppés",
+  "raid.stolen": "volé",
+  "raid.loot": "butin",
+  "raid.fence": "palissade cassée",
+  "raid.tip": "Plus de tours et de palissades = village plus sûr la nuit.",
+  "raid.ok": "OK",
+  "mila.rest": "Je suis épuisée, chef. À toi !"
 });

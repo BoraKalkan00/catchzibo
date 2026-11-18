@@ -27,7 +27,7 @@ CZ.village = (function () {
   const price = (id, L) => { const b = def(id); return Math.round(b.base * Math.pow(b.mul, L) / 10) * 10; };
   const minutes = (id, L) => Math.min(720, Math.round(def(id).tbase * Math.pow(1.55, L)));
   // Üretim (saatte) ve depo
-  const rate = id => { const L = lv(id); if (!L) return 0; return Math.round((id === 'mine' ? 60 : 40) * L * (1 + L * 0.15)); };
+  const rate = id => { const L = lv(id); if (!L) return 0; return Math.round((id === 'mine' ? 90 : 90) * L * (1 + L * 0.15)); };
   const storeCap = () => Math.round(400 * Math.pow(lv('vault') + 1, 1.55));
   const protect = () => lv('vault') ? Math.round(300 * Math.pow(lv('vault'), 1.5)) : 0;
   const defense = () => lv('tower') * 3;

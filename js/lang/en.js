@@ -1254,5 +1254,17 @@ CZ.i18n.register('en', 'English', {
   "zibo.hub.back": "Back again?! Your towers fall tonight!",
   "zibo.hub.resting": "So much gold in your village... hehehe!",
   "zibo.hub.worried": "Your towers got stronger? Hmph!",
-  "zibo.hub.done": "One day that village will be mine, you'll see!"
+  "zibo.hub.done": "One day that village will be mine, you'll see!",
+  "raid.title": "Night Raid Report",
+  "raid.bad": "Chief, Zibo's gang attacked at night! I did my best but some grabbed gold.",
+  "raid.good": "Chief, Zibo's gang attacked at night but our towers drove them all off!",
+  "raid.came": "came",
+  "raid.stopped": "stopped",
+  "raid.stolen": "stolen",
+  "raid.loot": "loot",
+  "raid.fence": "fence broken",
+  "raid.tip": "More towers and fences = a safer village at night.",
+  "raid.ok": "OK",
+  "mila.rest": "I'm exhausted, chief. Time to rest, the village is yours now!",
+  "def.lacking": "Not enough: chop wood, break rocks, hunt goblins or buy with gold at the 💎 ⇄ Market!"
 });

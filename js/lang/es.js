@@ -1073,5 +1073,16 @@ CZ.i18n.register('es', 'Español', {
   "zibo.hub.back": "¿Otra vez aquí? ¡Esta noche caen tus torres!",
   "zibo.hub.resting": "Cuánto oro en tu aldea... ¡jijiji!",
   "zibo.hub.worried": "¿Tus torres se hicieron más fuertes? ¡Hmph!",
-  "zibo.hub.done": "¡Un día esa aldea será mía, ya verás!"
+  "zibo.hub.done": "¡Un día esa aldea será mía, ya verás!",
+  "raid.title": "Informe del ataque nocturno",
+  "raid.bad": "¡Jefe, la banda de Zibo atacó de noche! Hice lo que pude pero algunos robaron oro.",
+  "raid.good": "¡Jefe, la banda de Zibo atacó de noche pero nuestras torres los echaron a todos!",
+  "raid.came": "vinieron",
+  "raid.stopped": "detenidos",
+  "raid.stolen": "robado",
+  "raid.loot": "botín",
+  "raid.fence": "valla rota",
+  "raid.tip": "Más torres y vallas = aldea más segura de noche.",
+  "raid.ok": "OK",
+  "mila.rest": "Estoy agotada, jefe. ¡Te toca!"
 });

@@ -45,9 +45,9 @@ CZ.screens.valley = (function () {
   // Savunma: kule türleri ve çit. Fiyat ve süreler (dk). Yapınca hemen görünür, süre dolunca çalışır.
   // Maliyetler seviye seviye: odun < taş < altın < zümrüt. Sarı dairenin üstünde durunca kaynaklar akar (Kingshot gibi).
   const DEF = {
-    snow: { cost: [{ wood: 20 }, { wood: 90, stone: 40 }, { stone: 140, gold: 60 }, { stone: 280, gold: 180 }, { stone: 520, gold: 420 }], min: [2, 10, 20, 60, 120], range: 10.5, rate: 0.85, dmg: 1, dmgUp: 1 },
-    cannon: { cost: [{ wood: 35, stone: 15 }, { stone: 140, gold: 50 }, { stone: 260, gold: 140 }, { stone: 450, gold: 320 }, { stone: 850, gold: 650 }], min: [2, 10, 20, 60, 120], range: 12.5, rate: 2.2, dmg: 3, dmgUp: 2, splash: 2.6 },
-    fence: { cost: [{ wood: 15 }, { wood: 70, stone: 70 }, { stone: 220, gold: 90 }], min: [1, 10, 20], hp: 30, hpUp: 30 }
+    snow: { cost: [{ wood: 20 }, { wood: 90, stone: 30 }, { wood: 160, gold: 150 }, { stone: 120, gold: 380 }, { stone: 240, gold: 800 }], min: [2, 10, 20, 60, 120], range: 10.5, rate: 0.85, dmg: 1, dmgUp: 1 },
+    cannon: { cost: [{ wood: 35, stone: 15 }, { wood: 120, stone: 50 }, { wood: 220, gold: 260 }, { stone: 180, gold: 550 }, { stone: 350, gold: 1100 }], min: [2, 10, 20, 60, 120], range: 12.5, rate: 2.2, dmg: 3, dmgUp: 2, splash: 2.6 },
+    fence: { cost: [{ wood: 15 }, { wood: 70, stone: 40 }, { wood: 150, gold: 150 }], min: [1, 10, 20], hp: 30, hpUp: 30 }
   };
   const RES = ['wood', 'stone', 'gold'];
   const RES_COL = { wood: '#b8763a', stone: '#9aa3b4', gold: '#ffc928', gems: '#2fd08a' };
@@ -236,7 +236,11 @@ CZ.screens.valley = (function () {
     const bridgeEnds = (k, side) => { const [bx, bz] = bridges[k]; return k < 3 ? [[bx, bz - side * 5], [bx, bz + side * 5]] : [[bx - side * 4.5, bz], [bx + side * 4.5, bz]]; };
     function route(fx, fz, tx, tz) {
       // hangi su: ana nehir mi dere mi (ilk karşılaşılan)
-      let wet = 0; for (let i = 1; i <= 20; i++) { const k = i / 20, x = fx + (tx - fx) * k, z = fz + (tz - fz) * k; if (onBridge(x, z)) continue; if (Math.abs(z - riverZ(x)) < RIVER_W) { wet = 1; break; } if (z < riverZ(x) && Math.abs(x - creekX(z)) < CREEK_W) { wet = 2; break; } }
+      // kıyı tarafı: aynı taraftaysan köprüye gerek yok (nehrin kıvrımı yolu kesse bile kayarak gidilir)
+      const sideR = (x, z) => z > riverZ(x) ? 1 : -1, sideC = (x, z) => x > creekX(z) ? 1 : -1;
+      let wet = 0;
+      if (sideR(fx, fz) !== sideR(tx, tz)) wet = 1;
+      else if (sideR(fx, fz) < 0 && sideR(tx, tz) < 0 && sideC(fx, fz) !== sideC(tx, tz)) wet = 2;
       if (!wet) return null;
       let best = null, bc = 1e9;
       bridges.forEach((b, k) => { if ((wet === 1) !== (k < 3)) return; const side = k < 3 ? (tz > b[1] ? 1 : -1) : (tx > b[0] ? 1 : -1); const [en, ex] = bridgeEnds(k, side); const c = Math.hypot(en[0] - fx, en[1] - fz) + 10 + Math.hypot(tx - ex[0], tz - ex[1]); if (c < bc) { bc = c; best = Math.hypot(en[0] - fx, en[1] - fz) < 1.6 || onBridge(fx, fz) ? ex : en; } });
@@ -371,7 +375,7 @@ CZ.screens.valley = (function () {
       const tr = { kind: 'tree', x, z, s: rand(0.85, 1.3), hp: 3, maxHp: 3, solid: sol, alive: true };
       solids.push(sol); trees.push(tr); chunkOf('t', x, z).items.push(tr);
     }
-    for (let k = 0; k < 4000 && rocks.length < 170; k++) {
+    for (let k = 0; k < 6000 && rocks.length < 260; k++) {
       const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R), sc = rand(0.7, 1.35);
       if (noise(x - 30, z + 60) > -0.2 && Math.random() > 0.12) continue;   // kayalık bölgeler
       if (Math.hypot(x, z) < FENCE_R + 7) continue;
@@ -744,7 +748,7 @@ CZ.screens.valley = (function () {
       if (o.mesh) { if (!o.base) o.base = o.mesh.scale.x; o.mesh.scale.setScalar(o.base * 1.12); o.flash = 0.1; }
       CZ.audio.sfx(o.type === 'goblin' || o.type === 'zibo' ? 'hit' : 'crack');
       if (o.type === 'zibo' && V.story) V.story.ziboHit(o);
-      if (o.type === 'goblin') { o.stun = 0.6; }
+      if (o.type === 'goblin') { o.stun = 0.6; const kx = o.x - P.x, kz = o.z - P.z, kl = Math.hypot(kx, kz) || 1, push = o.boss ? 0.25 : 0.9; const [nx2, nz2] = collide(o.x + kx / kl * push, o.z + kz / kl * push, 0.45); if (!water(nx2, nz2)) { o.x = nx2; o.z = nz2; } V.shake = Math.max(V.shake || 0, o.boss ? 0.18 : 0.08); }
       if (o.hp <= 0) kill(o, byTower);
     }
     function kill(o, byTower) {
@@ -994,7 +998,7 @@ CZ.screens.valley = (function () {
       if (Math.hypot(P.x, P.z) < FENCE_R && P.hp < P.maxHp) P.hp = Math.min(P.maxHp, P.hp + dt * 0.6);
       hpFill.style.width = (P.hp / P.maxHp * 100) + '%'; hpBarEl.classList.toggle('low', P.hp / P.maxHp < 0.35);
       if (V.pending > 0) { const n = Math.min(V.pending, Math.ceil(V.pending * dt * 6)); V.pending -= n; gain(n, true); }
-      V.saveT = (V.saveT || 0) - dt; if (V.saveT <= 0) { V.saveT = 3; CZ.state.save(); }
+      V.saveT = (V.saveT || 0) - dt; if (V.saveT <= 0) { V.saveT = 3; CZ.village.ensure().leftAt = Date.now(); CZ.state.save(); }
       V.vT = (V.vT || 0) - dt; if (V.vT <= 0) { V.vT = 1; const VV = CZ.village.ensure(), had = VV.job; CZ.village.tick(); if (had && !VV.job) { const id = VV.done; VV.done = null; placeVillage(); pads.forEach(drawMark); CZ.audio.sfx('win'); if (id) floatAt(P, t('vil.doneT', { b: t('vil.b.' + id), n: CZ.village.lv(id) }), 'wave'); } }
       padNear(dt);
       if (V.story && V.story.tick) V.story.tick(dt);
@@ -1272,7 +1276,16 @@ CZ.screens.valley = (function () {
     }
     // TOPLAYICILIK: ağacın yanına gelince baltayla kes (odun), kayanın yanına gelince kazmayla kır (taş)
     const chips = [], chipGeo = new THREE.BoxGeometry(0.16, 0.16, 0.16), chipMats = { tree: toon(0xc8884a), rock: toon(0xb0b6c4) };
+    // elde balta (ağaç) ya da kazma (kaya)
+    const tools = (() => { const mk = pick2 => { const g = new THREE.Group(); const hd = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 0.95, 6), toon(0x7a4a24)); hd.position.y = 0.3; g.add(hd);
+        if (pick2) { const pk = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.62, 6), toon(0xb8c0cc)); pk.rotation.z = Math.PI / 2; pk.position.y = 0.74; g.add(pk); }
+        else { const ax = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.24, 0.05), toon(0xc8ced8)); ax.position.set(0.14, 0.68, 0); g.add(ax); }
+        g.rotation.x = Math.PI / 2; g.visible = false; if (hero.weaponSlot) hero.weaponSlot.add(g); return g; };
+      return { tree: mk(false), rock: mk(true) }; })();
+    let toolT = 0;
+    function showTool(kind) { if (!hero.weaponSlot) return; hero.weaponSlot.children.forEach(c => { if (c !== tools.tree && c !== tools.rock) c.visible = !kind; }); tools.tree.visible = kind === 'tree'; tools.rock.visible = kind === 'rock'; }
     function harvest(dt) {
+      toolT -= dt; if (toolT < 0 && (tools.tree.visible || tools.rock.visible)) showTool(null);
       for (let i = chips.length - 1; i >= 0; i--) { const c = chips[i]; c.vy -= 16 * dt; c.m.position.x += c.vx * dt; c.m.position.y += c.vy * dt; c.m.position.z += c.vz * dt; c.m.rotation.x += dt * 10; if (c.m.position.y < 0) { scene.remove(c.m); chips.splice(i, 1); } }
       trees.concat(rocks).forEach(it => { if (it.tilt > 0) { it.tilt = Math.max(0, it.tilt - dt * 0.8); setInst(it); } });
       V.hT = (V.hT || 0) - dt;
@@ -1283,6 +1296,7 @@ CZ.screens.valley = (function () {
       if (!best || bd > reach) { V.harv = null; return; }
       V.harv = best;
       V.hT = P.riding ? 0.42 : 0.55;
+      showTool(best.kind); toolT = 1;
       if (Math.hypot(P.vx, P.vz) < 1.5) P.dir = Math.atan2(-(best.x - P.x), -(best.z - P.z));
       if (hero.throwNow) hero.throwNow();
       const dmg = P.riding ? 3 : 2, kind = best.kind, res = kind === 'tree' ? 'wood' : 'stone';
@@ -1291,7 +1305,7 @@ CZ.screens.valley = (function () {
       let n = dmg;
       CZ.audio.sfx(kind === 'tree' ? 'hit' : 'crack');
       if (best.hp <= 0) {
-        n += kind === 'tree' ? 6 : 8;
+        n += kind === 'tree' ? 6 : 10;
         best.alive = false; best.solid.off = true; setInst(best);
         const it = best;
         setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 2) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000));
@@ -1359,6 +1373,7 @@ CZ.screens.valley = (function () {
         if (!c2.from) c2.from = { p: camera.position.clone(), l: c2.lastLook || new THREE.Vector3(P.x, 0, P.z) };
         camera.position.lerpVectors(c2.from.p, c2.p, e); const lk = c2.from.l.clone().lerp(c2.l, e); camera.lookAt(lk); c2.lastLook = lk; }
       if (V.cineUpd) V.cineUpd(dt);
+      if (V.shake > 0) { V.shake = Math.max(0, V.shake - dt * 1.6); const a2 = V.shake * 0.9; camera.position.x += (Math.random() - 0.5) * a2; camera.position.y += (Math.random() - 0.5) * a2; }
       v3.set(P.x, 1, P.z).applyMatrix4(camera.matrixWorldInverse);
       const pz = -v3.z; v3.set(P.x, 1, P.z).project(camera);
       const pr = renderer.getPixelRatio(), cw = renderer.domElement.width, chh = renderer.domElement.height;
@@ -1394,12 +1409,36 @@ CZ.screens.valley = (function () {
       if (!d.introDone) { /* prolog Mila'yı tanıtır */ }
       else if (!d.milaMet) { d.milaMet = true; milaSay(t('mila.first'), 9000); }
       else {
+        // GECE BASKINI: sen yokken Zibo'nun çetesi gelir. Kuleler ve çit savunur, Mila elinden geleni yapar.
         const hrs = Math.min(12, Math.max(0, (now - (VV.leftAt || now)) / 3600000));
-        const towers = DS.t.filter(x => x && x.lv > 0).length;
-        const kills = Math.floor(hrs * 8 * (1 + towers * 0.3));
-        const g = Math.min(400, kills * 3);
-        if (g > 0) { d.gold = (d.gold || 0) + g; resUi(); }
-        milaSay(kills > 0 ? t('mila.back', { k: kills, g }) : t('mila.hi'), 7500);
+        const raiders = Math.floor(hrs * 6);
+        if (raiders >= 3) {
+          const towerPow = DS.t.reduce((n, x) => n + (x && x.lv > 0 ? (x.type === 'cannon' ? 2.2 : 1.5) * x.lv : 0), 0);
+          const fenceN = DS.f.filter(x => x && x.lv > 0).length;
+          const defense = 2 + towerPow * 3 + fenceN * 1.2;   // Mila tek başına ~2 goblin durdurur (saatte)
+          const stopped = Math.min(raiders, Math.round(defense * Math.min(hrs, 6) * 0.45));
+          const through = raiders - stopped;
+          const safe = CZ.village.protect();
+          const stolen = Math.max(0, Math.min(Math.round(through * 6), Math.floor((d.gold || 0) - safe)));
+          let broke = 0;
+          if (through > 0) DS.f.forEach((x, i) => { if (x && broke < Math.ceil(through / 6) && Math.random() < 0.5) { DS.f[i] = null; broke++; } });
+          const loot = Math.round(stopped * 2.5);
+          d.gold = Math.max(0, (d.gold || 0) - stolen + loot);
+          resUi(); pads.forEach(drawPad);
+          const rep = h('div', { class: 'modal-wrap raid-wrap' }, h('div', { class: 'modal raid-rep' },
+            h('b', { class: 'lg-title', text: t('raid.title') }),
+            h('img', { class: 'raid-face', src: (() => { try { return CZ.kk.portrait(d.avatar === 'elf' ? 'girl' : 'elf', 'front'); } catch (e) { return ''; } })(), alt: '' }),
+            h('p', { class: 'raid-say', text: through > 0 ? t('raid.bad') : t('raid.good') }),
+            h('div', { class: 'raid-grid' },
+              h('span', {}, '👺 ', h('b', { text: String(raiders) }), h('small', { text: t('raid.came') })),
+              h('span', {}, '🛡️ ', h('b', { text: String(stopped) }), h('small', { text: t('raid.stopped') })),
+              h('span', { class: stolen ? 'bad' : '' }, img('ui.gold', 'mini-ico'), h('b', { text: (stolen ? '-' + stolen : '0') }), h('small', { text: t('raid.stolen') })),
+              h('span', {}, img('ui.gold', 'mini-ico'), h('b', { text: '+' + loot }), h('small', { text: t('raid.loot') })),
+              broke ? h('span', { class: 'bad' }, '🪵 ', h('b', { text: '-' + broke }), h('small', { text: t('raid.fence') })) : null),
+            h('small', { class: 'raid-tip', text: t('raid.tip') }),
+            btn(t('raid.ok'), () => { rep.remove(); V.paused = false; V.last = 0; milaSay(t('mila.rest'), 5000); }, 'primary wide')));
+          wrap.append(rep); V.paused = true;
+        } else milaSay(t('mila.hi'), 6500);
       }
       CZ.state.save();
     }

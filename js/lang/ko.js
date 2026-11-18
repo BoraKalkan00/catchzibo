@@ -1073,5 +1073,16 @@ CZ.i18n.register('ko', '한국어', {
   "zibo.hub.back": "또 왔어?! 오늘 밤 네 탑은 무너진다!",
   "zibo.hub.resting": "마을에 금이 잔뜩… 히히히!",
   "zibo.hub.worried": "탑이 강해졌다고? 흥!",
-  "zibo.hub.done": "언젠가 그 마을은 내 거야, 두고 봐!"
+  "zibo.hub.done": "언젠가 그 마을은 내 거야, 두고 봐!",
+  "raid.title": "야간 습격 보고서",
+  "raid.bad": "촌장님, 밤에 지보 일당이 쳐들어왔어요! 최선을 다했지만 몇 놈이 금을 가져갔어요.",
+  "raid.good": "촌장님, 밤에 지보 일당이 쳐들어왔지만 탑들이 모두 물리쳤어요!",
+  "raid.came": "왔음",
+  "raid.stopped": "막음",
+  "raid.stolen": "도둑맞음",
+  "raid.loot": "전리품",
+  "raid.fence": "울타리 파손",
+  "raid.tip": "탑과 울타리가 많을수록 밤에 더 안전해요.",
+  "raid.ok": "확인",
+  "mila.rest": "너무 지쳤어요, 촌장님. 이제 맡길게요!"
 });

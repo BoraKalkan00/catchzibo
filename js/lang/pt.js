@@ -1073,5 +1073,16 @@ CZ.i18n.register('pt', 'Português', {
   "zibo.hub.back": "De volta?! Suas torres caem esta noite!",
   "zibo.hub.resting": "Tanto ouro na sua vila... hihihi!",
   "zibo.hub.worried": "Suas torres ficaram mais fortes? Hmph!",
-  "zibo.hub.done": "Um dia essa vila será minha, você vai ver!"
+  "zibo.hub.done": "Um dia essa vila será minha, você vai ver!",
+  "raid.title": "Relatório do ataque noturno",
+  "raid.bad": "Chefe, a gangue do Zibo atacou à noite! Fiz o que pude, mas alguns pegaram ouro.",
+  "raid.good": "Chefe, a gangue do Zibo atacou à noite, mas nossas torres expulsaram todos!",
+  "raid.came": "vieram",
+  "raid.stopped": "parados",
+  "raid.stolen": "roubado",
+  "raid.loot": "saque",
+  "raid.fence": "cerca quebrada",
+  "raid.tip": "Mais torres e cercas = vila mais segura à noite.",
+  "raid.ok": "OK",
+  "mila.rest": "Estou exausta, chefe. Agora é com você!"
 });

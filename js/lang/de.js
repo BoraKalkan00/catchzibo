@@ -1073,5 +1073,16 @@ CZ.i18n.register('de', 'Deutsch', {
   "zibo.hub.back": "Wieder da?! Heute Nacht fallen deine Türme!",
   "zibo.hub.resting": "So viel Gold in deinem Dorf... hihihi!",
   "zibo.hub.worried": "Deine Türme sind stärker geworden? Hmpf!",
-  "zibo.hub.done": "Eines Tages gehört das Dorf mir, wirst schon sehen!"
+  "zibo.hub.done": "Eines Tages gehört das Dorf mir, wirst schon sehen!",
+  "raid.title": "Bericht: Nachtangriff",
+  "raid.bad": "Chef, Zibos Bande hat nachts angegriffen! Ich habe mein Bestes gegeben, aber einige haben Gold geschnappt.",
+  "raid.good": "Chef, Zibos Bande hat nachts angegriffen, aber unsere Türme haben alle vertrieben!",
+  "raid.came": "kamen",
+  "raid.stopped": "gestoppt",
+  "raid.stolen": "gestohlen",
+  "raid.loot": "Beute",
+  "raid.fence": "Zaun kaputt",
+  "raid.tip": "Mehr Türme und Zäune = sichereres Dorf in der Nacht.",
+  "raid.ok": "OK",
+  "mila.rest": "Ich bin erschöpft, Chef. Jetzt bist du dran!"
 });
