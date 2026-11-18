@@ -18,7 +18,7 @@ CZ.village = (function () {
   const def = id => CZ.VB.find(b => b.id === id);
   function ensure() {
     const D = d();
-    if (!D.vil) D.vil = { lv: { hall: 1, mine: 1, bakery: 0, vault: 1, tower: 0, stable: 0, forge: 0, lookout: 0, tree: 0 }, job: null, store: { mine: 0, bakery: 0 }, at: Date.now(), builders: 1 };
+    if (!D.vil) D.vil = { lv: { hall: 1, mine: 1, bakery: 1, vault: 1, tower: 0, stable: 1, forge: 0, lookout: 0, tree: 1 }, job: null, store: { mine: 0, bakery: 0 }, at: Date.now(), builders: 1 };
     return D.vil;
   }
   const lv = id => ensure().lv[id] || 0;

@@ -219,9 +219,9 @@ CZ.game = (function () {
   // Oyuncuyu ilk açılışta sıradaki adıma götürür.
   function next() {
     const d = CZ.state.data;
-    if (!d.avatar) return CZ.ui.go('avatar');
-    if (!d.storySeen) return CZ.ui.go('story');
-    if (!d.tutorialDone) return CZ.ui.go('play', { roundId: rounds()[0].id });
+    // Yeni akış: açılır açılmaz köyde Noel gecesi hikâyesi (prolog). Karakter sonra Karakterler'den değişir.
+    if (!d.avatar) { d.avatar = 'boy'; }
+    if (!d.introDone) { d.tutorialDone = true; d.storySeen = true; CZ.state.save(); return CZ.ui.wipeTo('valley'); }
     return CZ.ui.go('hub');
   }
 

@@ -7,9 +7,9 @@
 
   CZ.screens.title = {
     render(el) {
-      const quick = state.data.tutorialDone && state.data.storySeen && game.foundCount() >= 1;
+      const quick = state.data.introDone;
       let started = false;
-      const run = () => { if (started) return; started = true; CZ.audio.sfx('button'); CZ.ui.wipeTo('chase', { endless: true }); };
+      const run = () => { if (started) return; started = true; CZ.audio.sfx('button'); CZ.ui.wipeTo('valley'); };
       // Harfler tek tek zıplayarak gelir.
       const letters = [...t('title.name')].map((ch, i) => h('span', {
         class: ch === ' ' ? 'space' : '',
@@ -32,7 +32,7 @@
           h('p', { class: 'tagline', text: t('title.tag') })),
         zibo.el,
         h('div', { class: 'title-actions' }, ...(quick
-          ? [btn(t('tap.run'), () => run(), 'primary big pulse'), btn(t('win.toVillage'), () => game.next(), 'small ghost-dark')]
+          ? [btn(t('title.play'), () => run(), 'primary big pulse'), btn(t('hub.menu'), () => game.next(), 'small ghost-dark')]
           : [btn(t('title.play'), () => game.next(), 'primary big pulse')])));
       // Subway Surfers gibi: geri gelen oyuncu ekrana dokununca doğrudan koşar
       if (quick) el.addEventListener('pointerdown', e => { if (!e.target.closest('button, .zibo')) run(); });
@@ -215,7 +215,7 @@
         CZ.audio.sfx('buy'); CZ.ui.toast(t('hub.adGot', { n: CZ.AD_REWARD.gold })); CZ.ui.refresh();
       }), { cls: 'ad-btn', badge: h('span', {}, adLeft + '') }) : null;
       const petId = (CZ.activePet() || { id: 'penguin' }).id;
-      const runOpen = state.data.tutorialDone && game.foundCount() >= 1;
+      const runOpen = state.data.tutorialDone;
       el.append(
         h('div', { class: 'hub-bg' }, img('scene.hub_bg', 'hub-bg-img')),
         snow(10),

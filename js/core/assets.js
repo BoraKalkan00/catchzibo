@@ -24,7 +24,8 @@ CZ.OVERRIDES = {
   'zibo.run1': 'assets/zibo/png/back1.webp',
   'zibo.run2': 'assets/zibo/png/back2.webp',
   'zibo.back': 'assets/zibo/png/back1.webp',
-  'scene.hub_bg': 'assets/scenes/hub_bg.webp',
+  'scene.hub_bg': 'assets/scenes/story_fest.webp',   // köy oyunu: ana ekranda köy meydanı (malikane değil)
+  'scene.mansion_bg': 'assets/scenes/hub_bg.webp',
   'gold.weap_snowball': 'assets/gold/weap_snowball.webp',
   'gold.weap_sling': 'assets/gold/weap_sling.webp',
   'gold.weap_candy': 'assets/gold/weap_candy.webp',
