@@ -1085,5 +1085,9 @@ CZ.i18n.register('ko', '한국어', {
   "raid.tip": "탑과 울타리가 많을수록 밤에 더 안전해요.",
   "raid.ok": "확인",
   "mila.rest": "너무 지쳤어요, 촌장님. 이제 맡길게요!",
-  "def.buyShort": "부족한 나무/돌 구매"
+  "def.buyShort": "부족한 나무/돌 구매",
+  "gift.title": "일일 선물",
+  "gift.sub": "연속 {n}일째 — 매일 오면 더 커져요!",
+  "gift.day": "{n}일차",
+  "gift.claim": "받기!"
 });

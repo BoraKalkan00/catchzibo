@@ -1505,6 +1505,32 @@ CZ.screens.valley = (function () {
         } else milaSay(t('mila.hi'), 6500);
       }
       CZ.state.save();
+      setTimeout(dailyGift, 1600);
+    }
+    // GÜNLÜK HEDİYE: 7 günlük seri; bir gün kaçırılırsa baştan başlar
+    function dailyGift() {
+      if (!V || !d.introDone || (d.tutV || 0) < 5) return;
+      if (wrap.querySelector('.modal-wrap') || V.cine) return setTimeout(dailyGift, 1500);
+      const day = n => { const x = new Date(n); return x.getFullYear() * 10000 + (x.getMonth() + 1) * 100 + x.getDate(); };
+      const today = day(Date.now()), yest = day(Date.now() - 864e5);
+      const L = d.login || (d.login = { last: 0, n: 0 });
+      if (L.last === today) return;
+      const n = L.last === yest ? (L.n % 7) + 1 : 1;
+      const R = [{ gold: 60, wood: 40 }, { wood: 120, stone: 60 }, { emeralds: 3 }, { gold: 250 }, { wood: 200, stone: 140 }, { emeralds: 6 }, { emeralds: 12, gold: 600 }];
+      const ic = k => k === 'gold' ? img('ui.gold', 'mini-ico') : k === 'emeralds' ? img('ui.emerald', 'mini-ico') : h('i', { text: k === 'wood' ? '🪵' : '🪨' });
+      const box = h('div', { class: 'modal-wrap gift-wrap' }, h('div', { class: 'modal gift-rep' },
+        h('b', { class: 'lg-title', text: t('gift.title') }),
+        h('small', { text: t('gift.sub', { n }) }),
+        h('div', { class: 'gift-days' }, R.map((r, i) => h('div', { class: 'gift-day' + (i + 1 < n ? ' got' : i + 1 === n ? ' now' : '') },
+          h('small', { text: t('gift.day', { n: i + 1 }) }),
+          h('div', { class: 'gift-items' }, Object.entries(r).map(([k, v]) => h('span', {}, ic(k), h('b', { text: String(v) })))),
+          i + 1 < n ? h('i', { class: 'gift-check', text: '✓' }) : null))),
+        btn(t('gift.claim'), () => {
+          Object.entries(R[n - 1]).forEach(([k, v]) => { d[k] = (d[k] || 0) + v; });
+          L.last = today; L.n = n; CZ.state.save(); resUi(); CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]);
+          box.remove(); V.paused = false; V.last = 0;
+        }, 'primary wide')));
+      wrap.append(box); V.paused = true; CZ.audio.sfx('buy');
     }
     // GÖREVLER: oyunda ne yapacağını adım adım gösterir
     // eski kayıtlar: zinciri yeni sıraya taşı (eski sıra: odun, taş, kule, goblin, binek)

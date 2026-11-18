@@ -1085,5 +1085,9 @@ CZ.i18n.register('de', 'Deutsch', {
   "raid.tip": "Mehr Türme und Zäune = sichereres Dorf in der Nacht.",
   "raid.ok": "OK",
   "mila.rest": "Ich bin erschöpft, Chef. Jetzt bist du dran!",
-  "def.buyShort": "Fehlendes Holz/Stein kaufen"
+  "def.buyShort": "Fehlendes Holz/Stein kaufen",
+  "gift.title": "Tagesgeschenk",
+  "gift.sub": "Serie: Tag {n} — komm täglich wieder!",
+  "gift.day": "Tag {n}",
+  "gift.claim": "Abholen!"
 });

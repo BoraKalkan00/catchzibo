@@ -1085,5 +1085,9 @@ CZ.i18n.register('pt', 'Português', {
   "raid.tip": "Mais torres e cercas = vila mais segura à noite.",
   "raid.ok": "OK",
   "mila.rest": "Estou exausta, chefe. Agora é com você!",
-  "def.buyShort": "Comprar madeira/pedra em falta"
+  "def.buyShort": "Comprar madeira/pedra em falta",
+  "gift.title": "Presente diário",
+  "gift.sub": "Sequência: dia {n} — volte todo dia!",
+  "gift.day": "Dia {n}",
+  "gift.claim": "Pegar!"
 });

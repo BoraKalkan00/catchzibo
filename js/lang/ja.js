@@ -1085,5 +1085,9 @@ CZ.i18n.register('ja', '日本語', {
   "raid.tip": "タワーとさくが多いほど夜も安全。",
   "raid.ok": "OK",
   "mila.rest": "もうへとへと、村長。あとはまかせた！",
-  "def.buyShort": "足りない木材/石を買う"
+  "def.buyShort": "足りない木材/石を買う",
+  "gift.title": "デイリーギフト",
+  "gift.sub": "連続{n}日目 — 毎日来ると豪華に！",
+  "gift.day": "{n}日目",
+  "gift.claim": "受け取る！"
 });

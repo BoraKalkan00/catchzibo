@@ -1267,5 +1267,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   "raid.ok": "Tamam",
   "mila.rest": "Çok yoruldum şef, biraz dinleneyim. Artık köy sende!",
   "def.lacking": "Kaynağın yetmiyor: odun kes, taş kır, goblin avla ya da üstteki 💎 ⇄ Pazar'dan altınla al!",
-  "def.buyShort": "Eksik odun/taşı al"
+  "def.buyShort": "Eksik odun/taşı al",
+  "gift.title": "Günlük Hediye",
+  "gift.sub": "Seri: {n}. gün — her gün gel, ödül büyüsün!",
+  "gift.day": "{n}. gün",
+  "gift.claim": "Al!"
 });
