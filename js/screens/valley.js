@@ -760,15 +760,15 @@ CZ.screens.valley = (function () {
       // yetenekler
       if (BUD.task && dd <= stopAt + 0.2 && BUD.cd <= 0) {
         if (H.role === 'wood' || H.role === 'stone') { BUD.cd = Math.max(0.5, 1.1 - L * 0.05); budChop(BUD.task); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
-        else if (H.role === 'fight') { BUD.cd = Math.max(0.45, 0.9 - L * 0.04); hit(BUD.task, 2 + L * 0.8, true); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
+        else if (H.role === 'fight') { BUD.cd = Math.max(0.45, 0.9 - L * 0.04); hit(BUD.task, 2 + L * 0.8, true); CZ.audio.sfx('slash'); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
       }
       if (H.role === 'freeze' && BUD.cd <= 0) {
         const g = nearGob(8);
-        if (g) { BUD.cd = Math.max(3, 6.5 - L * 0.3); goblins.forEach(o => { if (!o.dead && Math.hypot(o.x - BUD.x, o.z - BUD.z) < 5.5 + L * 0.2) { hit(o, 1 + L * 0.4, true); o.stun = Math.max(o.stun || 0, 1.4 + L * 0.12); o.frozen = o.stun; } }); ringFx(BUD.x, BUD.z, 5.5 + L * 0.2, 0x9adcff); CZ.audio.sfx('star'); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
+        if (g) { BUD.cd = Math.max(3, 6.5 - L * 0.3); goblins.forEach(o => { if (!o.dead && Math.hypot(o.x - BUD.x, o.z - BUD.z) < 5.5 + L * 0.2) { hit(o, 1 + L * 0.4, true); o.stun = Math.max(o.stun || 0, 1.4 + L * 0.12); o.frozen = o.stun; iceOn(o); } }); ringFx(BUD.x, BUD.z, 5.5 + L * 0.2, 0x9adcff); CZ.audio.sfx('freeze'); CZ.audio.vibrate(25); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
       }
       if (H.role === 'gift' && BUD.cd <= 0) {
         const g = nearGob(10);
-        if (g) { BUD.cd = Math.max(3, 7 - L * 0.3); const m = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.45), toon(pick([0xe0302e, 0x2fa040, 0x2f6fd8]))); m.position.set(BUD.x, 2.2, BUD.z); scene.add(m); tshots.push({ m, o: g, type: 'cannon', dmg: 3 + L, sp: 14, t: 0 }); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
+        if (g) { BUD.cd = Math.max(3, 7 - L * 0.3); const m = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.45), toon(pick([0xe0302e, 0x2fa040, 0x2f6fd8]))); m.position.set(BUD.x, 2.2, BUD.z); scene.add(m); tshots.push({ m, o: g, type: 'cannon', gift: true, dmg: 3 + L, sp: 14, t: 0 }); CZ.audio.sfx('throw'); if (BUD.hero.throwNow) BUD.hero.throwNow(); }
       }
       BUD.hero.root.position.set(BUD.x, 0, BUD.z); BUD.hero.root.rotation.y = BUD.dir;
       BUD.hero.update(dt, { idle: !moving, speed: moving ? 8 : 0 });
@@ -842,7 +842,7 @@ CZ.screens.valley = (function () {
       if (o.type === 'zibo') return V.story && V.story.ziboDown(o);
       o.dead = true;
       if (o.bar) { scene.remove(o.bar.g); o.bar.fg.material.dispose(); o.bar = null; }
-      scene.remove(o.mesh);
+      scene.remove(o.mesh); if (o.ice) { scene.remove(o.ice); o.ice = null; }
       let total = o.coins + (o.stolen || 0);
       if (o.type === 'goblin' && BUD.id === 'noel') total = Math.round(total * (1.05 + CZ.heroes.lv('noel') * 0.02));
       if (o.type === 'goblin' && CZ.heroes && (d.tutV || 0) >= 5) { const sh = o.boss ? 4 : (Math.random() < 0.03 ? 1 : 0); if (sh) { const hid = CZ.heroes.randomDrop(sh); if (hid) { setTimeout(() => { if (V) floatAt(o, t('hero.shardGot', { n: sh, name: t('hero.n.' + hid) }), 'wave'); }, o.boss ? 900 : 0); heroUi(); } } }
@@ -1122,7 +1122,7 @@ CZ.screens.valley = (function () {
         const tx = q.o.x, tz = q.o.z, ty = 0.9;
         const dx = tx - q.m.position.x, dy = ty - q.m.position.y, dz = tz - q.m.position.z, L2 = Math.hypot(dx, dy, dz);
         if (L2 < 0.5 || q.t > 2) {
-          if (q.type === 'cannon') { goblins.slice().forEach(o => { if (!o.dead && Math.hypot(o.x - tx, o.z - tz) < DEF.cannon.splash) hit(o, q.dmg, true); }); boomFx(tx, tz); }
+          if (q.type === 'cannon') { goblins.slice().forEach(o => { if (!o.dead && Math.hypot(o.x - tx, o.z - tz) < DEF.cannon.splash) hit(o, q.dmg, true); }); boomFx(tx, tz); if (q.gift) giftFx(tx, tz); }
           else if (!q.o.dead) hit(q.o, q.dmg, true);
           scene.remove(q.m); tshots.splice(i, 1); continue;
         }
@@ -1212,11 +1212,11 @@ CZ.screens.valley = (function () {
       // GOBLİNLER: yakındaysan sana mızrakla saldırır; değilse köye yürür, çiti döver ya da altın çalıp kaçar
       goblins.forEach(o => {
         if (o.dead) return;
-        o.stun = Math.max(0, o.stun - dt); o.atk -= dt; o.lunge = Math.max(0, o.lunge - dt);
+        o.stun = Math.max(0, o.stun - dt); if (o.frozen > 0) { o.frozen -= dt; if (o.frozen <= 0) iceOff(o, true); } o.atk -= dt; o.lunge = Math.max(0, o.lunge - dt);
         const dxp = P.x - o.x, dzp = P.z - o.z, dp = Math.hypot(dxp, dzp);
         const rc = Math.hypot(o.x, o.z);
         let tx = 0, tz = 0, sp = o.speed, attackFence = null;
-        if (o.flee) { tx = o.x / (rc || 1) * 80; tz = o.z / (rc || 1) * 80; sp = o.speed * 1.15; if (rc > WORLD_R - 2) { o.dead = true; scene.remove(o.mesh); if (o.bar) { scene.remove(o.bar.g); o.bar = null; } targets.splice(targets.indexOf(o), 1); goblins.splice(goblins.indexOf(o), 1); return; } }
+        if (o.flee) { tx = o.x / (rc || 1) * 80; tz = o.z / (rc || 1) * 80; sp = o.speed * 1.15; if (rc > WORLD_R - 2) { o.dead = true; scene.remove(o.mesh); if (o.ice) { scene.remove(o.ice); o.ice = null; } if (o.bar) { scene.remove(o.bar.g); o.bar = null; } targets.splice(targets.indexOf(o), 1); goblins.splice(goblins.indexOf(o), 1); return; } }
         else if (!o.village && P.down <= 0) { tx = P.x; tz = P.z; }   // önce sadece seni kovalarlar
         else if (dp < 13 && P.down <= 0) { tx = P.x; tz = P.z; }
         else if (!o.village) { o.roam = o.roam || [o.x * 0.75, o.z * 0.75]; tx = o.roam[0]; tz = o.roam[1]; if (Math.hypot(tx - o.x, tz - o.z) < 2) { const a = rand(0, 6.28), rr = rand(FENCE_R + 6, WORLD_R - 6); o.roam = [Math.cos(a) * rr, Math.sin(a) * rr]; } }   // ilk dalgalar: köye girmez, dışarıda dolaşır
@@ -1261,7 +1261,8 @@ CZ.screens.valley = (function () {
         const face = (o.vx || o.vz) ? Math.atan2(-o.vx, -o.vz) : Math.atan2(-dxp, -dzp);
         o.mesh.rotation.y = attackFence ? Math.atan2(o.x, o.z) : face;
         o.spear.position.z = -0.1 - o.lunge * 2.2;
-        o.z3.update(dt, { running: mv > 0 && k > 0, dizzy: o.stun > 0, look: false });
+        if (o.ice && o.ice.visible) o.ice.position.set(o.x, o.ice.position.y, o.z);
+        o.z3.update(dt, { running: mv > 0 && k > 0 && !(o.frozen > 0), dizzy: o.stun > 0 && !(o.frozen > 0), look: false });
       });
       // hedeflerin sarsılması geri gelsin
       targets.forEach(o => { if (o.flash > 0) { o.flash -= dt; if (o.flash <= 0) o.mesh.scale.setScalar(o.base); } });
@@ -1362,6 +1363,11 @@ CZ.screens.valley = (function () {
     const rings = [];
     const tshots = [], booms = [];
     const cannonGeo = new THREE.SphereGeometry(0.3, 10, 8), cannonMat = toon(0x2a2a32);
+    // donmuş goblin: yarı saydam buz kabuğu (paylaşılan geometri/malzeme, ucuz)
+    const iceGeo = new THREE.IcosahedronGeometry(1, 1), iceMat = new THREE.MeshBasicMaterial({ color: 0x8fd8ff, transparent: true, opacity: 0.45, depthWrite: false });
+    function iceOn(o) { if (!o.ice) { o.ice = new THREE.Mesh(iceGeo, iceMat); const s2 = o.boss ? 2.1 : o.r > 0.8 ? 1.5 : 1.15; o.ice.scale.set(s2 * 0.85, s2 * 1.15, s2 * 0.85); o.ice.position.y = s2 * 0.9; o.ice.renderOrder = 3; scene.add(o.ice); } o.ice.visible = true; }
+    function iceOff(o, shatter) { if (!o.ice) return; o.ice.visible = false; if (shatter) { for (let k = 0; k < 5; k++) { const m = new THREE.Mesh(chipGeo, chipMats.ice); m.position.set(o.x, 1, o.z); scene.add(m); chips.push({ m, vx: rand(-3, 3), vy: rand(3, 6), vz: rand(-3, 3) }); } CZ.audio.sfx('crack'); } }
+    function giftFx(x, z) { for (let k = 0; k < 10; k++) { const m = new THREE.Mesh(chipGeo, chipMats['g' + (k % 3)]); m.position.set(x, 0.8, z); scene.add(m); chips.push({ m, vx: rand(-4, 4), vy: rand(4, 8), vz: rand(-4, 4) }); } CZ.audio.sfx('gift'); }
     function boomFx(x, z) { const m = new THREE.Mesh(new THREE.SphereGeometry(0.5, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffb04a, transparent: true, opacity: 0.8, depthWrite: false })); m.position.set(x, 0.6, z); scene.add(m); booms.push({ m, t: 0 }); }
     const reviveBtn = btn(t('def.revive'), () => CZ.ads.show(() => { if (!V || P.down <= 0) return; P.down = 0; P.hp = P.maxHp; P.hurtT = 2; downEl.remove(); CZ.audio.sfx('win'); }), 'primary', 'ic:play');
     const downEl = h('div', { class: 'def-down' }, h('b', { text: t('def.down') }), reviveBtn);
@@ -1446,7 +1452,7 @@ CZ.screens.valley = (function () {
       panel.classList.add('on');
     }
     // TOPLAYICILIK: ağacın yanına gelince baltayla kes (odun), kayanın yanına gelince kazmayla kır (taş)
-    const chips = [], chipGeo = new THREE.BoxGeometry(0.16, 0.16, 0.16), chipMats = { tree: toon(0xc8884a), rock: toon(0xb0b6c4) };
+    const chips = [], chipGeo = new THREE.BoxGeometry(0.16, 0.16, 0.16), chipMats = { tree: toon(0xc8884a), rock: toon(0xb0b6c4), ice: new THREE.MeshBasicMaterial({ color: 0xbfeaff }), g0: toon(0xe0302e), g1: toon(0x2fa040), g2: toon(0xffd23a) };
     // elde balta (ağaç) ya da kazma (kaya)
     const tools = (() => { const mk = pick2 => { const g = new THREE.Group(); const hd = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 0.95, 6), toon(0x7a4a24)); hd.position.y = 0.3; g.add(hd);
         if (pick2) { const pk = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.62, 6), toon(0xb8c0cc)); pk.rotation.z = Math.PI / 2; pk.position.y = 0.74; g.add(pk); }

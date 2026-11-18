@@ -200,6 +200,10 @@ CZ.audio = (function () {
     // Kartopu savaşı
     throw: t => noise(t, 0.12, { gain: 0.06, freq: 1800, to: 600, q: 0.7 }),
     // Koşu sesleri: karda ayak sesi, zıplama, kayma, iniş, şerit değiştirme
+    // kahraman yetenekleri
+    freeze: t => { noise(t, 0.35, { gain: 0.09, freq: 5000, to: 9000, q: 2 }); [0, 4, 7, 12].forEach((n, i) => tone(midi(84 + n), t + i * 0.045, 0.22, { type: 'sine', gain: 0.06 })); },
+    gift: t => { noise(t, 0.12, { gain: 0.16, freq: 1200, to: 300, q: 0.7, type: 'lowpass' }); [0, 4, 7].forEach((n, i) => tone(midi(79 + n), t + 0.05 + i * 0.06, 0.16, { type: 'triangle', gain: 0.07 })); },
+    slash: t => noise(t, 0.11, { gain: 0.12, freq: 2500, to: 600, q: 1.2 }),
     step: (t, side = 0) => noise(t, 0.07, { gain: 0.035, freq: side ? 900 : 750, to: 300, q: 0.8, type: 'lowpass' }),
     jump: t => { noise(t, 0.18, { gain: 0.07, freq: 500, to: 2600, q: 0.6 }); tone(330, t, 0.16, { gain: 0.05, to: 660, type: 'triangle' }); },
     slide: t => noise(t, 0.32, { gain: 0.09, freq: 2600, to: 400, q: 0.5 }),
