@@ -871,7 +871,7 @@ CZ.screens.valley = (function () {
     // MİLA: köyün bekçisi. Kendi bineği Işıltı (satılmaz). Sen yokken köyü o korur; sen varken dinlenir ama köye giren goblini vurur.
     const MILA = { x: -1.6, z: 9.5, dir: 0, cd: 0, say: null };
     const milaMount = quadruped(THREE, { id: 'aurora', kind: 'deer', color: 0xfff0fa, light: 0xffc8e8, speed: 9 });
-    const milaHero = CZ.kk.hero(THREE, (d.avatar === 'elf' ? 'girl' : 'elf'));
+    const milaHero = CZ.kk.hero(THREE, CZ.gen3d && CZ.gen3d.has('t_mila') ? 'mila' : (d.avatar === 'elf' ? 'girl' : 'elf'));
     milaHero.root.scale.setScalar(1.35);
     milaMount.root.position.set(MILA.x, 0, MILA.z); milaMount.root.rotation.y = Math.PI * 0.85;
     milaMount.root.traverse(o => { if (o.isMesh) o.castShadow = true; }); milaHero.root.traverse(o => { o.castShadow = true; });

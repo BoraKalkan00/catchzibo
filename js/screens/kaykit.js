@@ -281,6 +281,78 @@
     return { mixer, play, act, get cur() { return cur; } };
   }
 
+  /* ---------- YAPAY ZEKÂ MODELİNİ KAYKIT İSKELETİNE BAĞLA ---------- */
+  // T-pozunda üretilen tek parça modeli KayKit iskeletinin kutusuna oturtur, her köşeye bölgesine göre
+  // (kafa / gövde / kol / bacak) kemik ağırlığı verir. Böylece KayKit'in 29 hazır animasyonu bu modelle oynar.
+  CZ.KK_GEN = {};   // hazır: { girl: 'u_girl', boy: 't_boy', santa: 't_santa', elf: 't_elf', snowkid: 't_snow', reindeer: 't_deer', knight: 't_knight', mila: 't_mila' } — Bora karar verene kadar kapalı   // görünüm → yapay zekâ modeli (ör. girl: 't_girl'); gen3d'de yoksa eski KayKit görünümü kalır
+  const GEN_SKIN = {};
+  // Gardıroptan alınan mont / bere / atkı renkleri yapay zekâ modelinin köşe renklerine de uygulanır (2D çizimlerdeki kuralların aynısı)
+  function recolor(geo, kind) {
+    const colors = CZ.charArt ? CZ.charArt.colorsOf(kind) : {}, rules = [];
+    ['jacket', 'hat', 'scarf'].forEach(p2 => { const tg = colors[p2] && CZ.PART_ORIG[kind] && colors[p2] !== CZ.PART_ORIG[kind][p2] ? CZ.COLORS[colors[p2]] : null; const r = (CZ.PART_RULES[kind] || {})[p2]; if (tg && r) rules.push({ r, t: tg }); });
+    if (!rules.length || !geo.attributes.color) return;
+    const c = geo.attributes.color, pos = geo.attributes.position, col = new T.Color(), hsl = {};
+    let y0 = Infinity, y1 = -Infinity; for (let i = 0; i < pos.count; i++) { y0 = Math.min(y0, pos.getY(i)); y1 = Math.max(y1, pos.getY(i)); }
+    for (let i = 0; i < c.count; i++) {
+      col.setRGB(c.getX(i), c.getY(i), c.getZ(i)); col.getHSL(hsl); const h = hsl.h * 360, yt = 1 - (pos.getY(i) - y0) / (y1 - y0);
+      for (const { r, t } of rules) { const [lo, hi] = r.hue; const inH = lo <= hi ? h >= lo && h <= hi : h >= lo || h <= hi;
+        if (!inH || hsl.s < (r.smin || 0) || hsl.s > (r.smax || 1) || hsl.l < (r.lmin || 0) || hsl.l > (r.lmax || 1) || yt < (r.y0 || 0) || yt > (r.y1 || 1)) continue;
+        col.setHSL(t.h / 360, Math.min(1, Math.max(0, hsl.s * (t.sk || 1) + (t.sa || 0))), Math.min(1, Math.max(0, hsl.l * (t.lk || 1) + (t.la || 0)))); c.setXYZ(i, col.r, col.g, col.b); break; }
+    }
+    c.needsUpdate = true;
+  }
+  function skinGen(model, id, kind) {
+    const parts = []; model.traverse(o => { if (o.isSkinnedMesh) parts.push(o); });
+    const body = parts.find(o => /Body/.test(o.name)) || parts[0]; if (!body) return false;
+    model.updateMatrixWorld(true);
+    const sk = body.skeleton, B = n => sk.bones.find(b => b.name === n);
+    const P = {}; sk.bones.forEach(b => { P[b.name] = new T.Vector3().setFromMatrixPosition(b.matrixWorld); });
+    const ck = id + '|' + JSON.stringify(CZ.charArt ? CZ.charArt.colorsOf(kind) : {});
+    let geo = GEN_SKIN[ck];
+    if (!geo) {
+      const box = new T.Box3(); parts.forEach(o => { if (!o.visible) return; o.geometry.computeBoundingBox(); box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld)); });
+      geo = CZ.gen3d.geo(id); geo.computeBoundingBox(); const gb = geo.boundingBox;
+      const sy = (box.max.y - box.min.y) / (gb.max.y - gb.min.y), sx = sy, sz = sy;   // boya göre eşit ölçek: karakter basıklaşmasın
+      const cx = (box.min.x + box.max.x) / 2, cz = (box.min.z + box.max.z) / 2, gcx = (gb.min.x + gb.max.x) / 2, gcz = (gb.min.z + gb.max.z) / 2;
+      const pos = geo.attributes.position, n = pos.count, H = box.max.y - box.min.y;
+      for (let i = 0; i < n; i++) pos.setXYZ(i, (pos.getX(i) - gcx) * sx + cx, (pos.getY(i) - gb.min.y) * sy + box.min.y, (pos.getZ(i) - gcz) * sz + cz);
+      // bölgeler ve kemik zincirleri
+      const L = P.upperarml.x < 0 ? 'l' : 'r', sideOf = x => (x < 0) === (L === 'l') ? 'l' : 'r';
+      const armY = P.upperarml.y, headY = P.head.y, legY = P.upperlegl.y, ax0 = Math.abs(P.upperarml.x), ax1 = Math.abs(P.lowerarml.x);
+      const armX = ax0 + (ax1 - ax0) * 0.35, band = H * 0.16;
+      const top = new T.Vector3(P.head.x, box.max.y, P.head.z);
+      const segs = { hips: [P.hips, P.spine], spine: [P.spine, P.chest], chest: [P.chest, P.head], head: [P.head, top] };
+      ['l', 'r'].forEach(sd => { segs['upperarm' + sd] = [P['upperarm' + sd], P['lowerarm' + sd]]; segs['lowerarm' + sd] = [P['lowerarm' + sd], P['wrist' + sd]]; segs['wrist' + sd] = [P['wrist' + sd], P['hand' + sd]]; segs['hand' + sd] = [P['hand' + sd], P['handslot' + sd]];
+        segs['upperleg' + sd] = [P['upperleg' + sd], P['lowerleg' + sd]]; segs['lowerleg' + sd] = [P['lowerleg' + sd], P['foot' + sd]]; segs['foot' + sd] = [P['foot' + sd], P['toes' + sd]]; segs['toes' + sd] = [P['toes' + sd], P['toes' + sd].clone().add(new T.Vector3(0, 0, P['toes' + sd].z - P['foot' + sd].z))]; });
+      const dSeg = (v, [a, b]) => { const ab = b.clone().sub(a), t = Math.max(0, Math.min(1, v.clone().sub(a).dot(ab) / Math.max(1e-6, ab.lengthSq()))); return v.distanceTo(a.clone().addScaledVector(ab, t)); };
+      const si = new Uint16Array(n * 4), sw = new Float32Array(n * 4), v = new T.Vector3();
+      let headHalf = 0; { const yh = P.head.y + (box.max.y - P.head.y) * 0.3; for (let i = 0; i < n; i++) if (pos.getY(i) > yh) headHalf = Math.max(headHalf, Math.abs(pos.getX(i) - cx)); }   // kafanın (şapka/kapüşon dahil) yarı genişliği
+      const RAD = { head: (box.max.y - P.head.y) * 0.42, chest: H * 0.1, spine: H * 0.1, hips: H * 0.09 };
+      for (let i = 0; i < n; i++) {
+        v.fromBufferAttribute(pos, i); const sd = sideOf(v.x); let cand;
+        if (v.y < legY && Math.abs(v.x) < armX) cand = ['hips', 'upperleg' + sd, 'lowerleg' + sd, 'foot' + sd, 'toes' + sd];
+        else if (Math.abs(v.x) > (v.y > P.head.y ? Math.max(ax1, headHalf * 1.08) : ax1)) cand = ['upperarm' + sd, 'lowerarm' + sd, 'wrist' + sd, 'hand' + sd];   // gövdeden uzakta: yalnız kol (el diken diken gerilmesin)
+        else cand = ['head', 'chest', 'spine', 'hips', 'upperarm' + sd, 'lowerarm' + sd, 'wrist' + sd, 'hand' + sd];
+        // en yakın kemik; kafa ve gövde kalın (yarıçap), kollar ince: kalkık eller kafaya yapışmasın
+        const sc = cand.map(nm => [nm, Math.max(0, dSeg(v, segs[nm]) - (RAD[nm] || H * 0.04))]).sort((a, b) => a[1] - b[1]);
+        let ws = sc.slice(0, 2).map(([nm, d2]) => [nm, 1 / Math.pow(d2 + H * 0.03, 4)]);
+        if (sc[0][0] === 'head' && sc[0][1] === 0) ws = [['head', 1]];   // kafa sert dursun
+        const tot = ws.reduce((s2, w) => s2 + w[1], 0);
+        ws.forEach((w, k) => { si[i * 4 + k] = sk.bones.indexOf(B(w[0])); sw[i * 4 + k] = w[1] / tot; });
+      }
+      geo.setAttribute('skinIndex', new T.Uint16BufferAttribute(si, 4)); geo.setAttribute('skinWeight', new T.Float32BufferAttribute(sw, 4));
+      geo.applyMatrix4(new T.Matrix4().copy(body.matrixWorld).invert());   // gövde parçasının kendi uzayına
+      geo.computeVertexNormals();
+      recolor(geo, kind); GEN_SKIN[ck] = geo;
+    }
+    const mesh = new T.SkinnedMesh(geo, CZ.style.mat({ vertexColors: true }));
+    mesh.name = 'GenBody'; mesh.position.copy(body.position); mesh.quaternion.copy(body.quaternion); mesh.scale.copy(body.scale);
+    body.parent.add(mesh); mesh.bind(sk, body.bindMatrix);
+    model.traverse(o => { if (o.isMesh && o !== mesh) o.visible = false; });   // eski KayKit parçaları (şapka, kafa vb.) gizlenir
+    mesh.castShadow = true; mesh.frustumCulled = false;
+    return true;
+  }
+
   /* ---------- KAHRAMAN ---------- */
   function hero(THREE, kind, hexOverride) {
     T = THREE;
@@ -296,8 +368,8 @@
     tagModel(model, L.body);
     if (L.head) borrowHead(model, L.head, { mage: 'Mage_Head', knight: 'Knight_Head', rogue: 'Rogue_Head', barbarian: 'Barbarian_Head' }[L.head] || L.head);
     (L.hide || []).forEach(n => { const o = model.getObjectByName(n); if (o) o.visible = false; });
-    toonize(model, L.paint || {}, kind + JSON.stringify(hx));
-    accessories(model, L.acc || [], { hat: hx.hatColor });
+    const gid = CZ.KK_GEN[kind], genOk = gid && CZ.gen3d && CZ.gen3d.has(gid) && skinGen(model, gid, kind);
+    if (!genOk) { toonize(model, L.paint || {}, kind + JSON.stringify(hx)); accessories(model, L.acc || [], { hat: hx.hatColor }); }
     const root = new T.Group();
     const holder = new T.Group();
     holder.rotation.y = Math.PI;      // kameraya sırtı dönük koşsun
@@ -516,7 +588,7 @@
       PR = { r, sc, cam };
     }
     const o = hero(T, kind, hx);
-    const P = { front: [Math.PI - 0.3, { idle: true }, 5], wave: [Math.PI - 0.3, { cheer: true }, 0.55], back1: [0.25, { idle: true }, 5] }[pose] || [Math.PI - 0.3, { idle: true }, 5];
+    const P = { front: [Math.PI - 0.3, { idle: true }, 5], wave: [Math.PI - 0.3, { cheer: true }, 0.55], back1: [0.25, { idle: true }, 5], back2: [-0.25, { idle: true }, 5], jump: [Math.PI - 0.3, { jumping: true }, 0.35] }[pose] || [Math.PI - 0.3, { idle: true }, 5];
     o.root.rotation.y = P[0];
     PR.sc.add(o.root);
     for (let n = 0; n < Math.round(P[2] / 0.05); n++) o.update(0.05, P[1]);
@@ -564,5 +636,5 @@
     return { root, update };
   }
 
-  CZ.kk = { load, ready, hero, zibo, portrait, santaClaus, clipNames: () => Object.keys(clips || {}) };
+  CZ.kk = { load, ready, hero, zibo, portrait, santaClaus, skinGen, clipNames: () => Object.keys(clips || {}) };
 })();
