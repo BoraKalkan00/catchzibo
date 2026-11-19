@@ -15,7 +15,7 @@ CZ.screens.village = (function () {
       g.add(CZ.gen3d.get(VGEN[id][0], VGEN[id][1] * (0.85 + Math.min(10, L) * 0.04)));
       return g;
     }
-    const toon = c => new THREE.MeshLambertMaterial({ color: c });
+    const toon = c => CZ.style.mat(c);
     const g = new THREE.Group();
     const add = (geo, mat, x, y, z, ry) => { const m = new THREE.Mesh(geo, typeof mat === 'number' ? toon(mat) : mat); m.position.set(x, y, z); if (ry) m.rotation.y = ry; m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
     const roofCone = (r, hh, col, y) => { const m = add(new THREE.ConeGeometry(r, hh, 4), col, 0, y, 0, Math.PI / 4); const s = add(new THREE.ConeGeometry(r * 0.8, hh * 0.35, 4), 0xffffff, 0, y + hh * 0.36, 0, Math.PI / 4); return [m, s]; };
@@ -36,14 +36,14 @@ CZ.screens.village = (function () {
       add(new THREE.BoxGeometry(0.9, 0.55, 0.05), L >= 5 ? 0xf2c230 : 0xd8282a, 0.47, floors * 1.8 + 3.9, 0);
       if (L >= 4) [-1, 1].forEach(sd => { add(new THREE.CylinderGeometry(0.7, 0.8, 3.2 + L * 0.15, 8), 0xd8d0c0, sd * 2.8, 1.6, 1.5); add(new THREE.ConeGeometry(0.9, 1.4, 8), 0x2f5fd8, sd * 2.8, 3.9 + L * 0.15, 1.5); });
     } else if (id === 'mine') {
-      const rock = new THREE.MeshLambertMaterial({ color: 0x8a90a0, flatShading: true });
+      const rock = CZ.style.mat({ color: 0x8a90a0, flatShading: true });
       add(new THREE.DodecahedronGeometry(2.2, 0), rock, 0, 0.9, -0.4).scale.set(1.2, 0.75, 1);
       add(new THREE.DodecahedronGeometry(1.4, 0), rock, 1.6, 0.7, -0.8);
       add(new THREE.CircleGeometry(0.9, 12, 0, Math.PI), new THREE.MeshBasicMaterial({ color: 0x141a28 }), 0, 0.02, 1.2).rotation.x = 0;
       add(new THREE.BoxGeometry(2, 0.2, 0.2), 0x8a5228, 0, 1.7, 1.25); [-0.9, 0.9].forEach(x => add(new THREE.BoxGeometry(0.2, 1.7, 0.2), 0x8a5228, x, 0.85, 1.25));
       const n = 1 + Math.floor(L / 2);
-      for (let i = 0; i < n; i++) add(new THREE.ConeGeometry(0.35 + i * 0.03, 0.4, 8), new THREE.MeshLambertMaterial({ color: 0xffc020, emissive: 0x3a2600 }), -1.6 + (i % 4) * 0.5, 0.2, 1.9 + Math.floor(i / 4) * 0.5);
-      add(new THREE.BoxGeometry(0.9, 0.5, 0.6), 0x5a3a20, 1.6, 0.45, 1.6); add(new THREE.ConeGeometry(0.45, 0.35, 8), new THREE.MeshLambertMaterial({ color: 0xffc020, emissive: 0x3a2600 }), 1.6, 0.85, 1.6);
+      for (let i = 0; i < n; i++) add(new THREE.ConeGeometry(0.35 + i * 0.03, 0.4, 8), CZ.style.mat({ color: 0xffc020, emissive: 0x3a2600 }), -1.6 + (i % 4) * 0.5, 0.2, 1.9 + Math.floor(i / 4) * 0.5);
+      add(new THREE.BoxGeometry(0.9, 0.5, 0.6), 0x5a3a20, 1.6, 0.45, 1.6); add(new THREE.ConeGeometry(0.45, 0.35, 8), CZ.style.mat({ color: 0xffc020, emissive: 0x3a2600 }), 1.6, 0.85, 1.6);
     } else if (id === 'bakery') {
       add(new THREE.BoxGeometry(3.4, 2.2, 3), 0xf3d8b0, 0, 1.1, 0);
       roofCone(2.8, 1.8, 0xd88a2a, 3.1);
@@ -133,7 +133,7 @@ CZ.screens.village = (function () {
     plaza.rotation.x = -Math.PI / 2; plaza.position.y = 0.01; plaza.receiveShadow = true; scene.add(plaza);
     // köy duvarı: kule seviyesiyle yükselir ve taşlaşır
     const wallL = VL().lv('tower');
-    const wallMat = new THREE.MeshLambertMaterial({ color: wallL >= 6 ? 0xa8a4a0 : 0x9a6a3a });
+    const wallMat = CZ.style.mat({ color: wallL >= 6 ? 0xa8a4a0 : 0x9a6a3a });
     const postGeo = wallL >= 6 ? new THREE.BoxGeometry(1.4, 1 + wallL * 0.08, 0.7) : new THREE.CylinderGeometry(0.15, 0.15, 1.1, 6);
     for (let i = 0; i < 64; i++) {
       const a = i / 64 * Math.PI * 2;
@@ -141,7 +141,7 @@ CZ.screens.village = (function () {
       const m = new THREE.Mesh(postGeo, wallMat); m.position.set(Math.cos(a) * 14.5, (wallL >= 6 ? 0.5 + wallL * 0.04 : 0.55), Math.sin(a) * 14.5); m.rotation.y = -a + Math.PI / 2; m.castShadow = true; scene.add(m);
     }
     // ağaçlar çevrede
-    const tg = new THREE.ConeGeometry(1.4, 3.2, 8), tm = new THREE.MeshLambertMaterial({ color: 0x2a7a4a });
+    const tg = new THREE.ConeGeometry(1.4, 3.2, 8), tm = CZ.style.mat({ color: 0x2a7a4a });
     const treeI = new THREE.InstancedMesh(tg, tm, 70), tmp = new THREE.Object3D();
     for (let i = 0; i < 70; i++) { const a = Math.random() * 6.28, r = 17 + Math.random() * 16; const s = 0.8 + Math.random() * 0.6; tmp.position.set(Math.cos(a) * r, 1.6 * s, Math.sin(a) * r); tmp.scale.setScalar(s); tmp.updateMatrix(); treeI.setMatrixAt(i, tmp.matrix); }
     treeI.castShadow = true; scene.add(treeI);
@@ -163,7 +163,7 @@ CZ.screens.village = (function () {
     CZ.VB.forEach(b => place(b.id));
     // inşaat iskelesi göstergesi
     const scaffold = new THREE.Group();
-    const sMat = new THREE.MeshLambertMaterial({ color: 0xf2c230 });
+    const sMat = CZ.style.mat({ color: 0xf2c230 });
     [[-1.8, -1.8], [1.8, -1.8], [-1.8, 1.8], [1.8, 1.8]].forEach(([x, z]) => { const p = new THREE.Mesh(new THREE.BoxGeometry(0.15, 4.5, 0.15), sMat); p.position.set(x, 2.25, z); scaffold.add(p); });
     scene.add(scaffold);
 

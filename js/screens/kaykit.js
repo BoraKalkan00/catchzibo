@@ -127,6 +127,7 @@
 
   let GRAD = null;
   function grad() {
+    if (CZ.style) return CZ.style.grad();   // oyunun ortak ışık rampası
     if (GRAD) return GRAD;
     const d = new Uint8Array([120, 120, 120, 255, 200, 200, 200, 255, 255, 255, 255, 255]);
     GRAD = new T.DataTexture(d, 3, 1, T.RGBAFormat);

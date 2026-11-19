@@ -208,42 +208,42 @@ CZ.runner3d = (function () {
 
     // Malzemeler (paylaşılır)
     const M = {
-      road: new THREE.MeshLambertMaterial({ map: cobbleTex() }),
-      snow: new THREE.MeshLambertMaterial({ map: snowTex() }),
-      curb: new THREE.MeshLambertMaterial({ color: 0x8a8394 }),
-      walls: [0xe9d3a8, 0xd8b98a, 0xc99f73, 0xe5c79a, 0xbfa07c].map(c => new THREE.MeshLambertMaterial({ color: c })),
-      beam: new THREE.MeshLambertMaterial({ color: 0x5a3a22 }),
-      roofs: [0x7a3a2a, 0x5b4a6e, 0x6a4a32, 0x3f5a6a].map(c => new THREE.MeshLambertMaterial({ color: c })),
-      roofSnow: new THREE.MeshLambertMaterial({ color: 0xf4f8ff }),
+      road: CZ.style.mat({ map: cobbleTex() }),
+      snow: CZ.style.mat({ map: snowTex() }),
+      curb: CZ.style.mat({ color: 0x8a8394 }),
+      walls: [0xe9d3a8, 0xd8b98a, 0xc99f73, 0xe5c79a, 0xbfa07c].map(c => CZ.style.mat({ color: c })),
+      beam: CZ.style.mat({ color: 0x5a3a22 }),
+      roofs: [0x7a3a2a, 0x5b4a6e, 0x6a4a32, 0x3f5a6a].map(c => CZ.style.mat({ color: c })),
+      roofSnow: CZ.style.mat({ color: 0xf4f8ff }),
       window: new THREE.MeshBasicMaterial({ color: 0xffc95c }),
-      door: new THREE.MeshLambertMaterial({ color: 0x6b3d1f }),
-      garland: new THREE.MeshLambertMaterial({ color: 0x2f7a3a }),
-      bow: new THREE.MeshLambertMaterial({ color: 0xd12a2a }),
-      pine: new THREE.MeshLambertMaterial({ color: 0x23683f }),
-      trunk: new THREE.MeshLambertMaterial({ color: 0x5a3a22 }),
-      pole: new THREE.MeshLambertMaterial({ color: 0x2b2b36 }),
+      door: CZ.style.mat({ color: 0x6b3d1f }),
+      garland: CZ.style.mat({ color: 0x2f7a3a }),
+      bow: CZ.style.mat({ color: 0xd12a2a }),
+      pine: CZ.style.mat({ color: 0x23683f }),
+      trunk: CZ.style.mat({ color: 0x5a3a22 }),
+      pole: CZ.style.mat({ color: 0x2b2b36 }),
       lampHead: new THREE.MeshBasicMaterial({ color: 0xffd98a }),
-      coin: new THREE.MeshLambertMaterial({ color: 0xffc928, emissive: 0x6a4a00 }),
+      coin: CZ.style.mat({ color: 0xffc928, emissive: 0x6a4a00 }),
       coinFace: null,
-      emerald: new THREE.MeshLambertMaterial({ color: 0x2ee07a, emissive: 0x0b5a2a }),
+      emerald: CZ.style.mat({ color: 0x2ee07a, emissive: 0x0b5a2a }),
       gifts: [['#d92d3a', '#2e8b45'], ['#2f6fd6', '#f2c12e'], ['#7b3fc4', '#f2c12e'], ['#2e8b45', '#d92d3a']]
-        .map(([a, b]) => new THREE.MeshLambertMaterial({ map: giftTex(a, b) })),
-      wood: new THREE.MeshLambertMaterial({ map: woodTex(false) }),
-      goldChest: new THREE.MeshLambertMaterial({ color: 0xf3c33c, emissive: 0x5a3d00 }),
-      sled: new THREE.MeshLambertMaterial({ color: 0xb8262e }),
-      wagonA: new THREE.MeshLambertMaterial({ color: 0xc23a2e }),
-      ribbon: new THREE.MeshLambertMaterial({ color: 0xffcf3a }),
-      wagonB: new THREE.MeshLambertMaterial({ color: 0x2f7a4a }),
-      trim: new THREE.MeshLambertMaterial({ color: 0xe8b830 }),
-      roofSnowT: new THREE.MeshLambertMaterial({ color: 0xdfe8f6 }),
-      ramp: new THREE.MeshLambertMaterial({ map: woodTex(false) }),
-      snowman: new THREE.MeshLambertMaterial({ color: 0xf6f9ff }),
-      coal: new THREE.MeshLambertMaterial({ color: 0x222228 }),
-      carrot: new THREE.MeshLambertMaterial({ color: 0xf08a2a }),
-      runnerMetal: new THREE.MeshLambertMaterial({ color: 0xd9c38a }),
-      banner: new THREE.MeshLambertMaterial({ color: 0x2f7a3a, side: THREE.DoubleSide }),
-      soldier: new THREE.MeshLambertMaterial({ color: 0xc8242e }),
-      skin: new THREE.MeshLambertMaterial({ color: 0xf2c9a0 }),
+        .map(([a, b]) => CZ.style.mat({ map: giftTex(a, b) })),
+      wood: CZ.style.mat({ map: woodTex(false) }),
+      goldChest: CZ.style.mat({ color: 0xf3c33c, emissive: 0x5a3d00 }),
+      sled: CZ.style.mat({ color: 0xb8262e }),
+      wagonA: CZ.style.mat({ color: 0xc23a2e }),
+      ribbon: CZ.style.mat({ color: 0xffcf3a }),
+      wagonB: CZ.style.mat({ color: 0x2f7a4a }),
+      trim: CZ.style.mat({ color: 0xe8b830 }),
+      roofSnowT: CZ.style.mat({ color: 0xdfe8f6 }),
+      ramp: CZ.style.mat({ map: woodTex(false) }),
+      snowman: CZ.style.mat({ color: 0xf6f9ff }),
+      coal: CZ.style.mat({ color: 0x222228 }),
+      carrot: CZ.style.mat({ color: 0xf08a2a }),
+      runnerMetal: CZ.style.mat({ color: 0xd9c38a }),
+      banner: CZ.style.mat({ color: 0x2f7a3a, side: THREE.DoubleSide }),
+      soldier: CZ.style.mat({ color: 0xc8242e }),
+      skin: CZ.style.mat({ color: 0xf2c9a0 }),
       shadow: new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.28, depthWrite: false })
     };
     const GEO = {
@@ -300,7 +300,7 @@ CZ.runner3d = (function () {
 
     // AKICILIK: bir dekor grubundaki onlarca küçük kutuyu tek bir ağa "pişir" (renkler köşe rengine).
     // Ev başına ~20 çizim çağrısı → 2. Sahnedeki toplam çağrı ~750'den ~150'ye iner.
-    const bakedLambert = new THREE.MeshLambertMaterial({ vertexColors: true });
+    const bakedLambert = CZ.style.mat({ vertexColors: true });
     const bakedBasic = new THREE.MeshBasicMaterial({ vertexColors: true });
     function bake(g) {
       const lists = { lambert: [], basic: [] };
@@ -450,7 +450,7 @@ CZ.runner3d = (function () {
     let jet = null;
     if (zibo3) {
       jet = new THREE.Group();
-      const tank = new THREE.MeshLambertMaterial({ color: 0x9aa4b4 }), red = new THREE.MeshLambertMaterial({ color: 0xd8282a });
+      const tank = CZ.style.mat({ color: 0x9aa4b4 }), red = CZ.style.mat({ color: 0xd8282a });
       [-0.16, 0.16].forEach(x => {
         const c1 = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.5, 10), tank); c1.position.set(x, 1.05, 0.3); jet.add(c1);
         const cap = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 6), red); cap.position.set(x, 1.3, 0.3); jet.add(cap);
@@ -604,9 +604,9 @@ CZ.runner3d = (function () {
       x.fillStyle = '#ffcf3a'; x.beginPath(); x.arc(94, 14, 9, 0, 7); x.fill();
     }) : null;
     // 3D bomba: siyah gövde, fitil, fitilde titreyen kıvılcım
-    const bombBody = CHASE ? new THREE.MeshLambertMaterial({ color: 0x24262e }) : null;
+    const bombBody = CHASE ? CZ.style.mat({ color: 0x24262e }) : null;
     const bombGeo = CHASE ? new THREE.SphereGeometry(0.34, 16, 12) : null;
-    const fuseMat = CHASE ? new THREE.MeshLambertMaterial({ color: 0x8a6a3a }) : null;
+    const fuseMat = CHASE ? CZ.style.mat({ color: 0x8a6a3a }) : null;
     const fuseSparkMat = CHASE ? new THREE.SpriteMaterial({ map: canvasTex(64, 64, (x) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 30); g.addColorStop(0, '#fff'); g.addColorStop(0.3, '#ffe27a'); g.addColorStop(0.6, 'rgba(255,120,30,.7)'); g.addColorStop(1, 'rgba(255,80,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); }), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }) : null;
     function makeBomb() {
       const g = new THREE.Group();
@@ -725,7 +725,7 @@ CZ.runner3d = (function () {
     }
     // TÜNEL (sürpriz an): yolun üstünü kaplayan taş kemerli tünel, içinde renkli Noel ışıkları.
     // Engel değildir; içinde de engeller gelir. Girince ışık kararır, çıkınca açılır.
-    const TUN = { stone: new THREE.MeshLambertMaterial({ color: 0x6a6f80 }), dark: new THREE.MeshLambertMaterial({ color: 0x2a2d3a }), trim: new THREE.MeshLambertMaterial({ color: 0xe8b830 }), snow: new THREE.MeshLambertMaterial({ color: 0xf4f8ff }) };
+    const TUN = { stone: CZ.style.mat({ color: 0x6a6f80 }), dark: CZ.style.mat({ color: 0x2a2d3a }), trim: CZ.style.mat({ color: 0xe8b830 }), snow: CZ.style.mat({ color: 0xf4f8ff }) };
     const bulbMats = [0xff4a4a, 0x4aff7a, 0xffd84a, 0x4ab0ff].map(c => new THREE.MeshBasicMaterial({ color: c }));
     function tunnel() {
       const g = new THREE.Group();
@@ -775,17 +775,17 @@ CZ.runner3d = (function () {
     const TRAIN_TOP = 2.3;
     const FLY_H = 6.4;
     const TM = {
-      body: [0xc8302a, 0x2a7a46, 0x2f5fb8].map(c => new THREE.MeshLambertMaterial({ color: c })),
-      cream: new THREE.MeshLambertMaterial({ color: 0xf3e6c8 }),
-      gold: new THREE.MeshLambertMaterial({ color: 0xe8b830 }),
-      glass: new THREE.MeshLambertMaterial({ color: 0x23344f }),
+      body: [0xc8302a, 0x2a7a46, 0x2f5fb8].map(c => CZ.style.mat({ color: c })),
+      cream: CZ.style.mat({ color: 0xf3e6c8 }),
+      gold: CZ.style.mat({ color: 0xe8b830 }),
+      glass: CZ.style.mat({ color: 0x23344f }),
       lit: new THREE.MeshBasicMaterial({ color: 0xffd98a }),
-      dark: new THREE.MeshLambertMaterial({ color: 0x2a2a32 }),
-      steel: new THREE.MeshLambertMaterial({ color: 0x8a8f9c }),
-      snow: new THREE.MeshLambertMaterial({ color: 0xf4f8ff }),
-      rampA: new THREE.MeshLambertMaterial({ color: 0x8a5a32 }),
-      hazY: new THREE.MeshLambertMaterial({ color: 0xf2c230 }),
-      hazK: new THREE.MeshLambertMaterial({ color: 0x24242a }),
+      dark: CZ.style.mat({ color: 0x2a2a32 }),
+      steel: CZ.style.mat({ color: 0x8a8f9c }),
+      snow: CZ.style.mat({ color: 0xf4f8ff }),
+      rampA: CZ.style.mat({ color: 0x8a5a32 }),
+      hazY: CZ.style.mat({ color: 0xf2c230 }),
+      hazK: CZ.style.mat({ color: 0x24242a }),
       head: new THREE.MeshBasicMaterial({ color: 0xfff6c8 })
     };
     // çatı: tren boyunca yatık, basık kubbe (alt yarısı gövdenin içinde kalır)
@@ -930,7 +930,7 @@ CZ.runner3d = (function () {
     // Altınlar tek bir "örnekli" ağla çizilir (kaç altın olursa olsun 1 çizim çağrısı).
     const COIN_MAX = 120;
     // Altının iki yüzünde Zibo damgası (yan yüz düz altın)
-    M.coinFace = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x6a4a00, map: canvasTex(128, 128, (x) => {
+    M.coinFace = CZ.style.mat({ color: 0xffffff, emissive: 0x6a4a00, map: canvasTex(128, 128, (x) => {
       const g = x.createRadialGradient(64, 54, 10, 64, 64, 64); g.addColorStop(0, '#ffe56a'); g.addColorStop(1, '#e8a812');
       x.fillStyle = g; x.fillRect(0, 0, 128, 128);
       x.strokeStyle = '#b87a00'; x.lineWidth = 8; x.beginPath(); x.arc(64, 64, 56, 0, 7); x.stroke();
@@ -1557,7 +1557,7 @@ CZ.runner3d = (function () {
     // Kızak simgesini alınca Noel Baba'nın kızağı gelir; sen arkada oturursun, Noel Baba geyikleri sürer.
     // Kaydırınca karakter baş parmağıyla yön gösterir, Noel Baba o yöne döner. Havada Zibo damgalı altınlar.
     let sleigh = null;
-    function toon(c) { return new THREE.MeshLambertMaterial({ color: c }); }
+    function toon(c) { return CZ.style.mat({ color: c }); }
     function reindeerMesh(lead) {
       const g = new THREE.Group();
       const fur = toon(0x8a5230), light = toon(0xd8b48a), dark = toon(0x3a2416), horn = toon(0x6a4a2a);

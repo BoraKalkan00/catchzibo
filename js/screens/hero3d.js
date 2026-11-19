@@ -12,7 +12,7 @@ CZ.CHARS = {
 
 CZ.hero3d = function (THREE, kind) {
   const C = Object.assign({}, CZ.CHARS[kind] || CZ.CHARS.girl, CZ.charArt ? CZ.charArt.hexes(kind) : {});
-  const mat = c => new THREE.MeshLambertMaterial({ color: c });
+  const mat = c => CZ.style.mat({ color: c });
   const stripeMat = () => {
     const c = document.createElement('canvas'); c.width = 16; c.height = 64;
     const x = c.getContext('2d');
@@ -20,7 +20,7 @@ CZ.hero3d = function (THREE, kind) {
     x.fillStyle = '#' + C.stripes.toString(16).padStart(6, '0');
     for (let i = 0; i < 64; i += 16) x.fillRect(0, i, 16, 8);
     const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1, 2);
-    return new THREE.MeshLambertMaterial({ map: tex });
+    return CZ.style.mat({ map: tex });
   };
   const M = { skin: mat(C.skin), hair: mat(C.hair), hat: mat(C.hatColor), pom: mat(C.pom), jacket: mat(C.jacket), scarf: mat(C.scarf), pants: C.stripes ? stripeMat() : mat(C.pants), boots: mat(C.boots), fur: mat(C.fur || 0xffffff) };
   const sph = (r, m, x, y, z, sx, sy, sz) => {
@@ -83,7 +83,7 @@ CZ.hero3d = function (THREE, kind) {
   if (C.cape) {
     cape = pivot(0, 0.6, 0.2);
     torso.add(cape);
-    const cloth = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.36, 0.7, 14, 1, true, -Math.PI / 2, Math.PI), new THREE.MeshLambertMaterial({ color: C.cape, side: THREE.DoubleSide }));
+    const cloth = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.36, 0.7, 14, 1, true, -Math.PI / 2, Math.PI), CZ.style.mat({ color: C.cape, side: THREE.DoubleSide }));
     cloth.position.set(0, -0.34, -0.2);
     cape.add(cloth);
   }

@@ -9,6 +9,25 @@ CZ.GEN3D = {
   goblin: { yaw: Math.PI }, zibo: { yaw: Math.PI }, goblinsef: { yaw: Math.PI }, kuyu: {}, fici: {}, fener: {},
   h_rudi: { yaw: Math.PI }, h_ela: { yaw: Math.PI }, h_buzbas: { yaw: Math.PI }, h_demir: { yaw: Math.PI }, h_noel: { yaw: Math.PI }
 };
+// OYUNUN TEK GÖRSEL STİLİ: her şey aynı çizgi film ışık rampasıyla (3 ton), aynı konturla ve
+// aynı renk aralığında çizilir. Karakterler, binalar, goblinler, ağaçlar: hepsi CZ.style.mat ile.
+CZ.style = (function () {
+  let G = null;
+  function grad() {
+    if (G) return G; const T = window.THREE;
+    const d = new Uint8Array([112, 112, 112, 255, 178, 178, 178, 255, 228, 228, 228, 255, 255, 255, 255, 255]);   // gölge · ara · ışık · parlak
+    G = new T.DataTexture(d, 4, 1, T.RGBAFormat); G.minFilter = G.magFilter = T.NearestFilter; G.needsUpdate = true; return G;
+  }
+  const mat = o => new window.THREE.MeshToonMaterial(Object.assign({ gradientMap: grad() }, typeof o === 'number' ? { color: o } : o));
+  // yapay zekâ modellerinin renklerini ortak paletle uyumlu yap: aşırı soluk/aşırı koyu tonları topla, doygunluğu dengele
+  function harmonize(geo) {
+    const c = geo.attributes.color; if (!c || c.userData && c.userData.hz) return; const T = window.THREE, col = new T.Color(), hsl = {};
+    for (let i = 0; i < c.count; i++) { col.setRGB(c.getX(i), c.getY(i), c.getZ(i)); col.getHSL(hsl);
+      const s2 = Math.min(0.85, hsl.s * 1.3 + 0.05), l2 = 0.08 + hsl.l * 0.74; col.setHSL(hsl.h, s2, l2); c.setXYZ(i, col.r, col.g, col.b); }
+    c.needsUpdate = true; c.userData = { hz: true };
+  }
+  return { grad, mat, harmonize, OL: 0x1c1a2e };
+})();
 CZ.gen3d = (function () {
   const cache = {};
   let P = null;
@@ -21,7 +40,7 @@ CZ.gen3d = (function () {
     P = Promise.all(ids.map(id => new Promise(ok => {
       L.load('assets/3d/gen/' + id + '.glb', g => {
         const root = g.scene;
-        root.traverse(o => { if (o.isMesh) { o.geometry.computeVertexNormals(); o.material = new THREE.MeshLambertMaterial({ vertexColors: true }); o.castShadow = true; o.receiveShadow = true; } });
+        root.traverse(o => { if (o.isMesh) { o.geometry.computeVertexNormals(); CZ.style.harmonize(o.geometry); o.material = CZ.style.mat({ vertexColors: true }); o.castShadow = true; o.receiveShadow = true; } });
         cache[id] = root; ok();
       }, undefined, () => ok());
     })));

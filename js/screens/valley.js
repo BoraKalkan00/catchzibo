@@ -72,7 +72,8 @@ CZ.screens.valley = (function () {
           float sw = sin(uPh) * sg;
           transformed.z += sw * uAmp * lw * 0.22;
           transformed.y += max(0.0, cos(uPh) * sg) * uAmp * lw * 0.08;`); };
-      o.material.customProgramCacheKey = () => 'legs' + LEG; });
+      o.material.customProgramCacheKey = () => 'legs' + LEG;
+      o.material.userData.deform = { U, key: 'legs' + LEG, glsl: `float lw = clamp((${LEG.toFixed(2)} - position.y) / ${LEG.toFixed(2)}, 0.0, 1.0); float sg = sign(position.x + 0.0001) * sign(position.z + 0.0001); float sw = sin(uPh) * sg; transformed.z += sw * uAmp * lw * 0.22; transformed.y += max(0.0, cos(uPh) * sg) * uAmp * lw * 0.08;` }; });
     let ph = 0;
     return {
       root: g, seatY: hh * ((CZ.GEN3D[id] || {}).seat || 0.62),
@@ -89,7 +90,7 @@ CZ.screens.valley = (function () {
   }
   function quadruped(THREE, def) {
     if (MOUNT_GEN[def.id] && CZ.gen3d && CZ.gen3d.has(MOUNT_GEN[def.id][0])) return genMount(THREE, def);
-    const toon = c => new THREE.MeshLambertMaterial({ color: c });
+    const toon = c => CZ.style.mat(c);
     const fur = toon(def.color), light = toon(def.light), dark = toon(0x2a1a12);
     const g = new THREE.Group();
     const body = new THREE.Group(); g.add(body);
@@ -196,15 +197,16 @@ CZ.screens.valley = (function () {
     scene.background = new THREE.Color(SKY);
     scene.fog = new THREE.Fog(SKY, 40, 75);
     const camera = new THREE.PerspectiveCamera(46, 1, 0.5, 160);
-    const hemi = new THREE.HemisphereLight(0xdfeaff, 0x56648a, 0.62); scene.add(hemi);
+    const hemi = new THREE.HemisphereLight(0xdfeaff, 0x56648a, 0.55); scene.add(hemi);
     const sun = new THREE.DirectionalLight(0xffe0b0, 1.08); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
     sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
     Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 5, far: 90 }); sun.shadow.bias = -0.002;
-    const toon = c => new THREE.MeshLambertMaterial({ color: c });
+    const toon = c => CZ.style.mat(c);
     const at = (m, x, y, z) => { m.position.set(x, y, z); return m; };
     const seeU = { uSee: { value: new THREE.Vector3(-999, -999, 0) }, uSeeR: { value: 90 } };
     const seeThrough = mat => {
+      mat.userData.see = true;
       mat.onBeforeCompile = sh => {
         Object.assign(sh.uniforms, seeU);
         sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying float vVZ;').replace('#include <project_vertex>', '#include <project_vertex>\nvVZ = -mvPosition.z;');
@@ -215,23 +217,42 @@ CZ.screens.valley = (function () {
       };
       return mat;
     };
-    const toonSee = c => seeThrough(new THREE.MeshLambertMaterial({ color: c }));
+    const toonSee = c => seeThrough(CZ.style.mat(c));
     // ÇİZGİ FİLM KONTURU: karakterlerin etrafına koyu ince çizgi (LoL / Albion tarzı okunurluk)
-    const outlineMat = th => { const m = new THREE.MeshBasicMaterial({ color: 0x1c1a2e, side: THREE.BackSide }); m.onBeforeCompile = sh => { sh.vertexShader = sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += normalize(normal) * ' + th.toFixed(4) + ';'); }; m.customProgramCacheKey = () => 'ol' + th; return m; };
+    const outlineMat = th => { const m = new THREE.MeshBasicMaterial({ color: CZ.style.OL, side: THREE.BackSide }); m.onBeforeCompile = sh => { sh.vertexShader = sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += normalize(normal) * ' + th.toFixed(4) + ';'); }; m.customProgramCacheKey = () => 'ol' + th; return m; };
     const OL = {};
+    function deformOutline(th, df) { const m = new THREE.MeshBasicMaterial({ color: CZ.style.OL, side: THREE.BackSide });
+      m.onBeforeCompile = sh => { sh.uniforms.uPh = df.U.uPh; sh.uniforms.uAmp = df.U.uAmp; sh.vertexShader = 'uniform float uPh; uniform float uAmp;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + df.glsl + '\ntransformed += normalize(normal) * ' + th.toFixed(4) + ';'); };
+      m.customProgramCacheKey = () => 'ol' + df.key + th; return m; }
+    // büyük nesnelerde kontur kalınlığı dünyada hep aynı olsun (model ölçeğine bölünür)
+    function outlineWorld(root, w) { root.updateWorldMatrix(true, true); const v = new THREE.Vector3(), list = [];
+      root.traverse(o => { if (o.isMesh && !o.userData.ol && !o.userData.olDone && o.geometry && o.geometry.attributes.normal && !(o.material && (o.material.transparent || o.material.isMeshBasicMaterial))) list.push(o); });
+      list.forEach(o => { o.getWorldScale(v); o.userData.olDone = true; olMesh(o, Math.max(0.002, Math.round(w / Math.max(0.05, v.x) * 1000) / 1000)); }); }
     function addOutline(root, th) {
       const list = [];
       root.traverse(o => { if (o.isMesh && !o.userData.ol && o.geometry && o.geometry.attributes.normal && o.visible && !(o.material && (o.material.transparent || o.material.isMeshBasicMaterial))) list.push(o); });
-      const mat = OL[th] || (OL[th] = outlineMat(th));
-      list.forEach(o => {
+      list.forEach(o => olMesh(o, th));
+    }
+    const SEE_V = ['#include <common>', '#include <common>\nvarying float vVZ;', '#include <project_vertex>', '#include <project_vertex>\nvVZ = -mvPosition.z;'];
+    const SEE_F = `if (vVZ < uSee.z - 0.8) { float dd = distance(gl_FragCoord.xy, uSee.xy) / uSeeR; if (dd < 0.75) discard; if (dd < 1.0 && mod(floor(gl_FragCoord.x) + floor(gl_FragCoord.y), 2.0) < 1.0) discard; }`;
+    const OLS = {};
+    const outlineSee = th => { const m = new THREE.MeshBasicMaterial({ color: CZ.style.OL, side: THREE.BackSide });
+      m.onBeforeCompile = sh => { Object.assign(sh.uniforms, seeU); sh.vertexShader = sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += normalize(normal) * ' + th.toFixed(4) + ';').replace(SEE_V[0], SEE_V[1]).replace(SEE_V[2], SEE_V[3]);
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vVZ; uniform vec3 uSee; uniform float uSeeR;').replace('void main() {', 'void main() {\n' + SEE_F); };
+      m.customProgramCacheKey = () => 'ols' + th; return m; };
+    function olMesh(o, th) {
+      const see = o.material && o.material.userData && o.material.userData.see;
+      const mat = see ? (OLS[th] || (OLS[th] = outlineSee(th))) : (OL[th] || (OL[th] = outlineMat(th)));
+      {
         let c;
+        const df = o.material && o.material.userData && o.material.userData.deform;
         if (o.isSkinnedMesh) { c = new THREE.SkinnedMesh(o.geometry, mat); c.bind(o.skeleton, o.bindMatrix); c.bindMode = o.bindMode; }
-        else c = new THREE.Mesh(o.geometry, mat);
-        c.userData.ol = true; c.castShadow = false; c.frustumCulled = false;
+        else c = new THREE.Mesh(o.geometry, df ? deformOutline(th, df) : mat);
+        c.userData.ol = true; c.castShadow = false; c.frustumCulled = !!o.isSkinnedMesh ? false : o.frustumCulled;   // ekran dışındaki kontur çizilmesin
         c.position.copy(o.position); c.quaternion.copy(o.quaternion); c.scale.copy(o.scale);
         o.parent.add(c);
         if (!o.isSkinnedMesh) { o.add(c); c.position.set(0, 0, 0); c.quaternion.identity(); c.scale.set(1, 1, 1); }
-      });
+      }
     }
 
     // ===== ARAZİ: nehir, dere, donmuş göller, çimen yamaları, toprak yollar =====
@@ -356,7 +377,7 @@ CZ.screens.valley = (function () {
         const g = CZ.villageModel(THREE, b.id, CZ.village.lv(b.id));
         g.scale.setScalar(VS); g.position.set(sx * VS, 0, sz * VS);
         g.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && !o.material.isMeshBasicMaterial) o.material = seeThrough(o.material.clone()); } });
-        vilGroup.add(g);
+        vilGroup.add(g); outlineWorld(g, 0.035);
         if (!solids.some(q => q.vil === b.id)) solids.push({ x: sx * VS, z: sz * VS, r: (b.id === 'hall' ? 2.4 : 1.7), vil: b.id });
       });
     }
@@ -368,14 +389,14 @@ CZ.screens.valley = (function () {
     const flame = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.4, 8), new THREE.MeshBasicMaterial({ color: 0xffa83a, transparent: true, opacity: 0.85 })); flame.position.set(34, 1, 30); scene.add(flame);
     // Buz mağarası: sadece kutup ayısı buz duvarını kırabilir; içinde hazine sandığı
     // kayalık tepe + karanlık mağara ağzı
-    const caveMat = seeThrough(new THREE.MeshLambertMaterial({ color: 0x8a94aa, flatShading: true }));
+    const caveMat = seeThrough(CZ.style.mat({ color: 0x8a94aa, flatShading: true }));
     [[-38, -32, 3.4, 3], [-41, -28, 2.8, 2.4], [-35, -35, 2.6, 2.2], [-42, -34, 3, 2.6], [-38.5, -30, 2.2, 3.6]].forEach(([x, z, r2, hh]) => {
       const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(r2, 0), caveMat); rk.position.set(x, hh * 0.45, z); rk.scale.set(1, hh / r2 * 0.75, 1); rk.rotation.y = x; rk.castShadow = true; scene.add(rk);
       const cap = new THREE.Mesh(new THREE.DodecahedronGeometry(r2 * 0.6, 0), seeThrough(toon(0xffffff))); cap.position.set(x, hh * 0.45 + hh * 0.6, z); cap.scale.set(1, 0.4, 1); scene.add(cap);
     });
     const mouth = new THREE.Mesh(new THREE.CircleGeometry(1.8, 16, 0, Math.PI), new THREE.MeshBasicMaterial({ color: 0x141a28 })); mouth.position.set(-33.4, 0.02, -27.9); mouth.rotation.y = -0.75; scene.add(mouth);
     solids.push({ x: -40, z: -31, r: 4.2 });
-    const iceWall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 3.2, 0.8), new THREE.MeshLambertMaterial({ color: 0x9fe0ff, transparent: true, opacity: 0.8 }));
+    const iceWall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 3.2, 0.8), CZ.style.mat({ color: 0x9fe0ff, transparent: true, opacity: 0.8 }));
     iceWall.position.set(-32, 1.6, -26.5); iceWall.rotation.y = -0.75; scene.add(iceWall);
     const ice = { x: -32, z: -26.5, r: 1.9, mesh: iceWall, alive: true };
     solids.push(ice);
@@ -412,11 +433,11 @@ CZ.screens.valley = (function () {
       for (let i = 0; i < p2.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(p2, i);
         const nn = Math.sin(v.x * 3.1 + 1) * Math.cos(v.z * 2.7) * 0.14 + Math.sin(v.y * 6 + v.x * 4) * 0.05 + Math.sin(v.z * 9) * 0.025;   // katmanlı pürüz
         v.multiplyScalar(1 + nn); v.y = v.y < 0 ? v.y * 0.35 : v.y * 0.78; p2.setXYZ(i, v.x, v.y, v.z);
-        const k = 0.4 + v.y * 0.08 + nn * 0.3; let cc = [k, k + 0.02, k + 0.06];
-        const snow = Math.min(1, Math.max(0, (v.y - 0.6) / 0.14)) * 0.9; cc = cc.map((q, j) => q + ([0.93, 0.96, 1][j] - q) * snow); c.push(...cc); }
+        const k = 0.34 + v.y * 0.08 + nn * 0.3; let cc = [k, k + 0.025, k + 0.075];
+        const snow = Math.min(1, Math.max(0, (v.y - 0.66) / 0.12)) * 0.85; cc = cc.map((q, j) => q + ([0.93, 0.96, 1][j] - q) * snow); c.push(...cc); }
       g.setAttribute('color', new THREE.Float32BufferAttribute(c, 3)); g.computeVertexNormals(); g.translate(0, 0.3, 0); return g; })();
-    const resMatT = seeThrough(new THREE.MeshLambertMaterial({ vertexColors: true }));
-    const resMatR = new THREE.MeshLambertMaterial({ vertexColors: true });
+    const resMatT = seeThrough(CZ.style.mat({ vertexColors: true }));
+    const resMatR = CZ.style.mat({ vertexColors: true });
     function setInst(it) {
       const c = it.chunk;
       if (!it.alive) tmp.scale.setScalar(0.0001);
@@ -428,8 +449,9 @@ CZ.screens.valley = (function () {
     Object.values(chunks).forEach(c => {
       c.mesh = new THREE.InstancedMesh(c.kind === 't' ? treeGeo : rockGeo, c.kind === 't' ? resMatT : resMatR, c.items.length);
       c.mesh.frustumCulled = false; c.mesh.castShadow = true; c.mesh.receiveShadow = c.kind === 'r';
-      c.items.forEach((it, i) => { it.chunk = c; it.idx = i; it.yaw = rand(0, 6); setInst(it); if (c.kind === 't') c.mesh.setColorAt(i, new THREE.Color().setHSL(0.45, 0.35, 0.6 + rand(-0.08, 0.1))); });
+      c.items.forEach((it, i) => { it.chunk = c; it.idx = i; it.yaw = rand(0, 6); setInst(it); if (c.kind === 't') c.mesh.setColorAt(i, new THREE.Color().setHSL(0.4, 0.14, 0.46 + rand(-0.06, 0.08))); });
       scene.add(c.mesh);
+      if (c.kind === 'r') { const ol = new THREE.InstancedMesh(rockGeo, outlineMat(0.035), c.items.length); ol.instanceMatrix = c.mesh.instanceMatrix; ol.frustumCulled = false; c.ol = ol; scene.add(ol); }   // kayalara da aynı kontur
     });
     const chunkList = Object.values(chunks);
 
@@ -442,7 +464,7 @@ CZ.screens.valley = (function () {
 
     /* ---------- Altın kaynakları ---------- */
     const coinGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.07, 14); coinGeo.rotateX(Math.PI / 2);
-    const coinMat = new THREE.MeshLambertMaterial({ color: 0xffc020, emissive: 0x3a2600 });
+    const coinMat = CZ.style.mat({ color: 0xffc020, emissive: 0x3a2600 });
     const drops = [];   // yerdeki tek tek altınlar
     function dropCoins(x, z, n, y) {
       if (water(x, z) || inLake(x, z)) { V.pending += n; return; }
@@ -517,6 +539,12 @@ CZ.screens.valley = (function () {
     }
     // Statik modeli yürüt: kalçanın altındaki köşeler (bacaklar) ve yandaki kollar sırayla öne-arkaya salınır.
     // Her gövdenin kendi malzemesi var ama gölgelendirici programı ortak (customProgramCacheKey).
+    const WALK_GLSL = `float sd = transformed.x < 0.0 ? 1.0 : -1.0;
+            float sw = sin(uPh + (sd > 0.0 ? 0.0 : 3.14159)) * uAmp;
+            float leg = clamp((0.36 - transformed.y) / 0.36, 0.0, 1.0);
+            transformed.z += sw * leg * 0.26; transformed.y += max(0.0, sw) * leg * 0.05;
+            float arm = smoothstep(0.2, 0.34, abs(transformed.x)) * smoothstep(0.42, 0.55, transformed.y) * (1.0 - smoothstep(0.72, 0.8, transformed.y));
+            transformed.z -= sw * arm * (0.78 - transformed.y) * 0.7;`;
     function walkMat(body) {
       const U = { uPh: { value: 0 }, uAmp: { value: 0 } };
       body.traverse(o => { if (!o.isMesh) return; o.material = o.material.clone();
@@ -528,7 +556,7 @@ CZ.screens.valley = (function () {
             transformed.z += sw * leg * 0.26; transformed.y += max(0.0, sw) * leg * 0.05;
             float arm = smoothstep(0.2, 0.34, abs(transformed.x)) * smoothstep(0.42, 0.55, transformed.y) * (1.0 - smoothstep(0.72, 0.8, transformed.y));
             transformed.z -= sw * arm * (0.78 - transformed.y) * 0.7;`); };
-        o.material.customProgramCacheKey = () => 'walk1'; });
+        o.material.customProgramCacheKey = () => 'walk1'; o.material.userData.deform = { U, key: 'walk1', glsl: WALK_GLSL }; });
       return U;
     }
     function genBody(id, hh, tint) {
@@ -574,7 +602,7 @@ CZ.screens.valley = (function () {
       put('g_ates', 1.0, 0, 1.0, 0, () => { const w = new THREE.Group(); const m = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1, 6), new THREE.MeshBasicMaterial({ color: 0xff8a2a })); m.position.y = 0.5; w.add(m); return w; });
       const flag = new THREE.Group(); const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.6, 6), toon(0xd8d8d8)); pole.position.y = 1.3; flag.add(pole);
       const cloth = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.7), new THREE.MeshBasicMaterial({ color: 0x3cbe5a, side: THREE.DoubleSide })); cloth.position.set(0.55, 2.2, 0); flag.add(cloth); g.add(flag);
-      scene.add(g);
+      scene.add(g); outlineWorld(tents, 0.035);
       return { id: i, x, z, st, g, tents, flag, awake: false };
     });
     const campOn = c => !(c.st.until > Date.now());
@@ -682,7 +710,7 @@ CZ.screens.valley = (function () {
     // köy binalarının önünde yükseltme daireleri
     if (CZ.VB && CZ.VILLAGE_SPOTS) CZ.VB.forEach(b => { const [sx, sz] = CZ.VILLAGE_SPOTS[b.id]; pads.push({ kind: 'v', id: b.id, x: sx * 0.68, z: sz * 0.68 + (b.id === 'hall' ? 3.4 : 2.6) }); });
     const padGeo = new THREE.PlaneGeometry(2.6, 2.6);
-    const scaffoldMat = new THREE.MeshLambertMaterial({ color: 0xf2c230 });
+    const scaffoldMat = CZ.style.mat({ color: 0xf2c230 });
     function cannonModel(L) {
       const g = new THREE.Group();
       const st = toon(L >= 3 ? 0x8a8e9e : 0xa89070);
@@ -705,7 +733,7 @@ CZ.screens.valley = (function () {
       const g = new THREE.Group();
       const a0 = i / 8 * Math.PI * 2, a1 = (i + 1) / 8 * Math.PI * 2;
       const stone = L >= 2;
-      const mat = toon(stone ? 0xa8a4a0 : 0x9a6a3a), geo = stone ? new THREE.BoxGeometry(1.1, 1.3 + L * 0.2, 0.6) : new THREE.CylinderGeometry(0.17, 0.2, 1.5, 6);
+      const mat = toon(stone ? 0x8c8884 : 0x8a5a2e), geo = stone ? new THREE.BoxGeometry(1.1, 1.3 + L * 0.2, 0.6) : new THREE.CylinderGeometry(0.17, 0.2, 1.5, 6);
       const n = 12;
       for (let k = 0; k <= n; k++) {
         const a = a0 + (a1 - a0) * k / n;
@@ -769,6 +797,7 @@ CZ.screens.valley = (function () {
       const lv = building && it.lv === 0 ? 1 : it.lv;
       p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(p.type, lv);
       if (p.kind === 't') p.g.position.set(p.x, 0, p.z);
+      outlineWorld(p.g, 0.03);
       if (building) {
         // inşaat: hemen görünür ama yarı saydam + iskele
         p.g.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
@@ -838,7 +867,7 @@ CZ.screens.valley = (function () {
     const mountDef = CZ.MOUNTS.find(m => m.id === (d.mount || 'brown')) || CZ.MOUNTS[0];
     const mount = quadruped(THREE, mountDef);
     const M = { x: 5.5, z: 3.8, dir: Math.PI, speed: 0 };
-    mount.root.position.set(M.x, 0, M.z); mount.root.traverse(o => { if (o.geometry && o.geometry.type !== 'CircleGeometry') o.castShadow = true; }); scene.add(mount.root);   // (bacaklar gölgelendiricide oynadığı için dış çizgi yok)
+    mount.root.position.set(M.x, 0, M.z); mount.root.traverse(o => { if (o.geometry && o.geometry.type !== 'CircleGeometry') o.castShadow = true; }); scene.add(mount.root); outlineWorld(mount.root, 0.025);   // (bacaklar gölgelendiricide oynadığı için dış çizgi yok)
     // MİLA: köyün bekçisi. Kendi bineği Işıltı (satılmaz). Sen yokken köyü o korur; sen varken dinlenir ama köye giren goblini vurur.
     const MILA = { x: -1.6, z: 9.5, dir: 0, cd: 0, say: null };
     const milaMount = quadruped(THREE, { id: 'aurora', kind: 'deer', color: 0xfff0fa, light: 0xffc8e8, speed: 9 });
@@ -1268,7 +1297,7 @@ CZ.screens.valley = (function () {
     // Köy süsleri: kuyu, fıçılar, fenerler (yeni yapay zekâ modelleri)
     if (CZ.gen3d) {
       const free = (x, z, r) => !water(x, z) && !pads.some(q => Math.hypot(q.x - x, q.z - z) < 2.2 + r) && !solids.some(q => Math.hypot(q.x - x, q.z - z) < q.r + r + 0.6) && Math.hypot(x - MILA.x, z - MILA.z) > 2.5;
-      const put = (id, hgt, x, z, r, rot) => { if (!CZ.gen3d.has(id) || !free(x, z, r)) return false; const g = CZ.gen3d.get(id, hgt); g.position.set(x, 0, z); g.rotation.y = rot || 0; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.material = seeThrough(o.material.clone()); } }); scene.add(g); solids.push({ x, z, r }); V.decor = (V.decor || 0) + 1; return true; };
+      const put = (id, hgt, x, z, r, rot) => { if (!CZ.gen3d.has(id) || !free(x, z, r)) return false; const g = CZ.gen3d.get(id, hgt); g.position.set(x, 0, z); g.rotation.y = rot || 0; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.material = seeThrough(o.material.clone()); } }); scene.add(g); outlineWorld(g, 0.03); solids.push({ x, z, r }); V.decor = (V.decor || 0) + 1; return true; };
       [[3.2, 6.2], [-3, 6.4], [2.6, -5.2], [-9.5, 0.5], [9.5, 0.5]].some(([x, z]) => put('kuyu', 2.4, x, z, 1.0, 0.4));
       for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + 0.2; put('fener', 1.9, Math.cos(a) * 10.6, Math.sin(a) * 10.6, 0.35, -a); }
       [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.6, -6.8]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
@@ -1399,7 +1428,7 @@ CZ.screens.valley = (function () {
       harvest(dt);
       // akan kaynaklar ve görünür parçalar
       for (let i = flies.length - 1; i >= 0; i--) { const f = flies[i]; f.t += dt * 3; const k = Math.min(1, f.t); f.m.position.set(f.sx + (f.tx - f.sx) * k, 1.2 + Math.sin(k * Math.PI) * 1.6 - k * 1.1, f.sz + (f.tz - f.sz) * k); f.m.rotation.x += dt * 9; if (k >= 1) { scene.remove(f.m); flies.splice(i, 1); } }
-      V.chT = (V.chT || 0) - dt; if (V.chT <= 0) { V.chT = 0.25; chunkList.forEach(c => { c.mesh.visible = Math.hypot(c.cx - P.x, c.cz - P.z) < 62; }); }
+      V.chT = (V.chT || 0) - dt; if (V.chT <= 0) { V.chT = 0.25; chunkList.forEach(c => { c.mesh.visible = Math.hypot(c.cx - P.x, c.cz - P.z) < 62; if (c.ol) c.ol.visible = c.mesh.visible; }); }
       waterTex.offset.y -= dt * 0.25;
       const speed = Math.hypot(P.vx, P.vz);
       if (mag > 0.15 && !(aimP.aiming)) { const want = Math.atan2(-mx, -mz); let dd = want - P.dir; dd = Math.atan2(Math.sin(dd), Math.cos(dd)); P.dir += dd * Math.min(1, dt * 12); }
