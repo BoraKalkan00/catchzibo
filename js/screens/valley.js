@@ -672,6 +672,13 @@ CZ.screens.valley = (function () {
       const fa = (i + 0.5) / 8 * Math.PI * 2;
       pads.push({ kind: 'f', i, x: Math.cos(fa) * (FENCE_R + 2.2), z: Math.sin(fa) * (FENCE_R + 2.2), a: fa });
     }
+    // KÖYÜ GENİŞLET: çitin dışına dış halka kule yerleri (her genişleme bir tane açar, en fazla 8)
+    const OUT_R = 23, EXP_MAX = 8;
+    for (let k = 0; k < 8; k++) { const a = (k + 0.5) / 8 * Math.PI * 2; pads.push({ kind: 't', i: 8 + k, outer: k, x: Math.cos(a) * OUT_R, z: Math.sin(a) * OUT_R, a, type: k % 2 ? 'snow' : 'cannon' }); }
+    pads.push({ kind: 'x', i: 0, x: 0, z: FENCE_R + 6 });
+    const expLv = () => (d.vil && d.vil.exp) || 0;
+    // köy seviyesi: her şeyin toplamı (arkadaşlarla yarış için)
+    function vilLevel() { let s2 = expLv() * 3; pads.forEach(p => { if (p.kind === 't' || p.kind === 'f') { const it = slot(p); if (it) s2 += it.lv; } }); if (CZ.village && CZ.VB) CZ.VB.forEach(b => { s2 += CZ.village.lv(b.id); }); return s2; }
     // köy binalarının önünde yükseltme daireleri
     if (CZ.VB && CZ.VILLAGE_SPOTS) CZ.VB.forEach(b => { const [sx, sz] = CZ.VILLAGE_SPOTS[b.id]; pads.push({ kind: 'v', id: b.id, x: sx * 0.68, z: sz * 0.68 + (b.id === 'hall' ? 3.4 : 2.6) }); });
     const padGeo = new THREE.PlaneGeometry(2.6, 2.6);
@@ -708,11 +715,12 @@ CZ.screens.valley = (function () {
       if (!stone) [0.5, 1.1].forEach(y => { for (let k = 0; k < n; k++) { const a = a0 + (a1 - a0) * (k + 0.5) / n; const rail = new THREE.Mesh(new THREE.BoxGeometry(FENCE_R * (a1 - a0) / n + 0.1, 0.12, 0.08), mat); rail.position.set(Math.cos(a) * FENCE_R, y, Math.sin(a) * FENCE_R); rail.rotation.y = -a + Math.PI / 2; g.add(rail); } });
       return g;
     }
-    const slot = p => p.kind === 'v' ? null : DS[p.kind][p.i];
+    const slot = p => (p.kind === 'v' || p.kind === 'x') ? null : DS[p.kind][p.i];
     const defOf = p => DEF[p.kind === 'f' ? 'fence' : p.type];
     // bir sonraki seviyenin maliyeti ve ödenen kısım
     const VIL_COST = id => { const pr = CZ.village.price(id, CZ.village.lv(id)); return { wood: Math.round(pr * 0.09 / 5) * 5, stone: Math.round(pr * 0.07 / 5) * 5, gold: Math.round(pr * 0.3 / 10) * 10 }; };
     function need(p) {
+      if (p.kind === 'x') { const L = expLv(); return L >= EXP_MAX ? null : { stone: 120 + L * 90, brick: 6 + L * 6, gold: 250 + L * 250 }; }
       if (p.kind === 'v') { const L = CZ.village.lv(p.id); if (L >= CZ.village.def(p.id).max) return null; return VIL_COST(p.id); }
       const it = slot(p), D2 = defOf(p), L = it ? it.lv : 0;
       if (it && it.job) return null;
@@ -729,6 +737,8 @@ CZ.screens.valley = (function () {
     function padVisible(p) {
       if ((d.tutV || 0) < 1) return false;   // Zibo kovalamacası bitene kadar daire yok
       const built = DS.t.filter(Boolean).length;
+      if (p.kind === 't' && p.outer != null) return !!slot(p) || expLv() > p.outer;
+      if (p.kind === 'x') return (d.tutV || 0) >= 5 && built >= 3 && expLv() < EXP_MAX;
       if (p.kind === 't') return !!slot(p) || p.i < 2 + built;
       if (p.kind === 'f') return !!slot(p) || built >= 1;
       if ((d.tutV || 0) < 5) return false;
@@ -741,7 +751,8 @@ CZ.screens.valley = (function () {
       const L2 = left(p);
       if (!L2 || !L2.length) return;
       let title = '';
-      if (p.kind === 'v') { const lv = CZ.village.lv(p.id); title = (lv ? t('vil.lv', { n: lv + 1 }) : t('vil.build')); if (CZ.village.ensure().job || lv >= CZ.village.cap(p.id)) title = '🔒'; }
+      if (p.kind === 'x') title = t('exp.title');
+      else if (p.kind === 'v') { const lv = CZ.village.lv(p.id); title = (lv ? t('vil.lv', { n: lv + 1 }) : t('vil.build')); if (CZ.village.ensure().job || lv >= CZ.village.cap(p.id)) title = '🔒'; }
       else { const it = slot(p); title = it ? t('vil.lv', { n: it.lv + 1 }) : (p.kind === 'f' ? t('def.fence') : t('def.' + p.type)); }
       p.mark = new THREE.Mesh(padGeo, new THREE.MeshBasicMaterial({ map: padTex(L2, title), transparent: true, depthWrite: false }));
       const [mx, mz] = markPos(p);
@@ -749,7 +760,7 @@ CZ.screens.valley = (function () {
     }
     function drawPad(p) {
       drawMark(p);
-      if (p.kind === 'v') return;
+      if (p.kind === 'v' || p.kind === 'x') return;
       const it = slot(p);
       if (p.g) { scene.remove(p.g); p.g = null; }
       if (p.barG) { scene.remove(p.barG); p.barG = null; }
@@ -798,7 +809,8 @@ CZ.screens.valley = (function () {
     }
     function complete(p) {
       delete DS.pp[paidKey(p)];
-      if (p.kind === 'v') { CZ.village.startJob(p.id); floatAt(p, t('def.building'), 'wave'); pads.forEach(drawMark); }
+      if (p.kind === 'x') { d.vil.exp = expLv() + 1; floatAt(p, t('exp.done'), 'wave'); CZ.audio.sfx('win'); pads.forEach(drawMark); }
+      else if (p.kind === 'v') { CZ.village.startJob(p.id); floatAt(p, t('def.building'), 'wave'); pads.forEach(drawMark); }
       else {
         const it = slot(p), D2 = defOf(p);
         if (!it) DS[p.kind][p.i] = { type: p.kind === 'f' ? 'fence' : p.type, lv: 0, job: { to: 1, end: Date.now() + D2.min[0] * 60000 } };
@@ -1269,7 +1281,7 @@ CZ.screens.valley = (function () {
       if (V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true);
         if (V.wave % 5 === 0 && !V.raid && !V.story) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
-      timeEl.textContent = t('def.wave', { n: V.wave });
+      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; timeEl.textContent = t('def.wave', { n: V.wave }) + ' · 🏰' + vilLevel(); }
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
       if (V.spawnT <= 0 && goblins.length < cap && !V.story) { V.spawnT = Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); }
@@ -1622,7 +1634,8 @@ CZ.screens.valley = (function () {
       panelKey = key;
       const kids = [];
       let name;
-      if (p.kind === 'v') name = t('vil.b.' + p.id) + ' · ' + t('vil.lv', { n: CZ.village.lv(p.id) });
+      if (p.kind === 'x') name = t('exp.title') + ' · ' + expLv() + '/' + EXP_MAX;
+      else if (p.kind === 'v') name = t('vil.b.' + p.id) + ' · ' + t('vil.lv', { n: CZ.village.lv(p.id) });
       else name = (p.kind === 'f' ? t('def.fence') : t('def.' + p.type)) + (it && it.lv ? ' · ' + t('vil.lv', { n: it.lv }) : '');
       kids.push(h('b', { class: 'def-title', text: name }));
       if (it && it.job) {
@@ -1644,6 +1657,7 @@ CZ.screens.valley = (function () {
           if (cost > 0 && (dd.gold || 0) >= cost + Math.min(gNeed, 1)) kids.push(h('div', { class: 'def-row' }, btn(t('def.buyShort') + ' · ' + cost, () => { if ((dd.gold || 0) < cost) return; dd.gold -= cost; dd.wood = (dd.wood || 0) + sw; dd.stone = (dd.stone || 0) + ss; CZ.state.save(); resUi(); CZ.audio.sfx('coin'); padUi(true); }, 'primary', 'ui.gold'))); }
         if (p.kind === 'f' && it) kids.push(h('small', { text: t('def.fenceHp', { n: Math.max(0, Math.ceil(p.hp || 0)), m: p.hpMax || 0 }) }));
         if (p.kind === 'v') kids.push(h('small', { class: 'def-eff', text: t('vil.d.' + p.id) }));
+        if (p.kind === 'x') kids.push(h('small', { class: 'def-eff', text: t('exp.d') }));
       } else kids.push(h('small', { text: t('up.max') }));
       panel.replaceChildren(...kids.filter(Boolean));
       panel.classList.add('on');
