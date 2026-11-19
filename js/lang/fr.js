@@ -510,6 +510,7 @@ CZ.i18n.register('fr', 'Français', {
   'notif.gift': 'Ton cadeau du jour t’attend. Prends-le avant moi ! 🎁',
   'notif.gold': 'La Chasse à l’or est prête ! Mes pièges t’attendent 🍌',
   'notif.job': '🔨 {name} est terminé ! Viens voir.',
+  'settings.landscape': 'Mode paysage',
   'settings.notify': 'Notifications',
   'settings.testNotify': 'Envoyer une notification test (5 s)',
   'settings.testNotifyOk': 'Une notification arrive dans 5 secondes !',

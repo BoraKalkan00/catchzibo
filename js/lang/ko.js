@@ -518,6 +518,7 @@ CZ.i18n.register('ko', '한국어', {
   'notif.gift': '오늘의 선물이 준비됐어. 내가 먼저 가져가기 전에 받아! 🎁',
   'notif.gold': '골드 사냥 준비 완료! 내 함정이 기다려 🍌',
   'notif.job': '🔨 {name} 완성! 보러 와.',
+  'settings.landscape': '가로 화면',
   'settings.notify': '알림',
   'settings.testNotify': '테스트 알림 보내기 (5초)',
   'settings.testNotifyOk': '5초 뒤에 알림이 와요!',

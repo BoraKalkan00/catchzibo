@@ -518,6 +518,7 @@ CZ.i18n.register('ar', 'العربية', {
   'notif.gift': 'هديتك اليومية جاهزة. خذها قبلي! 🎁',
   'notif.gold': 'صيد الذهب جاهز! فخاخي بانتظارك 🍌',
   'notif.job': '🔨 انتهى {name}! تعال وانظر.',
+  'settings.landscape': 'الوضع الأفقي',
   'settings.notify': 'الإشعارات',
   'settings.testNotify': 'أرسل إشعارًا تجريبيًا (5 ث)',
   'settings.testNotifyOk': 'سيصل إشعار بعد 5 ثوانٍ!',

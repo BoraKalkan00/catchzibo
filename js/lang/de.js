@@ -510,6 +510,7 @@ CZ.i18n.register('de', 'Deutsch', {
   'notif.gift': 'Dein Tagesgeschenk wartet. Schnapp es dir vor mir! 🎁',
   'notif.gold': 'Die Goldjagd ist bereit! Meine Fallen warten 🍌',
   'notif.job': '🔨 {name} ist fertig! Komm gucken.',
+  'settings.landscape': 'Querformat',
   'settings.notify': 'Benachrichtigungen',
   'settings.testNotify': 'Test-Benachrichtigung senden (5 s)',
   'settings.testNotifyOk': 'In 5 Sekunden kommt eine Benachrichtigung!',

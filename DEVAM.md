@@ -43,3 +43,13 @@ Gift popup'ı kapatmak için `CZ.state.data.login={last:bugünYYYYMMDD,n:1}`.
 3. Gerçek telefonda performans testi (Bora'dan geri bildirim).
 4. Mağaza görselleri (store/gorseller taslak; öne çıkan görsel 2D, oyun 3D — yeniden yap).
 5. Arkadaş köyüne baskın (sunucu gerekir, sonra).
+
+## 19 Kas — video geri bildirimi (yapıldı)
+- Yatay ekran: Ayarlar > Yatay ekran (bilgisayarda kendiliğinden yatay). APK'da @capacitor/screen-orientation ile döner (CZ.orient, main.js).
+- Ekranın sağ yarısına dokun / fareyle tıkla = oraya at, basılı tut = atmaya devam (fireAt). Klavye: WASD + boşluk.
+- 3D modellere gölgelendiriciyle yürüme (walkMat): bacak/kol salınımı. Goblinler ve yardımcılar.
+- Mor "üflemeli" goblin (gb.ranged): 8.5 m'den kırmızı dart atar, kaçılabilir (dalga 2+).
+- Vuruş hissi: goblin ezilip zıplar + buz kırıntısı; oyuncu vurulunca sarsıntı, kırmızı sayı, kırmızı yanıp sönme, can azsa kenarlar kırmızı nabız.
+- Binekte de kartopu atılır (ok yok). Balta/kazma artık gerçek şekil (bayrağa benziyordu).
+- Zemin yumuşak geçişli, 512 doku; kayalar pürüzsüz + karlı; ağaçlar cam_hi (1400 yüz); kar taneleri yuvarlak.
+- Çitin üstüne gelince canı ve yükseltmesi görünür.

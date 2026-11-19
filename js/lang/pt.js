@@ -510,6 +510,7 @@ CZ.i18n.register('pt', 'Português', {
   'notif.gift': 'Seu presente diário está pronto. Pegue antes de mim! 🎁',
   'notif.gold': 'A Caça ao ouro está pronta! Minhas armadilhas esperam 🍌',
   'notif.job': '🔨 {name} ficou pronto! Venha ver.',
+  'settings.landscape': 'Modo paisagem',
   'settings.notify': 'Notificações',
   'settings.testNotify': 'Enviar notificação de teste (5 s)',
   'settings.testNotifyOk': 'Uma notificação chega em 5 segundos!',

@@ -534,6 +534,7 @@ CZ.i18n.register('en', 'English', {
   'notif.room': 'Your rooms are empty. Not even a bed? 🛏️',
   'notif.gift': 'Your daily gift is ready. Grab it before I do! 🎁',
   'notif.gold': 'Gold Hunt is ready! My traps are waiting 🍌',
+  'settings.landscape': 'Landscape mode',
   'settings.notify': 'Notifications',
   'settings.testNotify': 'Send a test notification (5 s)',
   'settings.testNotifyOk': 'A notification is coming in 5 seconds!',

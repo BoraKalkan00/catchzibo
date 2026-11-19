@@ -4,7 +4,7 @@ CZ.GEN3D = {
   ayi: { yaw: Math.PI, seat: 0.66 }, kutupayisi: { yaw: Math.PI, seat: 0.64 }, rengeyigi: { yaw: Math.PI, seat: 0.5 },
   kurt: { yaw: Math.PI, seat: 0.6 }, mamut: { yaw: Math.PI, seat: 0.78 },
   kartopukulesi: {}, topkulesi: { yaw: Math.PI }, koymeydani: {}, altinmadeni: {}, firin: {}, ahir: {}, demirci: {},
-  cam_lo: {}, hediye_lo: {}, sandik_lo: {},
+  cam_lo: {}, cam_hi: {}, hediye_lo: {}, sandik_lo: {},
   goblin: { yaw: Math.PI }, zibo: { yaw: Math.PI }, goblinsef: { yaw: Math.PI }, kuyu: {}, fici: {}, fener: {},
   h_rudi: { yaw: Math.PI }, h_ela: { yaw: Math.PI }, h_buzbas: { yaw: Math.PI }, h_demir: { yaw: Math.PI }, h_noel: { yaw: Math.PI }
 };

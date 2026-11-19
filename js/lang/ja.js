@@ -518,6 +518,7 @@ CZ.i18n.register('ja', '日本語', {
   'notif.gift': '毎日のプレゼントが来てるよ。ぼくより先にとって！ 🎁',
   'notif.gold': 'ゴールドハントの時間！ワナが待ってるよ 🍌',
   'notif.job': '🔨 {name}ができたよ！見においで。',
+  'settings.landscape': '横画面',
   'settings.notify': 'おしらせ',
   'settings.testNotify': 'テスト通知をおくる（5びょう）',
   'settings.testNotifyOk': '5びょう後に通知が来るよ！',

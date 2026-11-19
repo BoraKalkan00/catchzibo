@@ -534,6 +534,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'notif.room': 'Odaların bomboş. Yatak bile yok mu? 🛏️',
   'notif.gift': 'Günlük hediyen hazır, ben kapmadan al! 🎁',
   'notif.gold': 'Altın Avı hazır! Yolumda tuzaklar seni bekliyor 🍌',
+  'settings.landscape': 'Yatay ekran',
   'settings.notify': 'Bildirimler',
   'settings.testNotify': 'Test bildirimi gönder (5 sn)',
   'settings.testNotifyOk': '5 saniye sonra bildirim gelecek!',

@@ -482,6 +482,11 @@
             CZ.charArt.img(d.avatar || 'girl', 'front', 'set-avatar-img'),
             btn(t('settings.change'), () => go('chars', { returnTo: 'settings' }), 'small ghost-dark'))),
           CZ.audioPanel(),
+          row(t('settings.landscape'), h('button', {
+            class: 'toggle' + (CZ.orient.on() ? ' on' : ''), type: 'button', role: 'switch', 'aria-checked': String(CZ.orient.on()),
+            onClick: () => { d.landscape = !CZ.orient.on(); state.save(); CZ.orient.apply(); CZ.ui.refresh(); },
+            text: CZ.orient.on() ? t('settings.on') : t('settings.off')
+          })),
           CZ.notify.available() ? row(t('settings.notify'), h('button', {
             class: 'toggle' + (d.notify !== false ? ' on' : ''), type: 'button', role: 'switch', 'aria-checked': String(d.notify !== false),
             onClick: () => { d.notify = d.notify === false; d.notifyAsked = false; state.save(); if (d.notify) CZ.notify.askOnce(); CZ.notify.schedule(); CZ.ui.refresh(); },

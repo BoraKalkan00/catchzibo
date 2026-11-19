@@ -19,6 +19,17 @@
 
   const data = CZ.state.load();
   CZ.applyLanguage(data.lang || CZ.i18n.detect());
+  // Yatay / dikey ekran. Ayarlanmamışsa: dokunmatik olmayan geniş ekranda (bilgisayar) yatay.
+  CZ.orient = {
+    on() { const v = CZ.state.data.landscape; if (v === true || v === false) return v; return !('ontouchstart' in window) && window.innerWidth > window.innerHeight; },
+    apply() {
+      const on = CZ.orient.on(); document.body.classList.toggle('wide', on);
+      const SO = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins && window.Capacitor.Plugins.ScreenOrientation;
+      try { if (SO) SO.lock({ orientation: on ? 'landscape' : 'portrait' }).catch(() => {}); else if (screen.orientation && screen.orientation.lock && 'ontouchstart' in window) screen.orientation.lock(on ? 'landscape' : 'portrait').catch(() => {}); } catch (e) { /* desteklenmiyor */ }
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
+    }
+  };
+  CZ.orient.apply();
   CZ.ui.mount(document.getElementById('app'));
   CZ.game.ensureDiary();
   preload();

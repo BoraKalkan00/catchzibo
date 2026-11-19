@@ -584,5 +584,6 @@ self.CZ_FILES = [
  "assets/3d/gen/h_demir.glb",
  "assets/3d/gen/h_ela.glb",
  "assets/3d/gen/h_noel.glb",
- "assets/3d/gen/h_rudi.glb"
+ "assets/3d/gen/h_rudi.glb",
+ "assets/3d/gen/cam_hi.glb"
 ];

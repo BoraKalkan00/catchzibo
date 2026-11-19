@@ -510,6 +510,7 @@ CZ.i18n.register('es', 'Español', {
   'notif.gift': 'Tu regalo diario está listo. ¡Agárralo antes que yo! 🎁',
   'notif.gold': '¡La Caza de oro está lista! Mis trampas te esperan 🍌',
   'notif.job': '🔨 ¡{name} está listo! Ven a verlo.',
+  'settings.landscape': 'Pantalla horizontal',
   'settings.notify': 'Notificaciones',
   'settings.testNotify': 'Enviar notificación de prueba (5 s)',
   'settings.testNotifyOk': '¡En 5 segundos llega una notificación!',
