@@ -1954,3 +1954,28 @@ body.wide .screen:not(.valley-screen) > .scroll, body.wide .screen > header { wi
 .vl-raid.on { opacity: 1; transform: translateX(-50%) scale(1); animation: raidpulse 1s ease-in-out infinite; }
 @keyframes raidpulse { 50% { transform: translateX(-50%) scale(1.06); } }
 body.wide #rotate-note { display: none !important; }
+
+/* sipariş panosu */
+.vl-orders { position: absolute; left: 10px; top: calc(306px + var(--safe-top, 0px)); width: 64px; padding: 4px 4px 3px; border-radius: 16px; border: 3px solid #fff; background: linear-gradient(#e0a040, #b06a18); color: #fff; z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.vl-orders i { font-style: normal; font-size: 28px; line-height: 40px; }
+.vl-orders b { font-size: 10px; }
+.vl-orders em { position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; border-radius: 50%; background: #ff3a3a; border: 2px solid #fff; font-style: normal; font-weight: 900; font-size: 13px; display: grid; place-items: center; animation: btnpulse .9s ease-in-out infinite; }
+.pause-card.ord { width: min(94vw, 460px); max-height: 92%; overflow-y: auto; gap: 8px; }
+.ord-rep { color: #7a5a2a; font-weight: 800; }
+.ord-card { display: grid; grid-template-columns: 58px 1fr auto; gap: 8px; align-items: center; padding: 7px; border-radius: 14px; background: rgba(0,0,0,.06); color: #3a2414; text-align: left; }
+.ord-card.ok { background: rgba(60,190,90,.18); box-shadow: inset 0 0 0 2px #3cbe5a; }
+.ord-card.wait { opacity: .75; }
+.ord-npc { width: 58px; height: 58px; border-radius: 12px; object-fit: cover; border: 2px solid #fff; }
+.ord-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ord-need { display: flex; flex-wrap: wrap; gap: 6px; font-weight: 900; font-size: 13px; }
+.ord-need span { display: flex; align-items: center; gap: 2px; color: #b03a2a; }
+.ord-need span.have { color: #1f8a3a; }
+.ord-prize { display: flex; align-items: center; gap: 3px; font-weight: 900; font-size: 13px; }
+.ord-btns { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.ord-x { width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,.12); font-size: 12px; color: #6a4a2a; }
+.mat-ico { width: 22px; height: 22px; object-fit: contain; }
+.ord-sub { margin-top: 4px; color: #3a2414; }
+.craft-row { display: grid; grid-template-columns: auto 16px auto 1fr auto; align-items: center; gap: 5px; padding: 5px 7px; border-radius: 12px; background: rgba(0,0,0,.06); color: #3a2414; font-weight: 900; font-size: 13px; }
+.craft-row > span, .craft-row > span > span { display: flex; align-items: center; gap: 2px; }
+.craft-row .btn { justify-self: end; }
+.ord-card, .craft-row { width: 100%; box-sizing: border-box; }

@@ -585,5 +585,16 @@ self.CZ_FILES = [
  "assets/3d/gen/h_ela.glb",
  "assets/3d/gen/h_noel.glb",
  "assets/3d/gen/h_rudi.glb",
- "assets/3d/gen/cam_hi.glb"
+ "assets/3d/gen/cam_hi.glb",
+ "js/core/orders.js",
+ "assets/ui/npc/baker.webp",
+ "assets/ui/npc/lumber.webp",
+ "assets/ui/npc/girl.webp",
+ "assets/ui/npc/smith.webp",
+ "assets/ui/mat/plank.webp",
+ "assets/ui/mat/brick.webp",
+ "assets/ui/mat/iron.webp",
+ "assets/ui/mat/stone.webp",
+ "assets/ui/mat/log.webp",
+ "assets/ui/mat/crystal.webp"
 ];

@@ -45,12 +45,12 @@ CZ.screens.valley = (function () {
   // Savunma: kule türleri ve çit. Fiyat ve süreler (dk). Yapınca hemen görünür, süre dolunca çalışır.
   // Maliyetler seviye seviye: odun < taş < altın < zümrüt. Sarı dairenin üstünde durunca kaynaklar akar (Kingshot gibi).
   const DEF = {
-    snow: { cost: [{ wood: 20 }, { wood: 90, stone: 30 }, { wood: 160, gold: 150 }, { stone: 120, gold: 380 }, { stone: 240, gold: 800 }], min: [2, 10, 20, 60, 120], range: 10.5, rate: 0.85, dmg: 1, dmgUp: 1 },
-    cannon: { cost: [{ wood: 35, stone: 15 }, { wood: 120, stone: 50 }, { wood: 220, gold: 260 }, { stone: 180, gold: 550 }, { stone: 350, gold: 1100 }], min: [2, 10, 20, 60, 120], range: 12.5, rate: 2.2, dmg: 3, dmgUp: 2, splash: 2.6 },
-    fence: { cost: [{ wood: 15 }, { wood: 70, stone: 40 }, { wood: 150, gold: 150 }], min: [1, 10, 20], hp: 30, hpUp: 30 }
+    snow: { cost: [{ wood: 20 }, { wood: 90, stone: 30 }, { wood: 160, gold: 150 }, { stone: 120, gold: 380, plank: 8 }, { stone: 240, gold: 800, brick: 10 }], min: [2, 10, 20, 60, 120], range: 10.5, rate: 0.85, dmg: 1, dmgUp: 1 },
+    cannon: { cost: [{ wood: 35, stone: 15 }, { wood: 120, stone: 50 }, { wood: 220, gold: 260 }, { stone: 180, gold: 550, brick: 8 }, { stone: 350, gold: 1100, iron: 5 }], min: [2, 10, 20, 60, 120], range: 12.5, rate: 2.2, dmg: 3, dmgUp: 2, splash: 2.6 },
+    fence: { cost: [{ wood: 15 }, { wood: 70, stone: 40 }, { wood: 150, gold: 150, plank: 6 }], min: [1, 10, 20], hp: 30, hpUp: 30 }
   };
-  const RES = ['wood', 'stone', 'gold'];
-  const RES_COL = { wood: '#b8763a', stone: '#9aa3b4', gold: '#ffc928', gems: '#2fd08a' };
+  const RES = ['wood', 'stone', 'gold', 'plank', 'brick', 'iron'];
+  const RES_COL = { wood: '#b8763a', stone: '#9aa3b4', gold: '#ffc928', gems: '#2fd08a', plank: '#e0a860', brick: '#d0503a', iron: '#cfd8e6' };
   const RUSH_BUILD = 200;
   const rushPrice = ms => Math.max(RUSH_BUILD, Math.ceil(ms / 60000) * 20);   // atış menzili: haritanın öbür ucuna ateş edilmez
 
@@ -676,8 +676,8 @@ CZ.screens.valley = (function () {
       return D2.cost[L] || null;
     }
     const paidKey = p => p.kind === 'v' ? 'v' + p.id : p.kind + p.i;
-    const paid = p => { DS.pp = DS.pp || {}; return DS.pp[paidKey(p)] || (DS.pp[paidKey(p)] = { wood: 0, stone: 0, gold: 0 }); };
-    const left = p => { const n = need(p); if (!n) return null; const pd = paid(p); return RES.map(r2 => ({ r: r2, n: Math.max(0, (n[r2] || 0) - pd[r2]) })).filter(x => (n[x.r] || 0) > 0); };
+    const paid = p => { DS.pp = DS.pp || {}; return DS.pp[paidKey(p)] || (DS.pp[paidKey(p)] = { wood: 0, stone: 0, gold: 0 }); }; const pd0 = p => { const q = paid(p); RES.forEach(r2 => { q[r2] = q[r2] || 0; }); return q; };
+    const left = p => { const n = need(p); if (!n) return null; const pd = pd0(p); return RES.map(r2 => ({ r: r2, n: Math.max(0, (n[r2] || 0) - pd[r2]) })).filter(x => (n[x.r] || 0) > 0); };
     function jobLeft(it) { return it && it.job ? Math.max(0, it.job.end - Date.now()) : 0; }
     function finishJob(p) { const it = slot(p); if (!it || !it.job) return; it.lv = it.job.to; it.job = null; CZ.state.save(); drawPad(p); CZ.audio.sfx('win'); floatAt(p, t('def.ready')); }
     // daire nerede durur: kule kurulduysa kulenin dışına kayar
@@ -735,12 +735,12 @@ CZ.screens.valley = (function () {
     }
     // KAYNAK AKIŞI: oyuncu dairenin üstündeyken her an biraz kaynak daireye akar
     const flyGeo = new THREE.BoxGeometry(0.22, 0.22, 0.22);
-    const flyMats = { wood: toon(0xb8763a), stone: toon(0x9aa3b4), gold: new THREE.MeshLambertMaterial({ color: 0xffc928, emissive: 0x5a3a00 }) };
+    const flyMats = { plank: toon(0xe0a860), brick: toon(0xd0503a), iron: toon(0xcfd8e6), wood: toon(0xb8763a), stone: toon(0x9aa3b4), gold: new THREE.MeshLambertMaterial({ color: 0xffc928, emissive: 0x5a3a00 }) };
     const flies = [];
     function flowTick(p, dt) {
       const n = need(p); if (!n) return;
       if (p.kind === 'v') { const V2 = CZ.village.ensure(); if (V2.job || CZ.village.lv(p.id) >= CZ.village.cap(p.id)) { if (!V.lockHint) { V.lockHint = true; floatAt(P, V2.job ? t('vil.busy') : t('vil.needHall', { n: Math.ceil((CZ.village.lv(p.id) + 1) / 2) }), 'wave'); setTimeout(() => { if (V) V.lockHint = false; }, 2500); } return; } }
-      const pd = paid(p); let moved = 0, lacking = false;
+      const pd = pd0(p); let moved = 0, lacking = false;
       const [mx, mz] = markPos(p);
       RES.forEach(r2 => {
         const rest = (n[r2] || 0) - pd[r2]; if (rest <= 0) return;
@@ -948,6 +948,41 @@ CZ.screens.valley = (function () {
     const goldEl = h('b', { text: String(d.gold || 0) }), woodEl = h('b', { text: '0' }), stoneEl = h('b', { text: '0' }), gemEl = h('b', { text: '0' });
     const timeEl = h('b', { class: 'vl-time', text: t('def.wave', { n: 1 }) });
     const raidEl = h('div', { class: 'vl-raid' });
+    const ordBtn = h('button', { type: 'button', class: 'vl-orders' });
+    function ordUi() { if (!CZ.orders) return; ordBtn.replaceChildren(h('i', { text: '📜' }), h('b', { text: t('ord.btn') }), ...(CZ.orders.ready() ? [h('em', { text: '!' })] : [])); ordBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none'; }
+    ordBtn.addEventListener('click', () => openOrders());
+    const MAT_IMG = { plank: 'plank', brick: 'brick', iron: 'iron', wood: 'log', stone: 'stone' };
+    const matIco = k => h('img', { class: 'mat-ico', src: 'assets/ui/mat/' + MAT_IMG[k] + '.webp', alt: t('mat.' + k) });
+    function openOrders() {
+      if (V && !V.paused) V.paused = true; CZ.audio.sfx('button');
+      const box = h('div', { class: 'modal-wrap ord-wrap' });
+      const close = () => { box.remove(); ordUi(); resUi(); if (V) { V.paused = false; V.last = 0; } };
+      const draw2 = () => {
+        const O = CZ.orders.ensure();
+        const card = (o, i) => {
+          if (o.wait) { const m = Math.max(1, Math.ceil((o.wait - Date.now()) / 60000));
+            return h('div', { class: 'ord-card wait' }, h('img', { class: 'ord-npc', src: 'assets/ui/npc/' + (o.npc || 'baker') + '.webp', alt: '' }), h('div', { class: 'ord-body' }, h('b', { text: t('ord.wait', { n: m }) })),
+              btn(t('ord.skip'), () => CZ.ads.show(() => { CZ.orders.skip(i); draw2(); }), 'small primary', 'ic:play')); }
+          const ok = CZ.orders.can(o);
+          return h('div', { class: 'ord-card' + (ok ? ' ok' : '') }, h('img', { class: 'ord-npc', src: 'assets/ui/npc/' + o.npc + '.webp', alt: '' }),
+            h('div', { class: 'ord-body' }, h('b', { text: t('npc.' + o.npc) }),
+              h('div', { class: 'ord-need' }, ...Object.keys(o.need).map(k => h('span', { class: (d[k] || 0) >= o.need[k] ? 'have' : '' }, matIco(k), Math.floor(d[k] || 0) + '/' + o.need[k]))),
+              h('div', { class: 'ord-prize' }, img('ui.gold', 'mini-ico'), '+' + o.gold, ...(o.gems ? [' ', img('ui.emerald', 'mini-ico'), '+' + o.gems] : []))),
+            h('div', { class: 'ord-btns' }, btn(t('ord.give'), () => { const r = CZ.orders.deliver(i); if (!r) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('mkt.short')); } CZ.audio.sfx('win'); CZ.audio.vibrate([40, 20, 40]); CZ.ui.toast(t('ord.thanks', { n: r.gold })); draw2(); }, 'small ' + (ok ? 'primary' : 'ghost-dark')),
+              h('button', { type: 'button', class: 'ord-x', 'aria-label': t('ord.trash'), text: '✕', onClick: () => { CZ.orders.trash(i); draw2(); } })));
+        };
+        const crow = k => { const R = CZ.orders.RECIPES[k], mx = CZ.orders.maxCraft(k);
+          return h('div', { class: 'craft-row' }, h('span', {}, ...Object.keys(R).map(r => h('span', {}, matIco(r), String(R[r])))), h('b', { text: '→' }), h('span', {}, matIco(k), '1', h('small', { text: ' (' + Math.floor(d[k] || 0) + ')' })),
+            btn('x1', () => { if (!CZ.orders.craft(k, 1)) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('mkt.short')); } CZ.audio.sfx('buy'); draw2(); }, 'small primary'),
+            btn(t('craft.all', { n: mx }), () => { if (!mx || !CZ.orders.craft(k, mx)) { CZ.audio.sfx('wrong'); return; } CZ.audio.sfx('buy'); draw2(); }, 'small ghost-dark')); };
+        box.replaceChildren(h('div', { class: 'pause-card ord' },
+          h('b', { class: 'lg-title', text: t('ord.title') }), h('small', { class: 'ord-rep', text: t('ord.rep', { n: O.rep + 1, k: O.done % 3, m: 3 }) }),
+          ...O.slots.map(card),
+          h('b', { class: 'ord-sub', text: t('craft.title') }), ...Object.keys(CZ.orders.RECIPES).map(crow),
+          btn(t('common.close'), close, 'small ghost-dark')));
+      };
+      draw2(); wrap.append(box);
+    }
     const hpFill = h('i'); const hpBarEl = h('div', { class: 'vl-hp' }, hpFill);
     const panel = h('div', { class: 'def-panel' });
     const boostBtn = h('button', { type: 'button', class: 'vl-boost' }, h('b', { text: 'x2' }), h('small', { text: t('def.boost') }));
@@ -1022,7 +1057,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl),
-      hpBarEl, raidEl, heroBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      hpBarEl, raidEl, heroBtn, ordBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1166,7 +1201,7 @@ CZ.screens.valley = (function () {
       [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.6, -6.8]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
     }
     pads.forEach(drawPad);
-    spawnBuddy(); heroUi();
+    spawnBuddy(); heroUi(); ordUi();
     try {
       const warm = new THREE.Group();
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
@@ -1614,6 +1649,7 @@ CZ.screens.valley = (function () {
     function resUi() {
       woodEl.textContent = Math.floor(d.wood || 0); stoneEl.textContent = Math.floor(d.stone || 0);
       goldEl.textContent = Math.floor(d.gold || 0); gemEl.textContent = Math.floor(d.emeralds || 0);
+      if (V && (V.ordT = (V.ordT || 0) + 1) % 20 === 1) ordUi();   // sipariş hazır mı (seyrek kontrol)
     }
     function gain(n, quiet) {
       if (V.boostT > 0) n *= 2;   // reklamla x2 altın
