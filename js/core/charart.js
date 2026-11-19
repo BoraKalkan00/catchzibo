@@ -100,7 +100,7 @@ CZ.charArt = (function () {
       if (colors.jacket) hx.jacket = CZ.COLORS[colors.jacket].hex;
       if (colors.hat) hx.hatColor = CZ.COLORS[colors.hat].hex;
       if (colors.scarf) hx.scarf = CZ.COLORS[colors.scarf].hex;
-      const p3 = CZ.runner3d.load().then(() => {
+      const p3 = CZ.runner3d.load().then(() => CZ.gen3d && CZ.KK_GEN ? CZ.gen3d.need([CZ.KK_GEN[id]]) : null).then(() => {
         if (!CZ.kk.ready()) throw new Error('no3d');
         const url = CZ.kk.portrait(id, pose, hx);
         cache.set(k, url); loading.delete(k);

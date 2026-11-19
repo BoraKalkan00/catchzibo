@@ -5,6 +5,7 @@ CZ.GEN3D = {
   kurt: { yaw: Math.PI, seat: 0.6 }, mamut: { yaw: Math.PI, seat: 0.78 },
   kartopukulesi: {}, topkulesi: { yaw: Math.PI }, koymeydani: {}, altinmadeni: {}, firin: {}, ahir: {}, demirci: {},
   cam_lo: {}, cam_hi: {}, hediye_lo: {}, sandik_lo: {},
+  v_girl: { lazy: 1 }, v_boy: { lazy: 1 }, v_santa: { lazy: 1 }, v_elf: { lazy: 1 }, v_snowkid: { lazy: 1 }, v_reindeer: { lazy: 1 }, v_knight: { lazy: 1 }, v_mila: { lazy: 1 },
   g_cadir: {}, g_totem: { yaw: Math.PI }, g_ates: {},
   goblin: { yaw: Math.PI }, zibo: { yaw: Math.PI }, goblinsef: { yaw: Math.PI }, kuyu: {}, fici: {}, fener: {},
   h_rudi: { yaw: Math.PI }, h_ela: { yaw: Math.PI }, h_buzbas: { yaw: Math.PI }, h_demir: { yaw: Math.PI }, h_noel: { yaw: Math.PI }
@@ -29,22 +30,39 @@ CZ.style = (function () {
   return { grad, mat, harmonize, OL: 0x1c1a2e };
 })();
 CZ.gen3d = (function () {
-  const cache = {};
+  const cache = {}, maps = {};
+  // Dokulu modellerde her üçgenin kendi köşeleri var (UV dikişi); gölge pürüzsüz olsun diye aynı konumdaki köşelerin normallerini ortala
+  function smooth(geo) {
+    geo.computeVertexNormals(); const p = geo.attributes.position, n = geo.attributes.normal, acc = {};
+    const key = i => Math.round(p.getX(i) * 1e4) + ',' + Math.round(p.getY(i) * 1e4) + ',' + Math.round(p.getZ(i) * 1e4);
+    for (let i = 0; i < p.count; i++) { const k = key(i), a = acc[k] || (acc[k] = [0, 0, 0]); a[0] += n.getX(i); a[1] += n.getY(i); a[2] += n.getZ(i); }
+    for (let i = 0; i < p.count; i++) { const a = acc[key(i)], l = Math.hypot(a[0], a[1], a[2]) || 1; n.setXYZ(i, a[0] / l, a[1] / l, a[2] / l); }
+    n.needsUpdate = true;
+  }
   let P = null;
-  function load() {
-    if (P) return P;
-    const THREE = window.THREE;
-    const ids = Object.keys(CZ.GEN3D);
-    if (!ids.length || !THREE || !THREE.GLTFLoader) return (P = Promise.resolve());
+  // Karakter modelleri (v_*) büyük: yalnız seçili karakter ve Mila açılışta, diğerleri gerektiğinde (need) iner.
+  const pend = {};
+  function one(id) {
+    if (cache[id]) return Promise.resolve(); if (pend[id]) return pend[id];
+    const THREE = window.THREE; if (!THREE || !THREE.GLTFLoader) return Promise.resolve();
     const L = new THREE.GLTFLoader();
-    P = Promise.all(ids.map(id => new Promise(ok => {
+    return (pend[id] = new Promise(ok => {
       L.load('assets/3d/gen/' + id + '.glb', g => {
         const root = g.scene;
-        root.traverse(o => { if (o.isMesh) { o.geometry.computeVertexNormals(); CZ.style.harmonize(o.geometry); o.material = CZ.style.mat({ vertexColors: true }); o.castShadow = true; o.receiveShadow = true; } });
+        root.traverse(o => { if (!o.isMesh) return;
+          const map = o.material && o.material.map;
+          if (map) { map.encoding = THREE.LinearEncoding; smooth(o.geometry); o.material = CZ.style.mat({ map }); maps[id] = map; }   // Gemini dokulu karakter
+          else { o.geometry.computeVertexNormals(); CZ.style.harmonize(o.geometry); o.material = CZ.style.mat({ vertexColors: true }); }
+          o.castShadow = true; o.receiveShadow = true; });
         cache[id] = root; ok();
       }, undefined, () => ok());
-    })));
-    return P;
+    }));
+  }
+  function need(ids) { return Promise.all(ids.filter(id => CZ.GEN3D[id]).map(one)); }
+  function load() {
+    const K = CZ.KK_GEN || {}, av = K[(CZ.state && CZ.state.data.avatar) || 'girl'];
+    if (!P) P = need(Object.keys(CZ.GEN3D).filter(id => !CZ.GEN3D[id].lazy));
+    return Promise.all([P, need([av, K.mila].filter(Boolean))]);   // seçili karakter değişmiş olabilir: onu da indir
   }
   const has = id => !!cache[id];
   // Boyu h olan, tabanı y=0'da, öne (-z) bakan kopya. tint verilirse renk çarpılır.
@@ -59,5 +77,5 @@ CZ.gen3d = (function () {
   }
   // İlk meshin geometrisi (InstancedMesh için)
   function geo(id) { let g = null; cache[id].traverse(o => { if (!g && o.isMesh) { g = o.geometry.clone(); o.updateWorldMatrix(true, false); g.applyMatrix4(o.matrixWorld); } }); return g; }
-  return { load, has, get, geo };
+  return { load, need, has, get, geo, smooth, map: id => maps[id] || null };
 })();

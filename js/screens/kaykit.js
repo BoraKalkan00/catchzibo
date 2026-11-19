@@ -284,7 +284,7 @@
   /* ---------- YAPAY ZEKÂ MODELİNİ KAYKIT İSKELETİNE BAĞLA ---------- */
   // T-pozunda üretilen tek parça modeli KayKit iskeletinin kutusuna oturtur, her köşeye bölgesine göre
   // (kafa / gövde / kol / bacak) kemik ağırlığı verir. Böylece KayKit'in 29 hazır animasyonu bu modelle oynar.
-  CZ.KK_GEN = {};   // hazır: { girl: 'u_girl', boy: 't_boy', santa: 't_santa', elf: 't_elf', snowkid: 't_snow', reindeer: 't_deer', knight: 't_knight', mila: 't_mila' } — Bora karar verene kadar kapalı   // görünüm → yapay zekâ modeli (ör. girl: 't_girl'); gen3d'de yoksa eski KayKit görünümü kalır
+  CZ.KK_GEN = { girl: 'v_girl', boy: 'v_boy', santa: 'v_santa', elf: 'v_elf', snowkid: 'v_snowkid', reindeer: 'v_reindeer', knight: 'v_knight', mila: 'v_mila' };   // Gemini çizimlerinden 3D
   const GEN_SKIN = {};
   // Gardıroptan alınan mont / bere / atkı renkleri yapay zekâ modelinin köşe renklerine de uygulanır (2D çizimlerdeki kuralların aynısı)
   function recolor(geo, kind) {
@@ -300,6 +300,20 @@
         col.setHSL(t.h / 360, Math.min(1, Math.max(0, hsl.s * (t.sk || 1) + (t.sa || 0))), Math.min(1, Math.max(0, hsl.l * (t.lk || 1) + (t.la || 0)))); c.setXYZ(i, col.r, col.g, col.b); break; }
     }
     c.needsUpdate = true;
+  }
+  const TEXC = {};
+  function recolorMap(map, kind) {
+    const colors = CZ.charArt ? CZ.charArt.colorsOf(kind) : {}, rules = [];
+    ['jacket', 'hat', 'scarf'].forEach(p2 => { const tg = colors[p2] && CZ.PART_ORIG[kind] && colors[p2] !== CZ.PART_ORIG[kind][p2] ? CZ.COLORS[colors[p2]] : null; const r = (CZ.PART_RULES[kind] || {})[p2]; if (tg && r) rules.push({ r, t: tg }); });
+    if (!rules.length || !map.image) return map;
+    const k = kind + JSON.stringify(colors); if (TEXC[k]) return TEXC[k];
+    const im = map.image, c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d'); x.drawImage(im, 0, 0);
+    const d2 = x.getImageData(0, 0, c.width, c.height), px = d2.data, col = new T.Color(), hsl = {};
+    for (let i = 0; i < px.length; i += 4) { col.setRGB(px[i] / 255, px[i + 1] / 255, px[i + 2] / 255); col.getHSL(hsl); const h = hsl.h * 360, yt = Math.floor(i / 4 / c.width) / c.height;
+      for (const { r, t } of rules) { const [lo, hi] = r.hue; const inH = lo <= hi ? h >= lo && h <= hi : h >= lo || h <= hi;
+        if (!inH || hsl.s < (r.smin || 0) || hsl.s > (r.smax || 1) || hsl.l < (r.lmin || 0) || hsl.l > (r.lmax || 1) || yt < (r.y0 || 0) || yt > (r.y1 || 1)) continue;
+        col.setHSL(t.h / 360, Math.min(1, Math.max(0, hsl.s * (t.sk || 1) + (t.sa || 0))), Math.min(1, Math.max(0, hsl.l * (t.lk || 1) + (t.la || 0)))); px[i] = col.r * 255; px[i + 1] = col.g * 255; px[i + 2] = col.b * 255; break; } }
+    x.putImageData(d2, 0, 0); const tx = new T.CanvasTexture(c); tx.encoding = T.LinearEncoding; tx.flipY = map.flipY; return (TEXC[k] = tx);
   }
   function skinGen(model, id, kind) {
     const parts = []; model.traverse(o => { if (o.isSkinnedMesh) parts.push(o); });
@@ -331,7 +345,7 @@
       for (let i = 0; i < n; i++) {
         v.fromBufferAttribute(pos, i); const sd = sideOf(v.x); let cand;
         if (v.y < legY && Math.abs(v.x) < armX) cand = ['hips', 'upperleg' + sd, 'lowerleg' + sd, 'foot' + sd, 'toes' + sd];
-        else if (Math.abs(v.x) > (v.y > P.head.y ? Math.max(ax1, headHalf * 1.08) : ax1)) cand = ['upperarm' + sd, 'lowerarm' + sd, 'wrist' + sd, 'hand' + sd];   // gövdeden uzakta: yalnız kol (el diken diken gerilmesin)
+        else if (Math.abs(v.x) > (v.y > P.head.y ? Math.max(ax1, headHalf * 1.08) : ax1) && v.y > armY - band) cand = ['upperarm' + sd, 'lowerarm' + sd, 'wrist' + sd, 'hand' + sd];   // gövdeden uzakta: yalnız kol (el diken diken gerilmesin)
         else cand = ['head', 'chest', 'spine', 'hips', 'upperarm' + sd, 'lowerarm' + sd, 'wrist' + sd, 'hand' + sd];
         // en yakın kemik; kafa ve gövde kalın (yarıçap), kollar ince: kalkık eller kafaya yapışmasın
         const sc = cand.map(nm => [nm, Math.max(0, dSeg(v, segs[nm]) - (RAD[nm] || H * 0.04))]).sort((a, b) => a[1] - b[1]);
@@ -342,10 +356,10 @@
       }
       geo.setAttribute('skinIndex', new T.Uint16BufferAttribute(si, 4)); geo.setAttribute('skinWeight', new T.Float32BufferAttribute(sw, 4));
       geo.applyMatrix4(new T.Matrix4().copy(body.matrixWorld).invert());   // gövde parçasının kendi uzayına
-      geo.computeVertexNormals();
+      if (CZ.gen3d.map(id)) CZ.gen3d.smooth(geo); else geo.computeVertexNormals();
       recolor(geo, kind); GEN_SKIN[ck] = geo;
     }
-    const mesh = new T.SkinnedMesh(geo, CZ.style.mat({ vertexColors: true }));
+    const mp0 = CZ.gen3d.map(id), mp = mp0 ? recolorMap(mp0, kind) : null, mesh = new T.SkinnedMesh(geo, CZ.style.mat(mp ? { map: mp } : { vertexColors: true }));
     mesh.name = 'GenBody'; mesh.position.copy(body.position); mesh.quaternion.copy(body.quaternion); mesh.scale.copy(body.scale);
     body.parent.add(mesh); mesh.bind(sk, body.bindMatrix);
     model.traverse(o => { if (o.isMesh && o !== mesh) o.visible = false; });   // eski KayKit parçaları (şapka, kafa vb.) gizlenir
