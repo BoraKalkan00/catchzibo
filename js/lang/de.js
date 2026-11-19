@@ -1004,6 +1004,7 @@ CZ.i18n.register('de', 'Deutsch', {
   "exp.title": "Dorf erweitern",
   "exp.done": "Dorf erweitert! Neuer Turmplatz draußen",
   "exp.d": "Öffnet einen neuen Turmplatz außerhalb des Zauns. Größeres Dorf, größere Angriffe.",
+  "gift.open": "Öffnen!",
   "def.wave": "Welle {n}",
   "def.ready": "Fertig!",
   "def.fence": "Zaun",

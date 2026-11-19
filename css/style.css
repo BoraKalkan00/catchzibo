@@ -1979,3 +1979,41 @@ body.wide #rotate-note { display: none !important; }
 .craft-row > span, .craft-row > span > span { display: flex; align-items: center; gap: 2px; }
 .craft-row .btn { justify-self: end; }
 .ord-card, .craft-row { width: 100%; box-sizing: border-box; }
+
+/* --- Oyun hissi: can barı --- */
+.vl-hp { width: 150px !important; height: 18px !important; overflow: visible !important; border-radius: 10px; }
+.vl-hp i, .vl-hp u { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 7px; display: block; }
+.vl-hp i { transition: width .12s ease-out; z-index: 1; }
+.vl-hp u { background: #fff3c0; z-index: 0; text-decoration: none; }
+.vl-hp span { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; font-size: 11px; font-weight: 900; color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; }
+.vl-hp.hit { animation: hpHit .38s ease-out; }
+.vl-hp.hit::after { content: ''; position: absolute; inset: -2px; border-radius: 10px; background: #fff; z-index: 3; animation: hpFlash .25s ease-out forwards; pointer-events: none; }
+@keyframes hpHit { 0% { transform: scale(1.18) translateX(0); } 20% { transform: scale(1.1) translateX(-5px); } 40% { transform: scale(1.05) translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } 100% { transform: none; } }
+@keyframes hpFlash { from { opacity: .85; } to { opacity: 0; } }
+.vl-hp.heal { animation: hpHeal .5s ease-out; }
+@keyframes hpHeal { 0% { box-shadow: 0 0 0 0 rgba(90,240,120,.9); } 100% { box-shadow: 0 0 0 10px rgba(90,240,120,0); } }
+.vl-hp.low { animation: hpBreath 1s ease-in-out infinite; }
+@keyframes hpBreath { 50% { transform: scale(1.07); box-shadow: 0 0 14px 4px rgba(255,40,40,.75); } }
+/* --- Ücretsiz sandık --- */
+.vl-gift { --k: 0deg; position: absolute; right: 12px; top: calc(176px + var(--safe-top, 0px)); width: 58px; height: 58px; border-radius: 50%; z-index: 6; display: grid; place-items: center; background: conic-gradient(#ffd23a var(--k), rgba(10,16,40,.75) 0); border: 3px solid #fff; box-shadow: 0 3px 0 rgba(0,0,0,.3); }
+.vl-gift i { font-style: normal; font-size: 26px; line-height: 1; margin-top: -6px; }
+.vl-gift b { position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%); font-size: 10px; padding: 1px 6px; border-radius: 8px; background: #2a1a3a; color: #fff; white-space: nowrap; }
+.vl-gift.tap { animation: giftTap .18s ease-out; }
+@keyframes giftTap { 50% { transform: scale(.88) rotate(-8deg); } }
+.vl-gift.full { animation: giftFull .8s ease-in-out infinite; background: radial-gradient(#fff6a0, #ffb820); }
+@keyframes giftFull { 0%, 100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-10deg) scale(1.08); } 75% { transform: rotate(10deg) scale(1.08); } }
+/* --- Açılır pencereler: arka plan kararır, kart zıplar, içerik sırayla gelir --- */
+.modal-wrap, .pause-menu { animation: dimIn .2s ease-out; }
+.modal-wrap > *, .pause-menu > * { animation: popIn .34s cubic-bezier(.2, 1.5, .45, 1); }
+.pause-card > *, .modal-wrap .modal > * { animation: riseIn .32s ease-out both; }
+.pause-card > :nth-child(2), .modal-wrap .modal > :nth-child(2) { animation-delay: .04s; } .pause-card > :nth-child(3), .modal-wrap .modal > :nth-child(3) { animation-delay: .08s; }
+.pause-card > :nth-child(4), .modal-wrap .modal > :nth-child(4) { animation-delay: .12s; } .pause-card > :nth-child(5), .modal-wrap .modal > :nth-child(5) { animation-delay: .16s; }
+.pause-card > :nth-child(6), .modal-wrap .modal > :nth-child(6) { animation-delay: .2s; } .pause-card > :nth-child(n+7), .modal-wrap .modal > :nth-child(n+7) { animation-delay: .24s; }
+.modal-wrap.closing, .pause-menu.closing { animation: dimOut .16s ease-in forwards; }
+.modal-wrap.closing > *, .pause-menu.closing > * { animation: popOut .16s ease-in forwards; }
+@keyframes dimIn { from { opacity: 0; } } @keyframes dimOut { to { opacity: 0; } }
+@keyframes popIn { from { transform: scale(.55); opacity: 0; } }
+@keyframes popOut { to { transform: scale(.7); opacity: 0; } }
+@keyframes riseIn { from { transform: translateY(14px); opacity: 0; } }
+@media (hover: hover) { .btn { transition: transform .12s, filter .12s; } .btn:hover { transform: translateY(-2px); filter: brightness(1.08); } .ord-card:hover, .craft-row:hover, .mkt-row:hover { transform: translateY(-2px); transition: transform .12s; } }
+@media (prefers-reduced-motion: reduce) { .modal-wrap, .pause-menu, .modal-wrap > *, .pause-menu > *, .pause-card > * { animation: none !important; } }

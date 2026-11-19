@@ -1185,6 +1185,7 @@ CZ.i18n.register('en', 'English', {
   "exp.title": "Expand village",
   "exp.done": "Village expanded! A new tower spot opened outside",
   "exp.d": "Opens a new tower spot outside the fence. Bigger village, bigger raids.",
+  "gift.open": "Open!",
   "def.wave": "Wave {n}",
   "def.ready": "Ready!",
   "def.fence": "Fence",

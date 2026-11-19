@@ -1004,6 +1004,7 @@ CZ.i18n.register('es', 'Español', {
   "exp.title": "Ampliar aldea",
   "exp.done": "¡Aldea ampliada! Nuevo lugar para torre afuera",
   "exp.d": "Abre un nuevo lugar para torre fuera de la valla. Aldea más grande, asaltos más grandes.",
+  "gift.open": "¡Abrir!",
   "def.wave": "Oleada {n}",
   "def.ready": "¡Listo!",
   "def.fence": "Valla",

@@ -1004,6 +1004,7 @@ CZ.i18n.register('pt', 'Português', {
   "exp.title": "Expandir vila",
   "exp.done": "Vila expandida! Novo lugar de torre lá fora",
   "exp.d": "Abre um novo lugar de torre fora da cerca. Vila maior, ataques maiores.",
+  "gift.open": "Abrir!",
   "def.wave": "Onda {n}",
   "def.ready": "Pronto!",
   "def.fence": "Cerca",

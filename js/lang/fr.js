@@ -1004,6 +1004,7 @@ CZ.i18n.register('fr', 'Français', {
   "exp.title": "Agrandir le village",
   "exp.done": "Village agrandi ! Nouvel emplacement de tour dehors",
   "exp.d": "Ouvre un nouvel emplacement de tour hors de la clôture. Plus grand village, plus grands raids.",
+  "gift.open": "Ouvrir !",
   "def.wave": "Vague {n}",
   "def.ready": "Prêt !",
   "def.fence": "Palissade",

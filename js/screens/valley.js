@@ -928,6 +928,8 @@ CZ.screens.valley = (function () {
     const arrowGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.1, 6); arrowGeo.rotateX(Math.PI / 2);
     const tipGeo = new THREE.ConeGeometry(0.1, 0.25, 6); tipGeo.rotateX(-Math.PI / 2);
     const ballMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(W.ball || '#f4fbff') });
+    const trails = [], trailMat = new THREE.MeshBasicMaterial({ color: 0xdff4ff, transparent: true, opacity: 0.5, depthWrite: false });
+    function trailTick(dt) { for (let i = trails.length - 1; i >= 0; i--) { const q = trails[i]; q.t += dt; q.m.scale.setScalar(Math.max(0.01, 0.6 - q.t * 2.6)); if (q.t > 0.22) { scene.remove(q.m); trails.splice(i, 1); } } }
     function fire(dx, dz) {
       if (V.cool > 0) return;
       V.cool = Math.max(0.12, (0.42 - W.dmg * 0.025) * B.cool * Math.pow(0.95, powLv()));
@@ -937,7 +939,7 @@ CZ.screens.valley = (function () {
       m = new THREE.Mesh(ballGeo, ballMat);   // elde ne varsa o atılır (binekte de)
       m.position.set(P.x + dx * 0.6, P.riding ? mount.seatY + 1.1 : 1.2, P.z + dz * 0.6);
       scene.add(m);
-      const sp2 = P.riding ? 30 : 24; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2 });
+      const sp2 = P.riding ? 30 : 24; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2, ph: Math.random() * 6, y0: m.position.y });
       if (hero.throwNow) hero.throwNow();
       CZ.audio.sfx('throw');
     }
@@ -1003,6 +1005,20 @@ CZ.screens.valley = (function () {
     const goldEl = h('b', { text: String(d.gold || 0) }), woodEl = h('b', { text: '0' }), stoneEl = h('b', { text: '0' }), gemEl = h('b', { text: '0' });
     const timeEl = h('b', { class: 'vl-time', text: t('def.wave', { n: 1 }) });
     const raidEl = h('div', { class: 'vl-raid' });
+    const GIFT_DUR = 240000;
+    const giftBtn = h('button', { type: 'button', class: 'vl-gift' }, h('i', { text: '🎁' }), h('b'));
+    const giftK = () => { if (!d.giftAt) d.giftAt = Date.now(); return Math.min(1, (Date.now() - d.giftAt) / GIFT_DUR); };
+    function giftUi() { const k = giftK(); giftBtn.style.setProperty('--k', (k * 360) + 'deg'); giftBtn.classList.toggle('full', k >= 1); giftBtn.lastChild.textContent = k >= 1 ? t('gift.open') : Math.ceil((1 - k) * GIFT_DUR / 1000) + 's'; giftBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none'; }
+    giftBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (giftK() < 1) { d.giftAt -= 4000; CZ.audio.sfx('poke'); CZ.audio.vibrate(8); giftBtn.classList.remove('tap'); void giftBtn.offsetWidth; giftBtn.classList.add('tap'); giftUi(); return; }   // dokundukça 4 sn hızlanır
+      d.giftAt = Date.now(); const r = Math.random(); let msg;
+      if (r < 0.08) { d.emeralds = (d.emeralds || 0) + 1; msg = '+1 💎'; CZ.ui.fly(giftBtn, 'emerald', 1); }
+      else if (r < 0.25) { d.plank = (d.plank || 0) + 2; d.brick = (d.brick || 0) + 1; msg = '+2 ' + t('mat.plank') + ' +1 ' + t('mat.brick'); }
+      else if (r < 0.55) { d.wood = (d.wood || 0) + 30; d.stone = (d.stone || 0) + 20; msg = '+30 ' + t('mat.wood') + ' +20 ' + t('mat.stone'); }
+      else { const g = 40 + Math.round(Math.random() * 60) + V.wave * 5; gain(g, true); msg = '+' + g; CZ.ui.fly(giftBtn, 'gold', g); }
+      CZ.state.save(); resUi(); giftUi(); floatAt(P, msg, 'wave'); CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]);
+    });
     const ordBtn = h('button', { type: 'button', class: 'vl-orders' });
     function ordUi() { if (!CZ.orders) return; ordBtn.replaceChildren(h('i', { text: '📜' }), h('b', { text: t('ord.btn') }), ...(CZ.orders.ready() ? [h('em', { text: '!' })] : [])); ordBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none'; }
     ordBtn.addEventListener('click', () => openOrders());
@@ -1038,7 +1054,9 @@ CZ.screens.valley = (function () {
       };
       draw2(); wrap.append(box);
     }
-    const hpFill = h('i'); const hpBarEl = h('div', { class: 'vl-hp' }, hpFill);
+    const hpFill = h('i'), hpTrail = h('u'), hpNum = h('span'); const hpBarEl = h('div', { class: 'vl-hp' }, hpTrail, hpFill, hpNum);
+    const hpS = { k: 1, trail: 1, hold: 0, n: -1 };
+    function hpPunch(cls) { hpBarEl.classList.remove('hit', 'heal'); void hpBarEl.offsetWidth; hpBarEl.classList.add(cls); }
     const panel = h('div', { class: 'def-panel' });
     const boostBtn = h('button', { type: 'button', class: 'vl-boost' }, h('b', { text: 'x2' }), h('small', { text: t('def.boost') }));
     boostBtn.addEventListener('click', () => { if (V.boostT > 0) return; CZ.ads.show(() => { V.boostT = 300; CZ.audio.sfx('star'); floatAt(P, t('def.boostOn'), 'wave'); }); });
@@ -1112,7 +1130,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl),
-      hpBarEl, raidEl, heroBtn, ordBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      hpBarEl, raidEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1256,7 +1274,7 @@ CZ.screens.valley = (function () {
       [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.6, -6.8]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
     }
     pads.forEach(drawPad);
-    spawnBuddy(); heroUi(); ordUi();
+    spawnBuddy(); heroUi(); ordUi(); giftUi();
     try {
       const warm = new THREE.Group();
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
@@ -1281,7 +1299,7 @@ CZ.screens.valley = (function () {
       if (V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true);
         if (V.wave % 5 === 0 && !V.raid && !V.story) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
-      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; timeEl.textContent = t('def.wave', { n: V.wave }) + ' · 🏰' + vilLevel(); }
+      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); timeEl.textContent = t('def.wave', { n: V.wave }) + ' · 🏰' + vilLevel(); }
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
       if (V.spawnT <= 0 && goblins.length < cap && !V.story) { V.spawnT = Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); }
@@ -1329,7 +1347,14 @@ CZ.screens.valley = (function () {
       P.hurtT = Math.max(0, P.hurtT - dt);
       if (P.down > 0) { P.down -= dt; if (P.down <= 0) { P.hp = P.maxHp; P.x = 2.5; P.z = 6.5; P.riding = false; M.x = 5.5; M.z = 3.8; downEl.remove(); } return; }
       if (Math.hypot(P.x, P.z) < FENCE_R && P.hp < P.maxHp) P.hp = Math.min(P.maxHp, P.hp + dt * 0.6);
-      hpFill.style.width = (P.hp / P.maxHp * 100) + '%'; hpBarEl.classList.toggle('low', P.hp / P.maxHp < 0.35);
+      { const k = Math.max(0, P.hp / P.maxHp);
+        if (k > hpS.k + 0.001) hpPunch('heal');
+        if (k < hpS.k - 0.001) hpS.hold = 0.45;   // iz önce bekler, sonra erir: ne kadar hasar aldığın görünür
+        hpS.k = k; hpS.hold -= dt; if (hpS.hold <= 0) hpS.trail += (k - hpS.trail) * Math.min(1, dt * 6); if (hpS.trail < k) hpS.trail = k;
+        hpFill.style.width = (k * 100) + '%'; hpTrail.style.width = (hpS.trail * 100) + '%';
+        hpFill.style.background = `linear-gradient(hsl(${Math.round(k * 115)},85%,62%), hsl(${Math.round(k * 115)},75%,42%))`;
+        const n = Math.ceil(P.hp); if (n !== hpS.n) { hpS.n = n; hpNum.textContent = n + ' / ' + P.maxHp; }
+        hpBarEl.classList.toggle('low', k < 0.35 && P.hp > 0); }
       if (V.pending > 0) { const n = Math.min(V.pending, Math.ceil(V.pending * dt * 6)); V.pending -= n; gain(n, true); }
       V.saveT = (V.saveT || 0) - dt; if (V.saveT <= 0) { V.saveT = 3; CZ.village.ensure().leftAt = Date.now(); CZ.state.save(); }
       V.vT = (V.vT || 0) - dt; if (V.vT <= 0) { V.vT = 1; const VV = CZ.village.ensure(), had = VV.job; CZ.village.tick(); if (had && !VV.job) { const id = VV.done; VV.done = null; placeVillage(); pads.forEach(drawMark); CZ.audio.sfx('win'); if (id) floatAt(P, t('vil.doneT', { b: t('vil.b.' + id), n: CZ.village.lv(id) }), 'wave'); } }
@@ -1464,7 +1489,7 @@ CZ.screens.valley = (function () {
         if (o.ice && o.ice.visible) o.ice.position.set(o.x, o.ice.position.y, o.z);
         o.z3.update(dt, { running: mv > 0 && k > 0 && !(o.frozen > 0), dizzy: o.stun > 0 && !(o.frozen > 0), look: false });
       });
-      dartTick(dt);
+      dartTick(dt); trailTick(dt);
       if (tapAim.id !== null && V.cool <= 0 && P.down <= 0) fireAt(tapAim.x, tapAim.y);
       if (hurtTint > 0 || V._tinted) { hurtTint = Math.max(0, hurtTint - dt); const on = hurtTint > 0 && Math.floor(hurtTint * 20) % 2 === 0; heroMats.forEach(m => m.emissive.setHex(on ? 0xcc1010 : 0x000000)); V._tinted = hurtTint > 0; }
       wrap.classList.toggle('lowhp', P.down <= 0 && P.hp > 0 && P.hp / P.maxHp < 0.35);
@@ -1475,6 +1500,8 @@ CZ.screens.valley = (function () {
       for (let i = shots.length - 1; i >= 0; i--) {
         const s2 = shots[i];
         s2.m.position.x += s2.dx * s2.sp * dt; s2.m.position.z += s2.dz * s2.sp * dt;
+        if (s2.ph != null) { s2.ph += dt * 22; const w = Math.sin(s2.ph) * 0.12; s2.m.position.x += -s2.dz * w * dt * 6; s2.m.position.z += s2.dx * w * dt * 6; s2.m.position.y = s2.y0 + Math.sin(s2.ph * 0.5) * 0.08; s2.m.scale.setScalar(1 + Math.sin(s2.ph) * 0.12);
+          s2.tr = (s2.tr || 0) - dt; if (s2.tr <= 0) { s2.tr = 0.03; const tm = new THREE.Mesh(ballGeo, trailMat); tm.position.copy(s2.m.position); tm.scale.setScalar(0.6); scene.add(tm); trails.push({ m: tm, t: 0 }); } }
         s2.life -= dt;
         let hitO = null;
         for (const o of targets) { if (o.dead || o.locked) continue; if (Math.hypot(o.x - s2.m.position.x, o.z - s2.m.position.z) < o.r + 0.35) { hitO = o; break; } }
@@ -1583,7 +1610,7 @@ CZ.screens.valley = (function () {
       if (P.riding && mountDef.kind === 'mammoth') n = n / 2;   // mamut zırh gibi
       P.hurtT = 0.45; P.hp -= n;
       CZ.audio.sfx('hit'); CZ.audio.sfx('wrong'); CZ.audio.vibrate([70, 30, 40]);
-      V.shake = Math.max(V.shake || 0, 0.35); floatAt(P, '-' + n, 'dmg me'); hurtTint = 0.3;
+      V.shake = Math.max(V.shake || 0, 0.35); floatAt(P, '-' + n, 'dmg me'); hurtTint = 0.3; hpPunch('hit');
       wrap.classList.remove('hurt'); void wrap.offsetWidth; wrap.classList.add('hurt');
       if (P.hp <= 0) { P.hp = 0; P.down = 3; P.riding = false; wrap.append(downEl); CZ.audio.sfx('lose'); }
     }

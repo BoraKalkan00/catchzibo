@@ -1185,6 +1185,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "exp.title": "Köyü genişlet",
   "exp.done": "Köy genişledi! Dışarıda yeni kule yeri açıldı",
   "exp.d": "Çitin dışında yeni bir kule yeri açar. Köy büyüdükçe baskınlar da büyür.",
+  "gift.open": "Aç!",
   "def.wave": "Dalga {n}",
   "def.ready": "Hazır!",
   "def.fence": "Çit",

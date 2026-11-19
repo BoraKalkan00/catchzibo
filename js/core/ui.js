@@ -178,6 +178,16 @@ CZ.ui = (function () {
     }))).observe(rootEl, { childList: true, subtree: true });
   }
 
+  // Açılır pencereler kapanırken bir an küçülüp kaybolsun (bütün .modal-wrap ve .pause-menu'ler için)
+  (function () {
+    const rm = Element.prototype.remove;
+    Element.prototype.remove = function () {
+      if (this.isConnected && this.classList && (this.classList.contains('modal-wrap') || this.classList.contains('pause-menu')) && !this.classList.contains('closing') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        this.classList.add('closing'); this.style.pointerEvents = 'none'; setTimeout(() => rm.call(this), 160); return;
+      }
+      return rm.call(this);
+    };
+  })();
   return {
     fly, h, img, btn, emeralds, header, snow, go, wipeTo, refresh, toast, confirmBox, loading,
     mount: el => { root = el; watchRewards(el); },

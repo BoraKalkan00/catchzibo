@@ -1004,6 +1004,7 @@ CZ.i18n.register('ko', '한국어', {
   "exp.title": "마을 확장",
   "exp.done": "마을 확장! 바깥에 새 타워 자리",
   "exp.d": "울타리 밖에 새 타워 자리를 엽니다. 마을이 클수록 습격도 커집니다.",
+  "gift.open": "열기!",
   "def.wave": "웨이브 {n}",
   "def.ready": "완성!",
   "def.fence": "울타리",
