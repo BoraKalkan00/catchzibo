@@ -999,6 +999,8 @@ CZ.i18n.register('fr', 'Français', {
   "mat.plank": "Planche",
   "mat.brick": "Brique",
   "mat.iron": "Fer",
+  "camp.wake": "⚔️ Le camp gobelin (Niv. {n}) s’est réveillé !",
+  "camp.clear": "Camp nettoyé ! +{g} or, +{i} fer, +{e} émeraudes",
   "def.wave": "Vague {n}",
   "def.ready": "Prêt !",
   "def.fence": "Palissade",

@@ -999,6 +999,8 @@ CZ.i18n.register('ar', 'العربية', {
   "mat.plank": "لوح",
   "mat.brick": "طوب",
   "mat.iron": "حديد",
+  "camp.wake": "⚔️ استيقظ معسكر الغوبلن (مستوى {n})!",
+  "camp.clear": "تم تطهير المعسكر! +{g} ذهب، +{i} حديد، +{e} زمرد",
   "def.wave": "الموجة {n}",
   "def.ready": "جاهز!",
   "def.fence": "سياج",

@@ -999,6 +999,8 @@ CZ.i18n.register('de', 'Deutsch', {
   "mat.plank": "Brett",
   "mat.brick": "Ziegel",
   "mat.iron": "Eisen",
+  "camp.wake": "⚔️ Goblinlager (Lv. {n}) ist erwacht!",
+  "camp.clear": "Lager geräumt! +{g} Gold, +{i} Eisen, +{e} Smaragde",
   "def.wave": "Welle {n}",
   "def.ready": "Fertig!",
   "def.fence": "Zaun",

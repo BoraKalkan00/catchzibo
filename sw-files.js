@@ -596,5 +596,8 @@ self.CZ_FILES = [
  "assets/ui/mat/iron.webp",
  "assets/ui/mat/stone.webp",
  "assets/ui/mat/log.webp",
- "assets/ui/mat/crystal.webp"
+ "assets/ui/mat/crystal.webp",
+ "assets/3d/gen/g_cadir.glb",
+ "assets/3d/gen/g_totem.glb",
+ "assets/3d/gen/g_ates.glb"
 ];

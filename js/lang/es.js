@@ -999,6 +999,8 @@ CZ.i18n.register('es', 'Español', {
   "mat.plank": "Tablón",
   "mat.brick": "Ladrillo",
   "mat.iron": "Hierro",
+  "camp.wake": "⚔️ ¡El campamento goblin (Nv. {n}) despertó!",
+  "camp.clear": "¡Campamento limpio! +{g} de oro, +{i} de hierro, +{e} esmeraldas",
   "def.wave": "Oleada {n}",
   "def.ready": "¡Listo!",
   "def.fence": "Valla",

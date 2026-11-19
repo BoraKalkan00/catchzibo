@@ -1180,6 +1180,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "mat.plank": "Tahta",
   "mat.brick": "Tuğla",
   "mat.iron": "Demir",
+  "camp.wake": "⚔️ Goblin kampı (Sv. {n}) uyandı!",
+  "camp.clear": "Kamp temizlendi! +{g} altın, +{i} demir, +{e} zümrüt",
   "def.wave": "Dalga {n}",
   "def.ready": "Hazır!",
   "def.fence": "Çit",

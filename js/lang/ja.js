@@ -999,6 +999,8 @@ CZ.i18n.register('ja', '日本語', {
   "mat.plank": "板",
   "mat.brick": "レンガ",
   "mat.iron": "鉄",
+  "camp.wake": "⚔️ ゴブリンのキャンプ（Lv.{n}）が目覚めた！",
+  "camp.clear": "キャンプ制圧！ +{g}ゴールド +{i}鉄 +{e}エメラルド",
   "def.wave": "ウェーブ{n}",
   "def.ready": "完成！",
   "def.fence": "さく",

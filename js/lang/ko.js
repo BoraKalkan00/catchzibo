@@ -999,6 +999,8 @@ CZ.i18n.register('ko', '한국어', {
   "mat.plank": "판자",
   "mat.brick": "벽돌",
   "mat.iron": "철",
+  "camp.wake": "⚔️ 고블린 캠프(Lv.{n})가 깨어났다!",
+  "camp.clear": "캠프 소탕! +{g} 골드, +{i} 철, +{e} 에메랄드",
   "def.wave": "웨이브 {n}",
   "def.ready": "완성!",
   "def.fence": "울타리",

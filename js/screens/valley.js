@@ -339,7 +339,10 @@ CZ.screens.valley = (function () {
 
     // Engeller (çarpışma için daireler)
     const solids = [];
-    const free = (x, z, r) => Math.hypot(x, z) < WORLD_R - 2 && Math.hypot(x, z) > FENCE_R + 4 + r && !inLake(x, z, 1 + r) && Math.abs(z - riverZ(x)) > RIVER_W + 1.5 + r && !(z < riverZ(x) && Math.abs(x - creekX(z)) < CREEK_W + 1.5 + r) && Math.min(...roads.map(s => distSeg(x, z, s))) > 2.8 + r && !solids.some(s => Math.hypot(s.x - x, s.z - z) < s.r + r + 1);
+    const free = (x, z, r) => Math.hypot(x, z) < WORLD_R - 2 && Math.hypot(x, z) > FENCE_R + 4 + r && !inLake(x, z, 1 + r) && Math.abs(z - riverZ(x)) > RIVER_W + 1.5 + r && !(z < riverZ(x) && Math.abs(x - creekX(z)) < CREEK_W + 1.5 + r) && Math.min(...roads.map(s => distSeg(x, z, s))) > 2.8 + r && !campSites.some(c => Math.hypot(c[0] - x, c[1] - z) < 7 + r) && !solids.some(s => Math.hypot(s.x - x, s.z - z) < s.r + r + 1);
+    // GOBLİN KAMPLARI: köyün dışında 8 yer (her açılışta aynı yerler). Ağaç ve kaya buraya konmaz.
+    const campSites = [];
+    for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + 0.4; for (let k = 0; k < 40; k++) { const rr = 48 + ((i * 37 + k * 13) % 38), aa = a + ((k % 7) - 3) * 0.07, x = Math.cos(aa) * rr, z = Math.sin(aa) * rr; if (free(x, z, 5) && !water(x + 4, z) && !water(x - 4, z) && !water(x, z + 4) && !water(x, z - 4)) { campSites.push([x, z, i]); break; } } }
     // OYUNCUNUN KENDİ KÖYÜ: Köyüm ekranındaki binalar, aynı seviyelerle ortada durur
     const VS = 0.68;
     const vilGroup = new THREE.Group(); scene.add(vilGroup);
@@ -559,12 +562,52 @@ CZ.screens.valley = (function () {
     const bossGeo2 = new THREE.SphereGeometry(0.14, 8, 6);
     // Köy gücü: kurduğun her kule ve çit puan katar; dalgalar buna göre güçlenir (köy asla kendi kendine yetmez)
     function vilPower() { let s2 = 0; pads.forEach(p => { if (p.kind === 'v') return; const it = slot(p); if (it && it.lv) s2 += p.kind === 'f' ? it.lv : it.lv * (it.type === 'cannon' ? 2 : 1.5); }); return s2; }
+    /* ---------- Goblin kampları: temizle → ganimet (demir, zümrüt), 4 saat sonra daha güçlü geri gelir ---------- */
+    const CD = d.vil ? d.vil : (CZ.village ? CZ.village.ensure() : (d.vil = {})); CD.camps = CD.camps || {};
+    const camps = campSites.map(([x, z, i]) => {
+      const st = CD.camps[i] || (CD.camps[i] = { tier: 1 + (i % 3), until: 0 });
+      const g = new THREE.Group(), tents = new THREE.Group(); g.position.set(x, 0, z); g.add(tents);
+      const put = (id, hh, px, pz, ry, fb) => { let m; if (CZ.gen3d && CZ.gen3d.has(id)) m = CZ.gen3d.get(id, hh); else m = fb(); m.position.set(px, 0, pz); m.rotation.y = ry; m.traverse(o => { if (o.isMesh) o.castShadow = true; }); tents.add(m); };
+      const tentFb = () => { const m = new THREE.Mesh(new THREE.ConeGeometry(1.5, 2.4, 6), toon(0x6a7a3a)); m.position.y = 1.2; const w = new THREE.Group(); w.add(m); return w; };
+      [0, 1, 2].forEach(k => { const a = k / 3 * Math.PI * 2 + 0.5; put('g_cadir', 2.6, Math.cos(a) * 3.6, Math.sin(a) * 3.6, -a + Math.PI / 2, tentFb); solids.push({ x: x + Math.cos(a) * 3.6, z: z + Math.sin(a) * 3.6, r: 1.2 }); });
+      put('g_totem', 2.8, 0, -1.2, 0, () => { const w = new THREE.Group(); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 2.8, 8), toon(0x8a5a2a)); m.position.y = 1.4; w.add(m); return w; });
+      put('g_ates', 1.0, 0, 1.0, 0, () => { const w = new THREE.Group(); const m = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1, 6), new THREE.MeshBasicMaterial({ color: 0xff8a2a })); m.position.y = 0.5; w.add(m); return w; });
+      const flag = new THREE.Group(); const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.6, 6), toon(0xd8d8d8)); pole.position.y = 1.3; flag.add(pole);
+      const cloth = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.7), new THREE.MeshBasicMaterial({ color: 0x3cbe5a, side: THREE.DoubleSide })); cloth.position.set(0.55, 2.2, 0); flag.add(cloth); g.add(flag);
+      scene.add(g);
+      return { id: i, x, z, st, g, tents, flag, awake: false };
+    });
+    const campOn = c => !(c.st.until > Date.now());
+    function vanish(o) { o.dead = true; scene.remove(o.mesh); if (o.ice) { scene.remove(o.ice); o.ice = null; } if (o.bar) { scene.remove(o.bar.g); o.bar = null; } const ti = targets.indexOf(o); if (ti >= 0) targets.splice(ti, 1); const gi = goblins.indexOf(o); if (gi >= 0) goblins.splice(gi, 1); }
+    function campTick() {
+      camps.forEach(c => {
+        const on = campOn(c); c.tents.visible = on; c.flag.visible = !on;
+        if (!on) return;
+        const dp = Math.hypot(P.x - c.x, P.z - c.z);
+        if (!c.awake && dp < 17 && !V.story && (d.tutV || 0) >= 5) {
+          c.awake = true; const T2 = c.st.tier, n = Math.min(11, 2 + T2 * 2);
+          for (let k = 0; k < n; k++) { const a = k / n * Math.PI * 2; const g = spawnGoblin(k === 0 && T2 >= 4, [c.x + Math.cos(a) * 5, c.z + Math.sin(a) * 5, 'camp']); g.camp = c; g.village = false; g.hp = g.maxHp = Math.round(g.maxHp * (1 + T2 * 0.35)); hpBar(g); }
+          floatAt(c, t('camp.wake', { n: T2 }), 'wave'); CZ.audio.sfx('horn'); CZ.audio.vibrate([60, 30, 60]);
+        }
+        if (!c.awake) return;
+        if (dp > 48) { goblins.filter(o => o.camp === c && !o.dead).forEach(vanish); c.awake = false; return; }   // kaçtın: kamp sıfırlanır
+        if (!goblins.some(o => o.camp === c && !o.dead)) {
+          const T2 = c.st.tier, gold = 80 + T2 * 60, iron = 1 + T2, gems = T2 >= 3 ? 2 : 1;
+          gain(gold, true); d.iron = (d.iron || 0) + iron; d.emeralds = (d.emeralds || 0) + gems;
+          if (CZ.heroes && Math.random() < 0.35) { const hid = CZ.heroes.randomDrop(2); if (hid) heroUi(); }
+          if (CZ.pass) CZ.pass.addXp(25);
+          c.st.until = Date.now() + 4 * 3600000; c.st.tier = Math.min(30, T2 + 1); c.awake = false; CD.campsDone = (CD.campsDone || 0) + 1; CZ.state.save(); resUi();
+          floatAt(c, t('camp.clear', { g: gold, i: iron, e: gems }), 'wave'); CZ.audio.sfx('win'); CZ.audio.vibrate([80, 40, 120]);
+          for (let k = 0; k < 12; k++) { const m = new THREE.Mesh(chipGeo, chipMats['g' + (k % 3)]); m.position.set(c.x, 1, c.z); scene.add(m); chips.push({ m, vx: rand(-5, 5), vy: rand(5, 9), vz: rand(-5, 5) }); }
+        }
+      });
+    }
     function spawnGoblin(boss, at) {
       const tough = boss || Math.random() < Math.min(0.35, V.wave * 0.04);
       // KÖY GÜCÜ büyüdükçe özel goblinler gelir: kule bozan bombacı, çitten atlayan, kalkanlı (kuleler az işler)
       const pw = vilPower(), rr0 = Math.random();
       let kind = null;
-      if (!boss && !tough) {
+      if (!boss && !tough && !(at && at[2] === 'camp')) {
         if (pw >= 6 && rr0 < Math.min(0.22, pw * 0.012)) kind = 'bomber';
         else if (pw >= 8 && rr0 < Math.min(0.36, 0.1 + pw * 0.01)) kind = 'jumper';
         else if (pw >= 12 && rr0 < Math.min(0.5, 0.2 + pw * 0.01)) kind = 'shield';
@@ -1165,7 +1208,7 @@ CZ.screens.valley = (function () {
 
     V = {
       el, renderer, scene, stage, wrap, raf: 0, last: 0, wave: 1, waveT: 0, spawnT: 2, kills: 0, earned: 0, pending: 0, cool: 0, running: true, paused: false, whistle: false,
-      P, M, hero, camera, BUD, solids, targets, goblins, piles, ice, chest, pads, DS, trees, rocks, left, seeU, debug: { route, fire, autoFire, joy, nearestTarget, rushGold, finishJob, spawnGoblin, complete, flowTick, sim(sec, cb) { for (let t2 = 0; t2 < sec; t2 += 0.05) { if (cb) cb(); if (V.running && !V.paused) step(0.05); draw(0.05); } } },
+      P, M, hero, camera, BUD, solids, targets, goblins, camps, piles, ice, chest, pads, DS, trees, rocks, left, seeU, debug: { route, fire, autoFire, joy, nearestTarget, rushGold, finishJob, spawnGoblin, complete, flowTick, sim(sec, cb) { for (let t2 = 0; t2 < sec; t2 += 0.05) { if (cb) cb(); if (V.running && !V.paused) step(0.05); draw(0.05); } } },
       cleanup() {
         window.removeEventListener('resize', resize);
         window.removeEventListener('pointermove', V_move);
@@ -1225,7 +1268,7 @@ CZ.screens.valley = (function () {
       V.waveT += dt;
       if (V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true);
         if (V.wave % 5 === 0 && !V.raid && !V.story) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
-      raidTick(dt);
+      raidTick(dt); campTick();
       timeEl.textContent = t('def.wave', { n: V.wave });
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
@@ -1355,6 +1398,7 @@ CZ.screens.valley = (function () {
           tx = o.tgt.x; tz = o.tgt.z;
           if (Math.hypot(tx - o.x, tz - o.z) < 1.8) { o.tgt.down = 25; boomFx(o.x, o.z); boomFx(tx, tz); CZ.audio.sfx('crack'); floatAt(o.tgt, t('siege.towerDown'), 'wave'); o.coins = 0; o.hp = 0; kill(o, true); return; }
         }
+        else if (o.camp && (P.down > 0 || Math.hypot(P.x - o.camp.x, P.z - o.camp.z) > 22)) { tx = o.camp.x; tz = o.camp.z; }   // kamp bekçisi kampından uzaklaşmaz
         else if (!o.village && P.down <= 0) { tx = P.x; tz = P.z; }   // önce sadece seni kovalarlar
         else if (dp < 13 && P.down <= 0) { tx = P.x; tz = P.z; }
         else if (!o.village) { o.roam = o.roam || [o.x * 0.75, o.z * 0.75]; tx = o.roam[0]; tz = o.roam[1]; if (Math.hypot(tx - o.x, tz - o.z) < 2) { const a = rand(0, 6.28), rr = rand(FENCE_R + 6, WORLD_R - 6); o.roam = [Math.cos(a) * rr, Math.sin(a) * rr]; } }   // ilk dalgalar: köye girmez, dışarıda dolaşır
@@ -1471,6 +1515,8 @@ CZ.screens.valley = (function () {
         else if (it) { mctx.fillStyle = it.type === 'cannon' ? '#3a3a44' : '#5a7ab8'; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 4.5, 0, 7); mctx.fill(); }
         else { mctx.strokeStyle = '#d8a010'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 3.5, 0, 7); mctx.stroke(); } });
       mctx.fillStyle = '#c8302a'; mctx.fillRect(cx - 4, cx - 5, 8, 8);
+      camps.forEach(c => { const on = campOn(c); mctx.fillStyle = on ? '#7a2a9a' : '#3cbe5a'; mctx.beginPath(); mctx.moveTo(X(c.x), Z(c.z) - 6); mctx.lineTo(X(c.x) + 5.5, Z(c.z) + 4); mctx.lineTo(X(c.x) - 5.5, Z(c.z) + 4); mctx.closePath(); mctx.fill(); mctx.strokeStyle = '#fff'; mctx.lineWidth = 1.2; mctx.stroke();
+        if (on) { mctx.fillStyle = '#fff'; mctx.font = 'bold 8px sans-serif'; mctx.textAlign = 'center'; mctx.fillText(String(c.st.tier), X(c.x), Z(c.z) + 3); } });
       mctx.fillStyle = '#7a8296'; mctx.beginPath(); mctx.arc(X(-38), Z(-31), 5, 0, 7); mctx.fill();
       targets.forEach(o => {
         if (o.dead) return;

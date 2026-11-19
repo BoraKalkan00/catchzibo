@@ -1180,6 +1180,8 @@ CZ.i18n.register('en', 'English', {
   "mat.plank": "Plank",
   "mat.brick": "Brick",
   "mat.iron": "Iron",
+  "camp.wake": "⚔️ Goblin camp (Lv. {n}) woke up!",
+  "camp.clear": "Camp cleared! +{g} gold, +{i} iron, +{e} emeralds",
   "def.wave": "Wave {n}",
   "def.ready": "Ready!",
   "def.fence": "Fence",
