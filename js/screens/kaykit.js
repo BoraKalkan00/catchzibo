@@ -284,7 +284,7 @@
   /* ---------- YAPAY ZEKÂ MODELİNİ KAYKIT İSKELETİNE BAĞLA ---------- */
   // T-pozunda üretilen tek parça modeli KayKit iskeletinin kutusuna oturtur, her köşeye bölgesine göre
   // (kafa / gövde / kol / bacak) kemik ağırlığı verir. Böylece KayKit'in 29 hazır animasyonu bu modelle oynar.
-  CZ.KK_GEN = { girl: 'v_girl', boy: 'v_boy', santa: 'v_santa', elf: 'v_elf', snowkid: 'v_snowkid', reindeer: 'v_reindeer', knight: 'v_knight', mila: 'v_mila' };   // Gemini çizimlerinden 3D
+  CZ.KK_GEN = { girl: 'v_girl', boy: 'v_boy', santa: 'v_santa', elf: 'v_elf', snowkid: 'v_snowkid', reindeer: 'v_reindeer', knight: 'v_knight', mila: 'v_mila', goblin: 'v_goblin', chief: 'v_chief', zibo: 'v_zibo', hero_mila: 'v_mila', hero_rudi: 'v_rudi', hero_ela: 'v_hela', hero_buzbas: 'v_buzbas', hero_demir: 'v_demir', hero_noel: 'v_noel' };   // Gemini çizimlerinden 3D
   const GEN_SKIN = {};
   // Gardıroptan alınan mont / bere / atkı renkleri yapay zekâ modelinin köşe renklerine de uygulanır (2D çizimlerdeki kuralların aynısı)
   function recolor(geo, kind) {
@@ -534,6 +534,7 @@
     }, 'zibo:' + skin);
     const skinMat = new T.MeshToonMaterial({ color: dark, gradientMap: grad() });
     accessories(model, ['goblinEars', 'goblinFace', 'santaHatZibo', 'sack'], { skin: skinMat });
+    if (CZ.KK_GEN.zibo && CZ.gen3d && CZ.gen3d.has(CZ.KK_GEN.zibo)) skinGen(model, CZ.KK_GEN.zibo, 'zibo');   // Gemini çizimli Zibo (aksesuarlar gizlenir)
     const root = new T.Group();
     const holder = new T.Group();
     holder.rotation.y = Math.PI;

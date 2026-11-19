@@ -48,8 +48,12 @@ CZ.heroes = (function () {
   const ports = {};
   function portrait(id) {
     if (ports[id]) return ports[id];
-    try { ports[id] = CZ.kk.portrait(def(id).look, 'front'); } catch (e) { ports[id] = ''; }
-    return ports[id];
+    const gid = CZ.KK_GEN && CZ.KK_GEN['hero_' + id], ready = gid && CZ.gen3d && CZ.gen3d.has(gid);
+    if (gid && !ready && CZ.gen3d) CZ.gen3d.need([gid]).then(() => { delete ports[id]; document.querySelectorAll('img[data-hero="' + id + '"]').forEach(el => { el.src = portrait(id); }); });   // model inince resim yenilenir
+    let url = '';
+    try { url = CZ.kk.portrait(ready ? 'hero_' + id : def(id).look, 'front'); } catch (e) { url = ''; }
+    if (ready || !gid) ports[id] = url;
+    return url;
   }
   return { MAX, def, all, st, owned, lv, unlockNeed, upNeed, add, canUnlock, unlock, canUp, up, buddy, setBuddy, randomDrop, hasNews, defense, portrait };
 })();

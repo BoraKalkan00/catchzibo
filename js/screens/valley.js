@@ -241,6 +241,7 @@ CZ.screens.valley = (function () {
         sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vVZ; uniform vec3 uSee; uniform float uSeeR;').replace('void main() {', 'void main() {\n' + SEE_F); };
       m.customProgramCacheKey = () => 'ols' + th; return m; };
     function olMesh(o, th) {
+      if (o.name === 'GenBody') th = th * 1.8;   // Gemini karakterleri: kontur biraz kalın
       const see = o.material && o.material.userData && o.material.userData.see;
       const mat = see ? (OLS[th] || (OLS[th] = outlineSee(th))) : (OL[th] || (OL[th] = outlineMat(th)));
       {
@@ -531,7 +532,15 @@ CZ.screens.valley = (function () {
     const spearGeo = new THREE.CylinderGeometry(0.035, 0.035, 1.5, 5), tipGeo2 = new THREE.ConeGeometry(0.08, 0.26, 5), sackGeo = new THREE.SphereGeometry(0.32, 8, 6);
     // Yeni goblin modelleri (yerel yapay zekâ ile üretildi); yoksa eski modele döner. Yürürken zıplar, sersemleyince sallanır.
     const KIND_TINT = { ranged: 0xb9a2ff, bomber: 0xff9a6a, jumper: 0xffe27a, shield: 0xc8b090 };
+    function rigGoblin(look, sc, tint) {
+      const h = CZ.kk.hero(THREE, look); h.root.scale.setScalar(sc);
+      h.root.traverse(o => { if (o.isSkinnedMesh && o.name === 'GenBody') { o.material = o.material.clone(); o.material.color.setHex(tint || 0xb4cc9c); } });   // tepeden güneşte soluk kalmasın: biraz koyu yeşil
+      let lastL = 0;
+      return { root: h.root, gen: true, rig: true, h, update(dt, o) { h.update(dt, { idle: !o.running }); } , hit() { if (h.throwNow) h.throwNow(); } };
+    }
     function goblinBody(boss, tough, kind) {
+      const K = CZ.KK_GEN || {}, rig = CZ.gen3d && CZ.gen3d.has(K.goblin) && CZ.gen3d.has(K.chief);
+      if (rig) return rigGoblin(boss || tough ? 'chief' : 'goblin', boss ? 2.5 : tough ? 1.5 : kind === 'shield' ? 1.4 : 1.25, kind ? KIND_TINT[kind] : null);
       const id = boss || tough ? 'goblinsef' : 'goblin';
       if (kind && CZ.gen3d && CZ.gen3d.has(id)) return genBody(id, kind === 'shield' ? 1.6 : 1.4, KIND_TINT[kind]);
       if (!CZ.gen3d || !CZ.gen3d.has(id)) { const z = CZ.kk.zibo(THREE, tough ? pick([0x8a3a8a, 0x3a5aa8]) : pick([0x4f9a32, 0x6aa83a, 0x3f8a5a])); z.root.scale.setScalar(boss ? 1.9 : tough ? 1.15 : 0.95); if (boss && z.setCrown) z.setCrown(true); return z; }
@@ -886,7 +895,9 @@ CZ.screens.valley = (function () {
       BUD.id = CZ.heroes ? CZ.heroes.buddy() : null;
       if (!BUD.id) return;
       const H = CZ.heroes.def(BUD.id);
-      if (CZ.gen3d && CZ.gen3d.has('h_' + BUD.id)) {   // kahramana özel 3D model: zıplayarak yürür, yetenekte öne atılır
+      const KG = CZ.KK_GEN || {};
+      if (KG['hero_' + BUD.id] && CZ.gen3d && CZ.gen3d.has(KG['hero_' + BUD.id])) { BUD.hero = CZ.kk.hero(THREE, 'hero_' + BUD.id); BUD.hero.root.scale.setScalar(1.3); }
+      else if (CZ.gen3d && CZ.gen3d.has('h_' + BUD.id)) {   // kahramana özel 3D model: zıplayarak yürür, yetenekte öne atılır
         const gb = genBody('h_' + BUD.id, 1.95); let kick = 0;
         BUD.hero = { root: gb.root, throwNow() { kick = 0.25; }, update(dt, o) { gb.update(dt, { running: !o.idle }); kick = Math.max(0, kick - dt); gb.root.children[0].rotation.x = (o.idle ? 0 : 0.12) + Math.sin(kick / 0.25 * Math.PI) * 0.35; } };
       } else { BUD.hero = CZ.kk.hero(THREE, H.look); BUD.hero.root.scale.setScalar(1.25); }
@@ -1111,7 +1122,7 @@ CZ.screens.valley = (function () {
     function heroUi() {
       if (!CZ.heroes) return;
       const b = CZ.heroes.buddy();
-      heroBtn.replaceChildren(b ? h('img', { src: CZ.heroes.portrait(b), alt: '' }) : h('i', { text: '🦸' }), h('b', { text: t('hero.btn') }), ...(CZ.heroes.hasNews() ? [h('em', { text: '!' })] : []));
+      heroBtn.replaceChildren(b ? h('img', { src: CZ.heroes.portrait(b), alt: '', 'data-hero': b }) : h('i', { text: '🦸' }), h('b', { text: t('hero.btn') }), ...(CZ.heroes.hasNews() ? [h('em', { text: '!' })] : []));
       heroBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none';
     }
     heroBtn.addEventListener('click', () => openHeroes());
@@ -1131,7 +1142,7 @@ CZ.screens.valley = (function () {
         if (own && H.id !== 'mila') acts.push(isB ? h('span', { class: 'hero-with', text: t('hero.with') }) : btn(t('hero.take'), () => { CZ.heroes.setBuddy(H.id); spawnBuddy(); CZ.audio.sfx('star'); draw(); }, 'ghost-dark'));
         if (!max) acts.push(btn('+5 🧩 · 10', () => { if ((d.emeralds || 0) < 10) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.gemShort')); } d.emeralds -= 10; CZ.heroes.add(H.id, 5); CZ.audio.sfx('coin'); resUi(); draw(); }, 'ghost-dark', 'ui.emerald'));
         return h('div', { class: 'hero-card ' + RAR[H.rar] + (own ? '' : ' locked') + (isB ? ' buddy' : '') },
-          h('div', { class: 'hero-pic' }, h('img', { src: CZ.heroes.portrait(H.id), alt: '' }), own ? h('b', { class: 'hero-lv', text: t('vil.lv', { n: S.lv }) }) : h('b', { class: 'hero-lv lock', text: '🔒' })),
+          h('div', { class: 'hero-pic' }, h('img', { src: CZ.heroes.portrait(H.id), alt: '', 'data-hero': H.id }), own ? h('b', { class: 'hero-lv', text: t('vil.lv', { n: S.lv }) }) : h('b', { class: 'hero-lv lock', text: '🔒' })),
           h('div', { class: 'hero-info' },
             h('div', { class: 'hero-name' }, h('b', { text: t('hero.n.' + H.id) }), h('small', { class: 'hero-rar', text: t('hero.rar' + H.rar) })),
             h('small', { class: 'hero-desc', text: t('hero.d.' + H.id) }),
@@ -1486,7 +1497,7 @@ CZ.screens.valley = (function () {
           if (o.atk <= 0 && o.stun <= 0) { o.atk = 2.2; o.aimFx = false; shootDart(o); }
         } else if (!o.flee && dp < 1.5 && P.down <= 0) {
           o.vx = o.vz = 0;
-          if (o.atk <= 0 && o.stun <= 0) { o.atk = 1.7; o.lunge = 0.25; hurt(o.dmg); }
+          if (o.atk <= 0 && o.stun <= 0) { o.atk = 1.7; o.lunge = 0.25; hurt(o.dmg); if (o.z3.hit) o.z3.hit(); }
         } else {
           const ddx = tx - o.x, ddz = tz - o.z, L2 = Math.hypot(ddx, ddz) || 1;
           o.vx = ddx / L2 * sp; o.vz = ddz / L2 * sp; mv = 1;
@@ -1957,7 +1968,7 @@ CZ.screens.valley = (function () {
       V.cine = true;
       d.tutV = 0; d.tutN = 0;
       // Zibo: taçlı, sırtında köyün hazine sandığı
-      const zb = CZ.gen3d && CZ.gen3d.has('zibo') ? genBody('zibo', 2.2) : CZ.kk.zibo(THREE); if (!zb.gen) { zb.root.scale.setScalar(1.45); if (zb.setCrown) zb.setCrown(true); }
+      const zb = CZ.gen3d && CZ.KK_GEN && CZ.gen3d.has(CZ.KK_GEN.zibo) ? CZ.kk.zibo(THREE) : CZ.gen3d && CZ.gen3d.has('zibo') ? genBody('zibo', 2.2) : CZ.kk.zibo(THREE); if (!zb.gen) { zb.root.scale.setScalar(1.45); if (zb.setCrown) zb.setCrown(true); }
       const loot = CZ.gen3d.has('sandik_lo') ? CZ.gen3d.get('sandik_lo', 0.75) : new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.5), toon(0x8a5228));
       loot.position.set(0, 1.55, 0.35); loot.visible = false; zb.root.add(loot);
       zb.root.traverse(o => { o.castShadow = true; }); addOutline(zb.root, 0.02);

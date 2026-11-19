@@ -5,6 +5,7 @@ CZ.GEN3D = {
   kurt: { yaw: Math.PI, seat: 0.6 }, mamut: { yaw: Math.PI, seat: 0.78 },
   kartopukulesi: {}, topkulesi: { yaw: Math.PI }, koymeydani: {}, altinmadeni: {}, firin: {}, ahir: {}, demirci: {},
   cam_lo: {}, cam_hi: {}, hediye_lo: {}, sandik_lo: {},
+  v_goblin: {}, v_chief: {}, v_zibo: { lazy: 1 }, v_rudi: { lazy: 1 }, v_hela: { lazy: 1 }, v_buzbas: { lazy: 1 }, v_demir: { lazy: 1 }, v_noel: { lazy: 1 },
   v_girl: { lazy: 1 }, v_boy: { lazy: 1 }, v_santa: { lazy: 1 }, v_elf: { lazy: 1 }, v_snowkid: { lazy: 1 }, v_reindeer: { lazy: 1 }, v_knight: { lazy: 1 }, v_mila: { lazy: 1 },
   g_cadir: {}, g_totem: { yaw: Math.PI }, g_ates: {},
   goblin: { yaw: Math.PI }, zibo: { yaw: Math.PI }, goblinsef: { yaw: Math.PI }, kuyu: {}, fici: {}, fener: {},
@@ -62,7 +63,8 @@ CZ.gen3d = (function () {
   function load() {
     const K = CZ.KK_GEN || {}, av = K[(CZ.state && CZ.state.data.avatar) || 'girl'];
     if (!P) P = need(Object.keys(CZ.GEN3D).filter(id => !CZ.GEN3D[id].lazy));
-    return Promise.all([P, need([av, K.mila].filter(Boolean))]);   // seçili karakter değişmiş olabilir: onu da indir
+    const bud = CZ.heroes && CZ.heroes.buddy ? K['hero_' + CZ.heroes.buddy()] : null;
+    return Promise.all([P, need([av, K.mila, K.zibo, bud].filter(Boolean))]);   // seçili karakter değişmiş olabilir: onu da indir
   }
   const has = id => !!cache[id];
   // Boyu h olan, tabanı y=0'da, öne (-z) bakan kopya. tint verilirse renk çarpılır.
