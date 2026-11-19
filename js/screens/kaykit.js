@@ -284,7 +284,7 @@
   /* ---------- YAPAY ZEKÂ MODELİNİ KAYKIT İSKELETİNE BAĞLA ---------- */
   // T-pozunda üretilen tek parça modeli KayKit iskeletinin kutusuna oturtur, her köşeye bölgesine göre
   // (kafa / gövde / kol / bacak) kemik ağırlığı verir. Böylece KayKit'in 29 hazır animasyonu bu modelle oynar.
-  CZ.KK_GEN = { girl: 'v_girl', boy: 'v_boy', santa: 'v_santa', elf: 'v_elf', snowkid: 'v_snowkid', reindeer: 'v_reindeer', knight: 'v_knight', mila: 'v_mila', goblin: 'v_goblin', chief: 'v_chief', zibo: 'v_zibo', hero_mila: 'v_mila', hero_rudi: 'v_rudi', hero_ela: 'v_hela', hero_buzbas: 'v_buzbas', hero_demir: 'v_demir', hero_noel: 'v_noel' };   // Gemini çizimlerinden 3D
+  CZ.KK_GEN = {};   // KAPALI (Bora: kollar bozuk). Hazır eşleme: girl v_girl, boy v_boy, santa v_santa, elf v_elf, snowkid v_snowkid, reindeer v_reindeer, knight v_knight, mila v_mila, goblin v_goblin, chief v_chief, zibo v_zibo, hero_* v_rudi/v_hela/v_buzbas/v_demir/v_noel/v_mila — Mixamo ile düzgün iskelet gelince açılacak
   const GEN_SKIN = {};
   // Gardıroptan alınan mont / bere / atkı renkleri yapay zekâ modelinin köşe renklerine de uygulanır (2D çizimlerdeki kuralların aynısı)
   function recolor(geo, kind) {
