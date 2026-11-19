@@ -1949,3 +1949,8 @@ body.wide .screen:not(.valley-screen) > .scroll, body.wide .screen > header { wi
 .valley-wrap.lowhp::before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 19; box-shadow: inset 0 0 90px rgba(220,0,0,.55); animation: lowhp 1s ease-in-out infinite; }
 @keyframes lowhp { 50% { opacity: .35; } }
 .vl-float.dmg.me { color: #ff5a4e; font-size: 22px; -webkit-text-stroke: 1px #400; }
+/* büyük baskın uyarısı */
+.vl-raid { position: absolute; top: 58px; left: 50%; transform: translateX(-50%) scale(.8); z-index: 25; pointer-events: none; opacity: 0; padding: 6px 14px; border-radius: 14px; background: linear-gradient(#e0302e, #a81818); color: #fff; font-weight: 900; font-size: 15px; box-shadow: 0 3px 0 #6a0c0c, 0 6px 14px rgba(0,0,0,.35); transition: opacity .25s, transform .25s; white-space: nowrap; }
+.vl-raid.on { opacity: 1; transform: translateX(-50%) scale(1); animation: raidpulse 1s ease-in-out infinite; }
+@keyframes raidpulse { 50% { transform: translateX(-50%) scale(1.06); } }
+body.wide #rotate-note { display: none !important; }

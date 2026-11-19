@@ -53,3 +53,5 @@ Gift popup'ı kapatmak için `CZ.state.data.login={last:bugünYYYYMMDD,n:1}`.
 - Binekte de kartopu atılır (ok yok). Balta/kazma artık gerçek şekil (bayrağa benziyordu).
 - Zemin yumuşak geçişli, 512 doku; kayalar pürüzsüz + karlı; ağaçlar cam_hi (1400 yüz); kar taneleri yuvarlak.
 - Çitin üstüne gelince canı ve yükseltmesi görünür.
+- (19 Kas) 1. fikir yapıldı — KÖY GÜCÜ (vilPower): kule/çit puanı dalgaları güçlendirir. Yeni goblinler: bombacı (turuncu, kuleyi 25 sn bozar / çiti yıkar), zıplayan (sarı, çitten atlar), kalkanlı (kule hasarı %40). Her 5 dalgada BÜYÜK BASKIN (tek yönden, uyarı bandı, hepsi düşerse ödül; çalınmazsa +2 zümrüt). Bozuk kulenin yanında durunca 3x hızlı onarılır. Yatay telefonda "dik tut" uyarısı artık çıkmıyor.
+- Sıradaki: 6 sipariş panosu (Bora'nın Gemini köylü/malzeme görselleri bekleniyor), 2 goblin kampları (PC'de çadır/totem 3D), 10 köy genişletme, sonra 3,4,5,7,8,9.
