@@ -77,6 +77,9 @@ button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .logo { display: flex; flex-wrap: nowrap; justify-content: center; font-size: clamp(50px, 16.5vw, 76px); font-weight: 700; color: #a6ee7a; text-shadow: 0 3px 0 #2f8a3e, 0 6px 0 #1f5b2c, 0 10px 18px rgba(0, 0, 0, .45); line-height: 1; }
 .logo span { display: inline-block; animation: letterin .5s cubic-bezier(.3, 1.8, .5, 1) backwards; }
 .logo .space { width: .26em; }
+.logo-img img { width: min(92vw, 430px); height: auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,.4)); animation: logopop .7s cubic-bezier(.3, 1.6, .5, 1) backwards, logobob 3.2s ease-in-out .7s infinite; }
+@keyframes logopop { from { transform: scale(.3) rotate(-8deg); opacity: 0; } }
+@keyframes logobob { 50% { transform: translateY(-5px) rotate(-1deg); } }
 @keyframes letterin { from { transform: translateY(-120px) scale(.4) rotate(-20deg); opacity: 0; } }
 .tagline { margin-top: 14px; font-size: 18px; font-weight: 600; text-shadow: 0 2px 5px rgba(0, 0, 0, .8); animation: fade .5s .7s backwards; }
 .zibo.title-actor { position: absolute; top: auto; right: auto; left: 50%; bottom: calc(112px + var(--safe-bottom)); width: min(50vw, 220px); max-width: none; margin-left: -25vw; pointer-events: auto; z-index: 3; animation: ziboin .5s .45s cubic-bezier(.3, 1.5, .5, 1) backwards; cursor: pointer; }

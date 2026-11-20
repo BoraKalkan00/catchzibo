@@ -463,6 +463,7 @@ self.CZ_FILES = [
  "assets/ui/ic_trophy.webp",
  "assets/ui/icon192.png",
  "assets/ui/icon512.png",
+ "assets/ui/logo.webp",
  "assets/ui/lock.svg",
  "assets/ui/snowball.svg",
  "assets/ui/star.svg",

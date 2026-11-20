@@ -28,7 +28,7 @@
         h('div', { class: 'hub-bg title-bg' }, img('scene.hub_bg', 'hub-bg-img')),
         snow(),
         h('div', { class: 'title-box' },
-          h('h1', { class: 'logo', 'aria-label': t('title.name') }, letters),
+          h('h1', { class: 'logo logo-img', 'aria-label': t('title.name') }, h('img', { src: 'assets/ui/logo.webp', alt: t('title.name'), draggable: 'false' })),
           h('p', { class: 'tagline', text: t('title.tag') })),
         zibo.el,
         h('div', { class: 'title-actions' }, ...(quick
