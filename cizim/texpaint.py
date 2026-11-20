@@ -12,6 +12,8 @@ def prep(path, size=512):
     im = im.crop(bb)
     arr = np.asarray(im).astype(np.float32)
     opaque = arr[:, :, 3] > 100
+    from scipy.ndimage import binary_erosion
+    opaque = binary_erosion(opaque, iterations=max(2, im.size[0] // 60))   # kenardaki koyu gölge şeridini at, yanlar temiz renk alsın
     _, (iy, ix) = distance_transform_edt(~opaque, return_indices=True)   # boş pikselleri en yakın renkle doldur
     rgb = arr[iy, ix, :3]
     return Image.fromarray(rgb.astype(np.uint8)).resize((size, size), Image.LANCZOS)
