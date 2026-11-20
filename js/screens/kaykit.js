@@ -32,10 +32,14 @@
           const wp = Promise.all(['staff', 'wand', 'crossbow_1handed'].map(getW)).then(ws => { WEAP.staff = ws[0]; WEAP.wand = ws[1]; WEAP.crossbow = ws[2]; });
           // Mixamo: gerçek iskelet + profesyonel hareketler (yoksa KayKit'e düşer)
           const getM = f => new Promise(ok => L.load('assets/3d/mx/' + f + '.glb', g => ok(g), undefined, () => ok(null)));
-          const mp = Promise.all([getM('anims')].concat(MX_CHARS.map(getM))).then(([a, ...cs]) => {
+          MX_GET = getM;
+          const d = (CZ.state && CZ.state.data) || {};
+          const first = ['zibo', 'goblin', 'chief', 'mila', d.avatar || 'girl'];
+          try { const b = CZ.heroes && CZ.heroes.buddy && CZ.heroes.buddy(); if (b) first.push('hero_' + b); } catch (e) { }
+          const mp = getM('anims').then(a => {
             if (!a) return;
             MXC = {}; a.animations.forEach(c => { MXC[c.name] = c; });
-            MX_CHARS.forEach((k, i) => { if (cs[i]) MXB[k] = cs[i].scene; });
+            return needMX(first);
           });
           return Promise.all([wp, mp]);
         });
@@ -44,12 +48,48 @@
     return P;
   }
   const ready = () => !!clips;
-  const MX_CHARS = ['zibo'];
-  const MXB = {};
-  let MXC = null;
+  // Mixamo'lu karakterler (assets/3d/mx/<ad>.glb). Açılışta yalnız gerekenler iner, diğerleri needMX ile.
+  const MX_ALL = ['zibo', 'goblin', 'chief', 'girl', 'boy', 'santa', 'elf', 'snowkid', 'reindeer', 'knight', 'mila', 'hero_buzbas', 'hero_demir', 'hero_noel', 'hero_mila'];
+  const MX_FILE = { hero_mila: 'mila' };
+  const MXB = {}, MXP = {};
+  let MXC = null, MX_GET = null;
   const hasMX = k => !!(MXC && MXB[k]);
+  function needMX(keys) {
+    if (!MX_GET) return Promise.resolve();
+    return Promise.all(keys.filter(k => MX_ALL.includes(k)).map(k => MXP[k] || (MXP[k] = MX_GET(MX_FILE[k] || k).then(g => { if (g) MXB[k] = g.scene; }))));
+  }
+  // KayKit klip adlarını Mixamo kliplerine çevirir; kalça yüksekliği karaktere göre ölçeklenir
+  const MXCL = {};
+  function mxGuess(n) {
+    if (MXC[n]) return n;
+    if (MX_MAP[n]) return MX_MAP[n];
+    return /Run|Jump|Dodge/.test(n) ? 'run' : /Walk/.test(n) ? 'walk' : /Death|Lie/.test(n) ? 'die' : /Hit/.test(n) ? 'hit' : /Cheer|Victory|Win/.test(n) ? 'win' : /Throw|Shoot|Spell|Attack|Melee|Chop|Slice|Stab|Block|Punch/.test(n) ? 'throw' : 'idle';
+  }
+  function mxClips(k) {
+    if (MXCL[k]) return MXCL[k];
+    const hips = MXB[k].getObjectByName('mixamorigHips'), hy = hips ? hips.position.y : 1;
+    const cache = {};
+    const get = n => {
+      const m = mxGuess(n);
+      if (!cache[m]) {
+        const c = MXC[m].clone();
+        c.tracks.forEach(t => { if (/Hips\.position$/.test(t.name)) for (let i = 0; i < t.values.length; i++) t.values[i] *= hy; });
+        cache[m] = c;
+      }
+      return cache[m];
+    };
+    return (MXCL[k] = new Proxy({}, { get: (o, n) => typeof n === 'string' ? get(n) : undefined }));
+  }
+  const MX_UPPER = /mixamorig(Spine1|Spine2|Neck|Head|Left(Shoulder|Arm|ForeArm|Hand)|Right(Shoulder|Arm|ForeArm|Hand))/;
+  const mxPartCache = {};
+  function mxPart(k, CL, name, upper) {
+    const key = k + name + upper;
+    if (mxPartCache[key]) return mxPartCache[key];
+    const c = CL[name];
+    return (mxPartCache[key] = new T.AnimationClip(key, c.duration, c.tracks.filter(tr => MX_UPPER.test(tr.name.split('.')[0]) === upper)));
+  }
   // KayKit klip adı -> Mixamo klip adı
-  const MX_MAP = { Idle: 'idle', Running_A: 'run', Running_B: 'run', Walking_A: 'walk', Hit_A: 'hit', Hit_B: 'hit', Jump_Idle: 'run', Jump_Full_Short: 'run', Throw: 'throw', Cheer: 'win', Death_A: 'die', Death_B: 'die' };
+  const MX_MAP = { Idle: 'idle', Running_A: 'run', Running_B: 'run', Walking_A: 'walk', Hit_A: 'hit', Hit_B: 'hit', Jump_Idle: 'run', Jump_Full_Short: 'run', Throw: 'throw', Cheer: 'win', Death_A: 'die', Death_B: 'die', Sit_Floor_Down: 'idle' };
   const WEAP = {};
 
   /* ---------- Silahlar: elde gerçekten tutulur ---------- */
@@ -394,12 +434,21 @@
     if (hx.jacket) cells['0,1'] = hx.jacket;
     if (hx.scarf && L.body === 'mage') { cells['2,2'] = hx.scarf; cells['2,1'] = hx.scarf; }
     if (hx.scarf && L.body === 'rogue') cells['1,1'] = hx.scarf;
-    const model = T.SkeletonUtils.clone(base[L.body]);
-    tagModel(model, L.body);
-    if (L.head) borrowHead(model, L.head, { mage: 'Mage_Head', knight: 'Knight_Head', rogue: 'Rogue_Head', barbarian: 'Barbarian_Head' }[L.head] || L.head);
-    (L.hide || []).forEach(n => { const o = model.getObjectByName(n); if (o) o.visible = false; });
-    const gid = CZ.KK_GEN[kind], genOk = gid && CZ.gen3d && CZ.gen3d.has(gid) && skinGen(model, gid, kind);
-    if (!genOk) { toonize(model, L.paint || {}, kind + JSON.stringify(hx)); accessories(model, L.acc || [], { hat: hx.hatColor }); }
+    const MXK = hasMX(kind) ? kind : null;
+    const CL = MXK ? mxClips(MXK) : clips;
+    const partX = MXK ? (n, u) => mxPart(MXK, CL, n, u) : part;
+    let model;
+    if (MXK) {
+      model = mxModel(MXK).model;
+      if (hx.jacket && !/^hero_|goblin|chief|mila/.test(kind)) model.traverse(o => { if (o.isMesh) o.material.color.lerp(new T.Color(hx.jacket), 0.18); });
+    } else {
+      model = T.SkeletonUtils.clone(base[L.body]);
+      tagModel(model, L.body);
+      if (L.head) borrowHead(model, L.head, { mage: 'Mage_Head', knight: 'Knight_Head', rogue: 'Rogue_Head', barbarian: 'Barbarian_Head' }[L.head] || L.head);
+      (L.hide || []).forEach(n => { const o = model.getObjectByName(n); if (o) o.visible = false; });
+      const gid = CZ.KK_GEN[kind], genOk = gid && CZ.gen3d && CZ.gen3d.has(gid) && skinGen(model, gid, kind);
+      if (!genOk) { toonize(model, L.paint || {}, kind + JSON.stringify(hx)); accessories(model, L.acc || [], { hat: hx.hatColor }); }
+    }
     const root = new T.Group();
     const holder = new T.Group();
     holder.rotation.y = Math.PI;      // kameraya sırtı dönük koşsun
@@ -409,12 +458,13 @@
     const spin = new T.Group(); spin.position.y = 0.42; holder.position.y = -0.42;
     spin.add(holder);
     root.add(spin);
-    const R = rig(model);
+    const R = rig(model, CL);
     // Silah yuvası: sağ elde
     const weaponSlot = new T.Group();
-    const hand = model.getObjectByName('handslotr') || model.getObjectByName('handr') || model.getObjectByName('head');
+    const hand = model.getObjectByName('handslotr') || model.getObjectByName('handr') || model.getObjectByName('mixamorigRightHand') || model.getObjectByName('head') || model;
     hand.add(weaponSlot);
-    weaponSlot.scale.setScalar(1 / 0.5);
+    if (MXK) { root.updateMatrixWorld(true); const ws = new T.Vector3(); hand.getWorldScale(ws); weaponSlot.scale.setScalar(1 / (ws.x || 1)); weaponSlot.position.set(0, 0.08 / (ws.x * 2 || 1), 0); }
+    else weaponSlot.scale.setScalar(1 / 0.5);
 
     const st = { mode: '', wasJump: false, wasSlide: false, side: 0, dodgeT: 0 };
     function update(dt, info) {
@@ -435,9 +485,9 @@
         const prev = st.mode;
         st.mode = want;
         if (want === 'run') R.play('Running_A', { speed: 1.25, fade: prev === 'roll' ? 0.08 : 0.15 });
-        else if (want === 'jump') { const c = clips.Jump_Full_Short; R.play('Jump_Full_Short', { once: true, speed: c.duration / 0.8, fade: 0.06 }); }
+        else if (want === 'jump') { const c = CL.Jump_Full_Short; R.play('Jump_Full_Short', { once: true, speed: c.duration / 0.8, fade: 0.06 }); }
         else if (want === 'roll') { const a = R.play('Jump_Idle', { fade: 0.05 }); a.timeScale = 0; a.time = 0.1; st.rollT = 0; }
-        else if (want === 'sit') { const a = R.play('Sit_Floor_Down', { once: true, fade: 0.2 }); a.timeScale = 0; a.time = clips.Sit_Floor_Down.duration - 0.01; }
+        else if (want === 'sit') { const a = R.play('Sit_Floor_Down', { once: true, fade: 0.2 }); a.timeScale = 0; a.time = CL.Sit_Floor_Down.duration - 0.01; }
         else if (want === 'dodgeL') R.play('Dodge_Left', { once: true, speed: 2.2, fade: 0.06 });
         else if (want === 'dodgeR') R.play('Dodge_Right', { once: true, speed: 2.2, fade: 0.06 });
         else if (want === 'dead') R.play('Death_A', { once: true, fade: 0.1 });
@@ -475,7 +525,7 @@
       weaponSlot.add(weapon);
     }
     // Atış: koşuyorsa yalnız üst gövde (bacaklar koşmaya devam), değilse tam beden
-    const legs = R.mixer.clipAction(part('Running_A', false));
+    const legs = R.mixer.clipAction(partX('Running_A', false));
     legs.play(); legs.setEffectiveWeight(0);
     let up = null, upT = 0;
     function throwNow() {
@@ -483,16 +533,16 @@
       const name = style === 'cast' ? 'Spellcast_Shoot' : style === 'shoot' ? '1H_Ranged_Shoot' : 'Throw';
       const dur = style === 'throw' ? 0.42 : 0.36;
       if (up) up.stop();
-      up = R.mixer.clipAction(part(name, true));
+      up = R.mixer.clipAction(partX(name, true));
       up.reset(); up.setLoop(T.LoopOnce); up.clampWhenFinished = true;
-      up.timeScale = clips[name].duration / dur; up.play();
+      up.timeScale = CL[name].duration / dur; up.play();
       upT = dur;
       // kartopu / buz topu elden çıkar, sonra yenisi belirir
       if (style === 'throw' && weapon) { weapon.visible = false; setTimeout(() => { if (weapon) weapon.visible = true; }, dur * 900); }
     }
     const baseUpdate = update;
-    const armL = model.getObjectByName('upperarml'), armR = model.getObjectByName('upperarmr');
-    const foreL = model.getObjectByName('lowerarml'), foreR = model.getObjectByName('lowerarmr');
+    const armL = model.getObjectByName('upperarml') || model.getObjectByName('mixamorigLeftArm'), armR = model.getObjectByName('upperarmr') || model.getObjectByName('mixamorigRightArm');
+    const foreL = model.getObjectByName('lowerarml') || model.getObjectByName('mixamorigLeftForeArm'), foreR = model.getObjectByName('lowerarmr') || model.getObjectByName('mixamorigRightForeArm');
     let pointK = 0, pointDir = 1, restL = null, restR = null;
     function update2(dt, info) {
       baseUpdate(dt, info);
@@ -526,11 +576,11 @@
     }
     function pose(name, tt) {
       R.mixer.stopAllAction();
-      const a = R.mixer.clipAction(clips[name]);
+      const a = R.mixer.clipAction(CL[name]);
       a.reset(); a.setLoop(T.LoopOnce); a.clampWhenFinished = true; a.play();
-      R.mixer.update(Math.min(tt, clips[name].duration - 0.001));
+      R.mixer.update(Math.min(tt, CL[name].duration - 0.001));
     }
-    return { root, update: update2, weaponSlot, setOpacity, throwNow, setWeapon, pose, is3d: true, kk: true };
+    return { root, update: update2, weaponSlot, setOpacity, throwNow, setWeapon, pose, is3d: true, kk: true, mx: !!MXK };
   }
 
   /* ---------- ZİBO ---------- */
@@ -556,7 +606,7 @@
     const root = new T.Group(), holder = new T.Group();
     holder.rotation.y = Math.PI; holder.scale.setScalar(0.66);
     holder.add(model); root.add(holder);
-    const R = rig(model, MXC, MX_MAP);
+    const R = rig(model, mxClips('zibo'));
     const head = model.getObjectByName('mixamorigHead');
     const top = model.getObjectByName('mixamorigHeadTop_End');
     let crown = null;
@@ -597,7 +647,7 @@
       }
     }
     function pose(name, t) {
-      const n = MX_MAP[name] || name, c = MXC[n]; if (!c) return;
+      const c = mxClips('zibo')[name]; if (!c) return;
       const a = R.mixer.clipAction(c);
       R.mixer.stopAllAction();
       a.reset(); a.setLoop(T.LoopOnce); a.clampWhenFinished = true; a.play();
@@ -740,5 +790,5 @@
     return { root, update };
   }
 
-  CZ.kk = { load, ready, hasMX, hero, zibo, portrait, santaClaus, skinGen, clipNames: () => Object.keys(clips || {}) };
+  CZ.kk = { load, ready, hasMX, needMX, hero, zibo, portrait, santaClaus, skinGen, clipNames: () => Object.keys(clips || {}) };
 })();

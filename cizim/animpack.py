@@ -7,7 +7,7 @@ def acc(j,b,i):
   a=j['accessors'][i];v=j['bufferViews'][a['bufferView']];o=v.get('byteOffset',0)+a.get('byteOffset',0);n=NC[a['type']]
   d=np.frombuffer(b,np.float32,a['count']*n,o);return d.reshape(a['count'],n) if n>1 else d.copy()
 rj,_=rd(sys.argv[2]);names={n['name'] for n in rj['nodes'] if n['name'].startswith('mixamorig')}
-rh=[n for n in rj['nodes'] if n['name']=='mixamorig:Hips'][0]['translation'][1]
+rh=1.0 if '--unit' in sys.argv else [n for n in rj['nodes'] if n['name']=='mixamorig:Hips'][0]['translation'][1]
 blobs=[];views=[];accs=[]
 def add(arr,typ,mm=False):
   data=np.ascontiguousarray(arr,np.float32).tobytes();off=sum(len(x) for x in blobs);blobs.append(data)
@@ -18,7 +18,7 @@ def add(arr,typ,mm=False):
 # nodes: flat list of bones with names only (three binds tracks by name)
 nodes=[{'name':n} for n in sorted(names)];idx={n['name']:i for i,n in enumerate(nodes)}
 anims=[]
-for arg in sys.argv[3:]:
+for arg in [a for a in sys.argv[3:] if a!='--unit']:
   nm,f=arg.split('=');j,b=rd(f);A=j['animations'][0]
   ah=[n for n in j['nodes'] if n['name']=='mixamorig:Hips'][0]['translation'][1];sc=rh/ah
   ch=[];sm=[];tcache={}

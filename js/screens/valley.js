@@ -534,12 +534,12 @@ CZ.screens.valley = (function () {
     const KIND_TINT = { ranged: 0xb9a2ff, bomber: 0xff9a6a, jumper: 0xffe27a, shield: 0xc8b090 };
     function rigGoblin(look, sc, tint) {
       const h = CZ.kk.hero(THREE, look); h.root.scale.setScalar(sc);
-      h.root.traverse(o => { if (o.isSkinnedMesh && o.name === 'GenBody') { o.material = o.material.clone(); o.material.color.setHex(tint || 0xb4cc9c); } });   // tepeden güneşte soluk kalmasın: biraz koyu yeşil
+      h.root.traverse(o => { if (o.isSkinnedMesh && (o.name === 'GenBody' || h.mx)) { if (h.mx && !tint) return; o.material = o.material.clone(); o.material.color.setHex(tint || 0xb4cc9c); } });   // tepeden güneşte soluk kalmasın: biraz koyu yeşil
       let lastL = 0;
       return { root: h.root, gen: true, rig: true, h, update(dt, o) { h.update(dt, { idle: !o.running }); } , hit() { if (h.throwNow) h.throwNow(); } };
     }
     function goblinBody(boss, tough, kind) {
-      const K = CZ.KK_GEN || {}, rig = CZ.gen3d && CZ.gen3d.has(K.goblin) && CZ.gen3d.has(K.chief);
+      const K = CZ.KK_GEN || {}, rig = (CZ.kk.hasMX && CZ.kk.hasMX('goblin') && CZ.kk.hasMX('chief')) || (CZ.gen3d && CZ.gen3d.has(K.goblin) && CZ.gen3d.has(K.chief));
       if (rig) return rigGoblin(boss || tough ? 'chief' : 'goblin', boss ? 2.5 : tough ? 1.5 : kind === 'shield' ? 1.4 : 1.25, kind ? KIND_TINT[kind] : null);
       const id = boss || tough ? 'goblinsef' : 'goblin';
       if (kind && CZ.gen3d && CZ.gen3d.has(id)) return genBody(id, kind === 'shield' ? 1.6 : 1.4, KIND_TINT[kind]);
@@ -880,7 +880,7 @@ CZ.screens.valley = (function () {
     // MİLA: köyün bekçisi. Kendi bineği Işıltı (satılmaz). Sen yokken köyü o korur; sen varken dinlenir ama köye giren goblini vurur.
     const MILA = { x: -1.6, z: 9.5, dir: 0, cd: 0, say: null };
     const milaMount = quadruped(THREE, { id: 'aurora', kind: 'deer', color: 0xfff0fa, light: 0xffc8e8, speed: 9 });
-    const milaHero = CZ.kk.hero(THREE, CZ.gen3d && CZ.gen3d.has('t_mila') ? 'mila' : (d.avatar === 'elf' ? 'girl' : 'elf'));
+    const milaHero = CZ.kk.hero(THREE, (CZ.kk.hasMX && CZ.kk.hasMX('mila')) || (CZ.gen3d && CZ.gen3d.has('t_mila')) ? 'mila' : (d.avatar === 'elf' ? 'girl' : 'elf'));
     milaHero.root.scale.setScalar(1.35);
     milaMount.root.position.set(MILA.x, 0, MILA.z); milaMount.root.rotation.y = Math.PI * 0.85;
     milaMount.root.traverse(o => { if (o.isMesh) o.castShadow = true; }); milaHero.root.traverse(o => { o.castShadow = true; });
@@ -896,7 +896,7 @@ CZ.screens.valley = (function () {
       if (!BUD.id) return;
       const H = CZ.heroes.def(BUD.id);
       const KG = CZ.KK_GEN || {};
-      if (KG['hero_' + BUD.id] && CZ.gen3d && CZ.gen3d.has(KG['hero_' + BUD.id])) { BUD.hero = CZ.kk.hero(THREE, 'hero_' + BUD.id); BUD.hero.root.scale.setScalar(1.3); }
+      if ((CZ.kk.hasMX && CZ.kk.hasMX('hero_' + BUD.id)) || (KG['hero_' + BUD.id] && CZ.gen3d && CZ.gen3d.has(KG['hero_' + BUD.id]))) { BUD.hero = CZ.kk.hero(THREE, 'hero_' + BUD.id); BUD.hero.root.scale.setScalar(1.3); }
       else if (CZ.gen3d && CZ.gen3d.has('h_' + BUD.id)) {   // kahramana özel 3D model: zıplayarak yürür, yetenekte öne atılır
         const gb = genBody('h_' + BUD.id, 1.95); let kick = 0;
         BUD.hero = { root: gb.root, throwNow() { kick = 0.25; }, update(dt, o) { gb.update(dt, { running: !o.idle }); kick = Math.max(0, kick - dt); gb.root.children[0].rotation.x = (o.idle ? 0 : 0.12) + Math.sin(kick / 0.25 * Math.PI) * 0.35; } };
