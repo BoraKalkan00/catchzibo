@@ -1968,7 +1968,7 @@ CZ.screens.valley = (function () {
       V.cine = true;
       d.tutV = 0; d.tutN = 0;
       // Zibo: taçlı, sırtında köyün hazine sandığı
-      const zb = CZ.gen3d && CZ.KK_GEN && CZ.gen3d.has(CZ.KK_GEN.zibo) ? CZ.kk.zibo(THREE) : CZ.gen3d && CZ.gen3d.has('zibo') ? genBody('zibo', 2.2) : CZ.kk.zibo(THREE); if (!zb.gen) { zb.root.scale.setScalar(1.45); if (zb.setCrown) zb.setCrown(true); }
+      const zb = CZ.kk.hasMX && CZ.kk.hasMX('zibo') || CZ.gen3d && CZ.KK_GEN && CZ.gen3d.has(CZ.KK_GEN.zibo) ? CZ.kk.zibo(THREE) : CZ.gen3d && CZ.gen3d.has('zibo') ? genBody('zibo', 2.2) : CZ.kk.zibo(THREE); if (!zb.gen) { zb.root.scale.setScalar(1.45); if (zb.setCrown) zb.setCrown(true); }
       const loot = CZ.gen3d.has('sandik_lo') ? CZ.gen3d.get('sandik_lo', 0.75) : new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.5), toon(0x8a5228));
       loot.position.set(0, 1.55, 0.35); loot.visible = false; zb.root.add(loot);
       zb.root.traverse(o => { o.castShadow = true; }); addOutline(zb.root, 0.02);

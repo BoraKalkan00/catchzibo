@@ -29,13 +29,27 @@
           FILES.forEach((f, i) => { base[f] = list[i].scene; });
           // elde tutulan silahlar (KayKit asa / değnek / tatar yayı)
           const getW = f => new Promise(ok => L.load('assets/3d/w/' + f + '.gltf', g => ok(g.scene), undefined, () => ok(null)));
-          return Promise.all(['staff', 'wand', 'crossbow_1handed'].map(getW)).then(ws => { WEAP.staff = ws[0]; WEAP.wand = ws[1]; WEAP.crossbow = ws[2]; });
+          const wp = Promise.all(['staff', 'wand', 'crossbow_1handed'].map(getW)).then(ws => { WEAP.staff = ws[0]; WEAP.wand = ws[1]; WEAP.crossbow = ws[2]; });
+          // Mixamo: gerçek iskelet + profesyonel hareketler (yoksa KayKit'e düşer)
+          const getM = f => new Promise(ok => L.load('assets/3d/mx/' + f + '.glb', g => ok(g), undefined, () => ok(null)));
+          const mp = Promise.all([getM('anims')].concat(MX_CHARS.map(getM))).then(([a, ...cs]) => {
+            if (!a) return;
+            MXC = {}; a.animations.forEach(c => { MXC[c.name] = c; });
+            MX_CHARS.forEach((k, i) => { if (cs[i]) MXB[k] = cs[i].scene; });
+          });
+          return Promise.all([wp, mp]);
         });
       });
     P.catch(() => { P = null; });
     return P;
   }
   const ready = () => !!clips;
+  const MX_CHARS = ['zibo'];
+  const MXB = {};
+  let MXC = null;
+  const hasMX = k => !!(MXC && MXB[k]);
+  // KayKit klip adı -> Mixamo klip adı
+  const MX_MAP = { Idle: 'idle', Running_A: 'run', Running_B: 'run', Walking_A: 'walk', Hit_A: 'hit', Hit_B: 'hit', Jump_Idle: 'run', Jump_Full_Short: 'run', Throw: 'throw', Cheer: 'win', Death_A: 'die', Death_B: 'die' };
   const WEAP = {};
 
   /* ---------- Silahlar: elde gerçekten tutulur ---------- */
@@ -256,11 +270,13 @@
   }
 
   /* ---------- Animasyon sürücüsü ---------- */
-  function rig(root) {
+  function rig(root, set, map) {
     const mixer = new T.AnimationMixer(root);
     const acts = {};
+    const CS = set || clips;
     const act = n => {
-      if (!acts[n]) { acts[n] = mixer.clipAction(clips[n]); }
+      if (map && map[n]) n = map[n];
+      if (!acts[n]) { acts[n] = mixer.clipAction(CS[n]); }
       return acts[n];
     };
     let cur = null;
@@ -518,8 +534,81 @@
   }
 
   /* ---------- ZİBO ---------- */
+  // Mixamo'lu Zibo: Gemini çizimli dokulu model, Mixamo'nun otomatik iskeleti ve hareket kütüphanesi
+  let KK_H = 0;
+  function mxModel(k) {
+    const model = T.SkeletonUtils.clone(MXB[k]);
+    model.traverse(o => {
+      if (!o.isMesh) return;
+      const mp = o.material.map; if (mp) mp.encoding = T.LinearEncoding;
+      o.material = CZ.style ? CZ.style.mat({ map: mp }) : new T.MeshToonMaterial({ map: mp, gradientMap: grad() });
+      o.frustumCulled = false;
+    });
+    if (!KK_H) { const b = new T.Box3().setFromObject(base.barbarian); KK_H = b.max.y - b.min.y; }
+    const b = new T.Box3().setFromObject(MXB[k]);
+    const s = KK_H * 0.92 / (b.max.y - b.min.y);
+    model.scale.setScalar(s);
+    return { model, s };
+  }
+  function ziboMX(tint) {
+    const { model, s } = mxModel('zibo');
+    if (tint) model.traverse(o => { if (o.isMesh) o.material.color.lerp(new T.Color(tint), 0.35).multiplyScalar(1.15); });
+    const root = new T.Group(), holder = new T.Group();
+    holder.rotation.y = Math.PI; holder.scale.setScalar(0.66);
+    holder.add(model); root.add(holder);
+    const R = rig(model, MXC, MX_MAP);
+    const head = model.getObjectByName('mixamorigHead');
+    const top = model.getObjectByName('mixamorigHeadTop_End');
+    let crown = null;
+    const st = { mode: '', look: 0 };
+    function update(dt, info) {
+      let want = 'run';
+      if (info.dizzy) want = 'hit';
+      else if (info.air) want = 'jump';
+      else if (info.throwing) want = 'throw';
+      else if (info.running === false) want = 'idle';
+      if (want !== st.mode) {
+        st.mode = want;
+        if (want === 'run') R.play('run', { speed: 1.15 });
+        else if (want === 'hit') R.play('hit', { speed: 1.2, fade: 0.08 });
+        else if (want === 'jump') R.play('run', { speed: 0.6, fade: 0.08 });
+        else if (want === 'throw') R.play('throw', { once: true, speed: 1.6, fade: 0.08 });
+        else R.play('idle', { fade: 0.25 });
+      }
+      R.mixer.update(dt);
+      const yawT = want === 'throw' ? 0 : Math.PI;
+      st.yaw = st.yaw == null ? Math.PI : st.yaw + (yawT - st.yaw) * Math.min(1, dt * (want === 'throw' ? 16 : 9));
+      holder.rotation.y = st.yaw;
+      st.look += ((info.look ? 1 : 0) - st.look) * Math.min(1, dt * 8);
+      if (head && st.look > 0.01 && want !== 'throw') head.rotation.y += st.look * 2.4;
+    }
+    function setCrown(on) {
+      if (!on || crown || !head) return;
+      const gold = new T.MeshToonMaterial({ color: 0xf2c230, gradientMap: grad() });
+      crown = new T.Group(); crown.scale.setScalar(0.5 / s);
+      crown.position.copy(top ? top.position : new T.Vector3(0, 0.3, 0)).multiplyScalar(0.92);
+      head.add(crown);
+      crown.add(new T.Mesh(new T.CylinderGeometry(0.42, 0.42, 0.16, 18), gold));
+      for (let i = 0; i < 5; i++) {
+        const a = i / 5 * Math.PI * 2;
+        const c = new T.Mesh(new T.ConeGeometry(0.12, 0.3, 8), gold);
+        c.position.set(Math.cos(a) * 0.36, 0.2, Math.sin(a) * 0.36);
+        crown.add(c);
+      }
+    }
+    function pose(name, t) {
+      const n = MX_MAP[name] || name, c = MXC[n]; if (!c) return;
+      const a = R.mixer.clipAction(c);
+      R.mixer.stopAllAction();
+      a.reset(); a.setLoop(T.LoopOnce); a.clampWhenFinished = true; a.play();
+      R.mixer.update(Math.min(t, c.duration - 0.001));
+    }
+    return { root, update, setCrown, pose, mx: true, play: (n, o) => R.play(n, o) };
+  }
+
   function zibo(THREE, tint) {
     T = THREE;
+    if (hasMX('zibo')) return ziboMX(tint);
     const skin = tint || 0x5fa83a;
     const dark = new T.Color(skin).multiplyScalar(0.72).getHex();
     const face = new T.Color(skin).multiplyScalar(0.78).getHex();   // açık ten hücresi parlak: biraz koyulaştır
@@ -651,5 +740,5 @@
     return { root, update };
   }
 
-  CZ.kk = { load, ready, hero, zibo, portrait, santaClaus, skinGen, clipNames: () => Object.keys(clips || {}) };
+  CZ.kk = { load, ready, hasMX, hero, zibo, portrait, santaClaus, skinGen, clipNames: () => Object.keys(clips || {}) };
 })();
