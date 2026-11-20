@@ -16,6 +16,7 @@ TP=acc(tj,tb,T['attributes']['POSITION']).astype(float);UV=acc(tj,tb,T['attribut
 rlo,rhi=RP.min(0),RP.max(0);tlo,thi=TP.min(0),TP.max(0)
 s=(rhi[1]-rlo[1])/(thi[1]-tlo[1]);c=(rlo+rhi)/2;tc=(tlo+thi)/2
 NP=(TP-tc)*s+c;NP[:,1]=(TP[:,1]-tlo[1])*s+rlo[1]
+if len(sys.argv)>5: NP=TP*float(sys.argv[5])   # vekil kırpıldıysa (ör. şövalye tüyü) sabit ölçek
 # dense weights per rig vertex
 nb=len(rj['skins'][0]['joints']);DW=np.zeros((len(RP),nb))
 for k in range(4): np.add.at(DW,(np.arange(len(RP)),RJ[:,k]),RW[:,k])
