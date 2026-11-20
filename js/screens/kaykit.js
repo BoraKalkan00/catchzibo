@@ -49,7 +49,7 @@
   }
   const ready = () => !!clips;
   // Mixamo'lu karakterler (assets/3d/mx/<ad>.glb). Açılışta yalnız gerekenler iner, diğerleri needMX ile.
-  const MX_ALL = ['zibo', 'goblin', 'chief', 'girl', 'boy', 'santa', 'elf', 'snowkid', 'reindeer', 'knight', 'mila', 'hero_buzbas', 'hero_demir', 'hero_noel', 'hero_mila'];
+  const MX_ALL = ['zibo', 'goblin', 'chief', 'girl', 'boy', 'santa', 'elf', 'snowkid', 'reindeer', 'knight', 'mila', 'hero_buzbas', 'hero_demir', 'hero_noel', 'hero_mila', 'hero_ela'];
   const MX_FILE = { hero_mila: 'mila' };
   const MXB = {}, MXP = {};
   let MXC = null, MX_GET = null;

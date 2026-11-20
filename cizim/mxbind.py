@@ -30,6 +30,40 @@ wm=trimesh.Trimesh(U,inv[TI.reshape(-1)].reshape(-1,3),process=False);adj=wm.ver
 for _ in range(SM):
   WU=np.array([0.5*WU[i]+0.5*WU[a].mean(0) if len(a) else WU[i] for i,a in enumerate(adj)])
 W=WU[inv]
+# --- düzeltmeler: boyun üstü tamamen kafaya, kalça üstünde bacak ağırlığı yok ---
+def wmats(nodes):
+  from scipy.spatial.transform import Rotation as Rr
+  par={c:i for i,n in enumerate(nodes) for c in n.get('children',[])};M={}
+  def loc(n):
+    m=np.eye(4)
+    if 'matrix' in n: return np.array(n['matrix']).reshape(4,4).T
+    S=np.diag(n.get('scale',[1,1,1])+[1]);R=np.eye(4);R[:3,:3]=Rr.from_quat(n.get('rotation',[0,0,0,1])).as_matrix();Tm=np.eye(4);Tm[:3,3]=n.get('translation',[0,0,0]);return Tm@R@S
+  def g(i):
+    if i not in M: M[i]=(g(par[i]) if i in par else np.eye(4))@loc(nodes[i])
+    return M[i]
+  return [g(i) for i in range(len(nodes))]
+WM=wmats(rj['nodes']);JN=[rj['nodes'][j]['name'].replace('mixamorig:','') for j in rj['skins'][0]['joints']]
+JP={JN[k]:WM[j][:3,3] for k,j in enumerate(rj['skins'][0]['joints'])}
+Y=NP[:,1]
+if 'Neck' in JP and 'Head' in JP:
+  ny=(JP['Neck'][1]+JP['Head'][1])/2;hi=JN.index('Head');m=Y>ny;W[m]=0;W[m,hi]=1
+if 'Hips' in JP:
+  hy=JP['Hips'][1]+0.06*(Y.max()-Y.min());legs=[k for k,n in enumerate(JN) if 'Leg' in n or 'Foot' in n or 'Toe' in n]
+  m=Y>hy;moved=W[m][:,legs].sum(1);W[np.ix_(m,legs)]=0;W[m,JN.index('Hips')]+=moved
+if 'LeftArm' in JP and 'Spine2' in JP:
+  Hh=Y.max()-Y.min();R=0.11*Hh
+  def segd(P,a,b):
+    ab=b-a;t=np.clip(((P-a)@ab)/max(ab@ab,1e-9),0,1);return np.linalg.norm(P-(a+np.outer(t,ab)),axis=1)
+  near=np.zeros(len(NP),bool)
+  for sd in ('Left','Right'):
+    ch=[sd+'Arm',sd+'ForeArm',sd+'Hand']
+    if all(c in JP for c in ch):
+      tip=JP[sd+'Hand']+(JP[sd+'Hand']-JP[sd+'ForeArm'])*0.6
+      d=np.minimum(segd(NP,JP[ch[0]],JP[ch[1]]),np.minimum(segd(NP,JP[ch[1]],JP[ch[2]]),segd(NP,JP[ch[2]],tip)))
+      near|=(d<R)&((np.abs(NP[:,0])>abs(JP[sd+'Arm'][0])*0.95)|(NP[:,1]>JP[sd+'Arm'][1]-0.04*Hh))
+  arms=[k for k,n in enumerate(JN) if any(t in n for t in ('Arm','Hand'))]
+  m=~near;moved=W[m][:,arms].sum(1);W[np.ix_(m,arms)]=0;W[m,JN.index('Spine2')]+=moved
+W=W/np.maximum(W.sum(1,keepdims=True),1e-6)
 idx=np.argsort(-W,1)[:,:4];w=np.take_along_axis(W,idx,1);w/=w.sum(1,keepdims=True)
 print('maxdist',dist.max(),'mean',dist.mean())
 NRM=wm.vertex_normals[inv].astype(np.float32)
