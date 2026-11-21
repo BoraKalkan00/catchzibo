@@ -936,6 +936,8 @@ CZ.i18n.register('ja', '日本語', {
   "vil.busy": "大工は作業中",
   "vil.tut": "建物をタップして強化。鉱山とパン屋はるすの間もゴールドを作る、コインをタップして集めよう！",
   "vil.b.hall": "村役場",
+  "vil.b.goldmine": "金鉱",
+  "vil.d.goldmine": "いない間も金を掘り出す。",
   "vil.b.mine": "石切り場",
   "vil.b.bakery": "きこり小屋",
   "vil.b.vault": "金庫",

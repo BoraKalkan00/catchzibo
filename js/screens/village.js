@@ -5,7 +5,7 @@ CZ.screens.village = (function () {
   const VL = () => CZ.village;
   let S = null;
   // Binaların köydeki yerleri (x, z)
-  const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7] };
+  const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7], goldmine: [-10.5, -2.5] };
 
   // Yapay zekâ modelleri (varsa): bina -> [model, boy]
   const VGEN = { hall: ['koymeydani', 6.2], mine: ['altinmadeni', 3.6], bakery: ['firin', 4.2], stable: ['ahir', 4.2], forge: ['demirci', 4], tower: ['kartopukulesi', 4.5] };
@@ -60,7 +60,7 @@ CZ.screens.village = (function () {
     return g;
   }
   // Gemini'den gelen 2D bina resimleri: assets/village/<id>/<seviye>.webp, inşaat hali c.webp
-  const VART = { hall: { n: 10, c: true, w: 4.4, k: 0.24 } };
+  const VART = { hall: { n: 10, c: true, w: 4.4, k: 0.24 }, goldmine: { n: 10, c: true, w: 3.6, k: 0.2 } };
   const texCache = {};
   function spriteModel(THREE, id, L, busy) {
     const A = VART[id], key = busy && A.c ? 'c' : String(Math.min(A.n, L));
@@ -312,7 +312,7 @@ CZ.screens.village = (function () {
       const Vd = VL().ensure();
       CZ.VB.forEach(b => {
         const L = VL().lv(b.id), lab = labelEls[b.id];
-        const store = (b.id === 'mine' || b.id === 'bakery') ? Math.floor(Vd.store[b.id] || 0) : 0;
+        const store = VL().PRODS.includes(b.id) ? Math.floor(Vd.store[b.id] || 0) : 0;
         const canUp = !Vd.job && L < VL().cap(b.id) && VL().price(b.id, L) <= (CZ.state.data.gold || 0);
         lab.replaceChildren(...[
           h('b', { text: L ? t('vil.lv', { n: L }) : t('vil.build') }),
@@ -344,6 +344,7 @@ CZ.screens.village = (function () {
       const C = CZ.village;
       switch (id) {
         case 'hall': return t('vil.e.hall', { n: Math.max(2, L * 2) });
+        case 'goldmine': return t('vil.e.prod', { n: Math.round(240 * 0.35 * L * (1 + L * 0.15)) });
         case 'mine': case 'bakery': return t('vil.e.prod', { n: Math.round((id === 'mine' ? 60 : 40) * L * (1 + L * 0.15)) });
         case 'vault': return t('vil.e.vault', { n: Math.round(300 * Math.pow(L, 1.5)), c: Math.round(400 * Math.pow(L + 1, 1.55)) });
         case 'tower': return t('vil.e.tower', { n: L * 3 });
@@ -357,7 +358,7 @@ CZ.screens.village = (function () {
     function open(id) {
       CZ.audio.sfx('button');
       const Vd = VL().ensure();
-      if ((id === 'mine' || id === 'bakery') && (Vd.store[id] || 0) >= 1) {
+      if (VL().PRODS.includes(id) && (Vd.store[id] || 0) >= 1) {
         const n = VL().collect(id);
         CZ.audio.sfx('coin'); refreshMoney(); refreshLabels();
         const lab = labelEls[id]; const f = h('div', { class: 'vl-float', text: '+' + n }); f.style.left = lab.style.left; f.style.top = lab.style.top; labels.append(f); setTimeout(() => f.remove(), 1100);

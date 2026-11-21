@@ -936,6 +936,8 @@ CZ.i18n.register('fr', 'Français', {
   "vil.busy": "L’ouvrier est occupé",
   "vil.tut": "Touche un bâtiment pour l’améliorer. La mine et la boulangerie produisent de l’or pendant ton absence !",
   "vil.b.hall": "Hôtel de ville",
+  "vil.b.goldmine": "Mine d'or",
+  "vil.d.goldmine": "Extrait de l'or même quand tu es absent.",
   "vil.b.mine": "Carrière",
   "vil.b.bakery": "Cabane du bûcheron",
   "vil.b.vault": "Coffre",

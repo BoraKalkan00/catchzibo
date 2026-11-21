@@ -936,6 +936,8 @@ CZ.i18n.register('es', 'Español', {
   "vil.busy": "El constructor está ocupado",
   "vil.tut": "Toca un edificio para mejorarlo. ¡La mina y la panadería producen oro mientras no estás!",
   "vil.b.hall": "Ayuntamiento",
+  "vil.b.goldmine": "Mina de oro",
+  "vil.d.goldmine": "Extrae oro incluso cuando no estás.",
   "vil.b.mine": "Cantera",
   "vil.b.bakery": "Leñador",
   "vil.b.vault": "Bóveda",

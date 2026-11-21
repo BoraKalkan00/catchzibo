@@ -936,6 +936,8 @@ CZ.i18n.register('de', 'Deutsch', {
   "vil.busy": "Der Baumeister ist beschäftigt",
   "vil.tut": "Tippe ein Gebäude an, um es auszubauen. Mine und Bäckerei machen Gold, während du weg bist!",
   "vil.b.hall": "Rathaus",
+  "vil.b.goldmine": "Goldmine",
+  "vil.d.goldmine": "Fördert Gold, auch wenn du nicht da bist.",
   "vil.b.mine": "Steinbruch",
   "vil.b.bakery": "Holzfällerhütte",
   "vil.b.vault": "Tresor",

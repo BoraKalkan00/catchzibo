@@ -936,6 +936,8 @@ CZ.i18n.register('ko', '한국어', {
   "vil.busy": "일꾼이 바빠요",
   "vil.tut": "건물을 탭해 업그레이드하세요. 광산과 빵집은 자리를 비운 동안 골드를 만들어요!",
   "vil.b.hall": "마을회관",
+  "vil.b.goldmine": "금광",
+  "vil.d.goldmine": "자리를 비운 동안에도 금을 캔다.",
   "vil.b.mine": "채석장",
   "vil.b.bakery": "나무꾼 오두막",
   "vil.b.vault": "금고",

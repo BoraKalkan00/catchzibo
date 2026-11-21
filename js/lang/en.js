@@ -1117,6 +1117,8 @@ CZ.i18n.register('en', 'English', {
   "vil.busy": "The builder is busy",
   "vil.tut": "Tap a building to upgrade it. The mine and bakery make gold while you’re away, tap the coins to collect!",
   "vil.b.hall": "Town Hall",
+  "vil.b.goldmine": "Gold Mine",
+  "vil.d.goldmine": "Digs up gold even while you are away.",
   "vil.b.mine": "Quarry",
   "vil.b.bakery": "Lumber Hut",
   "vil.b.vault": "Vault",

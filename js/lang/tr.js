@@ -1117,6 +1117,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "vil.busy": "İşçi şu an başka binada",
   "vil.tut": "Binaya dokun ve yükselt. Maden ile fırın sen yokken altın üretir, üstündeki altına dokunup topla!",
   "vil.b.hall": "Köy Meydanı",
+  "vil.b.goldmine": "Altın Madeni",
+  "vil.d.goldmine": "Sen yokken altın çıkarır.",
   "vil.b.mine": "Taş Ocağı",
   "vil.b.bakery": "Oduncu",
   "vil.b.vault": "Kasa",
