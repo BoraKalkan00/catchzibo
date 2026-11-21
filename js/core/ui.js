@@ -75,15 +75,18 @@ CZ.ui = (function () {
       h('div', { class: 'ld-logo' }, h('img', { src: 'assets/ui/logo.webp', alt: CZ.t('title.name'), draggable: 'false' })),
       h('div', { class: 'ld-gap' }),
       h('div', { class: 'ld-bar' }, bar),
-      h('p', { class: 'ld-tip', text: CZ.t(tips[Math.floor(Math.random() * tips.length)]) }));
+      h('p', { class: 'ld-tip', text: CZ.t(tips[Math.floor(Math.random() * tips.length)]) }),
+      h('b', { class: 'ld-pct', text: '0%' }));
     (parent || document.getElementById('app')).append(box);
     let p = 0, closed = false;
-    const tm = setInterval(() => { p = Math.min(0.92, p + (1 - p) * 0.08); bar.style.width = p * 100 + '%'; }, 60);
+    const pctEl = box.querySelector('.ld-pct'), tipEl = box.querySelector('.ld-tip'); let ti = Math.floor(Math.random() * tips.length), tt = 0;
+    const tm = setInterval(() => { p = Math.min(0.95, p + (1 - p) * 0.05); bar.style.width = p * 100 + '%'; if (pctEl) pctEl.textContent = Math.round(p * 100) + '%';
+      if ((tt += 60) >= 2600) { tt = 0; ti = (ti + 1) % tips.length; if (tipEl) { tipEl.classList.remove('ld-tip-in'); void tipEl.offsetWidth; tipEl.textContent = CZ.t(tips[ti]); tipEl.classList.add('ld-tip-in'); } } }, 60);   // (21 Kas) ipuçları döner, yüzde görünür
     const t0 = performance.now();
     return {
       done() {
         if (closed) return; closed = true;
-        clearInterval(tm); bar.style.width = '100%';
+        clearInterval(tm); bar.style.width = '100%'; if (pctEl) pctEl.textContent = '100%';
         const wait = Math.max(0, (opts.min || 450) - (performance.now() - t0));
         setTimeout(() => { box.classList.add('out'); setTimeout(() => box.remove(), 350); }, wait);
       }

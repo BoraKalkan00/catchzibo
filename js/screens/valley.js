@@ -874,6 +874,8 @@ CZ.screens.valley = (function () {
     function drawMark(p) {
       if (p.mark) { scene.remove(p.mark); p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
       if (!padVisible(p)) return;
+      if (p.kind === 'v' && CZ.village.ensure().job) return;   // (21 Kas) inşaat sürerken köy daireleri kalkar
+      if ((p.kind === 't' || p.kind === 'f') && slot(p) && slot(p).job) return;
       const L2 = left(p);
       if (!L2 || !L2.length) return;
       let title = '';
@@ -1960,6 +1962,7 @@ CZ.screens.valley = (function () {
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
       if (V_wind) V_wind.value += dt;
+      if ((V.mkT = (V.mkT || 0) - dt) <= 0) { V.mkT = 0.2; pads.forEach(p => { if (p.mark) { const dd = Math.hypot(p.x - P.x, p.z - P.z); p.mark.visible = dd < 11; } }); }   // daireler yalnız yakındayken görünür
       skillTick(dt); lootTick(dt);
       { const near = Math.hypot(P.x - TRADER.x, P.z - TRADER.z) < 4.2; if (near !== V.trNear) { V.trNear = near; tradeBtn.style.display = near ? '' : 'none'; if (near) CZ.audio.sfx('star'); } }
       if (handW.staff.visible) { const gm = handW.staff.userData.gem; gm.rotation.y += dt * 3; gm.scale.setScalar(1 + Math.sin(performance.now() / 200) * 0.12); }
@@ -2312,9 +2315,9 @@ CZ.screens.valley = (function () {
       if (P.riding) {
         // (21 Kas) GERÇEKTEN OTURUR: bacaklar öne/yana bükülür, kalça eyere iner (Mixamo'da oturma klibi yok)
         const SB = sitBones();
-        hero.root.position.set(P.x, mount.seatY - (SB ? SB.hipH * 0.78 : 0.12) + (mount.root.children[0].position.y || 0) + (P.hopY || 0), P.z);
+        hero.root.position.set(P.x, mount.seatY - (SB ? SB.hipH * 0.92 : 0.12) + (mount.root.children[0].position.y || 0) + (P.hopY || 0), P.z);
         hero.update(dt, { sit: true, idle: true, running: false });
-        if (SB) { SB.L.rotation.x -= 1.35; SB.R.rotation.x -= 1.35; SB.L.rotation.z -= 0.45; SB.R.rotation.z += 0.45; if (SB.LK) SB.LK.rotation.x += 1.5; if (SB.RK) SB.RK.rotation.x += 1.5; }
+        if (SB) { SB.L.rotation.x -= 1.5; SB.R.rotation.x -= 1.5; SB.L.rotation.z -= 0.62; SB.R.rotation.z += 0.62; if (SB.LK) SB.LK.rotation.x += 1.75; if (SB.RK) SB.RK.rotation.x += 1.75; }
       } else {
         hero.root.position.set(P.x, P.hopY || 0, P.z);
         hero.update(dt, P.hop ? { air: true, jumping: true } : { idle: !moving, speed: Math.hypot(P.vx, P.vz) * 2 });

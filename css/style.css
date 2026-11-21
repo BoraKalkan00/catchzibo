@@ -2165,3 +2165,7 @@ body.wide #rotate-note { display: none !important; }
 .bag-it small { font-size: 11px; color: #3a2414; font-weight: 800; }
 .bag-btns { display: flex; gap: 4px; }
 .wpn-modal { max-height: 86vh; overflow-y: auto; }
+
+.ld-pct { position: relative; z-index: 3; margin-top: 6px; color: #fff; font-size: 18px; font-weight: 900; -webkit-text-stroke: 3px #1a1446; paint-order: stroke fill; }
+.ld-tip-in { animation: ldtip .4s ease-out; }
+@keyframes ldtip { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }

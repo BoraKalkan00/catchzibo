@@ -1,14 +1,15 @@
 // Bilgisayarda yapay zekâyla üretilen 3D modeller (assets/3d/gen/*.glb). Köşe renkli, tek parça.
 // CZ.GEN3D: hangi modellerin hazır olduğu ve oyundaki boyu (h) / yönü (yaw).
 CZ.GEN3D = {
-  ayi: { yaw: Math.PI, seat: 0.66 }, kutupayisi: { yaw: Math.PI, seat: 0.64 }, rengeyigi: { yaw: Math.PI, seat: 0.5 },
-  kurt: { yaw: Math.PI, seat: 0.6 }, mamut: { yaw: Math.PI, seat: 0.78 },
-  kartopukulesi: {}, topkulesi: { yaw: Math.PI }, koymeydani: {}, altinmadeni: {}, firin: {}, ahir: {}, demirci: {},
-  cam_lo: {}, cam_hi: {}, hediye_lo: {}, sandik_lo: {},
+  // (21 Kas) artık kullanılmayanlar lazy: yükleme ~1.5 MB kısaldı (binekler kodla, binalar KayKit, ağaçlar kodla)
+  ayi: { yaw: Math.PI, seat: 0.66, lazy: 1 }, kutupayisi: { yaw: Math.PI, seat: 0.64, lazy: 1 }, rengeyigi: { yaw: Math.PI, seat: 0.5, lazy: 1 },
+  kurt: { yaw: Math.PI, seat: 0.6, lazy: 1 }, mamut: { yaw: Math.PI, seat: 0.78, lazy: 1 },
+  kartopukulesi: { lazy: 1 }, topkulesi: { yaw: Math.PI, lazy: 1 }, koymeydani: { lazy: 1 }, altinmadeni: { lazy: 1 }, firin: { lazy: 1 }, ahir: { lazy: 1 }, demirci: { lazy: 1 },
+  cam_lo: { lazy: 1 }, cam_hi: { lazy: 1 }, hediye_lo: {}, sandik_lo: {},
   v_goblin: { lazy: 1 }, v_chief: { lazy: 1 }, v_zibo: { lazy: 1 }, v_rudi: { lazy: 1 }, v_hela: { lazy: 1 }, v_buzbas: { lazy: 1 }, v_demir: { lazy: 1 }, v_noel: { lazy: 1 },
   v_girl: { lazy: 1 }, v_boy: { lazy: 1 }, v_santa: { lazy: 1 }, v_elf: { lazy: 1 }, v_snowkid: { lazy: 1 }, v_reindeer: { lazy: 1 }, v_knight: { lazy: 1 }, v_mila: { lazy: 1 },
   g_cadir: {}, g_totem: { yaw: Math.PI }, g_ates: {},
-  goblin: { yaw: Math.PI }, zibo: { yaw: Math.PI }, goblinsef: { yaw: Math.PI }, kuyu: {}, fici: {}, fener: {},
+  goblin: { yaw: Math.PI }, zibo: { yaw: Math.PI }, goblinsef: { yaw: Math.PI }, kuyu: { lazy: 1 }, fici: { lazy: 1 }, fener: { lazy: 1 },
   h_rudi: { yaw: Math.PI }, h_ela: { yaw: Math.PI }, h_buzbas: { yaw: Math.PI }, h_demir: { yaw: Math.PI }, h_noel: { yaw: Math.PI }
 };
 // OYUNUN TEK GÖRSEL STİLİ: her şey aynı çizgi film ışık rampasıyla (3 ton), aynı konturla ve
