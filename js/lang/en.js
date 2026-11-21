@@ -1420,5 +1420,17 @@ CZ.i18n.register('en', 'English', {
   "night.shareBig": "NIGHT {n}",
   "night.shareLabel": "I defended my village!",
   "night.go": "Back to day",
-  "night.coming": "Zibo's army is coming!"
+  "night.coming": "Zibo's army is coming!",
+  "opt.diff": "Difficulty",
+  "opt.easy": "Easy",
+  "opt.normal": "Normal",
+  "opt.hard": "Hard",
+  "opt.cam": "Camera",
+  "opt.near": "Close",
+  "opt.camN": "Normal",
+  "opt.far": "Far",
+  "opt.tip": "Too easy or too hard? Change it in Pause → Difficulty.",
+  "def.upBtn": "Upgrade",
+  "def.buildBtn": "Build",
+  "def.flowing": "Sending resources… stay on the circle"
 });

@@ -1238,5 +1238,17 @@ CZ.i18n.register('ko', '한국어', {
   "night.shareBig": "{n}번째 밤",
   "night.shareLabel": "마을을 지켰어!",
   "night.go": "낮으로 돌아가기",
-  "night.coming": "지보의 군대가 온다!"
+  "night.coming": "지보의 군대가 온다!",
+  "opt.diff": "난이도",
+  "opt.easy": "쉬움",
+  "opt.normal": "보통",
+  "opt.hard": "어려움",
+  "opt.cam": "카메라",
+  "opt.near": "가까이",
+  "opt.camN": "보통",
+  "opt.far": "멀리",
+  "opt.tip": "너무 쉽거나 어려운가요? 일시정지 → 난이도에서 바꿀 수 있어요.",
+  "def.upBtn": "업그레이드",
+  "def.buildBtn": "건설",
+  "def.flowing": "자원 보내는 중… 원 안에 있어요"
 });

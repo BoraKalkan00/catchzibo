@@ -1238,5 +1238,17 @@ CZ.i18n.register('ja', '日本語', {
   "night.shareBig": "{n}夜目",
   "night.shareLabel": "村を守りきった！",
   "night.go": "昼に戻る",
-  "night.coming": "ジボの軍団が来る！"
+  "night.coming": "ジボの軍団が来る！",
+  "opt.diff": "難易度",
+  "opt.easy": "かんたん",
+  "opt.normal": "ふつう",
+  "opt.hard": "むずかしい",
+  "opt.cam": "カメラ",
+  "opt.near": "近い",
+  "opt.camN": "ふつう",
+  "opt.far": "遠い",
+  "opt.tip": "簡単すぎ？難しすぎ？ 一時停止 → 難易度で変更できます。",
+  "def.upBtn": "強化",
+  "def.buildBtn": "建てる",
+  "def.flowing": "資源を送っています…円の上にいてね"
 });

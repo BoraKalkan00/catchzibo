@@ -2088,3 +2088,9 @@ body.wide #rotate-note { display: none !important; }
 .vl-nightvig { display: none; }
 .vl-nightvig.on { display: block; position: absolute; inset: 0; pointer-events: none; z-index: 0; box-shadow: inset 0 0 150px 60px rgba(200,20,40,.7); animation: nightpulse 1.6s ease-in-out infinite; }
 @keyframes nightpulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+
+.opt-panel { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.opt-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.opt-row .seg button { min-height: 36px; padding: 4px 10px; font-size: 13px; }
+.pause-card .opt-row span { color: #3a2414; font-weight: 900; }
+.def-flow { color: #ffd36a; font-weight: 900; }

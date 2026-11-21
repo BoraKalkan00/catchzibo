@@ -1238,5 +1238,17 @@ CZ.i18n.register('pt', 'Português', {
   "night.shareBig": "NOITE {n}",
   "night.shareLabel": "Defendi minha vila!",
   "night.go": "Voltar ao dia",
-  "night.coming": "O exército do Zibo está chegando!"
+  "night.coming": "O exército do Zibo está chegando!",
+  "opt.diff": "Dificuldade",
+  "opt.easy": "Fácil",
+  "opt.normal": "Normal",
+  "opt.hard": "Difícil",
+  "opt.cam": "Câmera",
+  "opt.near": "Perto",
+  "opt.camN": "Normal",
+  "opt.far": "Longe",
+  "opt.tip": "Fácil ou difícil demais? Mude em Pausa → Dificuldade.",
+  "def.upBtn": "Melhorar",
+  "def.buildBtn": "Construir",
+  "def.flowing": "Enviando recursos… fique no círculo"
 });

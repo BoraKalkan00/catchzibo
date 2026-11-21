@@ -1238,5 +1238,17 @@ CZ.i18n.register('ar', 'العربية', {
   "night.shareBig": "الليلة {n}",
   "night.shareLabel": "دافعت عن قريتي!",
   "night.go": "العودة إلى النهار",
-  "night.coming": "جيش زيبو قادم!"
+  "night.coming": "جيش زيبو قادم!",
+  "opt.diff": "الصعوبة",
+  "opt.easy": "سهل",
+  "opt.normal": "عادي",
+  "opt.hard": "صعب",
+  "opt.cam": "الكاميرا",
+  "opt.near": "قريبة",
+  "opt.camN": "عادية",
+  "opt.far": "بعيدة",
+  "opt.tip": "سهلة جدًا أو صعبة جدًا؟ غيّرها من الإيقاف ← الصعوبة.",
+  "def.upBtn": "طوّر",
+  "def.buildBtn": "ابنِ",
+  "def.flowing": "جارٍ نقل الموارد… ابقَ داخل الدائرة"
 });

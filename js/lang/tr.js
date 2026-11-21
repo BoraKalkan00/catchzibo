@@ -1420,5 +1420,17 @@ CZ.i18n.register('tr', 'Türkçe', {
   "night.shareBig": "{n}. GECE",
   "night.shareLabel": "Köyümü savundum!",
   "night.go": "Gündüze devam",
-  "night.coming": "Zibo'nun ordusu geliyor!"
+  "night.coming": "Zibo'nun ordusu geliyor!",
+  "opt.diff": "Zorluk",
+  "opt.easy": "Kolay",
+  "opt.normal": "Normal",
+  "opt.hard": "Zor",
+  "opt.cam": "Kamera",
+  "opt.near": "Yakın",
+  "opt.camN": "Normal",
+  "opt.far": "Uzak",
+  "opt.tip": "Çok kolay ya da çok zor mu? Duraklat → Zorluk'tan değiştirebilirsin.",
+  "def.upBtn": "Yükselt",
+  "def.buildBtn": "İnşa et",
+  "def.flowing": "Kaynaklar aktarılıyor… dairenin üstünde kal"
 });

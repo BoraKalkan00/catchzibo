@@ -1238,5 +1238,17 @@ CZ.i18n.register('de', 'Deutsch', {
   "night.shareBig": "NACHT {n}",
   "night.shareLabel": "Ich habe mein Dorf verteidigt!",
   "night.go": "Weiter zum Tag",
-  "night.coming": "Zibos Armee kommt!"
+  "night.coming": "Zibos Armee kommt!",
+  "opt.diff": "Schwierigkeit",
+  "opt.easy": "Leicht",
+  "opt.normal": "Normal",
+  "opt.hard": "Schwer",
+  "opt.cam": "Kamera",
+  "opt.near": "Nah",
+  "opt.camN": "Normal",
+  "opt.far": "Weit",
+  "opt.tip": "Zu leicht oder zu schwer? Ändere es unter Pause → Schwierigkeit.",
+  "def.upBtn": "Verbessern",
+  "def.buildBtn": "Bauen",
+  "def.flowing": "Ressourcen fließen… bleib im Kreis"
 });

@@ -281,7 +281,7 @@ CZ.screens.valley = (function () {
     const riverZ = x => 44 + 8 * Math.sin(x / 17) + 4 * Math.sin(x / 7.3);          // güneyde batıdan doğuya nehir
     const creekX = z => 50 + 6 * Math.sin(z / 13);                                      // doğuda kuzeyden nehre dere
     const RIVER_W = 2.8, CREEK_W = 1.7;
-    const lakes = [[-52, -48, 13], [38, -62, 10], [-70, 20, 8]];
+    const lakes = [];   // (21 Kas) düz beyaz göl daireleri kaldırıldı: işe yaramıyordu
     const bridges = [[0, riverZ(0)], [-58, riverZ(-58)], [62, riverZ(62)], [creekX(0), 0], [creekX(-50), -50]];
     const inRiver = (x, z) => Math.abs(z - riverZ(x)) < RIVER_W || (z < riverZ(x) && Math.abs(x - creekX(z)) < CREEK_W);
     const onBridge = (x, z) => bridges.some(([bx, bz]) => Math.abs(x - bx) < 2.4 && Math.abs(z - bz) < 4.2) || bridges.some(([bx, bz]) => Math.abs(z - bz) < 2.4 && Math.abs(x - bx) < 4.2 && bx > 40 && Math.abs(bz) < 60);
@@ -406,17 +406,15 @@ CZ.screens.valley = (function () {
     // Buz mağarası: sadece kutup ayısı buz duvarını kırabilir; içinde hazine sandığı
     // kayalık tepe + karanlık mağara ağzı
     const caveMat = seeThrough(CZ.style.mat({ color: 0x8a94aa, flatShading: true }));
-    { const cv = pMesh('cave', 7.2, true); cv.position.set(-37, 0, -30); scene.add(cv); }
+    /* (21 Kas) buz mağarası kaldırıldı: içi boştu, yaklaşılamıyordu */
     [].forEach(([x, z, r2, hh]) => {
       const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(r2, 0), caveMat); rk.position.set(x, hh * 0.45, z); rk.scale.set(1, hh / r2 * 0.75, 1); rk.rotation.y = x; rk.castShadow = true; scene.add(rk);
       const cap = new THREE.Mesh(new THREE.DodecahedronGeometry(r2 * 0.6, 0), seeThrough(toon(0xffffff))); cap.position.set(x, hh * 0.45 + hh * 0.6, z); cap.scale.set(1, 0.4, 1); scene.add(cap);
     });
     
-    solids.push({ x: -40, z: -31, r: 4.2 });
     const iceWall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 3.2, 0.8), CZ.style.mat({ color: 0x9fe0ff, transparent: true, opacity: 0.8 }));
     iceWall.position.set(-32, 1.6, -26.5); iceWall.rotation.y = -0.75; scene.add(iceWall);
-    const ice = { x: -32, z: -26.5, r: 1.9, mesh: iceWall, alive: true };
-    solids.push(ice);
+    const ice = { x: -32, z: -26.5, r: 1.9, mesh: iceWall, alive: false }; iceWall.visible = false;
 
     // ===== KAYNAKLAR: ağaçlar (balta → odun) ve kayalar (kazma → taş). Parçalara bölünmüş InstancedMesh =====
     const CH = 28;
@@ -560,7 +558,7 @@ CZ.screens.valley = (function () {
     if (CZ.gen3d.has('sandik_lo')) { chestG.clear(); chestG.add(CZ.gen3d.get('sandik_lo', 1.6)); }
     chestG.clear(); chestG.add(pMesh('chest', 2.1));
     chestG.position.set(-34.2, 0, -28.6); scene.add(chestG);
-    const chest = { type: 'chest', x: -34.2, z: -28.6, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 0, gems: 15, locked: true };
+    const chest = { type: 'chest', x: -34.2, z: -28.6, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 0, gems: 15, locked: false };
     targets.push(chest);
 
     // ZİBO'NUN GOBLİNLERİ: dışarıdan sonsuz gelir, elinde mızrak, sırtında altın çuvalı.
@@ -680,6 +678,9 @@ CZ.screens.valley = (function () {
         }
       });
     }
+    // ZORLUK (Ayarlar): kolay / normal / zor. Normal eskisinden zor: goblinler 2 vuruşta değil 3-4'te düşer
+    const DIFFS = { easy: { hits: 1.6, hp: 1.0, dmg: 0.7, sp: 0.92, n: 0.8, rew: 0.9, zig: 0.8, atkGap: 1.3 }, normal: { hits: 2.6, hp: 1.7, dmg: 1.0, sp: 1.0, n: 1.0, rew: 1.0, zig: 1.6, atkGap: 1.0 }, hard: { hits: 3.6, hp: 2.6, dmg: 1.5, sp: 1.1, n: 1.3, rew: 1.35, zig: 2.4, atkGap: 0.8 } };
+    const DIFF = () => DIFFS[d.diff] || DIFFS.normal;
     function spawnGoblin(boss, at) {
       const tough = boss || Math.random() < Math.min(0.35, V.wave * 0.04);
       // KÖY GÜCÜ büyüdükçe özel goblinler gelir: kule bozan bombacı, çitten atlayan, kalkanlı (kuleler az işler)
@@ -718,6 +719,7 @@ CZ.screens.valley = (function () {
       if (kind === 'shield') { gb.hp = gb.maxHp = Math.round(gb.maxHp * 1.6); gb.speed -= 0.4; }
       if (ranged) { gb.ranged = true; gb.hp = gb.maxHp = Math.max(1, hp - 1); gb.speed -= 0.3; gb.atk = rand(1.5, 2.5); }
       if (boss) { gb.boss = true; gb.hp = gb.maxHp = 30 + V.wave * 4; gb.coins = 80 + V.wave * 6; gb.gems = 3; gb.speed = 2.6; gb.dmg = 3; gb.r = 1.3; gb.village = false; floatAt(P, t('boss.come'), 'wave'); CZ.audio.sfx('horn'); CZ.audio.vibrate([80, 40, 80]); }
+      { const D = DIFF(); gb.seed = Math.random(); const pd = W.dmg * 2 + B.dmg + powLv() * 2; gb.hp = gb.maxHp = Math.max(1, Math.round(gb.maxHp * D.hp), gb.boss ? 0 : Math.round(pd * D.hits * (tough ? 1.8 : 1) - 0.5)); gb.dmg = Math.max(1, Math.round(gb.dmg * D.dmg)); gb.speed *= D.sp; gb.coins = Math.round(gb.coins * D.rew); gb.atk *= D.atkGap; }
       goblins.push(gb); targets.push(gb); hpBar(gb);
       return gb;
     }
@@ -1349,6 +1351,7 @@ CZ.screens.valley = (function () {
         h('b', { class: 'lg-title', text: t('pause.title') }),
         btn(t('pause.resume'), () => { box.remove(); resumeCount(); }, 'primary wide', 'ic:play'),
         CZ.audioPanel(),
+        CZ.optsPanel(),
         btn(t('w.stable'), () => { box.remove(); V.paused = false; CZ.ui.go('gold'); }, 'ghost-dark wide'),
         btn(t('pause.quit'), () => { box.remove(); V.paused = false; CZ.audio.duck(0.55, 0.1); end(); }, 'small ghost-dark')));
       wrap.append(box);
@@ -1384,7 +1387,7 @@ CZ.screens.valley = (function () {
     const ZTALK = ['Grak bloo!', 'Hihihi, nyek!', 'Zub zub ZIBO!', 'Blorp! Ha-ha!', 'Nyaaa-krik!'];
     function startNight() {
       V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 2.5;
-      V.nTot = Math.min(40, 5 + V.wave * 3 + Math.floor(vilPower() / 2)); V.nSp = 0;
+      V.nTot = Math.min(50, Math.round((5 + V.wave * 3 + Math.floor(vilPower() / 2)) * DIFF().n)); V.nSp = 0;
       vigEl.classList.add('on'); cdEl.classList.remove('on');
       V.nS = { kills: V.kills, earned: V.earned, lost: V.lost || 0 };
       d.bestNight = Math.max(d.bestNight || 0, V.wave);
@@ -1398,6 +1401,7 @@ CZ.screens.valley = (function () {
     function endNight() {
       V.phase = 'day'; V.phT = DAY_LEN; vigEl.classList.remove('on');
       goblins.forEach(o => { if (!o.dead && !o.boss && !o.stolen) o.flee = true; });
+      if (!d.diffTip && V.wave >= 1) { d.diffTip = 1; setTimeout(() => { if (V) CZ.ui.toast(t('opt.tip')); }, 2500); }
       const S = V.nS || { kills: 0, earned: 0, lost: 0 }, kills = V.kills - S.kills, earned = Math.max(0, V.earned - S.earned), lost = Math.max(0, (V.lost || 0) - S.lost);
       const bonus = 20 + V.wave * 10; gain(bonus, true);
       CZ.state.save(); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]);
@@ -1588,6 +1592,8 @@ CZ.screens.valley = (function () {
           if (fit && fit.lv >= 1 && fp.hp > 0 && rc < FENCE_R + 1.1 && rc > FENCE_R - 0.5) attackFence = fp;
           else { tx = 0; tz = 0; }
         }
+        // (21 Kas) sana koşarken düz çizgide gelmez: zikzak + yan adım (Zor'da daha çok)
+        if (!o.flee && !o.boss && tx === P.x && tz === P.z && dp > 2.2 && dp < 12) { const zz = Math.sin(performance.now() / 1000 * (2.2 + (o.seed || 0)) + (o.seed || 0) * 9) * DIFF().zig * Math.min(1, (dp - 2.2) / 3); tx += -dzp / dp * zz; tz += dxp / dp * zz; }
         let mv = 0;
         if (attackFence && o.kind === 'jumper') attackFence = null;   // çitin üstünden atlar
         if (attackFence) {
@@ -1778,10 +1784,13 @@ CZ.screens.valley = (function () {
     }
     // Kule / çit yerinin yanına gelince panel açılır
     let nearPad = null, panelKey = '', onPad = null;
+    let armedPad = null;
     function padNear(dt) {
       let best = null, bd = 2.4; onPad = null;
       pads.forEach(p => { if (!padVisible(p)) return; const [mx, mz] = markPos(p); const dd = Math.hypot(mx - P.x, mz - P.z); if (dd < bd) { bd = dd; best = p; } if (dd < 1.5) onPad = p; });
-      if (onPad && P.down <= 0) flowTick(onPad, dt);
+      // (21 Kas) daireye basınca para KENDİLİĞİNDEN gitmez: önce "Yükselt" düğmesine basılır
+      if (armedPad && onPad !== armedPad && nearPad !== armedPad) { armedPad = null; panelKey = ''; }
+      if (onPad && P.down <= 0 && onPad === armedPad) flowTick(onPad, dt);
       prodTick(dt);
       // köy daireleri uzaktayken küçülür (kalabalık görünmesin), yaklaşınca büyür
       pads.forEach(p => { if (p.mark && p.kind !== 'v') { const [ax, az] = markPos(p); const op = Math.hypot(ax - P.x, az - P.z) < 4.2 ? 1 : 0.3; p.mark.material.opacity += (op - p.mark.material.opacity) * Math.min(1, dt * 6); }
@@ -1877,7 +1886,8 @@ CZ.screens.valley = (function () {
           btn(String(CZ.village.gemCost()), () => { if (CZ.village.rush() === 'short') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.gemShort')); } placeVillage(); resUi(); padUi(true); }, 'primary', 'ui.emerald'),
           V2.job.ads < 3 ? btn('-30 ' + t('def.min'), () => CZ.ads.show(() => { CZ.village.adRush(); placeVillage(); padUi(true); }), 'ghost-dark', 'ic:play') : null));
       } else if (L2 && L2.length) {
-        kids.push(h('small', { text: t('def.standHere') }));
+        if (armedPad === p) kids.push(h('small', { class: 'def-flow', text: '⏳ ' + t('def.flowing') }));
+        else kids.push(h('div', { class: 'def-row' }, btn((it && it.lv ? '⬆️ ' + t('def.upBtn') : '🔨 ' + t('def.buildBtn')), () => { armedPad = p; panelKey = ''; CZ.audio.sfx('buy'); CZ.audio.vibrate(20); if (V.tut && p.kind === 't') V.tut.on && 0; padUi(true); }, 'primary wide')));
         { const dd = CZ.state.data, sw = Math.max(0, ((L2.find(x => x.r === 'wood') || {}).n || 0) - (dd.wood || 0)), ss = Math.max(0, ((L2.find(x => x.r === 'stone') || {}).n || 0) - (dd.stone || 0));
           const cost = Math.ceil(sw * 0.4 + ss * 0.67), gNeed = (L2.find(x => x.r === 'gold') || {}).n || 0;
           if (cost > 0 && (dd.gold || 0) >= cost + Math.min(gNeed, 1)) kids.push(h('div', { class: 'def-row' }, btn(t('def.buyShort') + ' · ' + cost, () => { if ((dd.gold || 0) < cost) return; dd.gold -= cost; dd.wood = (dd.wood || 0) + sw; dd.stone = (dd.stone || 0) + ss; CZ.state.save(); resUi(); CZ.audio.sfx('coin'); padUi(true); }, 'primary', 'ui.gold'))); }
@@ -1980,7 +1990,7 @@ CZ.screens.valley = (function () {
       if (o) { ring.position.set(o.x, 0.05, o.z); ring.scale.setScalar(o.r + 0.3 + Math.sin(performance.now() / 150) * 0.06); }
       // Albion gibi yukarıdan, hafif açılı kamera
       // dikey ekranda görüş alanı dar kalmasın: en-boy oranına göre uzaklaş
-      const far = (camera.aspect < 1 ? 1 / Math.max(0.42, camera.aspect) * 0.62 : 1) * (P.riding ? 1.12 : 1);
+      const far = (camera.aspect < 1 ? 1 / Math.max(0.42, camera.aspect) * 0.62 : 1) * (P.riding ? 1.12 : 1) * ({ near: 0.78, far: 1.3 }[d.camZ] || 1);
       const ch = 11.8 * far, cd = 8.2 * far;   // yakın kamera: karakterler büyük, ekran boş kar değil
       const cx = P.x, cz = P.z + cd;
       camera.position.x += (cx - camera.position.x) * Math.min(1, dt * 5);

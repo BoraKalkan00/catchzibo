@@ -478,6 +478,7 @@
             CZ.charArt.img(d.avatar || 'girl', 'front', 'set-avatar-img'),
             btn(t('settings.change'), () => go('chars', { returnTo: 'settings' }), 'small ghost-dark'))),
           CZ.audioPanel(),
+          CZ.optsPanel(),
           row(t('settings.landscape'), h('button', {
             class: 'toggle' + (CZ.orient.on() ? ' on' : ''), type: 'button', role: 'switch', 'aria-checked': String(CZ.orient.on()),
             onClick: () => { d.landscape = !CZ.orient.on(); state.save(); CZ.orient.apply(); CZ.ui.refresh(); },
@@ -514,3 +515,19 @@
     }
   };
 })();
+
+// (21 Kas) Oyun seçenekleri: zorluk + kamera. Ayarlarda ve oyun içi duraklat menüsünde aynı panel.
+CZ.optsPanel = function (onChange) {
+  const h = CZ.ui.h, t = CZ.t, d = CZ.state.data;
+  const seg = (key, opts, def) => {
+    const box = h('div', { class: 'seg' });
+    const draw = () => box.replaceChildren(...opts.map(([v, lbl]) => h('button', { type: 'button', class: (d[key] || def) === v ? 'active' : '', text: lbl,
+      onClick: () => { d[key] = v; CZ.state.save(); CZ.audio.sfx('button'); draw(); if (onChange) onChange(key, v); } })));
+    draw(); return box;
+  };
+  const row = (lbl, el) => h('div', { class: 'set-row opt-row' }, h('span', { text: lbl }), el);
+  return h('div', { class: 'opt-panel' },
+    row(t('opt.diff'), seg('diff', [['easy', t('opt.easy')], ['normal', t('opt.normal')], ['hard', t('opt.hard')]], 'normal')),
+    row(t('opt.cam'), seg('camZ', [['near', t('opt.near')], ['normal', t('opt.camN')], ['far', t('opt.far')]], 'normal')));
+};
+
