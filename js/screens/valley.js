@@ -89,7 +89,7 @@ CZ.screens.valley = (function () {
     };
   }
   function quadruped(THREE, def) {
-    if (MOUNT_GEN[def.id] && CZ.gen3d && CZ.gen3d.has(MOUNT_GEN[def.id][0])) return genMount(THREE, def);
+    if (window.CZ_AI_MOUNTS && MOUNT_GEN[def.id] && CZ.gen3d && CZ.gen3d.has(MOUNT_GEN[def.id][0])) return genMount(THREE, def);
     const toon = c => CZ.style.mat(c);
     const fur = toon(def.color), light = toon(def.light), dark = toon(0x2a1a12);
     const g = new THREE.Group();
@@ -1052,16 +1052,22 @@ CZ.screens.valley = (function () {
     const ballMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(W.ball || '#f4fbff') });
     const trails = [], trailMat = new THREE.MeshBasicMaterial({ color: 0xdff4ff, transparent: true, opacity: 0.5, depthWrite: false });
     function trailTick(dt) { for (let i = trails.length - 1; i >= 0; i--) { const q = trails[i]; q.t += dt; q.m.scale.setScalar(Math.max(0.01, 0.6 - q.t * 2.6)); if (q.t > 0.22) { scene.remove(q.m); trails.splice(i, 1); } } }
+    const arrowTpl = (() => { const g = new THREE.Group();
+      const sh = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.1, 6), toon(0x9a6a3a)); sh.rotation.x = Math.PI / 2; g.add(sh);
+      const hd = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.26, 6), toon(0xc8d0dc)); hd.rotation.x = Math.PI / 2; hd.position.z = 0.66; g.add(hd);
+      const fm = toon(0xf4f0e8); [0, Math.PI / 2].forEach(r => { const f = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.18, 0.26), fm); f.rotation.z = r; f.position.z = -0.48; g.add(f); });
+      g.scale.setScalar(1.15); return g; })();
+    function fenceUp(x, z) { const seg = ((Math.floor(((Math.atan2(z, x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8); const fp = pads.find(q => q.kind === 'f' && q.i === seg), it = DS.f[seg]; return !!(fp && it && it.lv >= 1 && fp.hp > 0); }
     function fire(dx, dz) {
       if (V.cool > 0) return;
       V.cool = Math.max(0.12, (0.42 - W.dmg * 0.025) * B.cool * Math.pow(0.95, powLv()));
       const L2 = Math.hypot(dx, dz) || 1; dx /= L2; dz /= L2;
       P.dir = Math.atan2(-dx, -dz);
       let m;
-      m = new THREE.Mesh(ballGeo, ballMat);   // elde ne varsa o atılır (binekte de)
-      m.position.set(P.x + dx * 0.6, P.riding ? mount.seatY + 1.1 : 1.2, P.z + dz * 0.6);
+      m = arrowTpl.clone();   // (21 Kas) gerçek ok: düz uçar, gittiği yöne bakar
+      m.position.set(P.x + dx * 0.6, P.riding ? mount.seatY + 1.1 : 1.2, P.z + dz * 0.6); m.rotation.y = Math.atan2(dx, dz);
       scene.add(m);
-      const sp2 = P.riding ? 30 : 24; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2, ph: Math.random() * 6, y0: m.position.y });
+      const sp2 = P.riding ? 34 : 28; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2, ph: null, y0: m.position.y, arrow: true });
       if (hero.throwNow) hero.throwNow();
       CZ.audio.sfx('throw');
     }
@@ -1394,15 +1400,14 @@ CZ.screens.valley = (function () {
       wrap.append(box);
     }
     // Köy süsleri: kuyu, fıçılar, fenerler (yeni yapay zekâ modelleri)
-    if (CZ.gen3d) {
+    function placeDecor() {   // (21 Kas) yapay zekâ süsleri (erimiş fener/fıçı/kuyu) yerine KayKit 3D: kuyu, fıçı, sandık
       const free = (x, z, r) => !water(x, z) && !pads.some(q => Math.hypot(q.x - x, q.z - z) < 2.2 + r) && !solids.some(q => Math.hypot(q.x - x, q.z - z) < q.r + r + 0.6) && Math.hypot(x - MILA.x, z - MILA.z) > 2.5;
-      const put = (id, hgt, x, z, r, rot) => { if (!CZ.gen3d.has(id) || !free(x, z, r)) return false; const g = CZ.gen3d.get(id, hgt); g.position.set(x, 0, z); g.rotation.y = rot || 0; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.material = seeThrough(o.material.clone()); } }); scene.add(g); outlineWorld(g, 0.03); solids.push({ x, z, r }); V.decor = (V.decor || 0) + 1; return true; };
+      const KHN = { kuyu: ['building_well_blue', 1.9], fici: ['barrel', 0.7] }; const put = (id, hgt, x, z, r, rot) => { const kn = KHN[id]; if (!kn || !CZ.KH.has(kn[0]) || !free(x, z, r)) return false; const g = CZ.KH.get(kn[0], kn[1]); g.position.set(x, 0, z); g.rotation.y = rot || 0; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.material = seeThrough(o.material.clone()); } }); scene.add(g); outlineWorld(g, 0.03); solids.push({ x, z, r }); V.decor = (V.decor || 0) + 1; return true; };
       [[3.2, 6.2], [-3, 6.4], [2.6, -5.2], [-9.5, 0.5], [9.5, 0.5]].some(([x, z]) => put('kuyu', 2.4, x, z, 1.0, 0.4));
-      for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + 0.2; put('fener', 1.9, Math.cos(a) * 10.6, Math.sin(a) * 10.6, 0.35, -a); }
       [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.6, -6.8]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
     }
     pads.forEach(drawPad);
-    if (CZ.KH) CZ.KH.loadAll(THREE, CZ.KH.all()).then(() => { if (!V) return; placeVillage(); pads.forEach(drawPad); });
+    if (CZ.KH) CZ.KH.loadAll(THREE, CZ.KH.all().concat(['building_well_blue'])).then(() => { if (!V) return; placeVillage(); pads.forEach(drawPad); placeDecor(); });
     spawnBuddy(); heroUi(); ordUi(); giftUi();
     try {
       const warm = new THREE.Group();
@@ -1577,8 +1582,13 @@ CZ.screens.valley = (function () {
         }
         // nehre giremezsin: köprüden geç (yan eksende kaymayı dene)
         if (water(nx, nz)) { if (!water(nx, P.z)) nz = P.z; else if (!water(P.x, nz)) nx = P.x; else { nx = P.x; nz = P.z; } if (!V.waterHint) { V.waterHint = true; floatAt(P, t('w.bridge'), 'wave'); setTimeout(() => { if (V) V.waterHint = false; }, 4000); } }
+        // (21 Kas) ÇİT/SUR: içinden geçilmez, üstünden ZIPLANIR (otomatik, zıplama animasyonuyla)
+        { const r0 = Math.hypot(P.x, P.z), r1 = Math.hypot(nx, nz);
+          if (!P.hop && r1 > 0.1 && Math.abs(r1 - FENCE_R) < 0.75 && Math.sign(r1 - r0) === Math.sign(FENCE_R - r0) && fenceUp(nx, nz)) {
+            P.hop = { t: 0, dur: P.riding ? 0.55 : 0.5, ux: nx / r1 * Math.sign(r1 - r0), uz: nz / r1 * Math.sign(r1 - r0) }; CZ.audio.sfx('jump'); CZ.audio.vibrate(15); } }
         P.x = nx; P.z = nz;
       }
+      if (P.hop) { const hp = P.hop; hp.t += dt; const k = Math.min(1, hp.t / hp.dur); const push = 3.2 * dt / hp.dur; P.x += hp.ux * push; P.z += hp.uz * push; P.hopY = Math.sin(k * Math.PI) * (P.riding ? 1.5 : 1.25); if (k >= 1) { P.hop = null; P.hopY = 0; CZ.audio.sfx('land'); V.shake = Math.max(V.shake || 0, 0.08); } }
       if (water(P.x, P.z)) { if (P.safe) { P.x = P.safe[0]; P.z = P.safe[1]; } } else P.safe = [P.x, P.z];
       harvest(dt);
       // akan kaynaklar ve görünür parçalar
@@ -1995,16 +2005,16 @@ CZ.screens.valley = (function () {
     }
     function draw(dt) {
       // oyuncu ve binek görünümü
-      mount.root.position.set(M.x, 0, M.z);
+      mount.root.position.set(M.x, P.riding ? (P.hopY || 0) : 0, M.z);
       mount.root.rotation.y = M.dir;
       mount.update(dt, P.riding ? Math.hypot(P.vx, P.vz) : M.speed);
       const moving = Math.hypot(P.vx, P.vz) > 0.6;
       if (P.riding) {
-        hero.root.position.set(P.x, mount.seatY - 0.12 + (mount.root.children[0].position.y || 0), P.z);
+        hero.root.position.set(P.x, mount.seatY - 0.12 + (mount.root.children[0].position.y || 0) + (P.hopY || 0), P.z);
         hero.update(dt, { sit: true });
       } else {
-        hero.root.position.set(P.x, 0, P.z);
-        hero.update(dt, { idle: !moving, speed: Math.hypot(P.vx, P.vz) * 2 });
+        hero.root.position.set(P.x, P.hopY || 0, P.z);
+        hero.update(dt, P.hop ? { air: true, jumping: true } : { idle: !moving, speed: Math.hypot(P.vx, P.vz) * 2 });
       }
       hero.root.rotation.y = P.dir;
       heroShadow.visible = false;
