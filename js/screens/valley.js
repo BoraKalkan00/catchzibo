@@ -868,7 +868,7 @@ CZ.screens.valley = (function () {
     function rushAd(p) { CZ.ads.show(() => { if (V && slot(p) && slot(p).job) { finishJob(p); padUi(true); } }); }
 
     /* ---------- Oyuncu ve binek ---------- */
-    const P = { x: 2.5, z: 6.5, dir: Math.PI, riding: false, vx: 0, vz: 0, hp: 12, maxHp: 12, hurtT: 0, down: 0 };
+    const P = { x: 2.5, z: 6.5, dir: Math.PI, riding: false, vx: 0, vz: 0, hp: 12 + (B.hp || 0), maxHp: 12 + (B.hp || 0), hurtT: 0, down: 0 };
     const hero = CZ.kk.hero(THREE, d.avatar || 'girl');
     if (hero.setWeapon) hero.setWeapon(W.id);
     hero.root.traverse(o => { o.castShadow = true; }); scene.add(hero.root); addOutline(hero.root, 0.02);
@@ -1416,7 +1416,7 @@ CZ.screens.valley = (function () {
         [P.x, P.z] = collide(P.x + fx * 22 * dt, P.z + fz * 22 * dt, 1.0);
         goblins.forEach(o => { if (!o.dead && !V.pounceHit.has(o) && Math.hypot(o.x - P.x, o.z - P.z) < 2) { V.pounceHit.add(o); o.stun = 1; hit(o, 6 + powLv() * 2); } });
       }
-      const sp = P.riding ? mountDef.speed * B.speed * (V.dashT > 0 ? 1.6 : 1) : 5;
+      const sp = P.riding ? mountDef.speed * B.speed * (V.dashT > 0 ? 1.6 : 1) : 5 * (B.run || 1);
       let mx = joy.dx, mz = joy.dy;
       const kb = V.keys || {};
       if (kb.ArrowLeft || kb.a) mx = -1; if (kb.ArrowRight || kb.d) mx = 1; if (kb.ArrowUp || kb.w) mz = -1; if (kb.ArrowDown || kb.s) mz = 1;
