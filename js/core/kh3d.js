@@ -37,7 +37,9 @@ CZ.KH = (function () {
   // KÖY BİNALARI: seviye eşiklerinde model değişir (Kingshot gibi), aradaki seviyelerde büyür + bayrak/fıçı eklenir
   const B = n => 'building_' + n + '_blue';
   const VMAP = {
-    hall: [[1, B('tavern')], [4, B('church')], [7, B('castle')]],
+    hall: [[1, B('church')], [7, B('castle')]],
+    house: [[1, B('home_B')], [5, B('barracks')]],
+    canteen: [[1, B('tavern')]],
     goldmine: [[1, 'building_mine_yellow']],
     mine: [[1, B('mine')]],
     bakery: [[1, B('windmill')]],
@@ -46,12 +48,12 @@ CZ.KH = (function () {
     stable: [[1, B('barracks')]],
     forge: [[1, B('blacksmith')]],
     lookout: [[1, B('tower_base')], [3, B('tower_B')]],
-    elf: [[1, B('home_A')], [4, B('home_B')]],
+    elf: [[1, B('home_A')]],
     cookie: [[1, B('watermill')]],
     gate: [[1, B('archeryrange')]],
     jail: [[1, B('lumbermill')]]
   };
-  const VW = { hall: 4.2, goldmine: 3.2, mine: 3.2, bakery: 3.0, vault: 3.4, tower: 2.4, stable: 3.4, forge: 3.2, lookout: 2.4, elf: 2.8, cookie: 3.2, gate: 3.4, jail: 3.2 };
+  const VW = { house: 3.4, canteen: 3.6, hall: 4.2, goldmine: 3.2, mine: 3.2, bakery: 3.0, vault: 3.4, tower: 2.4, stable: 3.4, forge: 3.2, lookout: 2.4, elf: 2.8, cookie: 3.2, gate: 3.4, jail: 3.2 };
   // kuleler: kartopu = okçu kulesi, top = mancınıklı kule
   const TMAP = { snow: [[1, B('tower_A')], [4, B('tower_B')]], cannon: [[1, B('tower_base')], [2, B('tower_catapult')]] };
   const STAGES = ['building_stage_A', 'building_stage_B', 'building_stage_C', 'building_scaffolding'];

@@ -16,7 +16,9 @@ CZ.VB = [
   { id: 'stable', max: 6, base: 800, mul: 2.3, tbase: 3 },
   { id: 'forge', max: 8, base: 900, mul: 2, tbase: 3 },
   { id: 'lookout', max: 5, base: 700, mul: 2.6, tbase: 3 },
-  { id: 'tree', max: 15, base: 1000, mul: 1.6, tbase: 1 }
+  { id: 'tree', max: 15, base: 1000, mul: 1.6, tbase: 1 },
+  { id: 'house', max: 10, base: 500, mul: 1.8, tbase: 2 },     // (22 Kas) Barınak: hayatta kalanların yatakları
+  { id: 'canteen', max: 10, base: 450, mul: 1.8, tbase: 2 }    // (22 Kas) Yemekhane: ekmek üretir, köylüler akşam burada yer
 ];
 CZ.village = (function () {
   const PRODS = ['goldmine', 'elf', 'mine', 'bakery'];   // sen yokken üreten binalar
@@ -33,6 +35,7 @@ CZ.village = (function () {
     if (V.lv.gate == null) V.lv.gate = 0;
     if (V.lv.jail == null) V.lv.jail = 0;
     if (V.store.elf == null) V.store.elf = 0;
+    if (V.lv.house == null) V.lv.house = 1; if (V.lv.canteen == null) V.lv.canteen = 1;
     CZ.VB.forEach(b => { if (V.lv[b.id] > b.max) V.lv[b.id] = b.max; });   // eski kayıtlarda yeni tavanı aşan seviye
     return V;
   }
@@ -158,6 +161,8 @@ CZ.village = (function () {
       case 'gate': R.push(['st.slow', L * 5 + '%']); break;
       case 'jail': R.push(['st.loot', '+' + L * 10 + '%']); break;
       case 'tree': R.push(['st.glory', L]); break;
+      case 'house': R.push(['st.beds', 2 + L * 2], ['st.comfort', L]); break;
+      case 'canteen': R.push(['st.breadM', L * 2], ['st.seats', 2 + L * 2]); break;
     }
     return R;
   }

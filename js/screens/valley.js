@@ -1281,6 +1281,12 @@ CZ.screens.valley = (function () {
       CZ.state.save(); resUi(); giftUi(); floatAt(P, msg, 'wave'); CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]);
     });
     const ordBtn = h('button', { type: 'button', class: 'vl-orders' });
+    const vilBtn = h('button', { type: 'button', class: 'vl-vills' }, h('i', { text: '👥' }), h('b', { text: '0/0' }));
+    vilBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openVillagers(); });
+    const mailBtn = h('button', { type: 'button', class: 'vl-mail' }, h('i', { text: '📬' }), h('b'));
+    mailBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openMail(); });
+    const svBtn = h('button', { type: 'button', class: 'vl-trade vl-sv', style: 'display:none' }, h('i', { text: '🗨️' }), h('b', { text: t('sv.talk') }));
+    svBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openSurvivor(); });
     function ordUi() { if (!CZ.orders) return; ordBtn.replaceChildren(h('i', { text: '📜' }), h('b', { text: t('ord.btn') }), ...(CZ.orders.ready() ? [h('em', { text: '!' })] : [])); ordBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none'; }
     ordBtn.addEventListener('click', () => openOrders());
     const MAT_IMG = { plank: 'plank', brick: 'brick', iron: 'iron', wood: 'log', stone: 'stone' };
@@ -1419,7 +1425,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, skBtn, dsBtn, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1585,6 +1591,162 @@ CZ.screens.valley = (function () {
           btn(t('common.close'), () => { box.remove(); V.paused = false; V.last = 0; }, 'small ghost-dark'))); };
       draw(); wrap.append(box);
     }
+    // ===== HAYATTA KALANLAR + KÖYLÜLER (22 Kas) =====
+    // Zibo'nun yağmaladığı köylerden kaçanlar kapına gelir. Yemek ver → yatak ver → eski mesleğine göre iş ver.
+    // Köylüler gerçekten yürür: odun keser/taş kırar ve getirir, yemek pişirir, gece surdan ok atar, akşam yemekhanede yer.
+    const PROF = { wood: '🪓', miner: '⛏️', cook: '🍞', hunter: '🏹', builder: '🔨', healer: '💊' };
+    const PROFS = Object.keys(PROF);
+    const NAMES_M = ['Ali', 'Oskar', 'Bruno', 'Tomas', 'Ivan', 'Kerem', 'Hugo', 'Rafa', 'Olaf', 'Emre', 'Isaac', 'Mert', 'Lars', 'Diego', 'Kenji', 'Bora'];
+    const NAMES_F = ['Mara', 'Lina', 'Selin', 'Eda', 'Nora', 'Yuki', 'Mina', 'Defne', 'Sena', 'Ilse', 'Ayla', 'Freya', 'Lucia', 'Hana', 'Elif', 'Zoe'];
+    const LOOK_M = ['boy', 'knight', 'snowkid', 'santa'], LOOK_F = ['girl', 'elf'];
+    // her meslek × her cinsiyet × 2 tip: tip = farklı beden + mesleğe özgü renk
+    const JOBCOL = { wood: ['#7a4a1e', '#2e7d32'], miner: ['#5d6d7e', '#8d6e63'], cook: ['#f5f5f5', '#e67e22'], hunter: ['#33691e', '#4e342e'], builder: ['#f39c12', '#1565c0'], healer: ['#e91e63', '#26a69a'] };
+    const STATK = ['loy', 'str', 'spd', 'int', 'fit'], STATI = { loy: '❤️', str: '💪', spd: '⚡', int: '🧠', fit: '🤝' };
+    if (!d.surv) d.surv = { list: [], n: 0 }; if (d.food == null) d.food = 6;
+    const SV = d.surv, npcs = [];
+    const spotW = id => { const [sx, sz] = CZ.VILLAGE_SPOTS[id]; return [sx * VS, sz * VS + 1.8]; };
+    const bedsCap = () => 2 + CZ.village.lv('house') * 2;
+    const seats = () => 2 + CZ.village.lv('canteen') * 2;
+    function npcModel(s0) { const LK = s0.g === 'f' ? LOOK_F : LOOK_M; let kind = LK[(s0.ty + (s0.g === 'f' ? 0 : PROFS.indexOf(s0.prof))) % LK.length];
+      if (CZ.kk.hasMX && CZ.kk.hasMX(kind)) kind = LK.find(k => !CZ.kk.hasMX(k)) || 'knight';
+      const hm = CZ.kk.hero(THREE, kind, { jacket: parseInt(JOBCOL[s0.prof][s0.ty % 2].slice(1), 16), hatColor: parseInt(JOBCOL[s0.prof][(s0.ty + 1) % 2].slice(1), 16) }); hm.root.scale.multiplyScalar(s0.g === 'f' ? 0.78 : 0.84); scene.add(hm.root); return hm; }
+    function npcSpawn(s0, x, z) { const n = { s: s0, x, z, dir: 0, hm: npcModel(s0), st: 'idle', t: rand(0.5, 2), tx: x, tz: z, carry: null, task: null, bubble: 0, hp: s0.joined ? 1 : 0.12 };
+      const lg = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.8, 6), toon(0x8a5a2e)); lg.rotation.z = Math.PI / 2; lg.position.set(0, 1.1, -0.3); lg.visible = false; n.hm.root.add(lg); n.log = lg;
+      const st = new THREE.Mesh(new THREE.DodecahedronGeometry(0.22, 0), toon(0x9aa4b2)); st.position.set(0, 1.15, -0.32); st.visible = false; n.hm.root.add(st); n.rock = st;
+      npcs.push(n); return n; }
+    SV.list.forEach(s0 => { const [hx, hz] = spotW('house'); npcSpawn(s0, hx + rand(-2, 2), hz + rand(-2, 2)); });
+    let arrival = null, MAILBOX = null;   // kapıdaki kişi
+    function newSurvivor() { const prof = PROFS[Math.floor(Math.random() * PROFS.length)], rar = Math.random() < 0.12 ? 1 : 0;
+      const g = Math.random() < 0.5 ? 'f' : 'm', NM = g === 'f' ? NAMES_F : NAMES_M, used = SV.list.map(q => q.name);
+      const name = NM.filter(x => !used.includes(x))[Math.floor(Math.random() * NM.filter(x => !used.includes(x)).length)] || NM[0];
+      const st = {}; STATK.forEach(k => { st[k] = Math.min(10, 1 + Math.floor(Math.random() * 6) + (rar ? 3 : 0)); });
+      return { id: 's' + (++SV.n) + Date.now().toString(36).slice(-3), name, g, ty: Math.floor(Math.random() * 2), prof, job: prof, rar, st, room: 1, days: 0, happy: 55 + st.fit * 3, ate: true, story: Math.floor(Math.random() * 4) }; }
+    function spawnArrival() {
+      const a = rand(0, Math.PI * 2), gx = Math.cos(a) * (FENCE_R + 2.2), gz = Math.sin(a) * (FENCE_R + 2.2);
+      const s0 = newSurvivor(); const n = npcSpawn(s0, Math.cos(a) * (FENCE_R + 22), Math.sin(a) * (FENCE_R + 22)); n.st = 'arrive'; n.tx = gx; n.tz = gz; n.limp = true;
+      { const cv = document.createElement('canvas'); cv.width = 128; cv.height = 128; const x = cv.getContext('2d'); x.font = '96px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('🆘', 64, 64);
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: false })); sp.scale.setScalar(0.9); sp.position.y = 2.3 / 0.84; sp.renderOrder = 5; n.hm.root.add(sp); n.sos = sp; }
+      arrival = n; floatAt(P, t('sv.arrive'), 'wave'); CZ.audio.sfx('star'); CZ.audio.vibrate([40, 30, 40]);
+    }
+    function npcMove(n, dt, spd) { const dx = n.tx - n.x, dz = n.tz - n.z, L = Math.hypot(dx, dz); if (L < 0.5) return true;
+      const st2 = Math.min(L, spd * dt); const [nx, nz] = collide(n.x + dx / L * st2, n.z + dz / L * st2, 0.35); n.x = nx; n.z = nz; n.dir = Math.atan2(-dx, -dz); n.moving = true; return false; }
+    function nearRes(list, n, maxR) { let best = null, bd = maxR; list.forEach(it => { if (!it.alive || it.npc || Math.hypot(it.x, it.z) > FENCE_R + 26) return; const dd = Math.hypot(it.x - n.x, it.z - n.z); if (dd < bd) { bd = dd; best = it; } }); return best; }
+    const stv = (S0, k) => (S0.st && S0.st[k]) || 5;
+    function eff(n) { const S0 = n.s, k = { wood: 'str', miner: 'str', cook: 'int', hunter: 'spd', builder: 'int', healer: 'int' }[S0.job] || 'str';
+      return (0.5 + (S0.happy || 50) / 100) * (S0.job === S0.prof ? 2 : 1) * (S0.rar ? 1.3 : 1) * (0.7 + stv(S0, k) * 0.06); }
+    const nspd = (n, b) => b * (0.8 + stv(n.s, 'spd') * 0.04);
+    function npcTick(dt) {
+      // geliş: her şafakta %70, ilk seferde 40 sn sonra
+      if (!arrival && !V.story && V.phase === 'day' && SV.list.length < 30) { V.svT = (V.svT == null ? (SV.list.length ? 9999 : 40) : V.svT) - dt; if (V.svT <= 0) { V.svT = 9999; spawnArrival(); } }
+      const dusk = V.phase === 'day' && V.phT < 14, night = V.phase === 'night';
+      const [hx, hz] = spotW('hall'), [cx, cz] = spotW('canteen'), [bx, bz] = spotW('house');
+      npcs.forEach(n => { n.moving = false; const S0 = n.s;
+        if (n === arrival) { if (n.sos) n.sos.position.y = 2.3 / 0.84 + Math.abs(Math.sin(performance.now() / 300)) * 0.3; if (n.st === 'arrive') { npcMove(n, dt, 1.6); } n.hm.root.position.set(n.x, 0, n.z); n.hm.root.rotation.y = n.st === 'arrive' ? n.dir : Math.atan2(P.x - n.x, P.z - n.z); n.hm.update(dt, { idle: !n.moving, speed: n.moving ? 2 : 0 }); n.hm.root.visible = true; return; }
+        if (!S0.joined) return;
+        // gece: avcı surda nöbet, diğerleri barınakta uyur
+        if (night && S0.job !== 'hunter') { if (n.st !== 'sleep') { n.st = 'home'; n.tx = bx; n.tz = bz; } if (n.st === 'home' && npcMove(n, dt, 3)) n.st = 'sleep'; n.hm.root.visible = n.st !== 'sleep'; n.log.visible = n.rock.visible = false; n.carry = null; if (n.task) { n.task.npc = false; n.task = null; } }
+        else if (dusk && !S0.ateToday) { n.hm.root.visible = true; if (n.st !== 'eat') { n.st = 'eat'; n.tx = cx + rand(-1.5, 1.5); n.tz = cz + rand(-1.5, 1.5); if (n.task) { n.task.npc = false; n.task = null; } }
+          if (npcMove(n, dt, 3.2)) { S0.ateToday = true; if (d.food >= 1) { d.food -= 1; S0.ate = true; S0.happy = Math.min(100, (S0.happy || 50) + 8); n.bubble = 2.5; n.bubT = '😋'; } else { S0.ate = false; S0.happy = Math.max(0, (S0.happy || 50) - 20); n.bubble = 3; n.bubT = '😠'; floatAt(n, t('sv.hungry', { n: S0.name }), 'dmg'); } resUi(); n.st = 'idle'; } }
+        else { n.hm.root.visible = true; if (n.st === 'sleep' || n.st === 'home') { n.st = 'idle'; S0.ateToday = false; }
+          const job = S0.job;
+          if (job === 'wood' || job === 'miner') {
+            if (n.st === 'idle') { const it = nearRes(job === 'wood' ? trees : rocks, n, 40); if (it) { it.npc = true; n.task = it; n.st = 'go'; n.tx = it.x + (n.x > it.x ? 1 : -1); n.tz = it.z + 0.6; } else { n.tx = hx + rand(-3, 3); n.tz = hz + rand(-3, 3); npcMove(n, dt, 1.5); } }
+            else if (n.st === 'go') { if (!n.task.alive) { n.task.npc = false; n.task = null; n.st = 'idle'; } else if (npcMove(n, dt, nspd(n, 3.4))) { n.st = 'work'; n.t = 4.5 / Math.min(2, eff(n)); n.hit = 0; } }
+            else if (n.st === 'work') { n.t -= dt; n.hit -= dt; n.dir = Math.atan2(-(n.task.x - n.x), -(n.task.z - n.z)); if (n.hit <= 0) { n.hit = 0.8; if (n.hm.throwNow) n.hm.throwNow(); n.task.tilt = 0.12; n.task.punch = 1; wob.add(n.task); setInst(n.task); }
+              if (n.t <= 0) { const it = n.task; it.hp -= 2; if (it.hp <= 0) { it.alive = false; it.solid.off = true; if (it.kind === 'tree') { const fx = it.x - n.x, fz = it.z - n.z, L5 = Math.hypot(fx, fz) || 1; it.fall = { t: 0, a: 0, sink: 0, fx: fx / L5, fz: fz / L5 }; falling.push(it); } setInst(it); }
+                it.npc = false; n.task = null; n.carry = { r: job === 'wood' ? 'wood' : 'stone', n: Math.round(3 * eff(n)) }; n.st = 'back'; n.tx = hx + rand(-1.2, 1.2); n.tz = hz + rand(-1.2, 1.2); } }
+            else if (n.st === 'back') { if (npcMove(n, dt, nspd(n, 2.6))) { d[n.carry.r] = (d[n.carry.r] || 0) + n.carry.n; if (n.carry.r === 'stone' && Math.random() < 0.15 * eff(n)) d.iron = (d.iron || 0) + 1; floatAt(n, '+' + n.carry.n + (n.carry.r === 'wood' ? ' 🪵' : ' 🪨'), 'auto'); resUi(); n.carry = null; n.st = 'idle'; } }
+            n.log.visible = !!(n.carry && n.carry.r === 'wood'); n.rock.visible = !!(n.carry && n.carry.r === 'stone');
+          } else if (job === 'cook') { n.tx = cx + Math.sin(performance.now() / 3000 + S0.look) * 1.6; n.tz = cz + 1.2; npcMove(n, dt, 1.2); n.t -= dt; if (n.t <= 0) { n.t = 20; const b = Math.round(2 * eff(n)); d.food += b; floatAt(n, '+' + b + ' 🍞', 'auto'); resUi(); } }
+          else if (job === 'hunter') {
+            const a = (S0.look % 8) / 8 * Math.PI * 2; n.tx = Math.cos(a) * (FENCE_R - 1.2); n.tz = Math.sin(a) * (FENCE_R - 1.2); npcMove(n, dt, 3);
+            n.t -= dt; if (n.t <= 0) { n.t = 1.6 / Math.min(2, eff(n)); let best = null, bd = 14; goblins.forEach(o => { if (o.dead) return; const dd = Math.hypot(o.x - n.x, o.z - n.z); if (dd < bd) { bd = dd; best = o; } });
+              if (best) { const dx = best.x - n.x, dz = best.z - n.z, L = Math.hypot(dx, dz) || 1; const m = arrowTpl.clone(); m.position.set(n.x, 1.3, n.z); m.rotation.y = Math.atan2(dx, dz); scene.add(m); shots.push({ m, dx: dx / L, dz: dz / L, life: 16 / 26, sp: 26, ph: null, y0: 1.3, arrow: true, dmgK: 0.5 * eff(n) }); n.dir = Math.atan2(-dx, -dz); if (n.hm.throwNow) n.hm.throwNow(); } } }
+          else if (job === 'builder') { n.tx = hx + Math.sin(performance.now() / 2500 + S0.look) * 2.5; n.tz = hz + 2.5; npcMove(n, dt, 1.4); n.t -= dt; if (n.t <= 0) { n.t = 10; const VV = CZ.village.ensure(); if (VV.job) { VV.job.end -= 12000 * eff(n); n.bubble = 1.5; n.bubT = '🔨'; } Object.values(DS).forEach(arr => { if (Array.isArray(arr)) arr.forEach(it2 => { if (it2 && it2.job) it2.job.end -= 6000 * eff(n); }); }); } }
+          else if (job === 'healer') { const dp2 = Math.hypot(P.x - n.x, P.z - n.z); if (dp2 < 22 && P.hp < P.maxHp) { n.tx = P.x + 1.5; n.tz = P.z + 1.5; npcMove(n, dt, 4); n.t -= dt; if (n.t <= 0 && dp2 < 4) { n.t = 3; P.hp = Math.min(P.maxHp, P.hp + Math.max(1, Math.round(eff(n)))); floatAt(P, '+💚', 'auto'); } } else { n.tx = bx + 2; n.tz = bz + 1; npcMove(n, dt, 1.5); } }
+        }
+        n.hm.root.position.set(n.x, 0, n.z); n.hm.root.rotation.y = n.dir; n.hm.update(dt, n.st === 'work' ? { idle: true } : { idle: !n.moving, speed: n.moving ? 3 : 0 });
+        if (n.bubble > 0) { n.bubble -= dt; if (!n.bubShown || n.bubShown !== n.bubT) { n.bubShown = n.bubT; floatAt(n, n.bubT, 'auto'); } } else n.bubShown = null;
+      });
+      // kapıdaki kişiye yaklaşınca "Konuş"
+      const near = arrival && arrival.st !== 'arrive' ? Math.hypot(P.x - arrival.x, P.z - arrival.z) < 3.6 : false;
+      if (arrival && arrival.st === 'arrive' && Math.hypot(arrival.x - arrival.tx, arrival.z - arrival.tz) < 0.6) { arrival.st = 'wait'; floatAt(arrival, '🆘', 'wave'); }
+      if (near !== V.svNear) { V.svNear = near; svBtn.style.display = near ? '' : 'none'; }
+      vilBtn.lastChild.textContent = SV.list.length + '/' + bedsCap(); if (!V.mlInit) { V.mlInit = true; mailUi(); }
+    }
+    function openSurvivor() {
+      const n = arrival; if (!n || V.paused) return; V.paused = true; const S0 = n.s; let fed = n.fed;
+      const box = h('div', { class: 'modal-wrap' });
+      const close = () => { box.remove(); V.paused = false; V.last = 0; };
+      const draw = () => box.replaceChildren(h('div', { class: 'modal sv-card' },
+        h('div', { class: 'sv-head' }, h('i', { class: 'sv-prof', text: PROF[S0.prof] }), h('div', {}, h('b', { class: 'lg-title', text: S0.name + (S0.rar ? ' ⭐' : '') }), h('small', { text: t('sv.was', { p: t('sv.p.' + S0.prof) }) }))),
+        h('div', { class: 'sv-hp' }, h('i', { style: 'width:' + Math.round((fed ? 1 : n.hp) * 100) + '%' })),
+        h('p', { class: 'sv-say', text: '“' + (fed ? t('sv.thanks') : t('sv.story' + S0.story)) + '”' }),
+        !fed ? btn(t('sv.feed', { n: 3 }) + ' (🍞 ' + Math.floor(d.food) + ')', () => { if (d.food < 3) { if ((d.gold || 0) >= 40) { d.gold -= 40; } else { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('sv.noFood')); } } else d.food -= 3; fed = n.fed = true; n.hp = 1; CZ.audio.sfx('coin'); resUi(); CZ.state.save(); draw(); }, 'primary wide') : null,
+        !fed && d.food < 3 ? h('small', { class: 'tr-sub', text: t('sv.buyFood') }) : null,
+        fed ? (SV.list.length < bedsCap() ? btn(t('sv.take', { a: SV.list.length, b: bedsCap() }), () => { S0.joined = true; SV.list.push(S0); arrival = null; if (n.sos) { n.hm.root.remove(n.sos); n.sos = null; } n.limp = false; n.st = 'idle'; CZ.state.save(); CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]); floatAt(n, t('sv.joined', { n: S0.name }), 'wave'); svBtn.style.display = 'none'; close(); }, 'primary wide')
+          : h('p', { class: 'small-note', text: t('sv.noBed', { b: bedsCap() }) })) : null,
+        btn(t('sv.send'), () => { scene.remove(n.hm.root); npcs.splice(npcs.indexOf(n), 1); arrival = null; V.svT = 9999; svBtn.style.display = 'none'; close(); }, 'small ghost-dark'),
+        btn(t('common.close'), close, 'small ghost-dark')));
+      draw(); wrap.append(box);
+    }
+    // ODALAR + POSTA KUTUSU: köylüler not bırakır ("yatağım sert"), odasını yükseltince teşekkür notu gelir
+    if (!SV.mail) SV.mail = [];
+    const roomCost = S0 => { const r = S0.room || 1; return { gold: 120 * r * r, wood: 30 * r, stone: 15 * r }; };
+    const mailUnread = () => SV.mail.filter(m => !m.read).length;
+    function note(S0, kind) { if (SV.mail.some(m => m.from === S0.id && m.kind === kind && !m.done)) return; SV.mail.unshift({ id: 'm' + Date.now().toString(36) + Math.floor(Math.random() * 1e3), from: S0.id, kind, read: false, v: Math.floor(Math.random() * 2) }); if (SV.mail.length > 40) SV.mail.length = 40; }
+    function upRoom(S0) { const c = roomCost(S0); if (Object.entries(c).some(([r2, n]) => (d[r2] || 0) < n)) { CZ.audio.sfx('wrong'); CZ.ui.toast(t('def.lacking')); return false; }
+      Object.entries(c).forEach(([r2, n]) => { d[r2] -= n; }); S0.room = (S0.room || 1) + 1; S0.happy = Math.min(100, (S0.happy || 50) + 15); S0.st.loy = Math.min(10, (S0.st.loy || 5) + 1);
+      SV.mail.forEach(m => { if (m.from === S0.id && m.kind === 'bed') { m.done = true; m.read = true; } }); note(S0, 'thanks'); CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]); CZ.state.save(); resUi(); mailUi(); return true; }
+    function dawnTick() {   // her şafak: gün sayısı, mutluluk, şikâyet notları
+      SV.list.forEach(S0 => { S0.days = (S0.days || 0) + 1; const want = 1 + Math.floor(S0.days / 2), bedOk = (S0.room || 1) >= want;
+        const target = 40 + stv(S0, 'fit') * 3 + (S0.room || 1) * 5 + (S0.ate === false ? -25 : 10) - (SV.list.length > seats() ? 10 : 0) - (bedOk ? 0 : 10);
+        S0.happy = Math.round((S0.happy || 50) * (0.5 + stv(S0, 'loy') * 0.03) + target * (0.5 - stv(S0, 'loy') * 0.03)); S0.happy = Math.max(0, Math.min(100, S0.happy));
+        if (S0.ate === false) note(S0, 'food'); if (!bedOk) note(S0, 'bed'); if (SV.list.length > seats()) note(S0, 'seat'); });
+      CZ.state.save(); mailUi();
+    }
+    function mailUi() { const n = mailUnread(); mailBtn.lastChild.textContent = n ? String(n) : ''; mailBtn.classList.toggle('has', n > 0); }
+    function openMail() {
+      if (V.paused) return; V.paused = true; CZ.audio.sfx('button');
+      const box = h('div', { class: 'modal-wrap' }); const close = () => { box.remove(); V.paused = false; V.last = 0; mailUi(); };
+      const who = id => SV.list.find(q => q.id === id);
+      const draw = () => box.replaceChildren(h('div', { class: 'modal sv-list' },
+        h('b', { class: 'lg-title', text: '📬 ' + t('ml.title') }),
+        SV.mail.length ? null : h('p', { class: 'small-note', text: t('ml.none') }),
+        ...SV.mail.filter(m => who(m.from)).map(m => { const S0 = who(m.from), c = roomCost(S0), unread = !m.read; m.read = true;
+          return h('div', { class: 'ml-note' + (unread ? ' new' : '') + (m.kind === 'thanks' ? ' thx' : '') },
+            h('small', { class: 'ml-from', text: '✉️ ' + PROF[S0.prof] + ' ' + t('sv.p.' + S0.prof) + ' ' + S0.name }),
+            h('p', { text: '“' + t('ml.' + m.kind + m.v, { n: S0.name, r: S0.room || 1 }) + '”' }),
+            m.kind === 'bed' && !m.done ? btn('🛏️ ' + t('ml.upRoom', { r: (S0.room || 1) + 1 }) + ' · 🪙' + c.gold + ' 🪵' + c.wood + ' 🪨' + c.stone, () => { if (upRoom(S0)) draw(); }, 'small primary') : null,
+            (m.kind === 'food' || m.kind === 'seat') && !m.done ? btn('🍽️ ' + t('vil.b.canteen'), () => { m.done = true; close(); openPad(pads.find(q => q.kind === 'v' && q.id === 'canteen')); }, 'small') : null); }),
+        SV.mail.length ? btn(t('ml.clear'), () => { SV.mail = SV.mail.filter(m => !m.done && m.kind !== 'thanks'); CZ.state.save(); draw(); }, 'small ghost-dark') : null,
+        btn(t('common.close'), close, 'small ghost-dark')));
+      draw(); CZ.state.save(); wrap.append(box);
+    }
+    // posta kutusu (3D, belediyenin yanında)
+    { const [hx, hz] = spotW('hall'); const g = new THREE.Group(); const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.1, 6), toon(0x6a4a2a)); post.position.y = 0.55; g.add(post);
+      const bx = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.38, 0.32), toon(0xc0392b)); bx.position.y = 1.25; g.add(bx); const top = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.55, 10, 1, false, 0, Math.PI), toon(0xc0392b)); top.rotation.z = Math.PI / 2; top.position.y = 1.44; g.add(top);
+      const fl = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.1), toon(0xf2c230)); fl.position.set(0.3, 1.45, 0); g.add(fl);
+      g.position.set(hx + 3.2, 0, hz + 0.6); g.scale.setScalar(1.2); scene.add(g); outlineWorld(g, 0.03); solids.push({ x: g.position.x, z: g.position.z, r: 0.4 }); MAILBOX = g; }
+    function openVillagers() {
+      if (V.paused) return; V.paused = true; CZ.audio.sfx('button');
+      const box = h('div', { class: 'modal-wrap' }); const close = () => { box.remove(); V.paused = false; V.last = 0; };
+      const comp = S0 => { const out = []; if (S0.ate === false) out.push(t('sv.c.food')); if (CZ.village.lv('house') < 1 + Math.floor(SV.list.length / 3)) out.push(t('sv.c.bed')); if (SV.list.length > seats()) out.push(t('sv.c.seat')); return out; };
+      const draw = () => box.replaceChildren(h('div', { class: 'modal sv-list' },
+        h('b', { class: 'lg-title', text: '👥 ' + t('sv.title') }),
+        h('div', { class: 'sv-stats' }, h('span', { text: '🛏️ ' + SV.list.length + '/' + bedsCap() }), h('span', { text: '🍞 ' + Math.floor(d.food) }), h('span', { text: '🍽️ ' + seats() })),
+        SV.list.length ? null : h('p', { class: 'small-note', text: t('sv.none') }),
+        ...SV.list.map(S0 => { const c = comp(S0), mood = (S0.happy || 50) > 70 ? '😊' : (S0.happy || 50) > 40 ? '😐' : '😠';
+          return h('div', { class: 'sv-row' }, h('i', { class: 'sv-prof', text: PROF[S0.prof] }),
+            h('div', { class: 'wpn-txt' }, h('b', { text: S0.name + (S0.rar ? ' ⭐' : '') + ' ' + mood }), h('small', { text: t('sv.was', { p: t('sv.p.' + S0.prof) }) + (S0.job === S0.prof ? ' · ×2' : '') }),
+              h('small', { class: 'sv-st', text: STATK.map(k => STATI[k] + stv(S0, k)).join(' ') + ' · 🛏️' + (S0.room || 1) }), c.length ? h('small', { class: 'sv-comp', text: '“' + c[0] + '”' }) : null),
+            h('div', { class: 'sv-btns' },
+            btn(PROF[S0.job] + ' ' + t('sv.p.' + S0.job), () => { S0.job = PROFS[(PROFS.indexOf(S0.job) + 1) % PROFS.length]; CZ.state.save(); const n = npcs.find(q => q.s === S0); if (n) { if (n.task) { n.task.npc = false; n.task = null; } n.st = 'idle'; n.carry = null; } CZ.audio.sfx('button'); draw(); }, 'small'),
+            btn('🛏️+', () => { if (upRoom(S0)) draw(); }, 'small ghost-dark'))); }),
+        h('div', { class: 'def-row' }, btn('🛏️ ' + t('vil.b.house'), () => { close(); openPad(pads.find(q => q.kind === 'v' && q.id === 'house')); }, 'small'), btn('🍽️ ' + t('vil.b.canteen'), () => { close(); openPad(pads.find(q => q.kind === 'v' && q.id === 'canteen')); }, 'small')),
+        btn(t('common.close'), close, 'small ghost-dark')));
+      draw(); wrap.append(box);
+    }
     function placeDecor() {   // (21 Kas) yapay zekâ süsleri (erimiş fener/fıçı/kuyu) yerine KayKit 3D: kuyu, fıçı, sandık
       const free = (x, z, r) => !water(x, z) && !pads.some(q => Math.hypot(q.x - x, q.z - z) < 2.2 + r) && !solids.some(q => Math.hypot(q.x - x, q.z - z) < q.r + r + 0.6) && Math.hypot(x - MILA.x, z - MILA.z) > 2.5;
       const KHN = { kuyu: ['building_well_blue', 1.9], fici: ['barrel', 0.7] }; const put = (id, hgt, x, z, r, rot) => { const kn = KHN[id]; if (!kn || !CZ.KH.has(kn[0]) || !free(x, z, r)) return false; const g = CZ.KH.get(kn[0], kn[1]); g.position.set(x, 0, z); g.rotation.y = rot || 0; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.material = seeThrough(o.material.clone()); } }); scene.add(g); outlineWorld(g, 0.03); solids.push({ x, z, r }); V.decor = (V.decor || 0) + 1; return true; };
@@ -1599,7 +1761,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
-    V.pause = pause; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -1628,7 +1790,7 @@ CZ.screens.valley = (function () {
         if (!V.raid) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); } }
     }
     function endNight() {
-      V.phase = 'day'; V.phT = DAY_LEN; vigEl.classList.remove('on');
+      V.phase = 'day'; V.phT = DAY_LEN; vigEl.classList.remove('on'); if (!arrival && Math.random() < 0.7) V.svT = rand(15, 45); dawnTick();
       goblins.forEach(o => { if (!o.dead && !o.boss && !o.stolen) o.flee = true; });
       if (!d.diffTip && V.wave >= 1) { d.diffTip = 1; setTimeout(() => { if (V) CZ.ui.toast(t('opt.tip')); }, 2500); }
       const S = V.nS || { kills: 0, earned: 0, lost: 0 }, kills = V.kills - S.kills, earned = Math.max(0, V.earned - S.earned), lost = Math.max(0, (V.lost || 0) - S.lost);
@@ -1962,8 +2124,9 @@ CZ.screens.valley = (function () {
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
       if (V_wind) V_wind.value += dt;
+      if ((V.brT = (V.brT || 0) - dt) <= 0) { V.brT = 30; const b = CZ.village.lv('canteen'); if (b) { d.food = (d.food || 0) + b; resUi(); } }   // yemekhane: her 30 sn seviye kadar ekmek
       if ((V.mkT = (V.mkT || 0) - dt) <= 0) { V.mkT = 0.2; pads.forEach(p => { if (p.mark) { const dd = Math.hypot(p.x - P.x, p.z - P.z); p.mark.visible = dd < 11; } }); }   // daireler yalnız yakındayken görünür
-      skillTick(dt); lootTick(dt);
+      skillTick(dt); lootTick(dt); npcTick(dt);
       { const near = Math.hypot(P.x - TRADER.x, P.z - TRADER.z) < 4.2; if (near !== V.trNear) { V.trNear = near; tradeBtn.style.display = near ? '' : 'none'; if (near) CZ.audio.sfx('star'); } }
       if (handW.staff.visible) { const gm = handW.staff.userData.gem; gm.rotation.y += dt * 3; gm.scale.setScalar(1 + Math.sin(performance.now() / 200) * 0.12); }
       { const a = flakeGeo.attributes.position; for (let i = 0; i < flakeN; i++) { let y = a.array[i * 3 + 1] - dt * 2.2; if (y < 0) y += 18; a.array[i * 3 + 1] = y; a.array[i * 3] += Math.sin(y + i) * dt * 0.4; } a.needsUpdate = true; flakes.position.set(P.x, 0, P.z); }

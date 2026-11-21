@@ -9,7 +9,7 @@ CZ.screens.village = (function () {
   CZ.DECOR = [{ id: 'snowman', p: 300 }, { id: 'lamp', p: 250 }, { id: 'gifts', p: 450 }, { id: 'well', p: 700 }, { id: 'pond', p: 900 }, { id: 'sleigh', p: 1400 },
     { id: 'icedeer', g: 25 }, { id: 'golddeer', g: 45 }, { id: 'zibostatue', g: 70 }];
   const DSPOTS = [[-3.3, -12.2], [3.3, -12.2], [-10.5, -8.5], [10.5, -8.5], [-13, 1], [13, 1], [-11.5, 10.5], [11.5, 10.5], [-3, 11.2], [3, 11.2], [-2.4, 4.6], [2.6, 4.6]];
-  const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7], goldmine: [-10.5, -2.5], elf: [10.5, -2.5], cookie: [10, 5], gate: [0, 13.6], jail: [-10, 5] };
+  const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7], goldmine: [-10.5, -2.5], elf: [10.5, -2.5], cookie: [10, 5], gate: [0, 13.6], jail: [-10, 5], house: [-12, 10.5], canteen: [12.5, -9.5] };
 
   // Yapay zekâ modelleri (varsa): bina -> [model, boy]
   const VGEN = { hall: ['koymeydani', 6.2], mine: ['altinmadeni', 3.6], bakery: ['firin', 4.2], stable: ['ahir', 4.2], forge: ['demirci', 4], tower: ['kartopukulesi', 4.5] };
