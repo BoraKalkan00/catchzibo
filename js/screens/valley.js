@@ -197,7 +197,7 @@ CZ.screens.valley = (function () {
     const SKY = 0xbcd4f2;
     scene.background = new THREE.Color(SKY);
     scene.fog = new THREE.Fog(SKY, 70, 140);   // geniş ekranda köşeler sisli kalmasın (ortada ışık lekesi gibi görünüyordu)
-    const camera = new THREE.PerspectiveCamera(46, 1, 0.5, 160);
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.5, 200);   // dar açı: izometrik his, 2D binalar dünyaya oturur
     const hemi = new THREE.HemisphereLight(0xdfeaff, 0x56648a, 0.55); scene.add(hemi);
     const sun = new THREE.DirectionalLight(0xffe0b0, 0.92); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     // GECE-GÜNDÜZ ışığı: k=0 gündüz, k=1 gece (oynanır kalsın diye tam karanlık değil)
@@ -206,7 +206,9 @@ CZ.screens.valley = (function () {
     const nightSky = k => { if (!SKY_D.bg) SKY_D.bg = scene.background && scene.background.isColor ? scene.background.clone() : new THREE.Color(SKY);
       if (scene.background && scene.background.isColor) { scene.background.copy(SKY_D.bg).lerp(SKY_N.bg, k); if (scene.fog) scene.fog.color.copy(scene.background); }
       hemi.color.copy(SKY_D.hs).lerp(SKY_N.hs, k); hemi.groundColor.copy(SKY_D.hg).lerp(SKY_N.hg, k); hemi.intensity = SKY_D.hi + (SKY_N.hi - SKY_D.hi) * k;
-      sun.color.copy(SKY_D.sc).lerp(SKY_N.sc, k); sun.intensity = SKY_D.si + (SKY_N.si - SKY_D.si) * k; };
+      sun.color.copy(SKY_D.sc).lerp(SKY_N.sc, k); sun.intensity = SKY_D.si + (SKY_N.si - SKY_D.si) * k;
+      if (Math.abs(k - (nightSky.k || 0)) > 0.02 || nightSky.k === undefined) { nightSky.k = k; const tc = new THREE.Color(0xf4efe6).lerp(new THREE.Color(0x6f7cb8), k);
+        scene.traverse(o => { if (o.isSprite && o.material && o.material.map) o.material.color.copy(tc); }); } };
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
     sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
     // gölge alanı tüm ekranı kapsasın: dar kalınca ortada parlak bir daire, dışında karanlık halka oluşuyordu
@@ -423,7 +425,7 @@ CZ.screens.valley = (function () {
     const CH = 28;
     const chunks = {};
     const chunkOf = (kind, x, z, v) => { const k = kind + (v || 0) + '|' + Math.floor(x / CH) + ',' + Math.floor(z / CH); return chunks[k] || (chunks[k] = { kind, v: v || 0, items: [], cx: (Math.floor(x / CH) + 0.5) * CH, cz: (Math.floor(z / CH) + 0.5) * CH }); };
-    const trees = [], rocks = [];
+    const trees = [], rocks = []; let V_wind = null;
     for (let k = 0; k < 6000 && trees.length < 620; k++) {
       const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R);
       const dens = noise(x * 1.3 + 40, z * 1.3 - 20);   // ormanlık bölgeler
@@ -466,10 +468,28 @@ CZ.screens.valley = (function () {
       tmp.position.set(it.x, 0, it.z); tmp.rotation.set(0, 0, (it.tilt || 0) * (it.idx % 2 ? 1 : -1)); tmp.updateMatrix();
       c.mesh.setMatrixAt(it.idx, tmp.matrix); c.mesh.instanceMatrix.needsUpdate = true;
     }
+    // (21 Kas) GERÇEK 3D DOĞA: ağaç/kaya artık düz resim kartı değil — ışık alır, gölge düşer, rüzgârda sallanır
+    const mergeG = list => { const pos = [], col = []; list.forEach(([g, c]) => { const n = g.index ? g.toNonIndexed() : g; const P2 = n.attributes.position; for (let i = 0; i < P2.count; i++) { pos.push(P2.getX(i), P2.getY(i), P2.getZ(i)); const cc = typeof c === 'function' ? c(P2.getX(i), P2.getY(i), P2.getZ(i)) : c; col.push(cc[0], cc[1], cc[2]); } });
+      const G = new THREE.BufferGeometry(); G.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); G.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); G.computeVertexNormals(); return G; };
+    const pineParts = (h, x0, z0, seed) => { const out = [], trunkH = h * 0.18;
+      const tr = new THREE.CylinderGeometry(h * 0.045, h * 0.06, trunkH, 6); tr.translate(x0, trunkH / 2, z0); out.push([tr, [0.42, 0.26, 0.14]]);
+      const tiers = 3; for (let k = 0; k < tiers; k++) { const r = h * (0.36 - k * 0.085), hh = h * (0.42 - k * 0.06), y = trunkH * 0.8 + k * h * 0.22;
+        const cone = new THREE.ConeGeometry(r, hh, 9, 4); cone.rotateY(seed + k); cone.translate(x0, y + hh / 2, z0);
+        out.push([cone, (x, y2, z) => { const top = (y2 - y) / hh; const sn = top > 0.8 ? 1 : top < 0.02 ? 0.55 : 0; const g = [0.09, 0.27 + top * 0.12, 0.16 + top * 0.05]; return g.map((q, j) => q + ([0.92, 0.95, 1][j] - q) * sn); }]); }
+      return out; };
+    const TREE3D = [mergeG(pineParts(4.4, 0, 0, 0.3)), mergeG(pineParts(3.0, 0, 0, 1.1)), mergeG([...pineParts(3.8, -0.7, 0.2, 0.2), ...pineParts(2.8, 0.8, -0.3, 1.4), ...pineParts(2.2, 0.1, 0.9, 2.2)])];
+    const rock3d = [rockGeo, (() => { const g = rockGeo.clone(); g.scale(0.85, 0.7, 1.1); return g; })()];
+    const windU = { value: 0 };
+    const treeMat3d = CZ.style.mat({ vertexColors: true });
+    treeMat3d.onBeforeCompile = sh => { sh.uniforms.uWind = windU; sh.vertexShader = 'uniform float uWind;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+      #ifdef USE_INSTANCING
+        float ph = instanceMatrix[3].x * 0.37 + instanceMatrix[3].z * 0.23;
+        float k = max(0.0, position.y - 0.6); transformed.x += sin(uWind * 1.6 + ph) * 0.018 * k * k; transformed.z += cos(uWind * 1.3 + ph) * 0.012 * k * k;
+      #endif`); };
+    V_wind = windU;
     Object.values(chunks).forEach(c => {
-      const TV = [['pine_big', 4.4], ['pine_small', 3.2], ['pine_group', 4.8]], RV = [['rock_big', 1.6], ['rocks', 1.35]];
-      const [pid, ph] = (c.kind === 't' ? TV : RV)[c.v];
-      c.mesh = new THREE.InstancedMesh(pGeo(pid, ph), pMat(pid, c.kind === 't'), c.items.length);
+      c.mesh = new THREE.InstancedMesh(c.kind === 't' ? TREE3D[c.v] : rock3d[c.v], c.kind === 't' ? treeMat3d : resMatR, c.items.length);
+      c.mesh.castShadow = true; c.mesh.receiveShadow = false;
       c.mesh.frustumCulled = false;
       c.items.forEach((it, i) => { it.chunk = c; it.idx = i; it.yaw = 0; setInst(it); c.mesh.setColorAt(i, new THREE.Color().setScalar(rand(0.9, 1.04))); });
       scene.add(c.mesh);
@@ -1686,6 +1706,7 @@ CZ.screens.valley = (function () {
         if (Math.hypot(p.x - P.x, p.z - P.z) < (P.riding ? 1.6 : 1.1)) { scene.remove(p.mesh); piles.splice(i, 1); gain(p.value); floatAt(p, '+' + p.value); setTimeout(() => { if (V) spawnPile(); }, rand(9000, 16000)); }
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
+      if (V_wind) V_wind.value += dt;
       { const a = flakeGeo.attributes.position; for (let i = 0; i < flakeN; i++) { let y = a.array[i * 3 + 1] - dt * 2.2; if (y < 0) y += 18; a.array[i * 3 + 1] = y; a.array[i * 3] += Math.sin(y + i) * dt * 0.4; } a.needsUpdate = true; flakes.position.set(P.x, 0, P.z); }
       flame.scale.set(1 + Math.sin(performance.now() / 90) * 0.12, 1 + Math.sin(performance.now() / 70) * 0.18, 1);
       star.rotation.y += dt;
@@ -2000,7 +2021,7 @@ CZ.screens.valley = (function () {
       // Albion gibi yukarıdan, hafif açılı kamera
       // dikey ekranda görüş alanı dar kalmasın: en-boy oranına göre uzaklaş
       const far = (camera.aspect < 1 ? 1 / Math.max(0.42, camera.aspect) * 0.62 : 1) * (P.riding ? 1.12 : 1) * ({ near: 0.78, far: 1.3 }[d.camZ] || 1);
-      const ch = 11.8 * far, cd = 8.2 * far;   // yakın kamera: karakterler büyük, ekran boş kar değil
+      const ch = 17.4 * far, cd = 12.1 * far;   // yakın kamera: karakterler büyük, ekran boş kar değil
       const cx = P.x, cz = P.z + cd;
       camera.position.x += (cx - camera.position.x) * Math.min(1, dt * 5);
       camera.position.z += (cz - camera.position.z) * Math.min(1, dt * 5);
