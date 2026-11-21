@@ -59,7 +59,26 @@ CZ.screens.village = (function () {
     }
     return g;
   }
-  function model(THREE, id, L) {
+  // Gemini'den gelen 2D bina resimleri: assets/village/<id>/<seviye>.webp, inşaat hali c.webp
+  const VART = { hall: { n: 10, c: true, w: 4.4, k: 0.24 } };
+  const texCache = {};
+  function spriteModel(THREE, id, L, busy) {
+    const A = VART[id], key = busy && A.c ? 'c' : String(Math.min(A.n, L));
+    const g = new THREE.Group(); g.userData.sprite = true;
+    const W = A.w + A.k * Math.min(A.n, L);
+    const url = 'assets/village/' + id + '/' + key + '.webp';
+    const tex = texCache[url] || (texCache[url] = new THREE.TextureLoader().load(url, t => { t.userData.ok = true; fit(); }));
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false, fog: false });
+    const sp = new THREE.Sprite(mat); sp.center.set(0.5, 0.2); g.add(sp);
+    function fit() { const im = tex.image; if (!im || !im.width) return; sp.scale.set(W, W * im.height / im.width, 1); }
+    sp.scale.set(W, W, 1); if (tex.image && tex.image.width) fit();
+    // yere yumuşak gölge
+    const sh = new THREE.Mesh(new THREE.CircleGeometry(W * 0.48, 24), new THREE.MeshBasicMaterial({ color: 0x1a2a4a, transparent: true, opacity: 0.22, depthWrite: false }));
+    sh.rotation.x = -Math.PI / 2; sh.position.y = 0.03; sh.scale.y = 0.7; g.add(sh);
+    return g;
+  }
+  function model(THREE, id, L, busy) {
+    if (L > 0 && VART[id]) return spriteModel(THREE, id, L, busy);
     const gn = L > 0 ? genName(id, L) : null;
     if (gn) {
       const g = new THREE.Group();
@@ -206,13 +225,16 @@ CZ.screens.village = (function () {
     function place(id) {
       if (blds[id]) { scene.remove(blds[id].g); }
       const L = VL().lv(id);
-      let g = model(THREE, id, L);
-      if (!genName(id, L) && L > 0 && !g.userData.mount) decorate(THREE, g, id, L);
+      const J = VL().ensure().job, busy = !!(J && J.id === id);
+      let g = model(THREE, id, L, busy);
+      if (!g.userData.sprite && !genName(id, L) && L > 0 && !g.userData.mount) decorate(THREE, g, id, L);
       const [x, z] = SPOTS[id];
       g.position.set(x, 0, z);
+      if (g.userData.sprite) g.children[0].renderOrder = 100 + Math.round((z + 30) * 2);
+      blds[id] && (blds[id].busy = busy);
       g.userData.id = id;
       scene.add(g);
-      blds[id] = { g, L };
+      blds[id] = { g, L, busy };
       pick.length = 0; Object.values(blds).forEach(b => pick.push(b.g));
     }
     CZ.VB.forEach(b => place(b.id));
@@ -302,9 +324,9 @@ CZ.screens.village = (function () {
     }
     function refreshJob() {
       const Vd = VL().ensure();
-      if (!Vd.job) { jobBar.replaceChildren(h('span', { text: t('vil.idle') })); jobBar.classList.add('idle'); scaffold.visible = false; SC.id = null; return; }
+      if (!Vd.job) { jobBar.replaceChildren(h('span', { text: t('vil.idle') })); jobBar.classList.add('idle'); scaffold.visible = false; SC.id = null; Object.keys(blds).forEach(k => { if (blds[k].busy) place(k); }); return; }
       jobBar.classList.remove('idle');
-      const [x, z] = SPOTS[Vd.job.id]; if (SC.id !== Vd.job.id || !scaffold.children.length) buildScaffold(Vd.job.id); scaffold.position.set(x, 0, z); scaffold.visible = true;
+      const [x, z] = SPOTS[Vd.job.id]; if (blds[Vd.job.id] && !blds[Vd.job.id].busy) place(Vd.job.id); if (SC.id !== Vd.job.id || !scaffold.children.length) buildScaffold(Vd.job.id); scaffold.position.set(x, 0, z); scaffold.visible = !(VART[Vd.job.id] && VART[Vd.job.id].c && VL().lv(Vd.job.id) > 0);
       jobBar.replaceChildren(...[
         h('span', { class: 'vil-job-t' }, '🔨 ', t('vil.b.' + Vd.job.id), ' → ', t('vil.lv', { n: Vd.job.to }), ' · ', h('b', { class: 'vil-left', text: VL().fmt(VL().left()) })),
         btn(String(VL().gemCost()), () => { const r = VL().rush(); if (r === 'short') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.gemShort')); } done(); }, 'small', 'ui.emerald'),
