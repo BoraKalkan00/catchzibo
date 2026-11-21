@@ -315,18 +315,18 @@ CZ.screens.valley = (function () {
       const nz = noise(x, z), n = Math.sin(x * 0.7) * Math.cos(z * 0.6) * 0.03;
       const sm = (a, b, v) => { const q = Math.min(1, Math.max(0, (v - a) / (b - a))); return q * q * (3 - 2 * q); };
       const mix = (A, Bc, k) => A.map((v, j) => v + (Bc[j] - v) * k);
-      let c = [0.8 + n, 0.84 + n, 0.93];                                         // kar
-      c = mix(c, [0.8 + n, 0.88 + n, 0.86], sm(0.4, 0.62, nz));                   // ince kar + hafif çimen
-      c = mix(c, [0.8 + n, 0.88 + n, 0.82], sm(0.66, 0.9, nz));                   // karı erimiş çimen
-      c = mix(c, [0.8 + n, 0.83 + n, 0.9], sm(-0.95, -1.25, nz));                 // kayalık
+      let c = [0.84 + n, 0.9 + n, 1.0];                                         // kar
+      c = mix(c, [0.7 + n, 0.86 + n, 0.7], sm(0.4, 0.62, nz));                   // ince kar + hafif çimen
+      c = mix(c, [0.5 + n, 0.76 + n, 0.42], sm(0.66, 0.9, nz));                   // karı erimiş çimen
+      c = mix(c, [0.66 + n, 0.72 + n, 0.86], sm(-0.95, -1.25, nz));                 // kayalık
       const rd = Math.min(...roads.map(s2 => distSeg(x, z, s2)));
-      c = mix(c, [0.86 + n, 0.8 + n, 0.74], 1 - sm(1.9, 3.1, rd));               // karlı patika (kenarı yumuşak)
+      c = mix(c, [0.82 + n, 0.64 + n, 0.46], 1 - sm(1.9, 3.1, rd));               // karlı patika (kenarı yumuşak)
       const dr = Math.min(Math.abs(z - riverZ(x)), z < riverZ(x) ? Math.abs(x - creekX(z)) : 99);
       c = mix(c, [0.42 + n, 0.38 + n, 0.32], 1 - sm(RIVER_W + 0.6, RIVER_W + 2.2, dr));   // nehir kıyısı: çamur
       { const dR = Math.min(Math.abs(z - riverZ(x)) - RIVER_W, z < riverZ(x) ? Math.abs(x - creekX(z)) - CREEK_W : 99), k = 1 - sm(-0.9, 0.5, dR);   // nehir yatağı: kıyıya doğru yumuşak iner
         if (k > 0) { c = mix(c, [0.16, 0.3, 0.42], k); y = Math.min(y, -0.5 * k); } }
       if (inLake(x, z)) c = [0.6, 0.8, 0.93];                                     // donmuş göl
-      c = mix(c, [0.9 + n, 0.86 + n, 0.8], 1 - sm(FENCE_R - 0.5, FENCE_R + 1.5, r));   // köy meydanı: açık taş
+      c = mix(c, [0.9 + n, 0.78 + n, 0.6], 1 - sm(FENCE_R - 0.5, FENCE_R + 1.5, r));   // köy meydanı: açık taş
       if (y > 3) c = [0.72 + n, 0.77 + n, 0.9];
       pos.setY(i, y);
       col.push(...c);
