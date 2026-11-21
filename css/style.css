@@ -2143,3 +2143,14 @@ body.wide #rotate-note { display: none !important; }
 .vl-hp { top: calc(210px + var(--safe-top, 0px)) !important; width: 124px !important; }
 .vl-heroes { top: calc(232px + var(--safe-top, 0px)) !important; }
 .vl-orders { top: calc(310px + var(--safe-top, 0px)) !important; }
+
+/* Yetenek + atılma düğmeleri */
+.vl-skill, .vl-dash { position: absolute; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; pointer-events: auto; z-index: 6; --cd: 0deg; }
+.vl-skill { right: 28px; bottom: calc(140px + var(--safe-bottom, 0px)); width: 72px; height: 72px; background: radial-gradient(circle at 40% 35%, #ffb36a, #e0601e); box-shadow: 0 4px 0 #8a3008; }
+.vl-dash { right: 108px; bottom: calc(168px + var(--safe-bottom, 0px)); width: 54px; height: 54px; background: radial-gradient(circle at 40% 35%, #9adcff, #3a8ad8); box-shadow: 0 3px 0 #1a4a8a; }
+.vl-skill i, .vl-dash i { font-style: normal; font-size: 32px; line-height: 1; }
+.vl-dash i { font-size: 24px; }
+.vl-skill::after, .vl-dash::after { content: ''; position: absolute; inset: -3px; border-radius: 50%; background: conic-gradient(rgba(10,16,40,.7) var(--cd), transparent 0); pointer-events: none; }
+.vl-skill b { position: absolute; z-index: 2; color: #fff; font-size: 24px; font-weight: 900; -webkit-text-stroke: 3px #1a1446; paint-order: stroke fill; }
+.vl-wpn { right: 112px !important; bottom: calc(232px + var(--safe-bottom, 0px)) !important; width: 52px !important; height: 52px !important; }
+.vl-wpn i { font-size: 20px !important; }

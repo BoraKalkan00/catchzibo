@@ -1275,5 +1275,8 @@ CZ.i18n.register('pt', 'Português', {
   "tr.get": "Receber",
   "tr.all": "Tudo",
   "tr.swap": "Trocar",
-  "tr.tooSmall": "Muito pouco, dê um pouco mais"
+  "tr.tooSmall": "Muito pouco, dê um pouco mais",
+  "sk.volley": "Chuva de flechas",
+  "sk.whirl": "Redemoinho",
+  "sk.storm": "Tempestade de gelo"
 });

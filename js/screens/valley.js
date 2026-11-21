@@ -1098,6 +1098,40 @@ CZ.screens.valley = (function () {
     const orbMat = new THREE.MeshBasicMaterial({ color: 0x9fe6ff });
     function slashFx(x, z, dir) { const m = new THREE.Mesh(new THREE.RingGeometry(1.2, 2.9, 24, 1, -Math.PI * 0.42, Math.PI * 0.84), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75, depthWrite: false, side: THREE.DoubleSide }));
       m.rotation.x = -Math.PI / 2; m.rotation.z = dir + Math.PI / 2; m.position.set(P.x, 0.9, P.z); scene.add(m); let tt = 0; const tick = () => { tt += 0.05; m.material.opacity = 0.75 * (1 - tt / 0.3); m.scale.setScalar(1 + tt); if (tt < 0.3 && V) requestAnimationFrame(tick); else { scene.remove(m); m.geometry.dispose(); m.material.dispose(); } }; requestAnimationFrame(tick); }
+    // ===== YETENEKLER (21 Kas): silaha özel yetenek + herkese atılma =====
+    const SKILL = { bow: { id: 'volley', cd: 9, icon: '🌧️' }, sword: { id: 'whirl', cd: 10, icon: '🌀' }, staff: { id: 'storm', cd: 12, icon: '❄️' } };
+    const DASH_CD = 5;
+    function aimDir() { const o = nearestTarget(RANGE + 2); if (o) { const dx = o.x - P.x, dz = o.z - P.z, L = Math.hypot(dx, dz) || 1; return [dx / L, dz / L]; } return [-Math.sin(P.dir), -Math.cos(P.dir)]; }
+    function useSkill() {
+      const S = SKILL[d.vw] || SKILL.bow; if ((V.skCd || 0) > 0 || P.down > 0 || V.paused) return;
+      V.skCd = S.cd; CZ.audio.vibrate([20, 20, 40]);
+      floatAt(P, t('sk.' + S.id) + '!', 'wave');
+      if (S.id === 'volley') { V.volley = { n: 10, t: 0 }; CZ.audio.sfx('star'); }
+      else if (S.id === 'whirl') { V.whirl = { t: 2.6, tick: 0 }; CZ.audio.sfx('slash'); }
+      else { const R = 6.5; ringFx(P.x, P.z, R, 0x9fe6ff); ringFx(P.x, P.z, R * 0.6, 0xffffff); CZ.audio.sfx('freeze'); V.shake = Math.max(V.shake || 0, 0.2);
+        const dmg = Math.max(1, Math.round((W.dmg * 2 + B.dmg + powLv() * 2) * 1.2));
+        targets.slice().forEach(o => { if (o.dead || o.locked || o.type !== 'goblin' || Math.hypot(o.x - P.x, o.z - P.z) > R) return; hit(o, dmg); if (!o.dead) { o.stun = Math.max(o.stun || 0, 2.6); o.frozen = o.stun; iceOn(o); } });
+        for (let k = 0; k < 16; k++) { const m = new THREE.Mesh(chipGeo, chipMats.ice); m.scale.setScalar(1.5); m.position.set(P.x, 1, P.z); scene.add(m); chips.push({ m, vx: rand(-8, 8), vy: rand(3, 7), vz: rand(-8, 8) }); } }
+    }
+    function useDash() {
+      if ((V.dsCd || 0) > 0 || P.down > 0 || V.paused || P.hop) return;
+      V.dsCd = DASH_CD; let dx = joy.dx, dz = joy.dy; if (Math.hypot(dx, dz) < 0.2) { dx = -Math.sin(P.dir); dz = -Math.cos(P.dir); } const L = Math.hypot(dx, dz) || 1;
+      V.dash2 = { t: 0.2, dx: dx / L, dz: dz / L }; V.dashT = Math.max(V.dashT || 0, 0.35); CZ.audio.sfx('jump'); CZ.audio.vibrate(15);
+    }
+    function skillTick(dt) {
+      V.skCd = Math.max(0, (V.skCd || 0) - dt); V.dsCd = Math.max(0, (V.dsCd || 0) - dt);
+      { const kb = V.keys || {}; if (kb.q && !V.qH) useSkill(); V.qH = !!kb.q; if ((kb.e || kb.Shift) && !V.eH) useDash(); V.eH = !!(kb.e || kb.Shift); }   // bilgisayar: Q yetenek, E/Shift atılma
+      if (V.volley) { const Vo = V.volley; Vo.t -= dt; if (Vo.t <= 0 && Vo.n > 0) { Vo.t = 0.11; Vo.n--; const [dx, dz] = aimDir(); const sp2 = (rand(-0.12, 0.12)), cx = Math.cos(sp2), sx = Math.sin(sp2); const ddx = dx * cx - dz * sx, ddz = dx * sx + dz * cx;
+          const m = arrowTpl.clone(); m.position.set(P.x + ddx * 0.6, P.riding ? mount.seatY + 1.1 : 1.2, P.z + ddz * 0.6); m.rotation.y = Math.atan2(ddx, ddz); scene.add(m); shots.push({ m, dx: ddx, dz: ddz, life: (RANGE + 2) / 30, sp: 30, ph: null, y0: m.position.y, arrow: true, dmgK: 0.8 });
+          P.dir = Math.atan2(-dx, -dz); if (hero.throwNow) hero.throwNow(); CZ.audio.sfx('throw'); } if (Vo.n <= 0) V.volley = null; }
+      if (V.whirl) { const Wh = V.whirl; Wh.t -= dt; Wh.tick -= dt; hero.root.rotation.y += dt * 18; P.dir = hero.root.rotation.y;
+        if (Wh.tick <= 0) { Wh.tick = 0.25; const dmg = Math.max(1, Math.round((W.dmg * 2 + B.dmg + powLv() * 2) * 0.7)); let n2 = 0; targets.slice().forEach(o => { if (!o.dead && !o.locked && Math.hypot(o.x - P.x, o.z - P.z) < 3.3 + o.r) { hit(o, dmg); n2++; } }); slashFx(P.x, P.z, P.dir); if (n2) CZ.audio.sfx('slash'); }
+        if (Wh.t <= 0) V.whirl = null; }
+      if (V.dash2) { const Dh = V.dash2; Dh.t -= dt; [P.x, P.z] = collide(P.x + Dh.dx * 26 * dt, P.z + Dh.dz * 26 * dt, 0.45); if (water(P.x, P.z) && P.safe) { P.x = P.safe[0]; P.z = P.safe[1]; } if (Math.random() < 0.6) { const m = new THREE.Mesh(chipGeo, chipMats.ice); m.position.set(P.x, 0.3, P.z); scene.add(m); chips.push({ m, vx: -Dh.dx * 3, vy: 2, vz: -Dh.dz * 3 }); } if (Dh.t <= 0) V.dash2 = null; }
+      const S = SKILL[d.vw] || SKILL.bow;
+      skBtn.firstChild.textContent = S.icon; skBtn.style.setProperty('--cd', ((V.skCd || 0) / S.cd * 360) + 'deg'); skBtn.classList.toggle('cool', V.skCd > 0); skBtn.lastChild.textContent = V.skCd > 0 ? Math.ceil(V.skCd) : '';
+      dsBtn.style.setProperty('--cd', ((V.dsCd || 0) / DASH_CD * 360) + 'deg'); dsBtn.classList.toggle('cool', V.dsCd > 0);
+    }
     function fire(dx, dz) {
       if (V.cool > 0) return;
       const WP = curW();
@@ -1306,6 +1340,10 @@ CZ.screens.valley = (function () {
     const edgeArrows = [0, 1, 2].map(() => h('div', { class: 'vl-edge' }, h('i')));
     const stick = h('div', { class: 'vl-stick' }, h('i'));
     const fireBtn = h('button', { class: 'vl-fire', type: 'button' }, h('i', { class: 'vl-fire-emo', text: (VWPN[d.vw] || VWPN.bow).icon }));
+    const skBtn = h('button', { class: 'vl-skill', type: 'button' }, h('i'), h('b'));
+    const dsBtn = h('button', { class: 'vl-dash', type: 'button' }, h('i', { text: '💨' }));
+    skBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); useSkill(); });
+    dsBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); useDash(); });
     const wpnBtn = h('button', { class: 'vl-wpn', type: 'button' }, h('i', { text: '🗡️' }), h('b', { text: t('wpn.short') }));
     wpnBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openWeapons(); });
     function openWeapons() {
@@ -1331,7 +1369,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, skBtn, dsBtn, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1872,6 +1910,7 @@ CZ.screens.valley = (function () {
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
       if (V_wind) V_wind.value += dt;
+      skillTick(dt);
       { const near = Math.hypot(P.x - TRADER.x, P.z - TRADER.z) < 4.2; if (near !== V.trNear) { V.trNear = near; tradeBtn.style.display = near ? '' : 'none'; if (near) CZ.audio.sfx('star'); } }
       if (handW.staff.visible) { const gm = handW.staff.userData.gem; gm.rotation.y += dt * 3; gm.scale.setScalar(1 + Math.sin(performance.now() / 200) * 0.12); }
       { const a = flakeGeo.attributes.position; for (let i = 0; i < flakeN; i++) { let y = a.array[i * 3 + 1] - dt * 2.2; if (y < 0) y += 18; a.array[i * 3 + 1] = y; a.array[i * 3] += Math.sin(y + i) * dt * 0.4; } a.needsUpdate = true; flakes.position.set(P.x, 0, P.z); }

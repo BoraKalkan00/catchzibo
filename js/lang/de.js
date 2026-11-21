@@ -1275,5 +1275,8 @@ CZ.i18n.register('de', 'Deutsch', {
   "tr.get": "Bekommen",
   "tr.all": "Alles",
   "tr.swap": "Tauschen",
-  "tr.tooSmall": "Zu wenig, gib etwas mehr"
+  "tr.tooSmall": "Zu wenig, gib etwas mehr",
+  "sk.volley": "Pfeilregen",
+  "sk.whirl": "Wirbelwind",
+  "sk.storm": "Eissturm"
 });

@@ -1457,5 +1457,8 @@ CZ.i18n.register('en', 'English', {
   "tr.get": "Get",
   "tr.all": "All",
   "tr.swap": "Trade",
-  "tr.tooSmall": "Too little, give a bit more"
+  "tr.tooSmall": "Too little, give a bit more",
+  "sk.volley": "Arrow Rain",
+  "sk.whirl": "Whirlwind",
+  "sk.storm": "Ice Storm"
 });

@@ -1457,5 +1457,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "tr.get": "Al",
   "tr.all": "Hepsi",
   "tr.swap": "Takas et",
-  "tr.tooSmall": "Bu miktar çok az, biraz daha ver"
+  "tr.tooSmall": "Bu miktar çok az, biraz daha ver",
+  "sk.volley": "Ok Yağmuru",
+  "sk.whirl": "Kasırga",
+  "sk.storm": "Buz Fırtınası"
 });

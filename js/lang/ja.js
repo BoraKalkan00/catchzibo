@@ -1275,5 +1275,8 @@ CZ.i18n.register('ja', '日本語', {
   "tr.get": "もらう",
   "tr.all": "全部",
   "tr.swap": "交換",
-  "tr.tooSmall": "少なすぎる、もう少し渡して"
+  "tr.tooSmall": "少なすぎる、もう少し渡して",
+  "sk.volley": "アローレイン",
+  "sk.whirl": "ワールウィンド",
+  "sk.storm": "アイスストーム"
 });

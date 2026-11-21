@@ -1275,5 +1275,8 @@ CZ.i18n.register('ko', '한국어', {
   "tr.get": "받기",
   "tr.all": "전부",
   "tr.swap": "교환",
-  "tr.tooSmall": "너무 적어요, 조금 더 주세요"
+  "tr.tooSmall": "너무 적어요, 조금 더 주세요",
+  "sk.volley": "화살비",
+  "sk.whirl": "회오리",
+  "sk.storm": "얼음 폭풍"
 });
