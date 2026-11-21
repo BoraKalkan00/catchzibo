@@ -1237,5 +1237,6 @@ CZ.i18n.register('fr', 'Français', {
   "night.x2": "Doubler le butin",
   "night.shareBig": "NUIT {n}",
   "night.shareLabel": "J'ai défendu mon village !",
-  "night.go": "Retour au jour"
+  "night.go": "Retour au jour",
+  "night.coming": "L'armée de Zibo arrive !"
 });

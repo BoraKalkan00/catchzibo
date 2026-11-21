@@ -1237,5 +1237,6 @@ CZ.i18n.register('ko', '한국어', {
   "night.x2": "전리품 2배",
   "night.shareBig": "{n}번째 밤",
   "night.shareLabel": "마을을 지켰어!",
-  "night.go": "낮으로 돌아가기"
+  "night.go": "낮으로 돌아가기",
+  "night.coming": "지보의 군대가 온다!"
 });

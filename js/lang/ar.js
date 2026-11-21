@@ -1237,5 +1237,6 @@ CZ.i18n.register('ar', 'العربية', {
   "night.x2": "ضاعف الغنائم",
   "night.shareBig": "الليلة {n}",
   "night.shareLabel": "دافعت عن قريتي!",
-  "night.go": "العودة إلى النهار"
+  "night.go": "العودة إلى النهار",
+  "night.coming": "جيش زيبو قادم!"
 });

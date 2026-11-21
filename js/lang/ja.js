@@ -1237,5 +1237,6 @@ CZ.i18n.register('ja', '日本語', {
   "night.x2": "戦利品を2倍に",
   "night.shareBig": "{n}夜目",
   "night.shareLabel": "村を守りきった！",
-  "night.go": "昼に戻る"
+  "night.go": "昼に戻る",
+  "night.coming": "ジボの軍団が来る！"
 });

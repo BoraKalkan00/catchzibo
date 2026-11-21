@@ -1237,5 +1237,6 @@ CZ.i18n.register('es', 'Español', {
   "night.x2": "Duplicar botín",
   "night.shareBig": "NOCHE {n}",
   "night.shareLabel": "¡Defendí mi aldea!",
-  "night.go": "Volver al día"
+  "night.go": "Volver al día",
+  "night.coming": "¡Llega el ejército de Zibo!"
 });

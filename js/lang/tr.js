@@ -1419,5 +1419,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   "night.x2": "Ganimeti x2 yap",
   "night.shareBig": "{n}. GECE",
   "night.shareLabel": "Köyümü savundum!",
-  "night.go": "Gündüze devam"
+  "night.go": "Gündüze devam",
+  "night.coming": "Zibo'nun ordusu geliyor!"
 });

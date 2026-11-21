@@ -1237,5 +1237,6 @@ CZ.i18n.register('pt', 'Português', {
   "night.x2": "Dobrar o saque",
   "night.shareBig": "NOITE {n}",
   "night.shareLabel": "Defendi minha vila!",
-  "night.go": "Voltar ao dia"
+  "night.go": "Voltar ao dia",
+  "night.coming": "O exército do Zibo está chegando!"
 });

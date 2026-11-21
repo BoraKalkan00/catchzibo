@@ -1237,5 +1237,6 @@ CZ.i18n.register('de', 'Deutsch', {
   "night.x2": "Beute verdoppeln",
   "night.shareBig": "NACHT {n}",
   "night.shareLabel": "Ich habe mein Dorf verteidigt!",
-  "night.go": "Weiter zum Tag"
+  "night.go": "Weiter zum Tag",
+  "night.coming": "Zibos Armee kommt!"
 });

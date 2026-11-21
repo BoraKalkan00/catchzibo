@@ -393,7 +393,8 @@ CZ.screens.valley = (function () {
         if (g.userData.sprite) { const sp = g.children[0], W = sp.scale.x; sp.center.set(0.5, 0.02); sp.position.z = W * 0.4; sp.material.depthTest = true; sp.renderOrder = 0; sp.material.alphaTest = 0.4; }
         g.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && !o.material.isMeshBasicMaterial) o.material = seeThrough(o.material.clone()); } });
         vilGroup.add(g); outlineWorld(g, 0.035);
-        if (!solids.some(q => q.vil === b.id)) solids.push({ x: sx * VS, z: sz * VS, r: (b.id === 'hall' ? 2.4 : 1.7), vil: b.id });
+        const sp0 = g.userData.sprite ? g.children[0] : null, zOff = sp0 ? sp0.position.z * VS * 0.75 : 0;   // 2D binalar kameraya doğru kaydırılıp çiziliyor: çarpışma da oraya
+        const so = solids.find(q => q.vil === b.id); if (so) { so.z = sz * VS + zOff; } else solids.push({ x: sx * VS, z: sz * VS + zOff, r: (b.id === 'hall' ? 2.0 : 1.4), vil: b.id });
       });
     }
     placeVillage();
@@ -428,9 +429,9 @@ CZ.screens.valley = (function () {
       if (dens < 0.15 && Math.random() > 0.08) continue;
       if (Math.hypot(x, z) < FENCE_R + 9) continue;
       if (!free(x, z, 0.8)) continue;
-      const sol = { x, z, r: 0.7 };
+      const sol = { x, z, r: 0.45 };
       const tr = { kind: 'tree', x, z, s: rand(0.85, 1.3), hp: 3, maxHp: 3, solid: sol, alive: true };
-      const tv = Math.random() < 0.58 ? 0 : Math.random() < 0.6 ? 1 : 2; tr.v = tv; if (tv === 2) sol.r = 1.3;
+      const tv = Math.random() < 0.58 ? 0 : Math.random() < 0.6 ? 1 : 2; tr.v = tv; if (tv === 2) sol.r = 0.9;
       solids.push(sol); trees.push(tr); chunkOf('t', x, z, tv).items.push(tr);
     }
     for (let k = 0; k < 6000 && rocks.length < 260; k++) {
@@ -438,7 +439,7 @@ CZ.screens.valley = (function () {
       if (noise(x - 30, z + 60) > -0.2 && Math.random() > 0.12) continue;   // kayalık bölgeler
       if (Math.hypot(x, z) < FENCE_R + 7) continue;
       if (!free(x, z, sc)) continue;
-      const sol = { x, z, r: sc * 0.85 };
+      const sol = { x, z, r: sc * 0.7 };
       const rk = { kind: 'rock', x, z, s: sc, hp: 4, maxHp: 4, solid: sol, alive: true, rot: rand(0, 6) };
       const rv = Math.random() < 0.5 ? 0 : 1; rk.v = rv;
       solids.push(sol); rocks.push(rk); chunkOf('r', x, z, rv).items.push(rk);
@@ -474,7 +475,7 @@ CZ.screens.valley = (function () {
     });
     const chunkList = Object.values(chunks);
     // süs parçaları: çalı, kütük, odun yığını, buz kristali, yol kenarı fener ve çit
-    [['bush', 1.6, 150], ['stump', 1.1, 60], ['log', 1.1, 45], ['woodpile', 1.3, 22], ['ice', 1.3, 45], ['lamp', 2.6, 36], ['fence', 1.5, 40]].forEach(([id, hh, n]) => {
+    [['lamp', 2.6, 36]].forEach(([id, hh, n]) => {
       const pts = [];
       for (let k = 0; k < n * 30 && pts.length < n; k++) {
         let x, z;
@@ -953,7 +954,7 @@ CZ.screens.valley = (function () {
       for (let k = 0; k < 3; k++) { const m = new THREE.Mesh(chipGeo, chipMats[it.kind]); m.position.set(it.x, it.kind === 'tree' ? 1.1 : 0.7, it.z); scene.add(m); chips.push({ m, vx: rand(-3, 3), vy: rand(3, 6), vz: rand(-3, 3) }); }
       CZ.audio.sfx(it.kind === 'tree' ? 'hit' : 'crack');
       if (it.hp <= 0) { n += 8; it.alive = false; it.solid.off = true; setInst(it); BUD.task = null;
-        setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 2) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000)); }
+        setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 3.5 || goblins.some(o => !o.dead && Math.hypot(o.x - it.x, o.z - it.z) < 2)) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000)); }
       d[res] = (d[res] || 0) + n; resUi(); floatAt(it, '+' + n + (res === 'wood' ? ' 🪵' : ' 🪨'), 'auto');
     }
     function buddyUpd(dt) {
@@ -1089,6 +1090,8 @@ CZ.screens.valley = (function () {
     const nightBtn = h('button', { type: 'button', class: 'vl-nightbtn', style: 'display:none', text: '🌙 ' + t('night.now') });
     nightBtn.addEventListener('pointerdown', e => { e.stopPropagation(); if (V && V.phase === 'day') { V.phT = 0; CZ.audio.sfx('button'); } });
     const raidEl = h('div', { class: 'vl-raid' });
+    const vigEl = h('div', { class: 'vl-nightvig' });
+    const cdEl = h('div', { class: 'vl-nightcd' }, h('b', { text: '10' }), h('small', { text: t('night.coming') }));
     const GIFT_DUR = 240000;
     const giftBtn = h('button', { type: 'button', class: 'vl-gift' }, h('i', { text: '🎁' }), h('b'));
     const giftK = () => { if (!d.giftAt) d.giftAt = Date.now(); return Math.min(1, (Date.now() - d.giftAt) / GIFT_DUR); };
@@ -1214,7 +1217,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      hpBarEl, raidEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1377,10 +1380,12 @@ CZ.screens.valley = (function () {
       return [x, z];
     };
     // ===== GECE-GÜNDÜZ DÖNGÜSÜ: gündüz topla + kamp yağmala (köye saldırı yok), gece Zibo'nun ordusu köye gelir =====
-    const DAY_LEN = 150, NIGHT_LEN = 90;
+    const DAY_LEN = 150, NIGHT_LEN = 150;   // gece: belli sayıda goblin gelir, hepsi düşünce biter (süre yalnız üst sınır)
     const ZTALK = ['Grak bloo!', 'Hihihi, nyek!', 'Zub zub ZIBO!', 'Blorp! Ha-ha!', 'Nyaaa-krik!'];
     function startNight() {
-      V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 1.5;
+      V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 2.5;
+      V.nTot = Math.min(40, 5 + V.wave * 3 + Math.floor(vilPower() / 2)); V.nSp = 0;
+      vigEl.classList.add('on'); cdEl.classList.remove('on');
       V.nS = { kills: V.kills, earned: V.earned, lost: V.lost || 0 };
       d.bestNight = Math.max(d.bestNight || 0, V.wave);
       const k = Math.floor(Math.random() * 5);
@@ -1391,7 +1396,7 @@ CZ.screens.valley = (function () {
         if (!V.raid) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); } }
     }
     function endNight() {
-      V.phase = 'day'; V.phT = DAY_LEN;
+      V.phase = 'day'; V.phT = DAY_LEN; vigEl.classList.remove('on');
       goblins.forEach(o => { if (!o.dead && !o.boss && !o.stolen) o.flee = true; });
       const S = V.nS || { kills: 0, earned: 0, lost: 0 }, kills = V.kills - S.kills, earned = Math.max(0, V.earned - S.earned), lost = Math.max(0, (V.lost || 0) - S.lost);
       const bonus = 20 + V.wave * 10; gain(bonus, true);
@@ -1410,11 +1415,19 @@ CZ.screens.valley = (function () {
         btn(t('night.go'), () => { box.remove(); V.paused = false; V.last = 0; }, 'small ghost-dark')));
       wrap.append(box); V.paused = true;
     }
+    function nightLeft() { return Math.max(0, (V.nTot || 0) - (V.nSp || 0)) + goblins.filter(o => o.night && !o.dead).length; }
     function cycleTick(dt) {
       if (!V.phase) { V.phase = 'day'; V.phT = DAY_LEN; V.skyK = 0; V.wave = 0; }
       V.phT -= dt;
-      if (V.phase === 'day' && V.phT <= 0) startNight();
-      else if (V.phase === 'night' && V.phT <= 0 && !V.raid && !goblins.some(o => o.boss && !o.dead)) endNight();
+      if (V.phase === 'day') {
+        // son 10 saniye: büyük geri sayım + davul
+        const c = Math.ceil(V.phT);
+        if (V.phT <= 10 && V.phT > 0 && c !== V.cdN) { V.cdN = c; cdEl.firstChild.textContent = c; cdEl.classList.add('on'); cdEl.classList.remove('pop'); void cdEl.offsetWidth; cdEl.classList.add('pop'); CZ.audio.sfx(c <= 3 ? 'hit' : 'button'); if (c <= 3) { CZ.audio.vibrate(40); V.shake = Math.max(V.shake || 0, 0.15); } }
+        if (V.phT <= 0) { V.cdN = 0; startNight(); }
+      } else {
+        const left = nightLeft();
+        if ((left === 0 || V.phT <= 0) && !V.raid && !goblins.some(o => o.boss && !o.dead)) endNight();
+      }
       V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
     }
     function step(dt) {
@@ -1427,11 +1440,11 @@ CZ.screens.valley = (function () {
         if (V.wave % 5 === 0 && !V.raid && !V.story) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
       if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
-        timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' ' + mm(Math.max(0, V.phT)) : '☀️ ' + mm(Math.max(0, V.phT))) : t('def.wave', { n: V.wave })) + ' · 🏰' + vilLevel();
+        timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' · 👺 ' + nightLeft() : '☀️ ' + mm(Math.max(0, V.phT))) : t('def.wave', { n: V.wave })) + ' · 🏰' + vilLevel();
         if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 ? '' : 'none'; } }
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
-      if (V.spawnT <= 0 && goblins.length < cap + (cyc ? 3 : 0) && !V.story && !(cyc && V.phase === 'day')) { V.spawnT = cyc ? Math.max(1.1, 2.6 - V.wave * 0.12) : Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); }
+      if (V.spawnT <= 0 && goblins.length < cap + (cyc ? 3 : 0) && !V.story && !(cyc && (V.phase === 'day' || V.nSp >= V.nTot))) { V.spawnT = cyc ? Math.max(1.0, 2.4 - V.wave * 0.12) : Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); if (cyc) { V.nSp++; const g2 = goblins[goblins.length - 1]; if (g2) g2.night = true; } }
       // inşaat süreleri
       pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
       // KULELER: menzildeki en yakın goblini kendileri vurur
@@ -1912,7 +1925,7 @@ CZ.screens.valley = (function () {
         n += 10;
         best.alive = false; best.solid.off = true; setInst(best);
         const it = best;
-        setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 2) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000));
+        setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 3.5 || goblins.some(o => !o.dead && Math.hypot(o.x - it.x, o.z - it.z) < 2)) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000));
       }
       d[res] = (d[res] || 0) + n; resUi();
       floatAt(best, '+' + n + (res === 'wood' ? ' 🪵' : ' 🪨'), 'res');

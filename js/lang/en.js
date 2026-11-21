@@ -1419,5 +1419,6 @@ CZ.i18n.register('en', 'English', {
   "night.x2": "Double the loot",
   "night.shareBig": "NIGHT {n}",
   "night.shareLabel": "I defended my village!",
-  "night.go": "Back to day"
+  "night.go": "Back to day",
+  "night.coming": "Zibo's army is coming!"
 });
