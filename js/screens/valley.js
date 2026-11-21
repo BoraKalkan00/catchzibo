@@ -434,7 +434,7 @@ CZ.screens.valley = (function () {
       if (Math.hypot(x, z) < FENCE_R + 9) continue;
       if (!free(x, z, 0.8)) continue;
       const sol = { x, z, r: 0.45 };
-      const tr = { kind: 'tree', x, z, s: rand(0.85, 1.3), hp: 3, maxHp: 3, solid: sol, alive: true };
+      const tr = { kind: 'tree', x, z, s: rand(0.85, 1.3), hp: 8, maxHp: 8, solid: sol, alive: true };
       const tv = Math.random() < 0.58 ? 0 : Math.random() < 0.6 ? 1 : 2; tr.v = tv; if (tv === 2) sol.r = 0.9;
       solids.push(sol); trees.push(tr); chunkOf('t', x, z, tv).items.push(tr);
     }
@@ -444,7 +444,7 @@ CZ.screens.valley = (function () {
       if (Math.hypot(x, z) < FENCE_R + 7) continue;
       if (!free(x, z, sc)) continue;
       const sol = { x, z, r: sc * 0.7 };
-      const rk = { kind: 'rock', x, z, s: sc, hp: 4, maxHp: 4, solid: sol, alive: true, rot: rand(0, 6) };
+      const rk = { kind: 'rock', x, z, s: sc, hp: 6, maxHp: 6, solid: sol, alive: true, rot: rand(0, 6) };
       const rv = Math.random() < 0.5 ? 0 : 1; rk.v = rv;
       solids.push(sol); rocks.push(rk); chunkOf('r', x, z, rv).items.push(rk);
     }
@@ -461,12 +461,17 @@ CZ.screens.valley = (function () {
       g.setAttribute('color', new THREE.Float32BufferAttribute(c, 3)); g.computeVertexNormals(); g.translate(0, 0.3, 0); return g; })();
     const resMatT = seeThrough(CZ.style.mat({ vertexColors: true }));
     const resMatR = CZ.style.mat({ vertexColors: true });
+    const fallAx = new THREE.Vector3(), falling = [], wob = new Set();
     function setInst(it) {
       const c = it.chunk;
-      if (!it.alive) tmp.scale.setScalar(0.0001);
-      else if (it.kind === 'tree') tmp.scale.setScalar(it.s * (it.shrink || 1));
-      else tmp.scale.set(it.s, it.s, it.s);
-      tmp.position.set(it.x, 0, it.z); tmp.rotation.set(0, 0, (it.tilt || 0) * (it.idx % 2 ? 1 : -1)); tmp.updateMatrix();
+      const pk = it.punch || 0;   // vuruşta kısa büyüme
+      if (!it.alive && !it.fall) tmp.scale.setScalar(0.0001);
+      else if (it.kind === 'tree') tmp.scale.setScalar(it.s * (it.shrink || 1) * (1 + pk * 0.06));
+      else { const k2 = 0.55 + 0.45 * Math.max(0, it.hp) / it.maxHp; tmp.scale.set(it.s * k2 * (1 + pk * 0.1), it.s * k2 * (1 - pk * 0.08), it.s * k2 * (1 + pk * 0.1)); }   // kaya kırıldıkça ufalır
+      tmp.position.set(it.x, it.fall ? -it.fall.sink : 0, it.z);
+      if (it.fall) tmp.quaternion.setFromAxisAngle(fallAx.set(it.fall.fz, 0, -it.fall.fx).normalize(), it.fall.a);
+      else tmp.rotation.set(0, 0, (it.tilt || 0) * (it.idx % 2 ? 1 : -1));
+      tmp.updateMatrix();
       c.mesh.setMatrixAt(it.idx, tmp.matrix); c.mesh.instanceMatrix.needsUpdate = true;
     }
     // (21 Kas) GERÇEK 3D DOĞA: ağaç/kaya artık düz resim kartı değil — ışık alır, gölge düşer, rüzgârda sallanır
@@ -988,7 +993,7 @@ CZ.screens.valley = (function () {
     }
     function budChop(it) {   // ağaç/kaya kesme (oyuncununkiyle aynı kurallar)
       const L = CZ.heroes.lv(BUD.id), res = it.kind === 'tree' ? 'wood' : 'stone';
-      it.hp -= 2; if (it.kind === 'tree') { it.tilt = 0.14; setInst(it); }
+      it.hp -= 2; if (it.kind === 'tree') { it.tilt = 0.14; wob.add(it); setInst(it); }
       let n = 1 + Math.ceil(L / 2);
       for (let k = 0; k < 3; k++) { const m = new THREE.Mesh(chipGeo, chipMats[it.kind]); m.position.set(it.x, it.kind === 'tree' ? 1.1 : 0.7, it.z); scene.add(m); chips.push({ m, vx: rand(-3, 3), vy: rand(3, 6), vz: rand(-3, 3) }); }
       CZ.audio.sfx(it.kind === 'tree' ? 'hit' : 'crack');
@@ -1232,13 +1237,13 @@ CZ.screens.valley = (function () {
         if (!own && CZ.heroes.canUnlock(H.id)) acts.push(btn(t('hero.unlock'), () => { CZ.heroes.unlock(H.id); CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 90]); if (!CZ.heroes.buddy() && H.id !== 'mila') { CZ.heroes.setBuddy(H.id); spawnBuddy(); } draw(); }, 'primary'));
         if (own && !max) acts.push(btn(t('hero.up') + ' · ' + need.gold, () => { if (!CZ.heroes.up(H.id)) { CZ.audio.sfx('wrong'); return CZ.ui.toast(S.sh < need.sh ? t('hero.needSh', { n: need.sh - S.sh }) : t('chars.goldShort', { n: need.gold - (d.gold || 0) })); } CZ.audio.sfx('buy'); CZ.audio.vibrate([20, 20, 50]); resUi(); draw(); }, CZ.heroes.canUp(H.id) ? 'primary' : 'ghost-dark', 'ui.gold'));
         if (own && H.id !== 'mila') acts.push(isB ? h('span', { class: 'hero-with', text: t('hero.with') }) : btn(t('hero.take'), () => { CZ.heroes.setBuddy(H.id); spawnBuddy(); CZ.audio.sfx('star'); draw(); }, 'ghost-dark'));
-        if (!max) acts.push(btn('+5 🧩 · 10', () => { if ((d.emeralds || 0) < 10) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.gemShort')); } d.emeralds -= 10; CZ.heroes.add(H.id, 5); CZ.audio.sfx('coin'); resUi(); draw(); }, 'ghost-dark', 'ui.emerald'));
+        if (!max) acts.push(btn('+5 🎖️ · 10', () => { if ((d.emeralds || 0) < 10) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.gemShort')); } d.emeralds -= 10; CZ.heroes.add(H.id, 5); CZ.audio.sfx('coin'); resUi(); draw(); }, 'ghost-dark', 'ui.emerald'));
         return h('div', { class: 'hero-card ' + RAR[H.rar] + (own ? '' : ' locked') + (isB ? ' buddy' : '') },
           h('div', { class: 'hero-pic' }, h('img', { src: CZ.heroes.portrait(H.id), alt: '', 'data-hero': H.id }), own ? h('b', { class: 'hero-lv', text: t('vil.lv', { n: S.lv }) }) : h('b', { class: 'hero-lv lock', text: '🔒' })),
           h('div', { class: 'hero-info' },
             h('div', { class: 'hero-name' }, h('b', { text: t('hero.n.' + H.id) }), h('small', { class: 'hero-rar', text: t('hero.rar' + H.rar) })),
             h('small', { class: 'hero-desc', text: t('hero.d.' + H.id) }),
-            h('div', { class: 'hero-bar' + (pct >= 100 ? ' full' : '') }, h('i', { style: 'width:' + pct + '%' }), h('span', { text: max ? t('up.max') : '🧩 ' + S.sh + ' / ' + need.sh })),
+            h('div', { class: 'hero-bar' + (pct >= 100 ? ' full' : '') }, h('i', { style: 'width:' + pct + '%' }), h('span', { text: max ? t('up.max') : '🎖️ ' + S.sh + ' / ' + need.sh })),
             h('div', { class: 'hero-acts' }, ...acts)));
       }
       function draw() {
@@ -1961,9 +1966,17 @@ CZ.screens.valley = (function () {
     let toolT = 0;
     function showTool(kind) { if (!hero.weaponSlot) return; hero.weaponSlot.children.forEach(c => { if (c !== tools.tree && c !== tools.rock) c.visible = !kind; }); tools.tree.visible = kind === 'tree'; tools.rock.visible = kind === 'rock'; }
     function harvest(dt) {
+      if (V.swingT > 0) { V.swingT -= dt; const k = 1 - Math.max(0, V.swingT) / 0.32, a = k < 0.45 ? -1.3 * (k / 0.45) : -1.3 + 2.1 * Math.min(1, (k - 0.45) / 0.3);   // geri çek → hızla indir
+        [tools.tree, tools.rock].forEach(tl => { tl.rotation.x = Math.PI / 2 + a; }); } else [tools.tree, tools.rock].forEach(tl => { tl.rotation.x = Math.PI / 2; });
       toolT -= dt; if (toolT < 0 && (tools.tree.visible || tools.rock.visible)) showTool(null);
       for (let i = chips.length - 1; i >= 0; i--) { const c = chips[i]; c.vy -= 16 * dt; c.m.position.x += c.vx * dt; c.m.position.y += c.vy * dt; c.m.position.z += c.vz * dt; c.m.rotation.x += dt * 10; if (c.m.position.y < 0) { scene.remove(c.m); chips.splice(i, 1); } }
-      trees.concat(rocks).forEach(it => { if (it.tilt > 0) { it.tilt = Math.max(0, it.tilt - dt * 0.8); setInst(it); } });
+      wob.forEach(it => { it.tilt = Math.max(0, (it.tilt || 0) - dt * 0.8); it.punch = Math.max(0, (it.punch || 0) - dt * 5); setInst(it); if (!it.tilt && !it.punch) wob.delete(it); });
+      for (let i = falling.length - 1; i >= 0; i--) { const it = falling[i], F = it.fall; F.t += dt;
+        F.a = Math.min(Math.PI / 2 * 0.96, F.a + dt * (0.6 + F.t * 5));   // yavaş başlar, hızlanarak düşer
+        if (F.a >= Math.PI / 2 * 0.96 && !F.thud) { F.thud = true; CZ.audio.sfx('land'); V.shake = Math.max(V.shake || 0, 0.12); for (let k = 0; k < 8; k++) { const m = new THREE.Mesh(chipGeo, chipMats.ice); m.scale.setScalar(1.6); m.position.set(it.x + F.fx * 2.5 * it.s, 0.3, it.z + F.fz * 2.5 * it.s); scene.add(m); chips.push({ m, vx: rand(-3, 3), vy: rand(2, 5), vz: rand(-3, 3) }); } }
+        if (F.thud) F.sink += dt * 0.9;
+        setInst(it);
+        if (F.sink > 1.2) { it.fall = null; setInst(it); falling.splice(i, 1); } }
       V.hT = (V.hT || 0) - dt;
       if (V.hT > 0 || aimP.aiming || P.down > 0) return;
       let best = null, bd = 99;
@@ -1971,18 +1984,21 @@ CZ.screens.valley = (function () {
       const reach = P.riding ? 1.7 : 1.15;
       if (!best || bd > reach) { V.harv = null; return; }
       V.harv = best;
-      V.hT = P.riding ? 0.42 : 0.55;
-      showTool(best.kind); toolT = 1;
+      V.hT = P.riding ? 0.6 : 0.75;   // (21 Kas) daha yavaş: ağaç ~4-5 vuruşta devrilir
+      showTool(best.kind); toolT = 1.4; V.swingT = 0.32;
       if (Math.hypot(P.vx, P.vz) < 1.5) P.dir = Math.atan2(-(best.x - P.x), -(best.z - P.z));
       if (hero.throwNow) hero.throwNow();
-      const dmg = P.riding ? 3 : 2, kind = best.kind, res = kind === 'tree' ? 'wood' : 'stone';
-      best.hp -= dmg; best.tilt = kind === 'tree' ? 0.14 : 0; if (kind === 'tree') setInst(best);
+      const dmg = P.riding ? 2 : 1, kind = best.kind, res = kind === 'tree' ? 'wood' : 'stone';
+      best.hp -= dmg; best.tilt = kind === 'tree' ? 0.16 : 0; best.punch = 1; wob.add(best); setInst(best); CZ.audio.vibrate(12);
       for (let k = 0; k < 4; k++) { const m = new THREE.Mesh(chipGeo, chipMats[kind]); m.position.set(best.x, kind === 'tree' ? 1.1 : 0.7, best.z); scene.add(m); chips.push({ m, vx: rand(-3, 3), vy: rand(3, 6), vz: rand(-3, 3) }); }
-      let n = dmg;
+      let n = dmg * 2;
       CZ.audio.sfx(kind === 'tree' ? 'hit' : 'crack');
       if (best.hp <= 0) {
         n += 10;
-        best.alive = false; best.solid.off = true; setInst(best);
+        best.alive = false; best.solid.off = true;
+        if (kind === 'tree') { const fx = best.x - P.x, fz = best.z - P.z, L5 = Math.hypot(fx, fz) || 1; best.fall = { t: 0, a: 0, sink: 0, fx: fx / L5, fz: fz / L5 }; falling.push(best); CZ.audio.sfx('crack'); }
+        else { for (let k = 0; k < 10; k++) { const m = new THREE.Mesh(chipGeo, chipMats.rock); m.scale.setScalar(rand(1.2, 2.2)); m.position.set(best.x, 0.6, best.z); scene.add(m); chips.push({ m, vx: rand(-4, 4), vy: rand(3, 7), vz: rand(-4, 4) }); } V.shake = Math.max(V.shake || 0, 0.1); }
+        setInst(best);
         const it = best;
         setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 3.5 || goblins.some(o => !o.dead && Math.hypot(o.x - it.x, o.z - it.z) < 2)) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000));
       }
@@ -2003,15 +2019,43 @@ CZ.screens.valley = (function () {
       resUi();
       if (!quiet) { V.streak = performance.now() - (V.lastGain || 0) < 450 ? (V.streak || 0) + 1 : 0; V.lastGain = performance.now(); CZ.audio.sfx('coin', V.streak); bump(); }
     }
+    let sitB = undefined;
+    function sitBones() {
+      if (sitB !== undefined && sitB && sitB.root === hero.root) return sitB;
+      const f = n => { let b = null; hero.root.traverse(o => { if (!b && o.isBone && o.name.replace(/[:_]/g, '').toLowerCase().endsWith(n)) b = o; }); return b; };
+      const L = f('leftupleg'), R = f('rightupleg'), H = f('hips');
+      if (!L || !R || !H) { sitB = null; return null; }
+      hero.root.updateWorldMatrix(true, true); const hy = new THREE.Vector3().setFromMatrixPosition(H.matrixWorld).y - hero.root.position.y;
+      sitB = { root: hero.root, L, R, LK: f('leftleg'), RK: f('rightleg'), hipH: Math.max(0.3, Math.min(1.4, hy)) }; return sitB;
+    }
+    const FP_N = 90, fpMesh = (() => { const g = new THREE.CircleGeometry(0.13, 10); g.scale(1, 1.6, 1); g.rotateX(-Math.PI / 2); g.translate(0, 0.025, 0);
+      const m = new THREE.InstancedMesh(g, new THREE.MeshBasicMaterial({ color: 0x8a9cc0, transparent: true, opacity: 0.45, depthWrite: false }), FP_N); m.frustumCulled = false; m.count = 0; scene.add(m); return m; })();
+    const fp = { i: 0, side: 0, acc: 0, n: 0, life: new Float32Array(FP_N), pos: [] };
+    function footTick(dt) {
+      const sp = Math.hypot(P.vx, P.vz);
+      if (sp > 1 && !P.hop && P.down <= 0) { fp.acc += sp * dt;
+        const stride = P.riding ? 1.1 : 0.62;
+        if (fp.acc > stride) { fp.acc = 0; fp.side ^= 1; const nx = Math.cos(P.dir), nz = -Math.sin(P.dir), off = (fp.side ? 0.16 : -0.16) * (P.riding ? 1.8 : 1);
+          const i = fp.i; fp.i = (fp.i + 1) % FP_N; fp.n = Math.min(FP_N, fp.n + 1); fp.life[i] = 1; fp.pos[i] = [P.x + nx * off, P.z + nz * off, P.dir];
+          if (!water(P.x, P.z)) CZ.audio.sfx('step', fp.side); } }
+      if ((fp.t = (fp.t || 0) - dt) > 0) return; fp.t = 0.1;
+      for (let i = 0; i < fp.n; i++) { if (!fp.pos[i]) continue; fp.life[i] = Math.max(0, fp.life[i] - 0.1 / 7);   // 7 sn'de kaybolur
+        const L = fp.life[i]; tmp.position.set(fp.pos[i][0], 0, fp.pos[i][1]); tmp.rotation.set(0, fp.pos[i][2], 0); tmp.scale.setScalar(L > 0 ? (P.riding ? 1.5 : 1) * (0.6 + L * 0.4) : 0.0001); tmp.updateMatrix(); fpMesh.setMatrixAt(i, tmp.matrix); }
+      fpMesh.count = fp.n; fpMesh.instanceMatrix.needsUpdate = true;
+    }
     function draw(dt) {
+      footTick(dt);
       // oyuncu ve binek görünümü
       mount.root.position.set(M.x, P.riding ? (P.hopY || 0) : 0, M.z);
       mount.root.rotation.y = M.dir;
       mount.update(dt, P.riding ? Math.hypot(P.vx, P.vz) : M.speed);
       const moving = Math.hypot(P.vx, P.vz) > 0.6;
       if (P.riding) {
-        hero.root.position.set(P.x, mount.seatY - 0.12 + (mount.root.children[0].position.y || 0) + (P.hopY || 0), P.z);
-        hero.update(dt, { sit: true });
+        // (21 Kas) GERÇEKTEN OTURUR: bacaklar öne/yana bükülür, kalça eyere iner (Mixamo'da oturma klibi yok)
+        const SB = sitBones();
+        hero.root.position.set(P.x, mount.seatY - (SB ? SB.hipH * 0.78 : 0.12) + (mount.root.children[0].position.y || 0) + (P.hopY || 0), P.z);
+        hero.update(dt, { sit: true, idle: true, running: false });
+        if (SB) { SB.L.rotation.x -= 1.35; SB.R.rotation.x -= 1.35; SB.L.rotation.z -= 0.45; SB.R.rotation.z += 0.45; if (SB.LK) SB.LK.rotation.x += 1.5; if (SB.RK) SB.RK.rotation.x += 1.5; }
       } else {
         hero.root.position.set(P.x, P.hopY || 0, P.z);
         hero.update(dt, P.hop ? { air: true, jumping: true } : { idle: !moving, speed: Math.hypot(P.vx, P.vz) * 2 });
@@ -2130,7 +2174,7 @@ CZ.screens.valley = (function () {
       if (L.last === today) return;
       const n = L.last === yest ? (L.n % 7) + 1 : 1;
       const R = [{ gold: 60, wood: 40 }, { wood: 120, stone: 60 }, { emeralds: 3, sh: 3 }, { gold: 250 }, { wood: 200, stone: 140, sh: 5 }, { emeralds: 6 }, { emeralds: 12, gold: 600, sh: 12 }];
-      const ic = k => k === 'gold' ? img('ui.gold', 'mini-ico') : k === 'emeralds' ? img('ui.emerald', 'mini-ico') : h('i', { text: k === 'wood' ? '🪵' : k === 'sh' ? '🧩' : '🪨' });
+      const ic = k => k === 'gold' ? img('ui.gold', 'mini-ico') : k === 'emeralds' ? img('ui.emerald', 'mini-ico') : h('i', { text: k === 'wood' ? '🪵' : k === 'sh' ? '🎖️' : '🪨' });
       const box = h('div', { class: 'modal-wrap gift-wrap' }, h('div', { class: 'modal gift-rep' },
         h('b', { class: 'lg-title', text: t('gift.title') }),
         h('small', { text: t('gift.sub', { n }) }),

@@ -185,6 +185,12 @@ CZ.audio = (function () {
       });
       [60, 67, 72, 76].forEach(n => tone(midi(n), t + 0.6, 1.1, { type: 'triangle', gain: 0.06, attack: 0.03 }));
     },
+    // (21 Kas) karda adım: kısa, yumuşak "kırç" (iki katmanlı gürültü, her adımda biraz farklı)
+    step: (t, k = 0) => {
+      const f = 1100 + (k % 3) * 160 + Math.random() * 120;
+      noise(t, 0.07, { gain: 0.045, freq: f, to: f * 0.55, q: 0.9 });
+      noise(t + 0.012, 0.05, { gain: 0.03, freq: 3200, q: 0.7, type: 'highpass' });
+    },
     coin: (t, step = 0) => {
       const n = 84 + PENTA[Math.min(step, PENTA.length - 1)];
       tone(midi(n), t, 0.1, { type: 'square', gain: 0.03, attack: 0.002 });
