@@ -62,10 +62,18 @@ CZ.ui = (function () {
     opts = opts || {};
     const tips = ['tip.1', 'tip.2', 'tip.3', 'tip.4', 'tip.5', 'tip.6'];
     const bar = h('i');
-    const box = h('div', { class: 'loading-screen' },
+    // Sinematik arka plan: dikey ekranda (telefon) _v, yatayda (PC/tablet) _h görsel; döndürünce kendiliğinden değişir.
+    const SC = ['kacis', 'savunma', 'atolye'];
+    loading.i = ((loading.i == null ? Math.floor(Math.random() * 3) : loading.i) + 1) % 3;
+    const sc = SC[loading.i];
+    const pic = h('picture', { class: 'ld-bg' },
+      h('source', { media: '(orientation: landscape)', srcset: 'assets/ld/' + sc + '_h.webp' }),
+      h('img', { src: 'assets/ld/' + sc + '_v.webp', alt: '', draggable: 'false' }));
+    const box = h('div', { class: 'loading-screen ld-cine ld-' + sc },
+      pic, h('div', { class: 'ld-shade' }),
       snow(14),
-      h('div', { class: 'ld-zibo' }, img('zibo.sack', 'ld-zibo-img')),
-      h('b', { class: 'ld-title', text: CZ.t('title.name') }),
+      h('div', { class: 'ld-logo' }, h('img', { src: 'assets/ui/logo.webp', alt: CZ.t('title.name'), draggable: 'false' })),
+      h('div', { class: 'ld-gap' }),
       h('div', { class: 'ld-bar' }, bar),
       h('p', { class: 'ld-tip', text: CZ.t(tips[Math.floor(Math.random() * tips.length)]) }));
     (parent || document.getElementById('app')).append(box);

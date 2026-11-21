@@ -2020,3 +2020,15 @@ body.wide #rotate-note { display: none !important; }
 @keyframes riseIn { from { transform: translateY(14px); opacity: 0; } }
 @media (hover: hover) { .btn { transition: transform .12s, filter .12s; } .btn:hover { transform: translateY(-2px); filter: brightness(1.08); } .ord-card:hover, .craft-row:hover, .mkt-row:hover { transform: translateY(-2px); transition: transform .12s; } }
 @media (prefers-reduced-motion: reduce) { .modal-wrap, .pause-menu, .modal-wrap > *, .pause-menu > *, .pause-card > * { animation: none !important; } }
+
+/* Sinematik yükleme ekranı */
+.ld-cine { justify-content: space-between; padding: max(18px, env(safe-area-inset-top)) 0 max(26px, env(safe-area-inset-bottom)); background: #0c1638; }
+.ld-bg { position: absolute; inset: 0; z-index: 0; }
+.ld-bg img { width: 100%; height: 100%; object-fit: cover; animation: ldkb 9s ease-out forwards; }
+@keyframes ldkb { from { transform: scale(1.08); } to { transform: scale(1); } }
+.ld-shade { position: absolute; inset: 0; z-index: 0; background: linear-gradient(rgba(6,12,40,.55), rgba(6,12,40,0) 26%, rgba(6,12,40,0) 66%, rgba(6,12,40,.78)); }
+.ld-cine > *:not(.ld-bg):not(.ld-shade) { position: relative; z-index: 1; }
+.ld-logo img { width: min(300px, 66vw); max-height: 24vh; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); animation: logobob 2.4s ease-in-out infinite; }
+.ld-gap { flex: 1; }
+.ld-cine .ld-tip { text-shadow: 0 2px 4px rgba(0,0,0,.8); }
+@media (orientation: landscape) { .ld-logo { align-self: flex-start; margin-left: 3vw; } .ld-savunma .ld-logo { align-self: flex-end; margin: 0 3vw 0 0; } .ld-logo img { width: min(250px, 24vw); max-height: 26vh; } }
