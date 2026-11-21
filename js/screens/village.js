@@ -5,6 +5,10 @@ CZ.screens.village = (function () {
   const VL = () => CZ.village;
   let S = null;
   // Binaların köydeki yerleri (x, z)
+  // Süsler: mağazadan alınır, köyde boş süs yerlerine konur
+  CZ.DECOR = [{ id: 'snowman', p: 300 }, { id: 'lamp', p: 250 }, { id: 'gifts', p: 450 }, { id: 'well', p: 700 }, { id: 'pond', p: 900 }, { id: 'sleigh', p: 1400 },
+    { id: 'icedeer', g: 25 }, { id: 'golddeer', g: 45 }, { id: 'zibostatue', g: 70 }];
+  const DSPOTS = [[-3.3, -12.2], [3.3, -12.2], [-10.5, -8.5], [10.5, -8.5], [-13, 1], [13, 1], [-11.5, 10.5], [11.5, 10.5], [-3, 11.2], [3, 11.2], [-2.4, 4.6], [2.6, 4.6]];
   const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7], goldmine: [-10.5, -2.5], elf: [10.5, -2.5], cookie: [10, 5], gate: [0, 13.6], jail: [-10, 5] };
 
   // Yapay zekâ modelleri (varsa): bina -> [model, boy]
@@ -228,6 +232,39 @@ CZ.screens.village = (function () {
       pick.length = 0; Object.values(blds).forEach(b => pick.push(b.g));
     }
     CZ.VB.forEach(b => place(b.id));
+    const decorG = new THREE.Group(); scene.add(decorG);
+    const decorList = () => { const V = VL().ensure(); return V.decor || (V.decor = []); };
+    function placeDecor() {
+      decorG.clear();
+      decorList().forEach(dc => { const sp = DSPOTS[dc.s]; if (!sp) return;
+        const url = 'assets/village/sus/' + dc.id + '.webp';
+        const tex = texCache[url] || (texCache[url] = new THREE.TextureLoader().load(url, () => fitAll()));
+        const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, depthWrite: false, fog: false }));
+        m.center.set(0.5, 0.15); m.position.set(sp[0], 0, sp[1]); m.renderOrder = 100 + Math.round((sp[1] + 30) * 2); m.userData.tex = tex; decorG.add(m); });
+      fitAll();
+    }
+    function fitAll() { decorG.children.forEach(m => { const im = m.userData.tex.image, W = 2; m.scale.set(W, im && im.width ? W * im.height / im.width : W, 1); }); }
+    placeDecor();
+    function openDecor() {
+      CZ.audio.sfx('button');
+      const old = wrap.querySelector('.vil-sheet-wrap'); if (old) old.remove();
+      const sw = h('div', { class: 'modal-wrap vil-sheet-wrap', onClick: e => { if (e.target === sw) sw.remove(); } });
+      const used = decorList().length;
+      sw.append(h('div', { class: 'modal vil-sheet vil-decor' },
+        h('b', { class: 'lg-title', text: t('vil.decor') }),
+        h('small', { class: 'vil-lvl', text: used + ' / ' + DSPOTS.length }),
+        h('div', { class: 'dec-grid' }, ...CZ.DECOR.map(dd => h('button', { class: 'dec-item', type: 'button', onClick: () => {
+          const D2 = CZ.state.data, L2 = decorList();
+          if (L2.length >= DSPOTS.length) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.decorFull')); }
+          const cur = dd.g ? 'emeralds' : 'gold', cost = dd.g || dd.p;
+          if ((D2[cur] || 0) < cost) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t(dd.g ? 'vil.gemShort' : 'vil.short')); }
+          D2[cur] -= cost; const free = DSPOTS.findIndex((_, i) => !L2.some(q => q.s === i));
+          L2.push({ id: dd.id, s: free }); CZ.state.save(); CZ.audio.sfx('win'); refreshMoney(); placeDecor(); sw.remove();
+        } }, h('img', { src: 'assets/village/sus/' + dd.id + '.webp', alt: '' }), h('small', { text: t('dec.' + dd.id) }),
+          h('span', { class: 'dec-cost' }, img(dd.g ? 'ui.emerald' : 'ui.gold', 'mini-ico'), String(dd.g || dd.p)))) ),
+        btn(t('common.close'), () => sw.remove(), 'small ghost-dark')));
+      wrap.append(sw);
+    }
     // inşaat iskelesi göstergesi
     // Yükseltme sürerken: binayı saran ahşap iskele, sarı-siyah şerit, dönen vinç, toz bulutları ve zıplayan çekiç.
     const scaffold = new THREE.Group(); scene.add(scaffold);
@@ -289,6 +326,7 @@ CZ.screens.village = (function () {
           h('div', { class: 'emeralds' }, img('ui.emerald', 'emerald-icon'), gemTxt))),
       labels, jobBar,
       h('div', { class: 'vil-bottom' },
+        h('button', { class: 'dec-btn', type: 'button', onClick: () => openDecor() }, '🎄 ', t('vil.decor')),
         btn(t('valley.title'), () => CZ.ui.wipeTo('gold'), 'primary wide', 'ui.gold')));
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);

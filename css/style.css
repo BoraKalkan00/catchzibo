@@ -2032,3 +2032,13 @@ body.wide #rotate-note { display: none !important; }
 .ld-gap { flex: 1; }
 .ld-cine .ld-tip { text-shadow: 0 2px 4px rgba(0,0,0,.8); }
 @media (orientation: landscape) { .ld-logo { align-self: flex-start; margin-left: 3vw; } .ld-savunma .ld-logo { align-self: flex-end; margin: 0 3vw 0 0; } .ld-logo img { width: min(250px, 24vw); max-height: 26vh; } }
+
+/* Süs mağazası */
+.dec-btn { display: block; margin: 0 auto 8px; padding: 7px 16px; border: 3px solid var(--outline, #1b2a44); border-radius: 14px; background: #fff7e0; font: 800 14px Nunito, sans-serif; color: #3a2410; box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+.vil-decor { max-width: 400px; }
+.dec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dec-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border: 2px solid #d8c7a2; border-radius: 12px; background: #fffaf0; font: inherit; }
+.dec-item img { width: 64px; height: 64px; object-fit: contain; }
+.dec-item small { font-weight: 800; font-size: 11px; line-height: 1.1; min-height: 24px; }
+.dec-cost { display: flex; align-items: center; gap: 3px; font-weight: 800; font-size: 13px; }
+.dec-cost img, .dec-cost .mini-ico { width: 18px !important; height: 18px !important; }
