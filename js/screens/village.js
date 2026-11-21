@@ -199,25 +199,15 @@ CZ.screens.village = (function () {
     const sun = new THREE.DirectionalLight(0xfff0d8, 0.75); sun.position.set(14, 30, 10); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
     Object.assign(sun.shadow.camera, { left: -18, right: 18, top: 18, bottom: -18, near: 5, far: 70 }); scene.add(sun);
     const camera = new THREE.PerspectiveCamera(46, 1, 0.5, 150);
-    // zemin ve çit
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(60, 48), new THREE.MeshLambertMaterial({ color: 0xe2eaf6 }));
-    ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
-    const plaza = new THREE.Mesh(new THREE.CircleGeometry(13.5, 40), new THREE.MeshLambertMaterial({ color: 0xd2dcec }));
-    plaza.rotation.x = -Math.PI / 2; plaza.position.y = 0.01; plaza.receiveShadow = true; scene.add(plaza);
-    // köy duvarı: kule seviyesiyle yükselir ve taşlaşır
-    const wallL = VL().lv('tower');
-    const wallMat = CZ.style.mat({ color: wallL >= 6 ? 0xa8a4a0 : 0x9a6a3a });
-    const postGeo = wallL >= 6 ? new THREE.BoxGeometry(1.4, 1 + wallL * 0.08, 0.7) : new THREE.CylinderGeometry(0.15, 0.15, 1.1, 6);
-    for (let i = 0; i < 64; i++) {
-      const a = i / 64 * Math.PI * 2;
-      if (Math.abs(a - Math.PI / 2) < 0.12) continue;   // kapı
-      const m = new THREE.Mesh(postGeo, wallMat); m.position.set(Math.cos(a) * 14.5, (wallL >= 6 ? 0.5 + wallL * 0.04 : 0.55), Math.sin(a) * 14.5); m.rotation.y = -a + Math.PI / 2; m.castShadow = true; scene.add(m);
-    }
-    // ağaçlar çevrede
-    const tg = new THREE.ConeGeometry(1.4, 3.2, 8), tm = CZ.style.mat({ color: 0x2a7a4a });
-    const treeI = new THREE.InstancedMesh(tg, tm, 70), tmp = new THREE.Object3D();
-    for (let i = 0; i < 70; i++) { const a = Math.random() * 6.28, r = 17 + Math.random() * 16; const s = 0.8 + Math.random() * 0.6; tmp.position.set(Math.cos(a) * r, 1.6 * s, Math.sin(a) * r); tmp.scale.setScalar(s); tmp.updateMatrix(); treeI.setMatrixAt(i, tmp.matrix); }
-    treeI.castShadow = true; scene.add(treeI);
+    // zemin: Gemini'den gelen köy meydanı resmi (telefonda dikey, PC'de yatay), yere serili
+    const land = innerWidth > innerHeight;
+    const GZ = land ? { url: 'assets/village/zemin/h.webp', w: 84, h: 46.9, z: 1.5 } : { url: 'assets/village/zemin/v.webp', w: 38, h: 68, z: 3 };
+    scene.background = new THREE.Color(0xe6ecf6); scene.fog = null;
+    const gTex = new THREE.TextureLoader().load(GZ.url); gTex.anisotropy = 4;
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(GZ.w, GZ.h), new THREE.MeshBasicMaterial({ map: gTex, fog: false }));
+    ground.rotation.x = -Math.PI / 2; ground.position.z = GZ.z; scene.add(ground);
+    const shadowCatch = new THREE.Mesh(new THREE.PlaneGeometry(GZ.w, GZ.h), new THREE.ShadowMaterial({ opacity: 0.18 }));
+    shadowCatch.rotation.x = -Math.PI / 2; shadowCatch.position.set(0, 0.01, GZ.z); shadowCatch.receiveShadow = true; scene.add(shadowCatch);
 
     // binalar
     const blds = {};
