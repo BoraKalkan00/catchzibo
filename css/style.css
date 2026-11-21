@@ -2072,3 +2072,8 @@ body.wide #rotate-note { display: none !important; }
 .vl-nightbtn { margin-left: 6px; padding: 5px 12px; border: 0; border-radius: 12px; background: linear-gradient(#4b4fc4, #2b2f8a); color: #fff; font: 900 14px/1 inherit; box-shadow: 0 3px 0 #1a1d5c; white-space: nowrap; pointer-events: auto; }
 .vl-nightbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #1a1d5c; }
 .night-rep .lg-title { font-size: 26px; }
+/* (21 Kas) Küçük harita: dikey ekranda dünyayı kapatmasın */
+.vl-map { width: 84px !important; height: 84px !important; opacity: .92; }
+.vl-hp { top: calc(170px + var(--safe-top, 0px)) !important; width: 104px !important; }
+.vl-heroes { top: calc(192px + var(--safe-top, 0px)) !important; }
+.vl-orders { top: calc(270px + var(--safe-top, 0px)) !important; }
