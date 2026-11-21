@@ -62,7 +62,10 @@
   const MXCL = {};
   function mxGuess(n) {
     if (MXC[n]) return n;
-    if (MX_MAP[n]) return MX_MAP[n];
+    if (MX_MAP[n] && MXC[MX_MAP[n]]) return MX_MAP[n];
+    if (/Dodge/.test(n) && MXC.dodgeR) return /Left/.test(n) ? (MXC.dodgeL ? 'dodgeL' : 'dodgeR') : 'dodgeR';
+    if (/Jump/.test(n) && MXC.jump) return 'jump';
+    if (/Sit/.test(n) && MXC.sit) return 'sit';
     return /Run|Jump|Dodge/.test(n) ? 'run' : /Walk/.test(n) ? 'walk' : /Death|Lie/.test(n) ? 'die' : /Hit/.test(n) ? 'hit' : /Cheer|Victory|Win/.test(n) ? 'win' : /Throw|Shoot|Spell|Attack|Melee|Chop|Slice|Stab|Block|Punch/.test(n) ? 'throw' : 'idle';
   }
   function mxClips(k) {
@@ -89,7 +92,7 @@
     return (mxPartCache[key] = new T.AnimationClip(key, c.duration, c.tracks.filter(tr => MX_UPPER.test(tr.name.split('.')[0]) === upper)));
   }
   // KayKit klip adı -> Mixamo klip adı
-  const MX_MAP = { Idle: 'idle', Running_A: 'run', Running_B: 'run', Walking_A: 'walk', Hit_A: 'hit', Hit_B: 'hit', Jump_Idle: 'run', Jump_Full_Short: 'run', Throw: 'throw', Cheer: 'win', Death_A: 'die', Death_B: 'die', Sit_Floor_Down: 'idle' };
+  const MX_MAP = { Idle: 'idle', Running_A: 'run', Running_B: 'run', Walking_A: 'walk', Hit_A: 'hit', Hit_B: 'hit', Jump_Idle: 'jump', Jump_Full_Short: 'jump', Throw: 'throw', Cheer: 'win', Death_A: 'die', Death_B: 'die', Sit_Floor_Down: 'sit', Dodge_Left: 'dodgeL', Dodge_Right: 'dodgeR', Roll: 'roll' };
   const WEAP = {};
 
   /* ---------- Silahlar: elde gerçekten tutulur ---------- */
@@ -477,16 +480,19 @@
       else if (info.jumping) want = 'jump';
       const lean = info.lean || 0;
       const side = lean > 0.35 ? 1 : lean < -0.35 ? -1 : 0;
-      if (want === 'run' && side && side !== st.side) { st.dodgeT = 0.28; st.dodgeDir = side; }
+      if (want === 'run' && side && side !== st.side) { st.dodgeT = 0.28; st.dodgeDir = side; if (MXK) dodgeNow(side > 0 ? 'Dodge_Right' : 'Dodge_Left'); }
       st.side = side;
       st.dodgeT -= dt;
-      if (want === 'run' && st.dodgeT > 0) want = st.dodgeDir > 0 ? 'dodgeR' : 'dodgeL';
+      if (want === 'run' && st.dodgeT > 0 && !MXK) want = st.dodgeDir > 0 ? 'dodgeR' : 'dodgeL';
       if (want !== st.mode) {
         const prev = st.mode;
         st.mode = want;
         if (want === 'run') R.play('Running_A', { speed: 1.25, fade: prev === 'roll' ? 0.08 : 0.15 });
         else if (want === 'jump') { const c = CL.Jump_Full_Short; R.play('Jump_Full_Short', { once: true, speed: c.duration / 0.8, fade: 0.06 }); }
-        else if (want === 'roll') { const a = R.play('Jump_Idle', { fade: 0.05 }); a.timeScale = 0; a.time = 0.1; st.rollT = 0; }
+        else if (want === 'roll') {
+          if (MXK && MXC.roll) { const c = CL.Roll; R.play('Roll', { once: true, speed: c.duration / 0.62, fade: 0.05 }); st.rollT = -99; }
+          else { const a = R.play('Jump_Idle', { fade: 0.05 }); a.timeScale = 0; a.time = 0.1; st.rollT = 0; }
+        }
         else if (want === 'sit') { const a = R.play('Sit_Floor_Down', { once: true, fade: 0.2 }); a.timeScale = 0; a.time = CL.Sit_Floor_Down.duration - 0.01; }
         else if (want === 'dodgeL') R.play('Dodge_Left', { once: true, speed: 2.2, fade: 0.06 });
         else if (want === 'dodgeR') R.play('Dodge_Right', { once: true, speed: 2.2, fade: 0.06 });
@@ -497,7 +503,7 @@
       if (want === 'run') { const a = R.cur; if (a) a.timeScale = 0.9 + Math.min(0.8, (info.speed || 14) / 40); }
       // Kayma: yere oturup bacaklar önde kayar (Subway Surfers gibi), poz hızla oturur ve kayarken kalır
       // TAKLA: toplanıp öne bir tam tur döner (Subway Surfers gibi), sonra eğik kalır
-      if (want === 'roll') {
+      if (want === 'roll' && st.rollT > -50) {
         st.rollT = (st.rollT || 0) + dt;
         const k = Math.min(1, st.rollT / 0.42);
         const e = k < 1 ? (1 - Math.cos(k * Math.PI)) / 2 : 1;
@@ -539,6 +545,14 @@
       upT = dur;
       // kartopu / buz topu elden çıkar, sonra yenisi belirir
       if (style === 'throw' && weapon) { weapon.visible = false; setTimeout(() => { if (weapon) weapon.visible = true; }, dur * 900); }
+    }
+    // Mixamo kaçınma: bacaklar koşmaya devam eder, üst gövde yana eğilir
+    function dodgeNow(name) {
+      if (up) up.stop();
+      up = R.mixer.clipAction(partX(name, true));
+      up.reset(); up.setLoop(T.LoopOnce); up.clampWhenFinished = true;
+      up.timeScale = CL[name].duration / 0.34; up.play();
+      upT = 0.34;
     }
     const baseUpdate = update;
     const armL = model.getObjectByName('upperarml') || model.getObjectByName('mixamorigLeftArm'), armR = model.getObjectByName('upperarmr') || model.getObjectByName('mixamorigRightArm');
@@ -621,7 +635,7 @@
         st.mode = want;
         if (want === 'run') R.play('run', { speed: 1.15 });
         else if (want === 'hit') R.play('hit', { speed: 1.2, fade: 0.08 });
-        else if (want === 'jump') R.play('run', { speed: 0.6, fade: 0.08 });
+        else if (want === 'jump') { const c = mxClips('zibo').Jump_Full_Short; R.play('Jump_Full_Short', { once: true, speed: c.duration / 0.8, fade: 0.08 }); }
         else if (want === 'throw') R.play('throw', { once: true, speed: 1.6, fade: 0.08 });
         else R.play('idle', { fade: 0.25 });
       }

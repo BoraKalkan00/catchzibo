@@ -19,15 +19,24 @@ def add(arr,typ,mm=False):
 nodes=[{'name':n} for n in sorted(names)];idx={n['name']:i for i,n in enumerate(nodes)}
 anims=[]
 for arg in [a for a in sys.argv[3:] if a!='--unit']:
-  nm,f=arg.split('=');j,b=rd(f);A=j['animations'][0]
+  nm,f=arg.split('=',1);opts=f.split(':')[1:];f=f.split(':')[0];j,b=rd(f);A=j['animations'][0]
+  MIR='mirror' in opts;IP='ip' in opts
+  TR=[tuple(map(float,o[2:].split('-'))) for o in opts if o.startswith('t=')];TR=TR[0] if TR else None
   ah=[n for n in j['nodes'] if n['name']=='mixamorig:Hips'][0]['translation'][1];sc=rh/ah
   ch=[];sm=[];tcache={}
   for c in A['channels']:
     s=A['samplers'][c['sampler']];node=j['nodes'][c['target']['node']]['name'];p=c['target']['path']
+    if MIR: node=node.replace('Left','#').replace('Right','Left').replace('#','Right')
     if node not in idx: continue
     if p=='scale' or (p=='translation' and node!='mixamorig:Hips'): continue
     T=acc(j,b,s['input']);V=acc(j,b,s['output'])
-    if p=='translation':V=V*sc
+    if TR and len(T)>1:
+      k=(T>=TR[0]-1e-4)&(T<=TR[1]+1e-4);T=T[k]-TR[0];V=V[k]
+    if p=='translation':
+      V=V*sc
+      if IP: V=V.copy();V[:,0]=V[0,0];V[:,2]=V[0,2]
+      if MIR: V=V.copy();V[:,0]*=-1
+    if p=='rotation' and MIR: V=V.copy();V[:,1]*=-1;V[:,2]*=-1
     if p=='rotation' and np.abs(V-V[0]).max()<1e-4: T=T[:1];V=V[:1]
     key=(len(T),float(T[0]),float(T[-1]))
     if key not in tcache: tcache[key]=add(T,'SCALAR',True)
