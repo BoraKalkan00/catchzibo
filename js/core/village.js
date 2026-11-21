@@ -8,6 +8,7 @@ CZ.VB = [
   { id: 'elf', max: 6, base: 1500, mul: 2.4, tbase: 4 },
   { id: 'cookie', max: 5, base: 900, mul: 2.6, tbase: 3 },
   { id: 'gate', max: 6, base: 700, mul: 2.3, tbase: 2 },
+  { id: 'jail', max: 5, base: 1200, mul: 2.6, tbase: 3 },
   { id: 'mine', max: 10, base: 400, mul: 1.75, tbase: 1 },
   { id: 'bakery', max: 10, base: 250, mul: 1.75, tbase: 1 },
   { id: 'vault', max: 8, base: 600, mul: 1.9, tbase: 2 },
@@ -30,6 +31,7 @@ CZ.village = (function () {
     if (V.lv.elf == null) V.lv.elf = 0;
     if (V.lv.cookie == null) V.lv.cookie = 0;
     if (V.lv.gate == null) V.lv.gate = 0;
+    if (V.lv.jail == null) V.lv.jail = 0;
     if (V.store.elf == null) V.store.elf = 0;
     CZ.VB.forEach(b => { if (V.lv[b.id] > b.max) V.lv[b.id] = b.max; });   // eski kayıtlarda yeni tavanı aşan seviye
     return V;
@@ -55,6 +57,7 @@ CZ.village = (function () {
     boxes: lv('lookout'),
     hp: lv('cookie') * 3,
     slow: 1 - lv('gate') * 0.05,
+    loot: 1 + lv('jail') * 0.1,
     run: 1 + lv('cookie') * 0.05
   });
   function tick() {

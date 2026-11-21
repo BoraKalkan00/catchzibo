@@ -5,7 +5,7 @@ CZ.screens.village = (function () {
   const VL = () => CZ.village;
   let S = null;
   // Binaların köydeki yerleri (x, z)
-  const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7], goldmine: [-10.5, -2.5], elf: [10.5, -2.5], cookie: [10, 5], gate: [0, 13.6] };
+  const SPOTS = { hall: [0, -2], mine: [-6, -8], bakery: [6, -8], vault: [-5, 2.5], tower: [5.5, 2.5], stable: [-6.5, 9], forge: [6, 10], lookout: [0, -12.5], tree: [0, 7], goldmine: [-10.5, -2.5], elf: [10.5, -2.5], cookie: [10, 5], gate: [0, 13.6], jail: [-10, 5] };
 
   // Yapay zekâ modelleri (varsa): bina -> [model, boy]
   const VGEN = { hall: ['koymeydani', 6.2], mine: ['altinmadeni', 3.6], bakery: ['firin', 4.2], stable: ['ahir', 4.2], forge: ['demirci', 4], tower: ['kartopukulesi', 4.5] };
@@ -60,7 +60,7 @@ CZ.screens.village = (function () {
     return g;
   }
   // Gemini'den gelen 2D bina resimleri: assets/village/<id>/<seviye>.webp, inşaat hali c.webp
-  const VART = { hall: { n: 10, c: true, w: 4.4, k: 0.24 }, goldmine: { n: 10, c: true, w: 3.6, k: 0.2 }, bakery: { n: 10, c: true, w: 3.6, k: 0.2 }, mine: { n: 10, c: true, w: 3.6, k: 0.2 }, vault: { n: 8, c: true, w: 3.4, k: 0.22 }, tower: { n: 10, c: true, w: 2.9, k: 0.16 }, stable: { n: 6, c: true, w: 3.4, k: 0.25 }, forge: { n: 7, c: true, w: 3.4, k: 0.22 }, lookout: { n: 5, c: true, w: 2.7, k: 0.2 }, elf: { n: 6, c: true, w: 3.6, k: 0.25 }, cookie: { n: 5, c: true, w: 3.2, k: 0.25 }, gate: { n: 6, c: true, w: 3.4, k: 0.22 } };
+  const VART = { hall: { n: 10, c: true, w: 4.4, k: 0.24 }, goldmine: { n: 10, c: true, w: 3.6, k: 0.2 }, bakery: { n: 10, c: true, w: 3.6, k: 0.2 }, mine: { n: 10, c: true, w: 3.6, k: 0.2 }, vault: { n: 8, c: true, w: 3.4, k: 0.22 }, tower: { n: 10, c: true, w: 2.9, k: 0.16 }, stable: { n: 6, c: true, w: 3.4, k: 0.25 }, forge: { n: 7, c: true, w: 3.4, k: 0.22 }, lookout: { n: 5, c: true, w: 2.7, k: 0.2 }, elf: { n: 6, c: true, w: 3.6, k: 0.25 }, cookie: { n: 5, c: true, w: 3.2, k: 0.25 }, gate: { n: 6, c: true, w: 3.4, k: 0.22 }, jail: { n: 5, c: true, w: 3, k: 0.25 } };
   const texCache = {};
   function spriteModel(THREE, id, L, busy) {
     const A = VART[id], key = busy && A.c ? 'c' : String(Math.min(A.n, L));
@@ -344,6 +344,7 @@ CZ.screens.village = (function () {
       const C = CZ.village;
       switch (id) {
         case 'hall': return t('vil.e.hall', { n: Math.max(2, L * 2) });
+        case 'jail': return t('vil.e.jail', { n: L * 10 });
         case 'gate': return t('vil.e.gate', { n: L * 5 });
         case 'cookie': return t('vil.e.cookie', { n: L * 3, c: L * 5 });
         case 'elf': return t('vil.e.elf', { n: VL().rate('elf') });
