@@ -1,6 +1,6 @@
 {
   "appId": "com.catchzibo.game",
-  "appName": "Tiny Keep",
+  "appName": "Zibo’s Raid",
   "webDir": "www",
   "android": {
     "backgroundColor": "#14233c"

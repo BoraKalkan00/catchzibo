@@ -27,7 +27,7 @@ CZ.share = (function () {
     const grd = x.createLinearGradient(0, 0, 0, H);
     grd.addColorStop(0, 'rgba(10,14,40,.55)'); grd.addColorStop(.45, 'rgba(10,14,40,.1)'); grd.addColorStop(1, 'rgba(10,14,40,.8)');
     x.fillStyle = grd; x.fillRect(0, 0, W, H);
-    outlined(x, 'TINY KEEP', 120, W / 2, 200, '#8be95a');
+    outlined(x, 'ZIBO’S RAID', 110, W / 2, 200, '#8be95a');
     const hero = await load(CZ.charArt ? CZ.charArt.url(info.avatar || 'girl', 'front') : '');
     const zibo = await load(CZ.art('zibo.laugh'));
     if (hero) { const hh = 820, ww = hh * hero.width / hero.height; x.drawImage(hero, W * 0.3 - ww / 2, 470, ww, hh); }
@@ -54,11 +54,11 @@ CZ.share = (function () {
           const w = await P.Filesystem.writeFile({ path: 'catch-zibo.png', data, directory: 'CACHE' });
           files = [w.uri];
         }
-        await P.Share.share(Object.assign({ title: 'Tiny Keep', text, dialogTitle: 'Tiny Keep' }, info.url ? { url: info.url } : {}, files ? { files } : {}));
+        await P.Share.share(Object.assign({ title: 'Zibo’s Raid', text, dialogTitle: 'Zibo’s Raid' }, info.url ? { url: info.url } : {}, files ? { files } : {}));
         return;
       } catch (e) {
         if (e && /cancel/i.test(e.message || '')) return;
-        try { await P.Share.share({ title: 'Tiny Keep', text, url: info.url }); return; } catch (e2) { /* tarayıcı yoluna düş */ }
+        try { await P.Share.share({ title: 'Zibo’s Raid', text, url: info.url }); return; } catch (e2) { /* tarayıcı yoluna düş */ }
       }
     }
     try {

@@ -1,4 +1,4 @@
-# Google Play mağaza sayfası — Tiny Keep: Zibo’s Raid
+# Google Play mağaza sayfası — Zibo’s Raid: Tiny Keep
 
 Ekran görüntüleri: bu klasördeki `tr_1.jpg … tr_8.jpg` (Türkçe) ve `en_1.jpg … en_8.jpg` (İngilizce), 1080×1920.
 Gizlilik politikası: https://borakalkan00.github.io/catchzibo/privacy.html
@@ -8,7 +8,7 @@ Kategori: Oyun → Gündelik (Casual) · Hedef kitle: 6–12 ve tüm yaşlar (Fa
 
 ## Türkçe
 
-**Uygulama adı (30):** Tiny Keep: Zibo’s Raid Goblin Köyü
+**Uygulama adı (30):** Zibo’s Raid: Tiny Keep Goblin Köyü
 
 **Kısa açıklama (80):** Ayına bin, goblinleri kovala, altın topla, köyünü kuleyle savun!
 
@@ -38,7 +38,7 @@ Her ay yeni sezon: 30 kademe, Altın Ayı, Buz Kurdu ve binlerce altın.
 
 ## English
 
-**App name (30):** Tiny Keep: Zibo’s Raid Goblin Village
+**App name (30):** Zibo’s Raid: Tiny Keep Goblin Village
 
 **Short description (80):** Ride your bear, chase goblins, grab gold and defend your village with towers!
 
