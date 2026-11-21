@@ -27,7 +27,7 @@ CZ.share = (function () {
     const grd = x.createLinearGradient(0, 0, 0, H);
     grd.addColorStop(0, 'rgba(10,14,40,.55)'); grd.addColorStop(.45, 'rgba(10,14,40,.1)'); grd.addColorStop(1, 'rgba(10,14,40,.8)');
     x.fillStyle = grd; x.fillRect(0, 0, W, H);
-    outlined(x, 'CATCH ZIBO!', 120, W / 2, 200, '#8be95a');
+    outlined(x, 'TINY KEEP', 120, W / 2, 200, '#8be95a');
     const hero = await load(CZ.charArt ? CZ.charArt.url(info.avatar || 'girl', 'front') : '');
     const zibo = await load(CZ.art('zibo.laugh'));
     if (hero) { const hh = 820, ww = hh * hero.width / hero.height; x.drawImage(hero, W * 0.3 - ww / 2, 470, ww, hh); }
