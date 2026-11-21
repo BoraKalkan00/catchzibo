@@ -9,11 +9,65 @@ CZ.screens.village = (function () {
 
   // Yapay zekâ modelleri (varsa): bina -> [model, boy]
   const VGEN = { hall: ['koymeydani', 6.2], mine: ['altinmadeni', 3.6], bakery: ['firin', 4.2], stable: ['ahir', 4.2], forge: ['demirci', 4], tower: ['kartopukulesi', 4.5] };
+  // Seviye kademesi: 1-3 → 1, 4-6 → 2, 7+ → 3. Kademe modeli (ör. firin_2) varsa o kullanılır.
+  const tierOf = L => L >= 7 ? 3 : L >= 4 ? 2 : 1;
+  function genName(id, L) {
+    const base = VGEN[id] && VGEN[id][0]; if (!base || !CZ.gen3d) return null;
+    for (let t = tierOf(L); t >= 1; t--) { const n = t > 1 ? base + '_' + t : base; if (CZ.gen3d.has(n)) return n; }
+    return null;
+  }
+  // Her seviyede görünür bir şey eklenir: bayrak, fenerler, taş zemin, altın süs, tepe yıldızı, parıltı.
+  function decorate(THREE, g, id, L) {
+    if (L <= 0) return g;
+    g.updateMatrixWorld(true);
+    const bb = new THREE.Box3().setFromObject(g), sz = bb.getSize(new THREE.Vector3());
+    const R = Math.min(sz.x, sz.z) * 0.5 + 0.2, top = bb.max.y;
+    const mat = (c, e) => CZ.style.mat(e ? { color: c, emissive: e } : { color: c });
+    const add = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = true; g.add(o); return o; };
+    const gold = mat(0xf2c230, 0x4a3000), wood = mat(0x8a5a30);
+    const flagCol = [0xd8282a, 0xd8282a, 0x2f5fd8, 0x2f5fd8, 0x3aa84a, 0x3aa84a, 0x9a3ad8, 0x9a3ad8, 0xf2c230, 0xf2c230][Math.min(9, L - 1)];
+    // Lv1+: taban (seviye arttıkça taş → altın kenarlı)
+    if (L >= 4) { const base = add(new THREE.CylinderGeometry(R, R + 0.12, 0.14, 20), mat(0xc8c2b4), 0, 0.05, 0); base.receiveShadow = true; }
+    if (L >= 7) add(new THREE.TorusGeometry(R + 0.05, 0.07, 6, 28), gold, 0, 0.16, 0).rotation.x = Math.PI / 2;
+    // Lv2+: bayrak direği (renk seviyeyle değişir); Lv6+: iki bayrak
+    const flag = (x, z) => {
+      add(new THREE.CylinderGeometry(0.05, 0.06, 2.4, 6), wood, x, 1.2, z);
+      const f = add(new THREE.BoxGeometry(0.8, 0.5, 0.04), mat(flagCol), x + 0.42, 2.1, z); f.userData.wave = Math.random() * 6;
+      if (L >= 8) add(new THREE.SphereGeometry(0.1, 8, 6), gold, x, 2.45, z);
+    };
+    if (L >= 2) flag(-R * 0.85, R * 0.55);
+    if (L >= 6) flag(R * 0.85, R * 0.55);
+    // Lv3+: yanan fenerler (seviye arttıkça sayı artar)
+    if (L >= 3) {
+      const n = Math.min(10, 2 + (L - 3) * 2), lampM = new THREE.MeshBasicMaterial({ color: 0xffd27a });
+      for (let i = 0; i < n; i++) {
+        const a = Math.PI * (0.1 + 0.8 * i / Math.max(1, n - 1)), x = Math.cos(a) * (R + 0.1), z = Math.sin(a) * (R + 0.1);
+        add(new THREE.CylinderGeometry(0.035, 0.035, 0.9, 5), wood, x, 0.45, z);
+        add(new THREE.SphereGeometry(0.12, 8, 6), lampM, x, 0.95, z);
+      }
+    }
+    // Lv4+: hediye/fıçı yığını
+    if (L >= 4) [[0.55, 0xd8282a], [0.75, 0x2f5fd8], [0.45, 0x3aa84a]].slice(0, L >= 7 ? 3 : 2).forEach(([s, c], i) => {
+      add(new THREE.BoxGeometry(s * 0.6, s * 0.6, s * 0.6), mat(c), R * 0.55 - i * 0.45, s * 0.3 + 0.1, R * 0.8).rotation.y = i * 0.5;
+    });
+    // Lv5+: altın çatı süsü; Lv10: dönen altın yıldız + parıltı halkası
+    if (L >= 5) add(new THREE.SphereGeometry(0.16 + (L >= 8 ? 0.06 : 0), 10, 8), gold, 0, top + 0.12, 0);
+    if (L >= 10) {
+      const st = add(new THREE.OctahedronGeometry(0.45, 0), mat(0xffd84a, 0x806000), 0, top + 0.75, 0); st.userData.spin = 1;
+      const sp = new THREE.MeshBasicMaterial({ color: 0xfff3b0, transparent: true, opacity: 0.8 });
+      for (let i = 0; i < 6; i++) { const o = add(new THREE.OctahedronGeometry(0.12, 0), sp, 0, 0, 0); o.castShadow = false; o.userData.orbit = [i / 6 * 6.28, R * 0.9, top * (0.4 + (i % 3) * 0.2)]; }
+    }
+    return g;
+  }
   function model(THREE, id, L) {
-    if (L > 0 && VGEN[id] && CZ.gen3d && CZ.gen3d.has(VGEN[id][0])) {
+    const gn = L > 0 ? genName(id, L) : null;
+    if (gn) {
       const g = new THREE.Group();
-      g.add(CZ.gen3d.get(VGEN[id][0], VGEN[id][1] * (0.85 + Math.min(10, L) * 0.04)));
-      return g;
+      // aynı kademede de her seviye biraz büyür; yeni kademe modeli gelince büyüme sıfırlanır
+      const t = tierOf(L), inTier = L - (t === 1 ? 1 : t === 2 ? 4 : 7), tierModel = gn !== VGEN[id][0];
+      const k = tierModel ? 1 + inTier * 0.035 : 0.85 + Math.min(10, L) * 0.04;
+      g.add(CZ.gen3d.get(gn, VGEN[id][1] * k));
+      return decorate(THREE, g, id, L);
     }
     const toon = c => CZ.style.mat(c);
     const g = new THREE.Group();
@@ -152,7 +206,8 @@ CZ.screens.village = (function () {
     function place(id) {
       if (blds[id]) { scene.remove(blds[id].g); }
       const L = VL().lv(id);
-      const g = model(THREE, id, L);
+      let g = model(THREE, id, L);
+      if (!genName(id, L) && L > 0 && !g.userData.mount) decorate(THREE, g, id, L);
       const [x, z] = SPOTS[id];
       g.position.set(x, 0, z);
       g.userData.id = id;
@@ -162,10 +217,51 @@ CZ.screens.village = (function () {
     }
     CZ.VB.forEach(b => place(b.id));
     // inşaat iskelesi göstergesi
-    const scaffold = new THREE.Group();
-    const sMat = CZ.style.mat({ color: 0xf2c230 });
-    [[-1.8, -1.8], [1.8, -1.8], [-1.8, 1.8], [1.8, 1.8]].forEach(([x, z]) => { const p = new THREE.Mesh(new THREE.BoxGeometry(0.15, 4.5, 0.15), sMat); p.position.set(x, 2.25, z); scaffold.add(p); });
-    scene.add(scaffold);
+    // Yükseltme sürerken: binayı saran ahşap iskele, sarı-siyah şerit, dönen vinç, toz bulutları ve zıplayan çekiç.
+    const scaffold = new THREE.Group(); scene.add(scaffold);
+    const SC = { crane: null, dust: [], hammer: null, id: null };
+    function buildScaffold(id) {
+      scaffold.clear(); SC.dust = []; SC.id = id;
+      const b = blds[id]; if (!b) return;
+      b.g.updateMatrixWorld(true);
+      const bb = new THREE.Box3().setFromObject(b.g), sz = bb.getSize(new THREE.Vector3());
+      const hx = Math.max(1.4, sz.x / 2 + 0.25), hz = Math.max(1.4, sz.z / 2 + 0.25), H = Math.max(2.5, sz.y * 0.8);
+      const wood = CZ.style.mat({ color: 0xb8864e }), yel = CZ.style.mat({ color: 0xf2c230 }), blk = CZ.style.mat({ color: 0x222222 });
+      const box = (w, hh, d, m, x, y, z) => { const o = new THREE.Mesh(new THREE.BoxGeometry(w, hh, d), m); o.position.set(x, y, z); o.castShadow = true; scaffold.add(o); return o; };
+      [[-hx, -hz], [hx, -hz], [-hx, hz], [hx, hz], [0, hz], [0, -hz]].forEach(([x, z]) => box(0.12, H, 0.12, wood, x, H / 2, z));
+      for (let y = 1; y < H; y += 1.1) { box(hx * 2, 0.08, 0.32, wood, 0, y, hz); box(hx * 2, 0.08, 0.32, wood, 0, y, -hz); box(0.32, 0.08, hz * 2, wood, -hx, y, 0); box(0.32, 0.08, hz * 2, wood, hx, y, 0); }
+      for (let i = 0; i < 8; i++) box(hx * 2 / 8 - 0.02, 0.14, 0.04, i % 2 ? blk : yel, -hx + (i + 0.5) * hx * 2 / 8, 0.55, hz + 0.25);
+      // vinç
+      const crane = new THREE.Group(); crane.position.set(hx + 0.6, 0, -hz - 0.4); scaffold.add(crane);
+      const mast = new THREE.Mesh(new THREE.BoxGeometry(0.22, H + 1.6, 0.22), yel); mast.position.y = (H + 1.6) / 2; crane.add(mast);
+      const arm = new THREE.Group(); arm.position.y = H + 1.6; crane.add(arm);
+      const jib = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 3.4), yel); jib.position.z = 1.1; arm.add(jib);
+      const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.4, 4), blk); rope.position.set(0, -0.7, 2.6); arm.add(rope);
+      const load = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.5), wood); load.position.set(0, -1.55, 2.6); arm.add(load);
+      SC.crane = arm;
+      // çekiç
+      const hm = new THREE.Group(); hm.position.set(-hx * 0.5, H + 0.25, hz); scaffold.add(hm);
+      const hd = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.2), CZ.style.mat({ color: 0x8a8a9a })); hd.position.y = 0.4; hm.add(hd);
+      const hl = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.45, 5), wood); hl.position.y = 0.2; hm.add(hl);
+      SC.hammer = hm;
+      // toz
+      const dm = new THREE.MeshBasicMaterial({ color: 0xeee6d8, transparent: true, opacity: 0.7, depthWrite: false });
+      for (let i = 0; i < 10; i++) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.28, 7, 5), dm.clone()); d.userData.t = i / 10; d.userData.a = Math.random() * 6.28; scaffold.add(d); SC.dust.push(d); }
+      SC.r = Math.max(hx, hz);
+    }
+    function animScaffold(now, dt) {
+      if (!scaffold.visible) return;
+      if (SC.crane) SC.crane.rotation.y = Math.sin(now / 1800) * 1.1;
+      if (SC.hammer) SC.hammer.rotation.z = Math.max(0, Math.sin(now / 160)) * -1.3;
+      SC.dust.forEach(d => { const u = d.userData; u.t = (u.t + dt * 0.45) % 1; const r = SC.r * (0.7 + u.t * 0.6);
+        d.position.set(Math.cos(u.a) * r, 0.2 + u.t * 1.2, Math.sin(u.a) * r); d.scale.setScalar(0.6 + u.t * 1.4); d.material.opacity = 0.65 * (1 - u.t); });
+    }
+    function animDecor(now) {
+      Object.values(blds).forEach(b => b.g.traverse(o => { const u = o.userData;
+        if (u.wave !== undefined) o.rotation.y = Math.sin(now / 300 + u.wave) * 0.35;
+        if (u.spin) { o.rotation.y = now / 700; o.position.y += Math.sin(now / 400) * 0.002; }
+        if (u.orbit) { const a = u.orbit[0] + now / 1500; o.position.set(Math.cos(a) * u.orbit[1], u.orbit[2] + Math.sin(now / 300 + u.orbit[0]) * 0.2, Math.sin(a) * u.orbit[1]); o.rotation.y = now / 300; } }));
+    }
 
     /* ---------- Arayüz ---------- */
     const labels = h('div', { class: 'vil-labels' });
@@ -206,9 +302,9 @@ CZ.screens.village = (function () {
     }
     function refreshJob() {
       const Vd = VL().ensure();
-      if (!Vd.job) { jobBar.replaceChildren(h('span', { text: t('vil.idle') })); jobBar.classList.add('idle'); scaffold.visible = false; return; }
+      if (!Vd.job) { jobBar.replaceChildren(h('span', { text: t('vil.idle') })); jobBar.classList.add('idle'); scaffold.visible = false; SC.id = null; return; }
       jobBar.classList.remove('idle');
-      const [x, z] = SPOTS[Vd.job.id]; scaffold.position.set(x, 0, z); scaffold.visible = true;
+      const [x, z] = SPOTS[Vd.job.id]; if (SC.id !== Vd.job.id || !scaffold.children.length) buildScaffold(Vd.job.id); scaffold.position.set(x, 0, z); scaffold.visible = true;
       jobBar.replaceChildren(...[
         h('span', { class: 'vil-job-t' }, '🔨 ', t('vil.b.' + Vd.job.id), ' → ', t('vil.lv', { n: Vd.job.to }), ' · ', h('b', { class: 'vil-left', text: VL().fmt(VL().left()) })),
         btn(String(VL().gemCost()), () => { const r = VL().rush(); if (r === 'short') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('vil.gemShort')); } done(); }, 'small', 'ui.emerald'),
@@ -302,7 +398,7 @@ CZ.screens.village = (function () {
       const cy = 30 * far, cz = 19 * far;
       camera.position.set(pan.x, cy, pan.z + cz); camera.lookAt(pan.x, 0, pan.z);
       Object.values(blds).forEach(b => { if (b.g.userData.mount) b.g.userData.mount.update(dt, 0); });
-      scaffold.rotation.y = Math.sin(now / 600) * 0.02;
+      animScaffold(now, dt); animDecor(now);
       camera.updateMatrixWorld();
       CZ.VB.forEach(b => {
         const [x, z] = SPOTS[b.id];
