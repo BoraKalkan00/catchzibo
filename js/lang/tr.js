@@ -1541,5 +1541,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "ml.seat0": "Yemekhanede oturacak yer yok, ayakta yiyoruz!",
   "ml.seat1": "Akşam yemeğinde sandalye kavgası çıktı… Yemekhane büyümeli.",
   "ml.thanks0": "Notlarımı gördün şef, teşekkür ederim! Gerçekten köyüne değer veriyorsun. 💛",
-  "ml.thanks1": "Yeni odam harika! Bu gece ilk kez deliksiz uyuyacağım. Sağ ol şef! 🛏️"
+  "ml.thanks1": "Yeni odam harika! Bu gece ilk kez deliksiz uyuyacağım. Sağ ol şef! 🛏️",
+  "heist.start": "Zibo kasadan {n} altın kaptı! Yakala! 💰🏃",
+  "heist.lost": "Zibo kaçtı… {n} altın gitti 😜",
+  "heist.win": "Zibo'yu yakaladın! {n} altın geri + ganimet! 🎉"
 });

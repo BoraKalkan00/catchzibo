@@ -1280,6 +1280,7 @@ CZ.screens.valley = (function () {
       let total = o.coins + (o.stolen || 0);
       if (o.type === 'goblin' && BUD.id === 'noel') total = Math.round(total * (1.05 + CZ.heroes.lv('noel') * 0.02));
       if (o.type === 'goblin' && CZ.heroes && (d.tutV || 0) >= 5) { const sh = o.boss ? 4 : (Math.random() < 0.03 ? 1 : 0); if (sh) { const hid = CZ.heroes.randomDrop(sh); if (hid) { setTimeout(() => { if (V) floatAt(o, t('hero.shardGot', { n: sh, name: t('hero.n.' + hid) }), 'wave'); }, o.boss ? 900 : 0); heroUi(); } } }
+      if (o.heist) { floatAt(o, t('heist.win', { n: o.stolen }), 'wave'); dropLoot(o.x, o.z, 2.5); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]); }
       if (o.type === 'goblin' && CZ.pass) CZ.pass.addXp(3);
       if (o.type === 'goblin' && (d.tutV || 0) >= 5) { const ch = o.boss ? 0.7 : o.rush ? 0.06 : 0.025; if (Math.random() < ch) dropLoot(o.x, o.z, o.boss ? 2.5 : 1); }
       if (o.type === 'goblin' && V.tut) V.tut.on('goblin');
@@ -1804,7 +1805,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
-    V.pause = pause; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -1850,7 +1851,7 @@ CZ.screens.valley = (function () {
           h('span', {}, '⭐ ', h('b', { text: String(d.bestNight || V.wave) }), h('small', { text: t('night.best') }))),
         btn(t('night.x2'), function () { if (doubled) return; CZ.ads.show(() => { doubled = true; gain(earned + bonus, true); CZ.ui.fly && CZ.ui.fly(this, 'gold', earned + bonus); CZ.audio.sfx('star'); this.disabled = true; CZ.state.save(); }); }, 'primary wide', 'ic:play'),
         btn(t('share.btn'), () => { if (CZ.share && CZ.share.share) CZ.share.share({ big: t('night.shareBig', { n: V.wave }), label: t('night.shareLabel'), line: '👺 ' + kills, avatar: d.avatar }); }, 'ghost-dark wide'),
-        btn(t('night.go'), () => { box.remove(); V.paused = false; V.last = 0; }, 'small ghost-dark')));
+        btn(t('night.go'), () => { box.remove(); V.paused = false; V.last = 0; if (V.wave >= 2 && Math.random() < 0.55) setTimeout(() => { if (V && V.phase === 'day') ziboHeist(); }, 1800); }, 'small ghost-dark')));
       wrap.append(box); V.paused = true;
     }
     function nightLeft() { return Math.max(0, (V.nTot || 0) - (V.nSp || 0)) + goblins.filter(o => o.night && !o.dead).length; }
@@ -1892,6 +1893,13 @@ CZ.screens.valley = (function () {
           rushEnd(rand(55, 75));
         }
       }
+    }
+    // ZİBO KAÇIYOR (22 Kas): gece bitince Zibo kasadan altın kapıp kaçar — vurup düşürürsen altın + bonus ganimet
+    function ziboHeist() {
+      const amt = Math.max(30, Math.round(Math.min((d.gold || 0) * 0.12, 400))); if ((d.gold || 0) < amt) return;
+      d.gold -= amt; resUi(); spawnGoblin(true, [0, 0]); const gb = goblins[goblins.length - 1]; if (!gb) return;
+      gb.heist = true; gb.flee = true; gb.stolen = amt; gb.speed = 4.2; gb.hp = gb.maxHp = Math.max(8, Math.round(gb.maxHp * 0.6));
+      floatAt(P, t('heist.start', { n: amt }), 'wave'); CZ.audio.sfx('horn'); CZ.audio.vibrate([80, 40, 80]); V.shake = Math.max(V.shake || 0, 0.2);
     }
     function cycleTick(dt) {
       if (!V.phase) { V.phase = 'day'; V.phT = DAY_LEN; V.skyK = 0; V.wave = 0; }
@@ -2056,7 +2064,7 @@ CZ.screens.valley = (function () {
         const dxp = P.x - o.x, dzp = P.z - o.z, dp = Math.hypot(dxp, dzp);
         const rc = Math.hypot(o.x, o.z);
         let tx = 0, tz = 0, sp = o.speed, attackFence = null; o.bt = false; o.tw = null;
-        if (o.flee) { tx = o.x / (rc || 1) * 80; tz = o.z / (rc || 1) * 80; sp = o.speed * 1.15; if (rc > WORLD_R - 2) { o.dead = true; scene.remove(o.mesh); if (o.ice) { scene.remove(o.ice); o.ice = null; } if (o.bar) { scene.remove(o.bar.g); o.bar = null; } targets.splice(targets.indexOf(o), 1); goblins.splice(goblins.indexOf(o), 1); return; } }
+        if (o.flee) { tx = o.x / (rc || 1) * 80; tz = o.z / (rc || 1) * 80; sp = o.speed * 1.15; if (o.heist && rc < 2) { tx = o.x + 1; } if (rc > WORLD_R - 2) { if (o.heist) { floatAt(P, t('heist.lost', { n: o.stolen }), 'wave'); CZ.audio.sfx('wrong'); } o.dead = true; scene.remove(o.mesh); if (o.ice) { scene.remove(o.ice); o.ice = null; } if (o.bar) { scene.remove(o.bar.g); o.bar = null; } targets.splice(targets.indexOf(o), 1); goblins.splice(goblins.indexOf(o), 1); return; } }
         else if (o.kind === 'bomber' && (o.tgt = o.tgt && !(o.tgt.down > 0) && slot(o.tgt) ? o.tgt : pads.filter(p => p.kind === 't' && slot(p) && slot(p).lv >= 1 && !(p.down > 0)).sort((a, b) => Math.hypot(a.x - o.x, a.z - o.z) - Math.hypot(b.x - o.x, b.z - o.z))[0])) {
           tx = o.tgt.x; tz = o.tgt.z;
           if (Math.hypot(tx - o.x, tz - o.z) < 1.8) { o.tgt.down = 25; boomFx(o.x, o.z); boomFx(tx, tz); CZ.audio.sfx('crack'); floatAt(o.tgt, t('siege.towerDown'), 'wave'); o.coins = 0; o.hp = 0; kill(o, true); return; }

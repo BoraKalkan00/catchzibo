@@ -1359,5 +1359,8 @@ CZ.i18n.register('fr', 'Français', {
   "ml.seat0": "No seats in the canteen, we eat standing up!",
   "ml.seat1": "There was a chair fight at dinner… The canteen needs to grow.",
   "ml.thanks0": "You read my notes, chief, thank you! You truly care about your village. 💛",
-  "ml.thanks1": "My new room is amazing! I'll finally sleep through the night. Thanks, chief! 🛏️"
+  "ml.thanks1": "My new room is amazing! I'll finally sleep through the night. Thanks, chief! 🛏️",
+  "heist.start": "Zibo grabbed {n} gold from the vault! Catch him! 💰🏃",
+  "heist.lost": "Zibo escaped… {n} gold is gone 😜",
+  "heist.win": "You caught Zibo! {n} gold back + loot! 🎉"
 });
