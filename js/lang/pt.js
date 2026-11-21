@@ -1266,5 +1266,14 @@ CZ.i18n.register('pt', 'Português', {
   "wpn.d.sword": "Corpo a corpo: acerta todos na frente. Muito forte.",
   "wpn.d.staff": "Lança orbes de gelo que congelam goblins.",
   "wpn.equip": "Equipar",
-  "wpn.short2": "Recursos insuficientes"
+  "wpn.short2": "Recursos insuficientes",
+  "bud.down": "Seu herói caiu!",
+  "bud.up": "Seu herói levantou!",
+  "tr.title": "Mercador",
+  "tr.sub": "Troque qualquer coisa por qualquer coisa. O mercador fica com 18%.",
+  "tr.give": "Dar",
+  "tr.get": "Receber",
+  "tr.all": "Tudo",
+  "tr.swap": "Trocar",
+  "tr.tooSmall": "Muito pouco, dê um pouco mais"
 });

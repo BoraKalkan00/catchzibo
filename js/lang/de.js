@@ -1266,5 +1266,14 @@ CZ.i18n.register('de', 'Deutsch', {
   "wpn.d.sword": "Nahkampf: trifft alle vor dir auf einmal. Sehr stark.",
   "wpn.d.staff": "Wirft Eiskugeln, die Goblins einfrieren.",
   "wpn.equip": "Ausrüsten",
-  "wpn.short2": "Nicht genug Ressourcen"
+  "wpn.short2": "Nicht genug Ressourcen",
+  "bud.down": "Dein Held ist am Boden!",
+  "bud.up": "Dein Held steht wieder!",
+  "tr.title": "Händler",
+  "tr.sub": "Tausche alles gegen alles. Der Händler behält 18 %.",
+  "tr.give": "Geben",
+  "tr.get": "Bekommen",
+  "tr.all": "Alles",
+  "tr.swap": "Tauschen",
+  "tr.tooSmall": "Zu wenig, gib etwas mehr"
 });

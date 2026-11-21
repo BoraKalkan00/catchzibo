@@ -1122,7 +1122,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "upg.next": "Sonra",
   "upg.cost": "Fiyat",
   "upg.pay": "Yükselt",
-  "upg.stand": "Eksik kaynakları topla. Dairenin üstünde durunca kaynakların da akar.",
+  "upg.stand": "Eksik kaynakları topla. Dairenin üstüne gel ve Yükselt’e bas.",
   "upg.tap": "Ayrıntı için dokun",
   "st.cap10": "10 seviyeli binalar en fazla",
   "st.cap5": "5 seviyeli binalar en fazla",
@@ -1448,5 +1448,14 @@ CZ.i18n.register('tr', 'Türkçe', {
   "wpn.d.sword": "Yakın dövüş: öndeki herkese birden vurur. Çok güçlü.",
   "wpn.d.staff": "Buz küresi atar, goblinleri dondurur.",
   "wpn.equip": "Kuşan",
-  "wpn.short2": "Yeterli kaynağın yok"
+  "wpn.short2": "Yeterli kaynağın yok",
+  "bud.down": "Kahramanın yere düştü!",
+  "bud.up": "Kahramanın ayağa kalktı!",
+  "tr.title": "Tüccar",
+  "tr.sub": "Her şeyi her şeyle takas et. Tüccar %18 pay alır.",
+  "tr.give": "Ver",
+  "tr.get": "Al",
+  "tr.all": "Hepsi",
+  "tr.swap": "Takas et",
+  "tr.tooSmall": "Bu miktar çok az, biraz daha ver"
 });

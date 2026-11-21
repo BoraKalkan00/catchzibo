@@ -250,7 +250,6 @@
               btn(t('common.close'), () => wrap.remove(), 'small ghost')));
             el.append(wrap);
           }, { dot: !!dNext || goldFree || game.diaryUnread() })) : h('div', { class: 'hub-rail right' },
-          rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('valley'), { hot: goldFree, dot: goldFree }),
           rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
           rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() })),
         h('div', { class: 'hub-cta' },

@@ -1266,5 +1266,14 @@ CZ.i18n.register('es', 'Español', {
   "wpn.d.sword": "Cuerpo a cuerpo: golpea a todos los de delante. Muy fuerte.",
   "wpn.d.staff": "Lanza orbes de hielo que congelan goblins.",
   "wpn.equip": "Equipar",
-  "wpn.short2": "No tienes suficientes recursos"
+  "wpn.short2": "No tienes suficientes recursos",
+  "bud.down": "¡Tu héroe ha caído!",
+  "bud.up": "¡Tu héroe se ha levantado!",
+  "tr.title": "Mercader",
+  "tr.sub": "Cambia cualquier cosa por cualquier cosa. El mercader se queda un 18 %.",
+  "tr.give": "Dar",
+  "tr.get": "Recibir",
+  "tr.all": "Todo",
+  "tr.swap": "Cambiar",
+  "tr.tooSmall": "Muy poco, da un poco más"
 });

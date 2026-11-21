@@ -228,6 +228,6 @@ CZ.screens.chars = {
     el.append(
       CZ.ui.header(t('chars.title'), () => { this.trying = null; CZ.ui.go(params && params.returnTo ? params.returnTo : 'hub'); }),
       preview,
-      h('div', { class: 'scroll chars-body' }, colorPanel, h('div', { class: 'chars-grid' }, CZ.ROSTER.map(card))));
+      h('div', { class: 'scroll chars-body' }, h('div', { class: 'chars-grid' }, CZ.ROSTER.map(card))));
   }
 };

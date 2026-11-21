@@ -1266,5 +1266,14 @@ CZ.i18n.register('fr', 'Français', {
   "wpn.d.sword": "Corps à corps : frappe tous ceux devant toi. Très fort.",
   "wpn.d.staff": "Lance des orbes de glace qui gèlent les gobelins.",
   "wpn.equip": "Équiper",
-  "wpn.short2": "Pas assez de ressources"
+  "wpn.short2": "Pas assez de ressources",
+  "bud.down": "Ton héros est à terre !",
+  "bud.up": "Ton héros s'est relevé !",
+  "tr.title": "Marchand",
+  "tr.sub": "Échange tout contre tout. Le marchand garde 18 %.",
+  "tr.give": "Donner",
+  "tr.get": "Recevoir",
+  "tr.all": "Tout",
+  "tr.swap": "Échanger",
+  "tr.tooSmall": "Trop peu, donne un peu plus"
 });

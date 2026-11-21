@@ -1122,7 +1122,7 @@ CZ.i18n.register('en', 'English', {
   "upg.next": "Next",
   "upg.cost": "Cost",
   "upg.pay": "Upgrade",
-  "upg.stand": "Collect the missing resources. Standing on the circle also feeds them in.",
+  "upg.stand": "Collect the missing resources. Step on the circle and tap Upgrade.",
   "upg.tap": "Tap for details",
   "st.cap10": "10-level buildings up to",
   "st.cap5": "5-level buildings up to",
@@ -1448,5 +1448,14 @@ CZ.i18n.register('en', 'English', {
   "wpn.d.sword": "Melee: hits everyone in front at once. Very strong.",
   "wpn.d.staff": "Throws ice orbs that freeze goblins.",
   "wpn.equip": "Equip",
-  "wpn.short2": "Not enough resources"
+  "wpn.short2": "Not enough resources",
+  "bud.down": "Your hero is down!",
+  "bud.up": "Your hero is back up!",
+  "tr.title": "Trader",
+  "tr.sub": "Trade anything for anything. The trader keeps an 18% cut.",
+  "tr.give": "Give",
+  "tr.get": "Get",
+  "tr.all": "All",
+  "tr.swap": "Trade",
+  "tr.tooSmall": "Too little, give a bit more"
 });

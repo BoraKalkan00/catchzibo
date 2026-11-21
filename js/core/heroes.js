@@ -46,14 +46,15 @@ CZ.heroes = (function () {
   // köy savunmasına katkı (gece baskını): sahip olunan kahramanların seviyeleri
   const defense = () => CZ.HEROES.reduce((n, h) => n + (owned(h.id) ? lv(h.id) * (h.id === 'mila' ? 0.5 : 0.25) : 0), 0);
   const ports = {};
-  function portrait(id) {
+  function portrait(id) {   // (21 Kas) oyundaki Mixamo 3D modelinden çizilir; model inmediyse indirip resmi yeniler
     if (ports[id]) return ports[id];
-    const gid = CZ.KK_GEN && CZ.KK_GEN['hero_' + id], ready = gid && CZ.gen3d && CZ.gen3d.has(gid);
-    if (gid && !ready && CZ.gen3d) CZ.gen3d.need([gid]).then(() => { delete ports[id]; document.querySelectorAll('img[data-hero="' + id + '"]').forEach(el => { el.src = portrait(id); }); });   // model inince resim yenilenir
+    const k = 'hero_' + id, mx = CZ.kk && CZ.kk.hasMX && CZ.kk.hasMX(k);
+    if (!mx && CZ.kk && CZ.kk.needMX) CZ.kk.needMX([k]).then(() => { if (!CZ.kk.hasMX(k)) return; delete ports[id]; document.querySelectorAll('img[data-hero="' + id + '"]').forEach(el => { el.src = portrait(id); }); });
     let url = '';
-    try { url = CZ.kk.portrait(ready ? 'hero_' + id : def(id).look, 'front'); } catch (e) { url = ''; }
-    if (ready || !gid) ports[id] = url;
+    try { url = CZ.kk.portrait(mx ? k : def(id).look, 'front'); } catch (e) { url = ''; }
+    if (mx) ports[id] = url;
     return url;
   }
+
   return { MAX, def, all, st, owned, lv, unlockNeed, upNeed, add, canUnlock, unlock, canUp, up, buddy, setBuddy, randomDrop, hasNews, defense, portrait };
 })();

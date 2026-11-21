@@ -2120,3 +2120,26 @@ body.wide #rotate-note { display: none !important; }
 .bigmap-cv { border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,.45); background: #e8eef8; touch-action: none; }
 .bigmap-bar { display: flex; align-items: center; gap: 8px; }
 .bigmap-z { min-width: 44px; text-align: center; color: #fff; font-weight: 900; font-size: 18px; }
+
+/* Tüccar */
+.vl-trade { position: absolute; left: 50%; bottom: calc(150px + var(--safe-bottom, 0px)); transform: translateX(-50%); z-index: 6; display: flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 18px; border: 3px solid #fff; background: linear-gradient(#3cd08a, #1f9a5e); color: #fff; font-weight: 900; font-size: 18px; box-shadow: 0 4px 0 #136a40; pointer-events: auto; animation: btnpulse 1.2s ease-in-out infinite; }
+.vl-trade i { font-style: normal; font-size: 24px; }
+.trader { display: flex; flex-direction: column; gap: 6px; max-width: 420px; }
+.tr-sub { color: #6a4a2a; font-size: 12px; }
+.tr-lbl { color: #3a2414; font-size: 14px; margin-top: 4px; }
+.tr-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.tr-res { display: flex; flex-direction: column; align-items: center; padding: 4px 0; border-radius: 10px; border: 2px solid transparent; background: rgba(0,0,0,.06); }
+.tr-res i { font-style: normal; font-size: 22px; }
+.tr-res small { font-size: 10px; font-weight: 800; color: #3a2414; }
+.tr-res.on { border-color: #2fd08a; background: rgba(47,208,138,.2); }
+.tr-res.off { opacity: .3; }
+.tr-amt { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.tr-deal { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; font-weight: 900; color: #3a2414; padding: 6px; border-radius: 12px; background: rgba(255,210,60,.25); }
+.tr-deal .bad { color: #d8282a; }
+/* Silah penceresi yatay ekranda da dar kalsın */
+.wpn-modal { max-width: 440px; margin: 0 auto; }
+/* Küçük harita büyüdü + büyüteç */
+.vl-map { width: 124px !important; height: 124px !important; }
+.vl-hp { top: calc(210px + var(--safe-top, 0px)) !important; width: 124px !important; }
+.vl-heroes { top: calc(232px + var(--safe-top, 0px)) !important; }
+.vl-orders { top: calc(310px + var(--safe-top, 0px)) !important; }
