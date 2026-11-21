@@ -780,7 +780,7 @@ CZ.screens.valley = (function () {
     }
     function towerModel(type, L, busy) {
       // (21 Kas) kartopu kulesi: erimiş görünen yapay zekâ 3D modeli yerine köydeki gibi 2D çizim (seviye başına ayrı resim, inşaatta iskele resmi)
-      if (type === 'snow' && CZ.villageModel) { const g = CZ.villageModel(THREE, 'tower', Math.min(10, L * 2), busy);
+      if (CZ.villageModel) { const g = type === 'snow' ? CZ.villageModel(THREE, 'tower', Math.min(10, L * 2), busy) : CZ.villageModel(THREE, 'cannon', Math.min(5, Math.max(1, L)), busy);
         if (g.userData.sprite) { const sp = g.children[0]; sp.center.set(0.5, 0.06); sp.material.depthTest = true; sp.material.alphaTest = 0.4; g.scale.setScalar(1.25); return g; } }
       const gid = type === 'cannon' ? 'topkulesi' : 'kartopukulesi';
       if (CZ.gen3d.has(gid)) { const g = new THREE.Group(); g.add(CZ.gen3d.get(gid, (type === 'cannon' ? 3.0 : 3.8) * (0.85 + L * 0.08))); return g; }
