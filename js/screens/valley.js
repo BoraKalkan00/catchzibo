@@ -192,17 +192,18 @@ CZ.screens.valley = (function () {
     let ratioIdx = 0;
     renderer.setPixelRatio(RATIOS[0]);
     stage.append(renderer.domElement);
-    const post = CZ.post.create(renderer, { bloom: 0.35, thr: 0.93, sat: 1.08 });
+    const post = CZ.post.create(renderer, { bloom: 0.3, thr: 0.93, sat: 1.08, vig: 0.14 });
     const scene = new THREE.Scene();
     const SKY = 0xbcd4f2;
     scene.background = new THREE.Color(SKY);
-    scene.fog = new THREE.Fog(SKY, 40, 75);
+    scene.fog = new THREE.Fog(SKY, 70, 140);   // geniş ekranda köşeler sisli kalmasın (ortada ışık lekesi gibi görünüyordu)
     const camera = new THREE.PerspectiveCamera(46, 1, 0.5, 160);
     const hemi = new THREE.HemisphereLight(0xdfeaff, 0x56648a, 0.55); scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffe0b0, 1.08); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
+    const sun = new THREE.DirectionalLight(0xffe0b0, 0.92); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
-    sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
-    Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 5, far: 90 }); sun.shadow.bias = -0.002;
+    sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+    // gölge alanı tüm ekranı kapsasın: dar kalınca ortada parlak bir daire, dışında karanlık halka oluşuyordu
+    Object.assign(sun.shadow.camera, { left: -52, right: 52, top: 52, bottom: -52, near: 1, far: 160 }); sun.shadow.bias = -0.002;
     const toon = c => CZ.style.mat(c);
     const at = (m, x, y, z) => { m.position.set(x, y, z); return m; };
     const seeU = { uSee: { value: new THREE.Vector3(-999, -999, 0) }, uSeeR: { value: 90 } };
@@ -305,7 +306,7 @@ CZ.screens.valley = (function () {
       const nz = noise(x, z), n = Math.sin(x * 0.7) * Math.cos(z * 0.6) * 0.03;
       const sm = (a, b, v) => { const q = Math.min(1, Math.max(0, (v - a) / (b - a))); return q * q * (3 - 2 * q); };
       const mix = (A, Bc, k) => A.map((v, j) => v + (Bc[j] - v) * k);
-      let c = [0.84 + n, 0.88 + n, 0.96];                                         // kar
+      let c = [0.8 + n, 0.84 + n, 0.93];                                         // kar
       c = mix(c, [0.8 + n, 0.88 + n, 0.86], sm(0.4, 0.62, nz));                   // ince kar + hafif çimen
       c = mix(c, [0.8 + n, 0.88 + n, 0.82], sm(0.66, 0.9, nz));                   // karı erimiş çimen
       c = mix(c, [0.8 + n, 0.83 + n, 0.9], sm(-0.95, -1.25, nz));                 // kayalık
