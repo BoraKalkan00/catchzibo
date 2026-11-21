@@ -672,6 +672,7 @@ CZ.screens.valley = (function () {
       const hp = Math.round((tough ? 5 : 2) + V.wave * 0.3);
       const gb = { type: 'goblin', x, z, r: 0.7, hp, maxHp: hp, mesh: z3.root, z3, spear, coins: Math.round((tough ? 10 : 4) + V.wave * 0.5), stolen: 0, village: V.wave >= 6 && Math.random() < 0.35, vx: 0, vz: 0, think: 0, stun: 0, atk: rand(0.5, 1.2), lunge: 0, speed: (tough ? 2.8 : 3.3) + Math.min(1, V.wave * 0.06), dmg: 1 + Math.floor(V.wave / 8), flee: false };
       gb.kind = kind; gb.hp = gb.maxHp = Math.round(gb.maxHp * (1 + pw * 0.035));
+      gb.speed *= (B.slow || 1);   // Köy Kapısı goblinleri yavaşlatır
       if (kind === 'bomber') { gb.speed += 0.5; gb.hp = gb.maxHp = Math.max(2, Math.round(gb.maxHp * 0.7)); }
       if (kind === 'jumper') { gb.speed += 0.3; gb.village = true; }
       if (kind === 'shield') { gb.hp = gb.maxHp = Math.round(gb.maxHp * 1.6); gb.speed -= 0.4; }
