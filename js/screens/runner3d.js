@@ -189,6 +189,7 @@ CZ.runner3d = (function () {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     host.append(renderer.domElement);
     renderer.domElement.className = 'runner-canvas';
+    const post = CZ.post.create(renderer, { bloom: 0.6, thr: 0.8, vig: 0.38 });
 
     const scene = new THREE.Scene();
     const FOG = 0x4e5ea6;
@@ -1132,7 +1133,7 @@ CZ.runner3d = (function () {
     function resize() {
       const w = host.clientWidth, h = host.clientHeight;
       if (!w || !h) return;
-      renderer.setSize(w, h, false);
+      renderer.setSize(w, h, false); post.setSize(w, h);
       camera.aspect = w / h;
       // dar ekranda 4 şeridin hepsi görünsün diye görüş açısı genişler
       camera.fov = w / h < 0.6 ? 70 : 62;
@@ -1157,14 +1158,14 @@ CZ.runner3d = (function () {
       if (s.slowT > 0) { s.slowT -= dt; dt *= 0.32; }
       last = now;
       const t0 = performance.now();
-      if (s.paused) { renderer.render(scene, camera); return; }
+      if (s.paused) { post.render(scene, camera); return; }
       if (s.running) step(dt);
       else if (s.catching) catchStep(dt);
       else idle(dt);
       petStep(dt);
       syncZibo3(dt);
       drawCoins();
-      renderer.render(scene, camera);
+      post.render(scene, camera);
       perf.jsAcc += performance.now() - t0;
       perf.acc += raw; perf.n++;
       if (perf.acc >= 1500) {
@@ -1173,7 +1174,8 @@ CZ.runner3d = (function () {
         perf.calls = renderer.info.render.calls;
         // 3 ölçüm üst üste 48 fps altıysa bir kademe düşür
         perf.slow = perf.fps < 48 && !document.hidden ? perf.slow + 1 : 0;
-        if (perf.slow >= 2 && ratioIdx < RATIOS.length - 1) {
+        if (perf.slow >= 2 && post.level > 0) { post.level--; perf.slow = 0; }
+        else if (perf.slow >= 2 && ratioIdx < RATIOS.length - 1) {
           ratioIdx++; perf.slow = 0;
           renderer.setPixelRatio(RATIOS[ratioIdx]); perf.ratio = RATIOS[ratioIdx];
           resize();
@@ -1882,7 +1884,7 @@ CZ.runner3d = (function () {
         document.removeEventListener('visibilitychange', onVis);
         scene.traverse(o => { if (o.geometry) o.geometry.dispose(); });
         Object.values(M).flat().forEach(m => { if (m && m.dispose) { if (m.map) m.map.dispose(); m.dispose(); } });
-        renderer.dispose();
+        post.dispose(); renderer.dispose();
         renderer.forceContextLoss();
         renderer.domElement.remove();
         sledBtn.remove();

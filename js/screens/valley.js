@@ -192,6 +192,7 @@ CZ.screens.valley = (function () {
     let ratioIdx = 0;
     renderer.setPixelRatio(RATIOS[0]);
     stage.append(renderer.domElement);
+    const post = CZ.post.create(renderer, { bloom: 0.5, thr: 0.84 });
     const scene = new THREE.Scene();
     const SKY = 0xbcd4f2;
     scene.background = new THREE.Color(SKY);
@@ -1175,7 +1176,7 @@ CZ.screens.valley = (function () {
     el.append(wrap);
     function resize() {
       const w = stage.clientWidth || window.innerWidth, hh = stage.clientHeight || window.innerHeight;
-      renderer.setSize(w, hh, false); camera.aspect = w / hh; camera.updateProjectionMatrix();
+      renderer.setSize(w, hh, false); post.setSize(w, hh); camera.aspect = w / hh; camera.updateProjectionMatrix();
     }
     resize();
     window.addEventListener('resize', resize);
@@ -1284,7 +1285,7 @@ CZ.screens.valley = (function () {
         window.removeEventListener('pointermove', V_move);
         window.removeEventListener('pointerup', V_up);
         window.removeEventListener('pointercancel', V_up);
-        renderer.dispose();
+        post.dispose(); renderer.dispose();
       }
     };
     function resumeCount() {
@@ -1848,10 +1849,10 @@ CZ.screens.valley = (function () {
       if (V.running && !V.paused) step(dt);
       if (!V) return;
       draw(V.paused ? 0 : dt);
-      renderer.render(scene, camera);
+      post.render(scene, camera);
       // zayıf telefonda çözünürlüğü düşür (30 FPS altına inmesin)
       perf.acc += dt; perf.n++;
-      if (perf.acc > 2) { const fps = perf.n / perf.acc; perf.acc = 0; perf.n = 0; V.fps = Math.round(fps); if (fps < 40 && ratioIdx < RATIOS.length - 1) { ratioIdx++; renderer.setPixelRatio(RATIOS[ratioIdx]); resize(); if (ratioIdx >= 2 && sun.castShadow) { sun.castShadow = false; } } }
+      if (perf.acc > 2) { const fps = perf.n / perf.acc; perf.acc = 0; perf.n = 0; V.fps = Math.round(fps); if (fps < 40 && post.level > 0) { post.level--; } else if (fps < 40 && ratioIdx < RATIOS.length - 1) { ratioIdx++; renderer.setPixelRatio(RATIOS[ratioIdx]); resize(); if (ratioIdx >= 2 && sun.castShadow) { sun.castShadow = false; } } }
     }
     V.raf = requestAnimationFrame(loop);
     V.keys = {};
