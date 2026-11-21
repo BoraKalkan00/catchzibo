@@ -245,7 +245,38 @@ CZ.screens.valley = (function () {
       let m = new THREE.MeshLambertMaterial({ map: t, alphaTest: 0.45, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.3, side: THREE.DoubleSide });
       if (see) m = seeThrough(m); return (pMats[k] = m); };
     const pGeo = (id, hh) => { const g = new THREE.PlaneGeometry(hh * PASP[id], hh); g.translate(0, hh / 2, 0); g.rotateX(PTILT); g.computeVertexNormals(); return g; };
-    const pMesh = (id, hh, see) => { const m = new THREE.Mesh(pGeo(id, hh), pMat(id, see)); m.userData.ol = true; return m; };
+    // (22 Kas) HER ŞEY 3D: eski düz resim kartları (çadır, totem, ateş, goblin kulesi, fener, sandık) yerine kodla çizilmiş 3D modeller
+    const M3 = {};
+    const mk = (geo, col, x, y, z, emi) => { const m = new THREE.Mesh(geo, emi ? new THREE.MeshBasicMaterial({ color: col }) : toon(col)); m.position.set(x || 0, y || 0, z || 0); m.castShadow = !emi; return m; };
+    M3.g_tent = () => { const g = new THREE.Group(); const c = mk(new THREE.ConeGeometry(1.7, 2.7, 6), 0x6b7a3a, 0, 1.35); g.add(c);
+      const band = mk(new THREE.CylinderGeometry(1.08, 1.32, 0.35, 6, 1, true), 0x8a5a2a, 0, 0.95); band.material.side = THREE.DoubleSide; g.add(band);
+      const door = mk(new THREE.PlaneGeometry(0.8, 1.2), 0x2a1a10, 0, 0.6, 1.33); door.rotation.x = -0.27; g.add(door);
+      [[0.35, 0.3], [-0.3, 0.4], [0.1, -0.35]].forEach(([x, z]) => { const st = mk(new THREE.CylinderGeometry(0.04, 0.04, 0.9, 5), 0x5a3a1a, x, 2.95, z); st.rotation.z = x; g.add(st); });
+      const skull = mk(new THREE.SphereGeometry(0.16, 8, 6), 0xf2ead8, 0, 2.15, 0.95); g.add(skull); return g; };
+    M3.g_totem = () => { const g = new THREE.Group(); const cols = [0x8a5a2a, 0x6a4a2a, 0x9a6a3a];
+      cols.forEach((c, i) => { const p = mk(new THREE.CylinderGeometry(0.42 - i * 0.04, 0.46 - i * 0.04, 0.85, 8), c, 0, 0.42 + i * 0.85); g.add(p);
+        [-0.15, 0.15].forEach(x => g.add(mk(new THREE.BoxGeometry(0.12, 0.08, 0.06), i === 2 ? 0xff5a2a : 0x2a1a10, x, 0.55 + i * 0.85, 0.42 - i * 0.04))); g.add(mk(new THREE.BoxGeometry(0.3, 0.06, 0.06), 0x2a1a10, 0, 0.3 + i * 0.85, 0.43 - i * 0.04)); });
+      [-1, 1].forEach(sx => { const w = mk(new THREE.BoxGeometry(0.6, 0.12, 0.3), 0x3cbe5a, sx * 0.5, 2.3, 0); w.rotation.z = sx * 0.3; g.add(w); });
+      g.add(mk(new THREE.SphereGeometry(0.22, 8, 6), 0xf2ead8, 0, 2.75, 0)); return g; };
+    M3.g_fire = () => { const g = new THREE.Group(); for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2; g.add(mk(new THREE.DodecahedronGeometry(0.16, 0), 0x7d8796, Math.cos(a) * 0.55, 0.1, Math.sin(a) * 0.55)); }
+      [0, 1.2, 2.4].forEach(r => { const l = mk(new THREE.CylinderGeometry(0.08, 0.08, 0.9, 6), 0x6a4022, 0, 0.18, 0); l.rotation.z = Math.PI / 2; l.rotation.y = r; g.add(l); });
+      const f1 = mk(new THREE.ConeGeometry(0.32, 0.9, 7), 0xff8a2a, 0, 0.6, 0, true), f2 = mk(new THREE.ConeGeometry(0.18, 0.6, 6), 0xffe06a, 0, 0.55, 0, true); g.add(f1, f2); g.userData.flame = [f1, f2]; FLAMES.push(g); return g; };
+    M3.g_tower = () => { const g = new THREE.Group(); const wood = 0x7a4a22;
+      [[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].forEach(([x, z]) => { const l = mk(new THREE.CylinderGeometry(0.1, 0.13, 3.4, 6), wood, x, 1.7, z); g.add(l); });
+      const pl = mk(new THREE.BoxGeometry(2, 0.18, 2), 0x9a6a3a, 0, 3.3); g.add(pl);
+      [[0, 0.95], [0, -0.95], [0.95, 0], [-0.95, 0]].forEach(([x, z]) => { const r = mk(new THREE.BoxGeometry(Math.abs(x) ? 0.08 : 2, 0.5, Math.abs(z) ? 0.08 : 2), wood, x, 3.6, z); g.add(r); });
+      const roof = mk(new THREE.ConeGeometry(1.5, 1.4, 4), 0x6b7a3a, 0, 4.6); roof.rotation.y = Math.PI / 4; g.add(roof);
+      const fl = mk(new THREE.PlaneGeometry(0.6, 0.4), 0xd8282a, 0.3, 5.5); fl.material.side = THREE.DoubleSide; g.add(fl, mk(new THREE.CylinderGeometry(0.03, 0.03, 0.9, 4), 0x3a2a1a, 0, 5.4)); return g; };
+    M3.lamp = () => { const g = new THREE.Group(); g.add(mk(new THREE.CylinderGeometry(0.06, 0.09, 2.2, 6), 0x2a2e3a, 0, 1.1));
+      g.add(mk(new THREE.BoxGeometry(0.38, 0.42, 0.38), 0x2a2e3a, 0, 2.35)); g.add(mk(new THREE.BoxGeometry(0.28, 0.32, 0.28), 0xffd36a, 0, 2.35, 0, true));
+      const cap = mk(new THREE.ConeGeometry(0.32, 0.25, 4), 0x2a2e3a, 0, 2.68); cap.rotation.y = Math.PI / 4; g.add(cap); g.add(mk(new THREE.BoxGeometry(0.44, 0.06, 0.44), 0xf4f8ff, 0, 2.82)); return g; };
+    M3.chest = () => { const g = new THREE.Group(); g.add(mk(new THREE.BoxGeometry(1.1, 0.6, 0.7), 0x8a5228, 0, 0.3));
+      const lid = mk(new THREE.CylinderGeometry(0.35, 0.35, 1.1, 10, 1, false, 0, Math.PI), 0x9a6232, 0, 0.6); lid.rotation.z = Math.PI / 2; lid.rotation.x = Math.PI / 2; g.add(lid);
+      [-0.38, 0.38].forEach(x => g.add(mk(new THREE.BoxGeometry(0.1, 0.98, 0.74), 0xf2c230, x, 0.45))); g.add(mk(new THREE.BoxGeometry(0.2, 0.22, 0.06), 0xf2c230, 0, 0.5, 0.37)); return g; };
+    const FLAMES = [];
+    const M3H = { g_tent: 3.2, g_totem: 3.0, g_fire: 1.1, g_tower: 5.8, lamp: 2.9, chest: 1.0 };
+    const pMesh = (id, hh, see) => { if (M3[id]) { const g = M3[id](), k = hh / M3H[id]; g.scale.setScalar(k); const w = new THREE.Group(); w.add(g); return w; }
+      const m = new THREE.Mesh(pGeo(id, hh), pMat(id, see)); m.userData.ol = true; return m; };
     function outlineWorld(root, w) { root.updateWorldMatrix(true, true); const v = new THREE.Vector3(), list = [];
       root.traverse(o => { if (o.isMesh && !o.userData.ol && !o.userData.olDone && o.geometry && o.geometry.attributes.normal && !(o.material && (o.material.transparent || o.material.isMeshBasicMaterial))) list.push(o); });
       list.forEach(o => { o.getWorldScale(v); o.userData.olDone = true; olMesh(o, Math.max(0.002, Math.round(w / Math.max(0.05, v.x) * 1000) / 1000)); }); }
@@ -383,6 +414,18 @@ CZ.screens.valley = (function () {
     // OYUNCUNUN KENDİ KÖYÜ: Köyüm ekranındaki binalar, aynı seviyelerle ortada durur
     const VS = 0.68;
     const vilGroup = new THREE.Group(); scene.add(vilGroup);
+    // (22 Kas) Noel ağacı binası artık 3D: seviyeyle büyür, süs ve hediye sayısı artar, tepede yıldız
+    function xmasTree(L, busy) { const g = new THREE.Group(); g.userData.kh = true; const H = 3.2 + L * 0.18;
+      const tr = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.22, H * 0.16, 7), toon(0x6a4022)); tr.position.y = H * 0.08; g.add(tr);
+      for (let k = 0; k < 4; k++) { const r = H * (0.34 - k * 0.07), hh = H * (0.34 - k * 0.04), y = H * 0.12 + k * H * 0.19; const c = new THREE.Mesh(new THREE.ConeGeometry(r, hh, 10), toon(0x1f6a3a)); c.position.y = y + hh / 2; g.add(c);
+        const sn = new THREE.Mesh(new THREE.ConeGeometry(r * 0.35, hh * 0.3, 10), toon(0xf4f8ff)); sn.position.y = y + hh * 0.88; g.add(sn); }
+      const COLS = [0xd8282a, 0xf2c230, 0x2e86c1, 0xffffff, 0x8e44ad]; const nOrn = 6 + L * 3;
+      for (let k = 0; k < nOrn; k++) { const yk = 0.18 + (k / nOrn) * 0.72, a = k * 2.4, r = H * 0.34 * (1 - yk) * 0.95; const o = new THREE.Mesh(new THREE.SphereGeometry(0.09 + (k % 3) * 0.02, 8, 6), new THREE.MeshBasicMaterial({ color: COLS[k % COLS.length] })); o.position.set(Math.cos(a) * r, H * yk, Math.sin(a) * r); g.add(o); }
+      const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.28, 0), new THREE.MeshBasicMaterial({ color: 0xffd34a })); star.position.y = H * 0.98; star.scale.set(1, 1.3, 0.5); g.add(star); g.userData.star = star;
+      const nG = Math.min(8, 1 + Math.floor(L / 2)); for (let k = 0; k < nG; k++) { const a = k / nG * Math.PI * 2 + 0.3, gs = 0.35 + (k % 2) * 0.12; const b = new THREE.Mesh(new THREE.BoxGeometry(gs, gs, gs), toon(COLS[(k + 1) % COLS.length])); b.position.set(Math.cos(a) * 1.1, gs / 2, Math.sin(a) * 1.1); b.rotation.y = a; g.add(b);
+        const rb = new THREE.Mesh(new THREE.BoxGeometry(gs + 0.02, gs * 0.18, gs * 0.18), toon(0xf2c230)); rb.position.copy(b.position); rb.rotation.y = a; g.add(rb); }
+      if (busy) { const sc = CZ.KH && CZ.KH.has('building_scaffolding') ? CZ.KH.get('building_scaffolding', 2.6) : null; if (sc) g.add(sc); }
+      return g; }
     const star = new THREE.Object3D();
     function placeVillage() {
       vilGroup.clear();
@@ -392,7 +435,7 @@ CZ.screens.valley = (function () {
         const J0 = CZ.village.ensure().job, ghost = !CZ.village.lv(b.id) && J0 && J0.id === b.id;   // (21 Kas) ilk inşaatta bina hemen yarı saydam + iskeleyle görünür
         if (!CZ.village.lv(b.id) && !ghost) return;
         const busyV = !!(J0 && J0.id === b.id);
-        const g = (CZ.KH && CZ.KH.village(THREE, b.id, CZ.village.lv(b.id) || 1, busyV)) || CZ.villageModel(THREE, b.id, CZ.village.lv(b.id) || 1, busyV);   // (21 Kas) önce gerçek 3D (KayKit), yoksa eski çizim
+        const g = b.id === 'tree' ? xmasTree(CZ.village.lv(b.id) || 1, busyV) : (CZ.KH && CZ.KH.village(THREE, b.id, CZ.village.lv(b.id) || 1, busyV)) || new THREE.Group();   // 3D modeller inince yeniden çizilir (2D resim yok)   // (21 Kas) önce gerçek 3D (KayKit), yoksa eski çizim
         if (ghost && !g.userData.sprite && !g.userData.kh) { g.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
           [[-1.1, -1.1], [1.1, -1.1], [-1.1, 1.1], [1.1, 1.1]].forEach(([x, z]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.6, 0.1), CZ.style.mat({ color: 0xf2c230 })); m.position.set(x, 1.3, z); g.add(m); }); }
         g.scale.setScalar(VS); g.position.set(sx * VS, 0, sz * VS);
@@ -807,7 +850,7 @@ CZ.screens.valley = (function () {
       return g;
     }
     function towerModel(type, L, busy) {
-      { const g = CZ.KH && CZ.KH.tower(THREE, type, L, busy); if (g) return g; }
+      { const g = CZ.KH && CZ.KH.tower(THREE, type, L, busy); if (g) return g; if (CZ.KH && !CZ.KH.has('flag_blue')) return new THREE.Group(); }
       // (21 Kas) kartopu kulesi: erimiş görünen yapay zekâ 3D modeli yerine köydeki gibi 2D çizim (seviye başına ayrı resim, inşaatta iskele resmi)
       if (CZ.villageModel) { const g = type === 'snow' ? CZ.villageModel(THREE, 'tower', Math.min(10, L * 2), busy) : CZ.villageModel(THREE, 'cannon', Math.min(5, Math.max(1, L)), busy);
         if (g.userData.sprite) { const sp = g.children[0]; sp.center.set(0.5, 0.06); sp.material.depthTest = true; sp.material.alphaTest = 0.4; g.scale.setScalar(1.25); return g; } }
@@ -898,14 +941,14 @@ CZ.screens.valley = (function () {
       p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(p.type, lv, !!building);
       if (p.kind === 't') p.g.position.set(p.x, 0, p.z);
       outlineWorld(p.g, 0.03);
-      if (building && !p.g.userData.sprite && !p.g.userData.kh) {
-        // inşaat: hemen görünür ama yarı saydam + iskele
+      if (building) {
+        const cx = p.kind === 'f' ? Math.cos(p.a) * FENCE_R : p.x, cz = p.kind === 'f' ? Math.sin(p.a) * FENCE_R : p.z;
+        if (!p.g.userData.sprite && !p.g.userData.kh) {   // eski modeller: yarı saydam + iskele (3D KayKit'in kendi iskelesi var)
         p.g.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
         const sc = new THREE.Group();
-        const cx = p.kind === 'f' ? Math.cos(p.a) * FENCE_R : p.x, cz = p.kind === 'f' ? Math.sin(p.a) * FENCE_R : p.z;
         [[-1.3, -1.3], [1.3, -1.3], [-1.3, 1.3], [1.3, 1.3]].forEach(([x, z]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.14, 3.4, 0.14), scaffoldMat); m.position.set(cx + x, 1.7, cz + z); sc.add(m); });
         if (p.kind === 't') { sc.position.sub(p.g.position); }
-        p.g.add(sc);
+        p.g.add(sc); }
         const bar = new THREE.Group();
         const bg = new THREE.Mesh(barGeo, barBg); bg.scale.set(2.2, 1.4, 1); bar.add(bg);
         const fg = new THREE.Mesh(barGeo, new THREE.MeshBasicMaterial({ color: 0x4ab0ff, depthTest: false, transparent: true })); fg.scale.set(2.1, 0.9, 1); fg.position.z = 0.01; bar.add(fg);
@@ -1880,7 +1923,7 @@ CZ.screens.valley = (function () {
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
       if (V.spawnT <= 0 && goblins.length < cap + (cyc ? 3 : 0) && !V.story && !(cyc && (V.phase === 'day' || V.nSp >= V.nTot))) { V.spawnT = cyc ? Math.max(1.0, 2.4 - V.wave * 0.12) : Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); if (cyc) { V.nSp++; const g2 = goblins[goblins.length - 1]; if (g2) g2.night = true; } }
       // inşaat süreleri
-      pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
+      pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg && p.barG) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
       // KULELER: menzildeki en yakın goblini kendileri vurur
       pads.forEach(p => {
         const it = slot(p); if (p.kind !== 't' || !it || it.lv < 1 || !p.g) return;
@@ -2124,6 +2167,7 @@ CZ.screens.valley = (function () {
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
       if (V_wind) V_wind.value += dt;
+      { const tt = performance.now() / 90; FLAMES.forEach((g, i) => { const [f1, f2] = g.userData.flame; f1.scale.y = 1 + Math.sin(tt + i) * 0.15; f2.scale.y = 1 + Math.cos(tt * 1.3 + i) * 0.2; f1.rotation.y = tt * 0.1; }); }
       if ((V.brT = (V.brT || 0) - dt) <= 0) { V.brT = 30; const b = CZ.village.lv('canteen'); if (b) { d.food = (d.food || 0) + b; resUi(); } }   // yemekhane: her 30 sn seviye kadar ekmek
       if ((V.mkT = (V.mkT || 0) - dt) <= 0) { V.mkT = 0.2; pads.forEach(p => { if (p.mark) { const dd = Math.hypot(p.x - P.x, p.z - P.z); p.mark.visible = dd < 11; } }); }   // daireler yalnız yakındayken görünür
       skillTick(dt); lootTick(dt); npcTick(dt);
@@ -2302,7 +2346,7 @@ CZ.screens.valley = (function () {
       snapR.s.add(g); snapR.c.position.set(ctr.x + R * 1.5, ctr.y + R * 1.3, ctr.z + R * 1.9); snapR.c.lookAt(ctr); snapR.r.render(snapR.s, snapR.c);
       const url = snapR.r.domElement.toDataURL('image/png'); snapR.s.remove(g); snapR.cache[key] = url; return url;
     }
-    const vSnap = (id, L) => L > 0 && CZ.KH && CZ.KH.has('flag_blue') ? snap3d('v' + id + L, () => CZ.KH.village(THREE, id, L, false)) : null;
+    const vSnap = (id, L) => L > 0 && CZ.KH && CZ.KH.has('flag_blue') ? snap3d('v' + id + L, () => id === 'tree' ? xmasTree(L, false) : CZ.KH.village(THREE, id, L, false)) : null;
     const tSnap = (type, L) => L > 0 && CZ.KH && CZ.KH.has('flag_blue') ? snap3d('t' + type + L, () => type === 'fence' ? fenceModel(0, L) : CZ.KH.tower(THREE, type, L, false)) : null;
     // eksik kaynakların altın karşılığı (tüccar fiyatı, biraz pahalı)
     const missGold = L2 => Math.ceil(L2.reduce((a, x) => x.r === 'gold' ? a : a + Math.max(0, x.n - (d[x.r] || 0)) * (TVAL[x.r] || 1) * 1.3, 0));
@@ -2329,7 +2373,7 @@ CZ.screens.valley = (function () {
         if (V2.job && V2.job.id === id) acts.push(h('p', { class: 'small-note', text: t('vil.busy') + ' · ' + CZ.village.fmt(CZ.village.left()) }));
         else if (nx && (V2.job || L >= CZ.village.cap(id))) acts.push(h('p', { class: 'small-note', text: V2.job ? t('vil.busy') : t('vil.needHall', { n: Math.max(1, Math.ceil(11 * (L + 1) / max) - 1) }) }));
         else if (nx) acts.push(can ? payBtn() : shortBtn());
-        o = { title: t('vil.b.' + id), desc: t('vil.d.' + id), from: L, to: nx, imgFrom: vSnap(id, L) || (CZ.vImg && CZ.vImg(id, L)), imgTo: nx && (vSnap(id, nx) || (CZ.vImg && CZ.vImg(id, nx))),
+        o = { title: t('vil.b.' + id), desc: t('vil.d.' + id), from: L, to: nx, imgFrom: vSnap(id, L), imgTo: nx && vSnap(id, nx),
           rows: sa.map(([k, v], i) => [t(k), L ? v : '—', sb[i] ? sb[i][1] : null]), cost, time: nx ? CZ.village.fmt(CZ.village.minutes(id, L) * 60000) : '', actions: acts };
       } else if (p.kind === 'x') {
         const L = expLv(), nx = L < EXP_MAX ? L + 1 : null;
