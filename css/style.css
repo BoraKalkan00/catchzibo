@@ -2205,3 +2205,22 @@ body.wide #rotate-note { display: none !important; }
 .dq-bar i { display: block; height: 100%; background: linear-gradient(90deg, #3cd08a, #1f9a5e); }
 .dq-bar.wk i { background: linear-gradient(90deg, #ffd34a, #e8a512); }
 .dq-wait { font-size: 22px; opacity: .6; }
+/* (22 Kas) Sol dok: 5 düğme tek düzen — dikeyde sütun, yatay ekranda satır */
+.vl-heroes, .vl-orders, .vl-vills, .vl-mail, .vl-q { left: 10px !important; width: 58px !important; height: 58px !important; padding: 0 !important; box-sizing: border-box; display: flex !important; flex-direction: column; align-items: center; justify-content: center; overflow: visible; }
+.vl-heroes { top: calc(212px + var(--safe-top, 0px)) !important; }
+.vl-orders { top: calc(276px + var(--safe-top, 0px)) !important; }
+.vl-vills { top: calc(340px + var(--safe-top, 0px)) !important; }
+.vl-mail { top: calc(404px + var(--safe-top, 0px)) !important; }
+.vl-q { top: calc(468px + var(--safe-top, 0px)) !important; }
+.vl-heroes img, .vl-orders img { max-height: 30px; }
+.vl-heroes b, .vl-orders b, .vl-heroes small, .vl-orders small { font-size: 9px !important; }
+@media (orientation: landscape) {
+  .vl-heroes, .vl-orders, .vl-vills, .vl-mail, .vl-q { top: calc(238px + var(--safe-top, 0px)) !important; width: 52px !important; height: 52px !important; }
+  .vl-skill { bottom: calc(118px + var(--safe-bottom, 0px)) !important; right: 120px !important; } .vl-dash { right: 196px !important; bottom: calc(40px + var(--safe-bottom, 0px)) !important; } .vl-wpn { right: 120px !important; bottom: calc(200px + var(--safe-bottom, 0px)) !important; }
+  .vl-orders { left: 68px !important; } .vl-vills { left: 126px !important; } .vl-mail { left: 184px !important; } .vl-q { left: 242px !important; }
+}
+
+.vl-coach { position: absolute; left: 50%; bottom: calc(260px + var(--safe-bottom, 0px)); transform: translateX(-50%); width: min(92vw, 420px); z-index: 9; display: none; flex-direction: column; top: auto; height: auto; gap: 6px; padding: 10px 12px; border-radius: 16px; background: rgba(255,248,232,.97); border: 3px solid #f2c230; box-shadow: 0 6px 16px rgba(0,0,0,.3); pointer-events: auto; }
+.vl-coach.on { display: flex; animation: ldtip .35s ease-out; }
+.vl-coach b { color: #3a2414; font-size: 14px; line-height: 1.3; }
+.vl-coach-btns { display: flex; gap: 6px; justify-content: flex-end; }

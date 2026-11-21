@@ -53,7 +53,7 @@ CZ.KH = (function () {
     gate: [[1, B('archeryrange')]],
     jail: [[1, B('lumbermill')]]
   };
-  const VW = { house: 3.4, canteen: 3.6, hall: 4.2, goldmine: 3.2, mine: 3.2, bakery: 3.0, vault: 3.4, tower: 2.4, stable: 3.4, forge: 3.2, lookout: 2.4, elf: 2.8, cookie: 3.2, gate: 3.4, jail: 3.2 };
+  const VW = { house: 4.76, canteen: 5.04, hall: 5.88, goldmine: 4.48, mine: 4.48, bakery: 4.2, vault: 4.76, tower: 3.36, stable: 4.76, forge: 4.48, lookout: 3.36, elf: 3.92, cookie: 4.48, gate: 4.76, jail: 4.48 };   // (22 Kas) binalar %40 büyüdü
   // kuleler: kartopu = okçu kulesi, top = mancınıklı kule
   const TMAP = { snow: [[1, B('tower_A')], [4, B('tower_B')]], cannon: [[1, B('tower_base')], [2, B('tower_catapult')]] };
   const STAGES = ['building_stage_A', 'building_stage_B', 'building_stage_C', 'building_scaffolding'];
@@ -81,7 +81,7 @@ CZ.KH = (function () {
   }
   function tower(THREE, type, L, busy) {
     const arr = TMAP[type]; if (!arr) return null;
-    const w = 2.3 * (1 + L * 0.06);
+    const w = 3.0 * (1 + L * 0.06);
     if (busy && L <= 1) { const s = stage(w, 1); if (!s) return null; const g = new THREE.Group(); g.add(s); const sc = stage(w * 0.9, 3); if (sc) g.add(sc); g.userData.kh = true; return g; }
     const nm = pick(arr, L); if (!has(nm)) return null;
     const g = new THREE.Group(); g.add(get(nm, w)); g.userData.kh = true; dress(g, L + 2, w);

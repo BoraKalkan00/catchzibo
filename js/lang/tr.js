@@ -1557,5 +1557,16 @@ CZ.i18n.register('tr', 'Türkçe', {
   "dq.night": "{n} gece hayatta kal",
   "dq.build": "{n} şey inşa et/yükselt",
   "dq.loot": "{n} silah topla",
-  "dq.surv": "{n} kişiyi köye al"
+  "dq.surv": "{n} kişiyi köye al",
+  "tip.ok": "Tamam",
+  "tip.off": "İpuçlarını kapat",
+  "tip.move": "Ekranın soluna basıp sürükle: yürü. Ağaç ve kayaya yaklaşınca kendin keser, kırarsın.",
+  "tip.build": "Bir binaya ya da yerdeki daireye dokun: yükseltme kartı açılır, neye ne kadar malzeme gerektiği yazar.",
+  "tip.night": "Gece geliyor! Goblinler köye saldıracak. Köyüne dön ve onları sen durdur.",
+  "tip.skill": "Turuncu düğme silahının özel yeteneği, mavi düğme atılma. Mor düğmeden silah değiştir.",
+  "tip.rush": "Altın Akını! Altın ışığa süre bitmeden yetiş, etrafını saran goblinleri temizle.",
+  "tip.surv": "Kapıda biri var! Yanına git, Konuş'a bas. Yemek ve yatak verirsen köyüne katılır.",
+  "tip.mail": "📬 Köylülerin sana not bıraktı. Posta kutusuna bak, dertlerini çöz.",
+  "tip.quest": "🎯 Günlük görevlerin var. Tamamla, ödülünü al; 15 görev = haftalık sandık.",
+  "tip.vills": "👥 Köylüler düğmesinden kime hangi işi vereceğini seç. Kendi mesleğinde çalışan 2 kat verir."
 });

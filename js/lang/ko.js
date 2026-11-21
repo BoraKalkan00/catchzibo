@@ -1375,5 +1375,16 @@ CZ.i18n.register('ko', '한국어', {
   "dq.night": "Survive {n} nights",
   "dq.build": "Build/upgrade {n} things",
   "dq.loot": "Collect {n} weapons",
-  "dq.surv": "Take in {n} survivor"
+  "dq.surv": "Take in {n} survivor",
+  "tip.ok": "OK",
+  "tip.off": "Turn off tips",
+  "tip.move": "Press and drag on the left side to walk. Get close to trees and rocks to chop and mine them.",
+  "tip.build": "Tap a building or a circle on the ground: the upgrade card shows exactly what it costs.",
+  "tip.night": "Night is coming! Goblins will attack the village. Head home and stop them yourself.",
+  "tip.skill": "The orange button is your weapon's special skill, the blue one is a dash. Switch weapons with the purple button.",
+  "tip.rush": "Gold Rush! Reach the golden light before time runs out and clear the goblins around you.",
+  "tip.surv": "Someone is at the gate! Walk over and tap Talk. Give food and a bed and they'll join you.",
+  "tip.mail": "📬 Your villagers left you notes. Check the mailbox and solve their problems.",
+  "tip.quest": "🎯 You have daily quests. Finish them for rewards; 15 quests = weekly chest.",
+  "tip.vills": "👥 Use the Villagers button to give everyone a job. Working their old profession doubles output."
 });
