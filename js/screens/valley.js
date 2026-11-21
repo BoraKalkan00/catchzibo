@@ -391,8 +391,9 @@ CZ.screens.valley = (function () {
         const [sx, sz] = CZ.VILLAGE_SPOTS[b.id];
         const J0 = CZ.village.ensure().job, ghost = !CZ.village.lv(b.id) && J0 && J0.id === b.id;   // (21 Kas) ilk inşaatta bina hemen yarı saydam + iskeleyle görünür
         if (!CZ.village.lv(b.id) && !ghost) return;
-        const g = CZ.villageModel(THREE, b.id, CZ.village.lv(b.id) || 1, !!(J0 && J0.id === b.id));   // inşaat/yükseltme sürerken iskeleli resim
-        if (ghost && !g.userData.sprite) { g.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
+        const busyV = !!(J0 && J0.id === b.id);
+        const g = (CZ.KH && CZ.KH.village(THREE, b.id, CZ.village.lv(b.id) || 1, busyV)) || CZ.villageModel(THREE, b.id, CZ.village.lv(b.id) || 1, busyV);   // (21 Kas) önce gerçek 3D (KayKit), yoksa eski çizim
+        if (ghost && !g.userData.sprite && !g.userData.kh) { g.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
           [[-1.1, -1.1], [1.1, -1.1], [-1.1, 1.1], [1.1, 1.1]].forEach(([x, z]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.6, 0.1), CZ.style.mat({ color: 0xf2c230 })); m.position.set(x, 1.3, z); g.add(m); }); }
         g.scale.setScalar(VS); g.position.set(sx * VS, 0, sz * VS);
         if (g.userData.sprite) { const sp = g.children[0], W = sp.scale.x; sp.center.set(0.5, 0.02); sp.position.z = W * 0.4; sp.material.depthTest = true; sp.renderOrder = 0; sp.material.alphaTest = 0.4; }
@@ -799,6 +800,7 @@ CZ.screens.valley = (function () {
       return g;
     }
     function towerModel(type, L, busy) {
+      { const g = CZ.KH && CZ.KH.tower(THREE, type, L, busy); if (g) return g; }
       // (21 Kas) kartopu kulesi: erimiş görünen yapay zekâ 3D modeli yerine köydeki gibi 2D çizim (seviye başına ayrı resim, inşaatta iskele resmi)
       if (CZ.villageModel) { const g = type === 'snow' ? CZ.villageModel(THREE, 'tower', Math.min(10, L * 2), busy) : CZ.villageModel(THREE, 'cannon', Math.min(5, Math.max(1, L)), busy);
         if (g.userData.sprite) { const sp = g.children[0]; sp.center.set(0.5, 0.06); sp.material.depthTest = true; sp.material.alphaTest = 0.4; g.scale.setScalar(1.25); return g; } }
@@ -811,6 +813,12 @@ CZ.screens.valley = (function () {
     }
     const stoneMats = [toon(0x7d8796), toon(0x8f98a6), toon(0x6c7584)], snowCapMat = toon(0xf4f8ff), snowCapGeo = new THREE.BoxGeometry(1.16, 0.14, 0.7), merlonGeo = new THREE.BoxGeometry(0.5, 0.45, 0.62);
     function fenceModel(i, L) {
+      if (CZ.KH && CZ.KH.has('wall_straight') && CZ.KH.has('fence_wood_straight')) {
+        const g = new THREE.Group(), a0 = i / 8 * Math.PI * 2, a1 = (i + 1) / 8 * Math.PI * 2, n = 6, len = FENCE_R * (a1 - a0) / n * 1.04, stone = L >= 2;
+        for (let k = 0; k < n; k++) { const a = a0 + (a1 - a0) * (k + 0.5) / n; const m = CZ.KH.get(stone ? 'wall_straight' : 'fence_wood_straight', len);
+          if (stone && L >= 3) m.scale.y *= 1.25; m.position.set(Math.cos(a) * FENCE_R, 0, Math.sin(a) * FENCE_R); m.rotation.y = stone ? -a - Math.PI / 2 : -a; g.add(m); }
+        g.userData.kh = true; return g;
+      }
       const g = new THREE.Group();
       const a0 = i / 8 * Math.PI * 2, a1 = (i + 1) / 8 * Math.PI * 2;
       const stone = L >= 2;
@@ -881,7 +889,7 @@ CZ.screens.valley = (function () {
       p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(p.type, lv, !!building);
       if (p.kind === 't') p.g.position.set(p.x, 0, p.z);
       outlineWorld(p.g, 0.03);
-      if (building && !p.g.userData.sprite) {
+      if (building && !p.g.userData.sprite && !p.g.userData.kh) {
         // inşaat: hemen görünür ama yarı saydam + iskele
         p.g.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
         const sc = new THREE.Group();
@@ -1394,6 +1402,7 @@ CZ.screens.valley = (function () {
       [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.6, -6.8]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
     }
     pads.forEach(drawPad);
+    if (CZ.KH) CZ.KH.loadAll(THREE, CZ.KH.all()).then(() => { if (!V) return; placeVillage(); pads.forEach(drawPad); });
     spawnBuddy(); heroUi(); ordUi(); giftUi();
     try {
       const warm = new THREE.Group();
@@ -1917,7 +1926,7 @@ CZ.screens.valley = (function () {
           V2.job.ads < 3 ? btn('-30 ' + t('def.min'), () => CZ.ads.show(() => { CZ.village.adRush(); placeVillage(); padUi(true); }), 'ghost-dark', 'ic:play') : null));
       } else if (L2 && L2.length) {
         if (armedPad === p) kids.push(h('small', { class: 'def-flow', text: '⏳ ' + t('def.flowing') }));
-        else kids.push(h('div', { class: 'def-row' }, btn((it && it.lv ? '⬆️ ' + t('def.upBtn') : '🔨 ' + t('def.buildBtn')), () => { armedPad = p; panelKey = ''; CZ.audio.sfx('buy'); CZ.audio.vibrate(20); if (V.tut && p.kind === 't') V.tut.on && 0; padUi(true); }, 'primary wide')));
+        else kids.push(h('div', { class: 'def-row' }, btn(((it && it.lv) || (p.kind === 'v' && CZ.village.lv(p.id)) || (p.kind === 'x' && expLv()) ? '⬆️ ' + t('def.upBtn') : '🔨 ' + t('def.buildBtn')), () => { armedPad = p; panelKey = ''; CZ.audio.sfx('buy'); CZ.audio.vibrate(20); if (V.tut && p.kind === 't') V.tut.on && 0; padUi(true); }, 'primary wide')));
         { const dd = CZ.state.data, sw = Math.max(0, ((L2.find(x => x.r === 'wood') || {}).n || 0) - (dd.wood || 0)), ss = Math.max(0, ((L2.find(x => x.r === 'stone') || {}).n || 0) - (dd.stone || 0));
           const cost = Math.ceil(sw * 0.4 + ss * 0.67), gNeed = (L2.find(x => x.r === 'gold') || {}).n || 0;
           if (cost > 0 && (dd.gold || 0) >= cost + Math.min(gNeed, 1)) kids.push(h('div', { class: 'def-row' }, btn(t('def.buyShort') + ' · ' + cost, () => { if ((dd.gold || 0) < cost) return; dd.gold -= cost; dd.wood = (dd.wood || 0) + sw; dd.stone = (dd.stone || 0) + ss; CZ.state.save(); resUi(); CZ.audio.sfx('coin'); padUi(true); }, 'primary', 'ui.gold'))); }
