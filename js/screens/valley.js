@@ -1657,7 +1657,7 @@ CZ.screens.valley = (function () {
       if (P.hp <= 0) { P.hp = 0; P.down = 3; P.riding = false; wrap.append(downEl); CZ.audio.sfx('lose'); }
     }
     // Maden (taş) ve oduncu (odun) kendi kendine üretir: üstlerinde balon çıkar, yanına gelince toplanır
-    const PROD = [{ id: 'goldmine', res: 'gold' }, { id: 'mine', res: 'stone' }, { id: 'bakery', res: 'wood' }];
+    const PROD = [{ id: 'goldmine', res: 'gold' }, { id: 'elf', res: 'emeralds' }, { id: 'mine', res: 'stone' }, { id: 'bakery', res: 'wood' }];
     let prodT = 0;
     function prodTick(dt) {
       prodT -= dt; if (prodT > 0 || !CZ.village || !CZ.VILLAGE_SPOTS) return; prodT = 0.5;
@@ -1665,15 +1665,15 @@ CZ.screens.valley = (function () {
       PROD.forEach(q => {
         const [sx, sz] = CZ.VILLAGE_SPOTS[q.id], x = sx * VS, z = sz * VS, n = Math.floor(VV.store[q.id] || 0), L = CZ.village.lv(q.id);
         if (!q.spr) { q.spr = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, transparent: true })); q.spr.scale.set(2.2, 1.1, 1); q.spr.position.set(x, 4.6, z); q.spr.renderOrder = 5; scene.add(q.spr); }
-        const show = L > 0 && n >= 5, key = Math.floor(n / 5);
+        const show = L > 0 && n >= (q.res === 'emeralds' ? 1 : 5), key = Math.floor(n / 5);
         q.spr.visible = show;
         if (show && key !== q.key) { q.key = key; const c = document.createElement('canvas'); c.width = 256; c.height = 128; const x2 = c.getContext('2d');
           x2.fillStyle = '#fff'; x2.strokeStyle = '#1b2a44'; x2.lineWidth = 8; x2.beginPath(); if (x2.roundRect) x2.roundRect(8, 8, 240, 92, 40); else x2.rect(8, 8, 240, 92); x2.fill(); x2.stroke();
           x2.beginPath(); x2.moveTo(110, 98); x2.lineTo(128, 122); x2.lineTo(146, 98); x2.fill();
-          x2.font = 'bold 54px sans-serif'; x2.textAlign = 'center'; x2.textBaseline = 'middle'; x2.fillStyle = '#1b2a44'; x2.fillText((q.res === 'wood' ? '🪵' : q.res === 'gold' ? '🪙' : '🪨') + ' ' + n, 128, 56);
+          x2.font = 'bold 54px sans-serif'; x2.textAlign = 'center'; x2.textBaseline = 'middle'; x2.fillStyle = '#1b2a44'; x2.fillText((q.res === 'wood' ? '🪵' : q.res === 'gold' ? '🪙' : q.res === 'emeralds' ? '💎' : '🪨') + ' ' + n, 128, 56);
           if (q.spr.material.map) q.spr.material.map.dispose(); q.spr.material.map = new THREE.CanvasTexture(c); q.spr.material.needsUpdate = true; }
         if (show) q.spr.position.y = 4.6 + Math.sin(performance.now() / 300) * 0.15;
-        if (L > 0 && n >= 1 && Math.hypot(P.x - x, P.z - z) < 4.6) { const got = CZ.village.collect(q.id); if (got) { floatAt({ x, z }, '+' + got + (q.res === 'wood' ? ' 🪵' : q.res === 'gold' ? ' 🪙' : ' 🪨'), 'auto'); resUi(); CZ.audio.sfx('coin'); q.key = -1; } }
+        if (L > 0 && n >= 1 && Math.hypot(P.x - x, P.z - z) < 4.6) { const got = CZ.village.collect(q.id); if (got) { floatAt({ x, z }, '+' + got + (q.res === 'wood' ? ' 🪵' : q.res === 'gold' ? ' 🪙' : q.res === 'emeralds' ? ' 💎' : ' 🪨'), 'auto'); resUi(); CZ.audio.sfx('coin'); q.key = -1; } }
       });
     }
     // Kule / çit yerinin yanına gelince panel açılır
