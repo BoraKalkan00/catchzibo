@@ -2197,3 +2197,11 @@ body.wide #rotate-note { display: none !important; }
 .ml-from { font-weight: 900; color: #6a4a2a; }
 .sv-st { font-size: 11px; color: #3a2414; }
 .sv-btns { display: flex; flex-direction: column; gap: 4px; }
+
+.vl-q { top: calc(522px + var(--safe-top, 0px)) !important; background: linear-gradient(#ffb02a, #d87a0a) !important; box-shadow: 0 3px 0 #8a4a08 !important; }
+.dq-row { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 12px; background: rgba(0,0,0,.05); }
+.dq-row.done { opacity: .55; }
+.dq-bar { height: 8px; border-radius: 5px; background: rgba(0,0,0,.15); overflow: hidden; margin: 3px 0; }
+.dq-bar i { display: block; height: 100%; background: linear-gradient(90deg, #3cd08a, #1f9a5e); }
+.dq-bar.wk i { background: linear-gradient(90deg, #ffd34a, #e8a512); }
+.dq-wait { font-size: 22px; opacity: .6; }

@@ -979,7 +979,32 @@ CZ.screens.valley = (function () {
       else if (lacking && !V.lackHint) { V.lackHint = true; floatAt(P, t('def.lacking'), 'wave'); setTimeout(() => { if (V) V.lackHint = false; }, 3000); }
       if (left(p).every(x => x.n <= 0)) complete(p);
     }
+    // ===== GÜNLÜK GÖREVLER + HAFTALIK SANDIK (22 Kas) =====
+    const DQ_POOL = [['kill', 15, 30, 'g'], ['tree', 8, 16, 'g'], ['rock', 6, 12, 'g'], ['rush', 1, 2, 'e'], ['night', 1, 3, 'g'], ['build', 1, 2, 'g'], ['loot', 1, 3, 'e'], ['surv', 1, 1, 'e']];
+    const dayKey = () => { const n = new Date(); return n.getFullYear() * 10000 + (n.getMonth() + 1) * 100 + n.getDate(); };
+    function dqEnsure() { if (!d.dq || d.dq.day !== dayKey()) { const pool = DQ_POOL.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+        const wk = d.dq ? d.dq.wk || 0 : 0, wkS = d.dq ? d.dq.wkS || dayKey() : dayKey();
+        d.dq = { day: dayKey(), wk, wkS, list: pool.map(([k, a, b, r]) => { const need = a + Math.floor(Math.random() * (b - a + 1)); return { k, need, have: 0, rew: r === 'e' ? { emeralds: 3 + need } : { gold: 60 + need * 12 }, claimed: false }; }) };
+        if (dayKey() - wkS >= 7) { d.dq.wk = 0; d.dq.wkS = dayKey(); } }
+      return d.dq; }
+    function dq(k, n) { const D = dqEnsure(); let up = false; D.list.forEach(q => { if (q.k === k && q.have < q.need) { q.have = Math.min(q.need, q.have + (n || 1)); up = true; if (q.have >= q.need) { floatAt(P, '🎯 ' + t('dq.done'), 'wave'); CZ.audio.sfx('star'); } } }); if (up) dqUi(); }
+    function dqUi() { const D = dqEnsure(), n = D.list.filter(q => q.have >= q.need && !q.claimed).length; try { qBtn.lastChild.textContent = n ? String(n) : ''; qBtn.classList.toggle('has', n > 0); } catch (e) { /* düğme henüz yok */ } }
+    function openQuests() {
+      if (V.paused) return; V.paused = true; CZ.audio.sfx('button'); const D = dqEnsure();
+      const box = h('div', { class: 'modal-wrap' }); const close = () => { box.remove(); V.paused = false; V.last = 0; dqUi(); };
+      const rw = r => Object.entries(r).map(([k, v]) => (k === 'gold' ? '🪙' : '💎') + v).join(' ');
+      const draw = () => box.replaceChildren(h('div', { class: 'modal sv-list' },
+        h('b', { class: 'lg-title', text: '🎯 ' + t('dq.title') }),
+        ...D.list.map(q => h('div', { class: 'dq-row' + (q.claimed ? ' done' : '') },
+          h('div', { class: 'wpn-txt' }, h('b', { text: t('dq.' + q.k, { n: q.need }) }), h('div', { class: 'dq-bar' }, h('i', { style: 'width:' + Math.round(q.have / q.need * 100) + '%' })), h('small', { text: q.have + '/' + q.need + ' · ' + rw(q.rew) })),
+          q.claimed ? h('span', { class: 'wpn-on', text: '✓' }) : q.have < q.need ? h('span', { class: 'dq-wait', text: '⏳' }) : btn(t('dq.claim'), () => { if (q.have < q.need) { CZ.audio.sfx('wrong'); return; } q.claimed = true; Object.entries(q.rew).forEach(([k, v]) => { if (k === 'gold') gain(v, true); else d[k] = (d[k] || 0) + v; }); D.wk = (D.wk || 0) + 1; resUi(); CZ.state.save(); CZ.audio.sfx('win'); draw(); }, q.have >= q.need ? 'small primary' : 'small ghost-dark'))),
+        h('b', { class: 'tr-lbl', text: '🎁 ' + t('dq.week', { n: Math.min(15, D.wk || 0) }) }), h('div', { class: 'dq-bar wk' }, h('i', { style: 'width:' + Math.round(Math.min(1, (D.wk || 0) / 15) * 100) + '%' })),
+        (D.wk || 0) >= 15 && !D.wkC ? btn(t('dq.chest'), () => { D.wkC = true; gain(500, true); d.emeralds = (d.emeralds || 0) + 20; dropLoot(P.x + 1.5, P.z, 4); dropLoot(P.x - 1.5, P.z, 4); resUi(); CZ.state.save(); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 60, 30, 160]); close(); }, 'primary wide') : null,
+        btn(t('common.close'), close, 'small ghost-dark')));
+      draw(); wrap.append(box);
+    }
     function complete(p) {
+      dq('build');
       delete DS.pp[paidKey(p)];
       if (p.kind === 'x') { d.vil.exp = expLv() + 1; floatAt(p, t('exp.done'), 'wave'); CZ.audio.sfx('win'); pads.forEach(drawMark); }
       else if (p.kind === 'v') { CZ.village.startJob(p.id); floatAt(p, t('def.building'), 'wave'); placeVillage(); pads.forEach(drawMark); }
@@ -1181,7 +1206,7 @@ CZ.screens.valley = (function () {
           d.inv.push(it); if (d.inv.length > 40) { const worst = d.inv.filter(x => !Object.values(d.eq).includes(x.id)).sort((a, b) => a.mul - b.mul)[0]; if (worst) d.inv.splice(d.inv.indexOf(worst), 1); }
           if (!d.vwOwn.includes(it.type)) d.vwOwn.push(it.type);
           if (itemMul(it.type) < it.mul) { d.eq[it.type] = it.id; }   // daha iyiyse kendiliğinden kuşan
-          CZ.state.save(); CZ.audio.sfx(it.rar >= 2 ? 'win' : 'coin'); CZ.audio.vibrate(it.rar >= 2 ? [40, 30, 80] : 20);
+          dq('loot'); CZ.state.save(); CZ.audio.sfx(it.rar >= 2 ? 'win' : 'coin'); CZ.audio.vibrate(it.rar >= 2 ? [40, 30, 80] : 20);
           const f = floatAt(P, VWPN[it.type].icon + ' ' + itemName(it), 'wave'); }
         else if (L.t > 90) { scene.remove(L.g); loots.splice(i, 1); } }
     }
@@ -1281,6 +1306,7 @@ CZ.screens.valley = (function () {
       if (o.type === 'goblin' && BUD.id === 'noel') total = Math.round(total * (1.05 + CZ.heroes.lv('noel') * 0.02));
       if (o.type === 'goblin' && CZ.heroes && (d.tutV || 0) >= 5) { const sh = o.boss ? 4 : (Math.random() < 0.03 ? 1 : 0); if (sh) { const hid = CZ.heroes.randomDrop(sh); if (hid) { setTimeout(() => { if (V) floatAt(o, t('hero.shardGot', { n: sh, name: t('hero.n.' + hid) }), 'wave'); }, o.boss ? 900 : 0); heroUi(); } } }
       if (o.heist) { floatAt(o, t('heist.win', { n: o.stolen }), 'wave'); dropLoot(o.x, o.z, 2.5); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]); }
+      if (o.type === 'goblin') dq('kill');
       if (o.type === 'goblin' && CZ.pass) CZ.pass.addXp(3);
       if (o.type === 'goblin' && (d.tutV || 0) >= 5) { const ch = o.boss ? 0.7 : o.rush ? 0.06 : 0.025; if (Math.random() < ch) dropLoot(o.x, o.z, o.boss ? 2.5 : 1); }
       if (o.type === 'goblin' && V.tut) V.tut.on('goblin');
@@ -1328,6 +1354,8 @@ CZ.screens.valley = (function () {
     const vilBtn = h('button', { type: 'button', class: 'vl-vills' }, h('i', { text: '👥' }), h('b', { text: '0/0' }));
     vilBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openVillagers(); });
     const mailBtn = h('button', { type: 'button', class: 'vl-mail' }, h('i', { text: '📬' }), h('b'));
+    const qBtn = h('button', { type: 'button', class: 'vl-mail vl-q' }, h('i', { text: '🎯' }), h('b'));
+    qBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openQuests(); });
     mailBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openMail(); });
     const svBtn = h('button', { type: 'button', class: 'vl-trade vl-sv', style: 'display:none' }, h('i', { text: '🗨️' }), h('b', { text: t('sv.talk') }));
     svBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openSurvivor(); });
@@ -1469,7 +1497,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1716,7 +1744,7 @@ CZ.screens.valley = (function () {
       const near = arrival && arrival.st !== 'arrive' ? Math.hypot(P.x - arrival.x, P.z - arrival.z) < 3.6 : false;
       if (arrival && arrival.st === 'arrive' && Math.hypot(arrival.x - arrival.tx, arrival.z - arrival.tz) < 0.6) { arrival.st = 'wait'; floatAt(arrival, '🆘', 'wave'); }
       if (near !== V.svNear) { V.svNear = near; svBtn.style.display = near ? '' : 'none'; }
-      vilBtn.lastChild.textContent = SV.list.length + '/' + bedsCap(); if (!V.mlInit) { V.mlInit = true; mailUi(); }
+      vilBtn.lastChild.textContent = SV.list.length + '/' + bedsCap(); if (!V.mlInit) { V.mlInit = true; mailUi(); dqUi(); }
     }
     function openSurvivor() {
       const n = arrival; if (!n || V.paused) return; V.paused = true; const S0 = n.s; let fed = n.fed;
@@ -1728,7 +1756,7 @@ CZ.screens.valley = (function () {
         h('p', { class: 'sv-say', text: '“' + (fed ? t('sv.thanks') : t('sv.story' + S0.story)) + '”' }),
         !fed ? btn(t('sv.feed', { n: 3 }) + ' (🍞 ' + Math.floor(d.food) + ')', () => { if (d.food < 3) { if ((d.gold || 0) >= 40) { d.gold -= 40; } else { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('sv.noFood')); } } else d.food -= 3; fed = n.fed = true; n.hp = 1; CZ.audio.sfx('coin'); resUi(); CZ.state.save(); draw(); }, 'primary wide') : null,
         !fed && d.food < 3 ? h('small', { class: 'tr-sub', text: t('sv.buyFood') }) : null,
-        fed ? (SV.list.length < bedsCap() ? btn(t('sv.take', { a: SV.list.length, b: bedsCap() }), () => { S0.joined = true; SV.list.push(S0); arrival = null; if (n.sos) { n.hm.root.remove(n.sos); n.sos = null; } n.limp = false; n.st = 'idle'; CZ.state.save(); CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]); floatAt(n, t('sv.joined', { n: S0.name }), 'wave'); svBtn.style.display = 'none'; close(); }, 'primary wide')
+        fed ? (SV.list.length < bedsCap() ? btn(t('sv.take', { a: SV.list.length, b: bedsCap() }), () => { S0.joined = true; SV.list.push(S0); arrival = null; dq('surv'); if (n.sos) { n.hm.root.remove(n.sos); n.sos = null; } n.limp = false; n.st = 'idle'; CZ.state.save(); CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]); floatAt(n, t('sv.joined', { n: S0.name }), 'wave'); svBtn.style.display = 'none'; close(); }, 'primary wide')
           : h('p', { class: 'small-note', text: t('sv.noBed', { b: bedsCap() }) })) : null,
         btn(t('sv.send'), () => { scene.remove(n.hm.root); npcs.splice(npcs.indexOf(n), 1); arrival = null; V.svT = 9999; svBtn.style.display = 'none'; close(); }, 'small ghost-dark'),
         btn(t('common.close'), close, 'small ghost-dark')));
@@ -1838,7 +1866,7 @@ CZ.screens.valley = (function () {
       goblins.forEach(o => { if (!o.dead && !o.boss && !o.stolen) o.flee = true; });
       if (!d.diffTip && V.wave >= 1) { d.diffTip = 1; setTimeout(() => { if (V) CZ.ui.toast(t('opt.tip')); }, 2500); }
       const S = V.nS || { kills: 0, earned: 0, lost: 0 }, kills = V.kills - S.kills, earned = Math.max(0, V.earned - S.earned), lost = Math.max(0, (V.lost || 0) - S.lost);
-      const bonus = 20 + V.wave * 10; gain(bonus, true);
+      const bonus = 20 + V.wave * 10; gain(bonus, true); dq('night');
       CZ.state.save(); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]);
       let doubled = false;
       const box = h('div', { class: 'modal-wrap raid-wrap' }, h('div', { class: 'modal raid-rep night-rep' },
@@ -1890,7 +1918,7 @@ CZ.screens.valley = (function () {
         if (left === 0) {
           const g = Math.round((150 + V.wave * 40) * DIFF().rew); gain(g, true); const gem = Math.random() < 0.35 ? 2 : 0; if (gem) { d.emeralds = (d.emeralds || 0) + gem; resUi(); }
           floatAt(P, t('rush.win', { n: g }) + (gem ? ' +' + gem + '💎' : ''), 'wave'); giftFx(R.x, R.z); if (Math.random() < 0.4) dropLoot(R.x, R.z, 1.8); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]); CZ.state.save();
-          rushEnd(rand(55, 75));
+          rushEnd(rand(55, 75)); dq('rush');
         }
       }
     }
@@ -2494,6 +2522,7 @@ CZ.screens.valley = (function () {
       if (best.hp <= 0) {
         n += 10 * zoneOf(best.x, best.z);
         best.alive = false; best.solid.off = true;
+        dq(kind === 'tree' ? 'tree' : 'rock');
         if (kind === 'tree') { const fx = best.x - P.x, fz = best.z - P.z, L5 = Math.hypot(fx, fz) || 1; best.fall = { t: 0, a: 0, sink: 0, fx: fx / L5, fz: fz / L5 }; falling.push(best); CZ.audio.sfx('crack'); }
         else { for (let k = 0; k < 10; k++) { const m = new THREE.Mesh(chipGeo, chipMats.rock); m.scale.setScalar(rand(1.2, 2.2)); m.position.set(best.x, 0.6, best.z); scene.add(m); chips.push({ m, vx: rand(-4, 4), vy: rand(3, 7), vz: rand(-4, 4) }); } V.shake = Math.max(V.shake || 0, 0.1); }
         setInst(best);

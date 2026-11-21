@@ -1362,5 +1362,18 @@ CZ.i18n.register('ko', '한국어', {
   "ml.thanks1": "My new room is amazing! I'll finally sleep through the night. Thanks, chief! 🛏️",
   "heist.start": "Zibo grabbed {n} gold from the vault! Catch him! 💰🏃",
   "heist.lost": "Zibo escaped… {n} gold is gone 😜",
-  "heist.win": "You caught Zibo! {n} gold back + loot! 🎉"
+  "heist.win": "You caught Zibo! {n} gold back + loot! 🎉",
+  "dq.title": "Daily Quests",
+  "dq.done": "Quest done! Claim your reward",
+  "dq.claim": "Claim",
+  "dq.week": "Weekly chest: {n}/15 quests",
+  "dq.chest": "🎁 Open the weekly chest!",
+  "dq.kill": "Defeat {n} goblins",
+  "dq.tree": "Fell {n} trees",
+  "dq.rock": "Break {n} rocks",
+  "dq.rush": "Finish {n} Gold Rush",
+  "dq.night": "Survive {n} nights",
+  "dq.build": "Build/upgrade {n} things",
+  "dq.loot": "Collect {n} weapons",
+  "dq.surv": "Take in {n} survivor"
 });

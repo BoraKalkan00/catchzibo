@@ -1544,5 +1544,18 @@ CZ.i18n.register('tr', 'Türkçe', {
   "ml.thanks1": "Yeni odam harika! Bu gece ilk kez deliksiz uyuyacağım. Sağ ol şef! 🛏️",
   "heist.start": "Zibo kasadan {n} altın kaptı! Yakala! 💰🏃",
   "heist.lost": "Zibo kaçtı… {n} altın gitti 😜",
-  "heist.win": "Zibo'yu yakaladın! {n} altın geri + ganimet! 🎉"
+  "heist.win": "Zibo'yu yakaladın! {n} altın geri + ganimet! 🎉",
+  "dq.title": "Günlük Görevler",
+  "dq.done": "Görev tamam! Ödülünü al",
+  "dq.claim": "Al",
+  "dq.week": "Haftalık sandık: {n}/15 görev",
+  "dq.chest": "🎁 Haftalık sandığı aç!",
+  "dq.kill": "{n} goblin yen",
+  "dq.tree": "{n} ağaç devir",
+  "dq.rock": "{n} kaya kır",
+  "dq.rush": "{n} Altın Akını bitir",
+  "dq.night": "{n} gece hayatta kal",
+  "dq.build": "{n} şey inşa et/yükselt",
+  "dq.loot": "{n} silah topla",
+  "dq.surv": "{n} kişiyi köye al"
 });
