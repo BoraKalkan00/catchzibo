@@ -45,7 +45,7 @@ CZ.charArt = (function () {
   function key(id, pose, colors) {
     return id + '_' + pose + '|' + ['jacket', 'hat', 'scarf'].map(p => colors[p] || '').join(',');
   }
-  const isPlain = (id, colors) => ['jacket', 'hat', 'scarf'].every(p => !colors[p] || colors[p] === (CZ.PART_ORIG[id] || {})[p]);
+  const isPlain = () => true;   // (21 Kas) yeni 3D portreler: eski 2D maske boyaması kapalı (renk oyunda 3D modele uygulanır)
 
   // Piksel piksel HSL dönüşümü (yalnız kuralın tuttuğu pikseller).
   function recolor(img, id, colors) {

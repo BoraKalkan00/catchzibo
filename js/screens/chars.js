@@ -222,13 +222,12 @@ CZ.screens.chars = {
       st === 'open' && CZ.chars.hasArt(c.id) ? CA.img(c.id, 'front', 'char-img') : h('img', { class: 'char-img', src: CZ.chars.front(c.id), alt: '' }),
       st !== 'open' ? (st === 'soon' ? h('span', { class: 'char-lock', text: '…' }) : CZ.icon('lock', 'char-lock')) : null,
       st === 'open' ? h('span', { class: 'char-lv-mini', text: t('perk.lv', { n: CZ.charLevel(c.id) }) }) : null,
-      CZ.runPerkText ? h('small', { class: 'char-perk-mini', text: CZ.runPerkText(c.id) }) : null,
+      null,   // (21 Kas) koşu modu bonus yazıları kaldırıldı (koşu modu rafta)
       label ? h('span', { class: 'char-label', text: label }) : h('span', { class: 'char-label price' }, CZ.ui.img('ui.gold', 'mini-ico'), c.gold >= 1000 ? (c.gold / 1000) + 'K' : String(c.gold)));
     };
     el.append(
       CZ.ui.header(t('chars.title'), () => { this.trying = null; CZ.ui.go(params && params.returnTo ? params.returnTo : 'hub'); }),
       preview,
-      levelPanel,
       h('div', { class: 'scroll chars-body' }, colorPanel, h('div', { class: 'chars-grid' }, CZ.ROSTER.map(card))));
   }
 };
