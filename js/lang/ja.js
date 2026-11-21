@@ -1307,5 +1307,8 @@ CZ.i18n.register('ja', '日本語', {
   "it.staff.e0": "Frostbite Staff",
   "it.staff.e1": "Star Staff",
   "it.staff.l0": "Winter King's Staff",
-  "it.staff.l1": "Eternal Ice"
+  "it.staff.l1": "Eternal Ice",
+  "zone.locked": "霧！このエリアは町役場Lv{n}で開放",
+  "zone.short": "町役場Lv{n}",
+  "zone.open": "新エリア開放！霧が晴れた 🌫️ → 🌲"
 });

@@ -1307,5 +1307,8 @@ CZ.i18n.register('fr', 'Français', {
   "it.staff.e0": "Frostbite Staff",
   "it.staff.e1": "Star Staff",
   "it.staff.l0": "Winter King's Staff",
-  "it.staff.l1": "Eternal Ice"
+  "it.staff.l1": "Eternal Ice",
+  "zone.locked": "Brouillard ! Zone ouverte avec la Mairie niv. {n}",
+  "zone.short": "Mairie niv. {n}",
+  "zone.open": "Nouvelle zone ! Le brouillard se lève 🌫️ → 🌲"
 });

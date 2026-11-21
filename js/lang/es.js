@@ -1307,5 +1307,8 @@ CZ.i18n.register('es', 'Español', {
   "it.staff.e0": "Frostbite Staff",
   "it.staff.e1": "Star Staff",
   "it.staff.l0": "Winter King's Staff",
-  "it.staff.l1": "Eternal Ice"
+  "it.staff.l1": "Eternal Ice",
+  "zone.locked": "¡Niebla! Esta zona se abre con el Ayuntamiento nv. {n}",
+  "zone.short": "Ayuntamiento nv. {n}",
+  "zone.open": "¡Nueva zona! La niebla se disipa 🌫️ → 🌲"
 });

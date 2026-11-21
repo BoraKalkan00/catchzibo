@@ -1307,5 +1307,8 @@ CZ.i18n.register('ko', '한국어', {
   "it.staff.e0": "Frostbite Staff",
   "it.staff.e1": "Star Staff",
   "it.staff.l0": "Winter King's Staff",
-  "it.staff.l1": "Eternal Ice"
+  "it.staff.l1": "Eternal Ice",
+  "zone.locked": "안개! 이 지역은 마을회관 Lv{n}에 열려요",
+  "zone.short": "마을회관 Lv{n}",
+  "zone.open": "새 지역 개방! 안개가 걷혔어요 🌫️ → 🌲"
 });

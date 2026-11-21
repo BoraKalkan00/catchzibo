@@ -1489,5 +1489,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "it.staff.e0": "Ayaz Asası",
   "it.staff.e1": "Yıldız Asası",
   "it.staff.l0": "Kış Kralı Asası",
-  "it.staff.l1": "Sonsuz Buz"
+  "it.staff.l1": "Sonsuz Buz",
+  "zone.locked": "Sis! Bu bölge Belediye Sv.{n} ile açılır",
+  "zone.short": "Belediye Sv.{n}",
+  "zone.open": "Yeni bölge açıldı! Sis dağıldı 🌫️ → 🌲"
 });

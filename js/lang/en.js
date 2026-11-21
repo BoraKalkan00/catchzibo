@@ -1489,5 +1489,8 @@ CZ.i18n.register('en', 'English', {
   "it.staff.e0": "Frostbite Staff",
   "it.staff.e1": "Star Staff",
   "it.staff.l0": "Winter King's Staff",
-  "it.staff.l1": "Eternal Ice"
+  "it.staff.l1": "Eternal Ice",
+  "zone.locked": "Fog! This area opens at Town Hall Lv {n}",
+  "zone.short": "Town Hall Lv {n}",
+  "zone.open": "New area unlocked! The fog lifts 🌫️ → 🌲"
 });

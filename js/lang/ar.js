@@ -1307,5 +1307,8 @@ CZ.i18n.register('ar', 'العربية', {
   "it.staff.e0": "Frostbite Staff",
   "it.staff.e1": "Star Staff",
   "it.staff.l0": "Winter King's Staff",
-  "it.staff.l1": "Eternal Ice"
+  "it.staff.l1": "Eternal Ice",
+  "zone.locked": "ضباب! تُفتح هذه المنطقة بمستوى البلدية {n}",
+  "zone.short": "البلدية مستوى {n}",
+  "zone.open": "فُتحت منطقة جديدة! انقشع الضباب 🌫️ → 🌲"
 });

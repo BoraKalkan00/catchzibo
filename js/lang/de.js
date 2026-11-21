@@ -1307,5 +1307,8 @@ CZ.i18n.register('de', 'Deutsch', {
   "it.staff.e0": "Frostbite Staff",
   "it.staff.e1": "Star Staff",
   "it.staff.l0": "Winter King's Staff",
-  "it.staff.l1": "Eternal Ice"
+  "it.staff.l1": "Eternal Ice",
+  "zone.locked": "Nebel! Dieser Bereich öffnet mit Rathaus Stufe {n}",
+  "zone.short": "Rathaus St. {n}",
+  "zone.open": "Neues Gebiet frei! Der Nebel lichtet sich 🌫️ → 🌲"
 });
