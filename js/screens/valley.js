@@ -702,6 +702,7 @@ CZ.screens.valley = (function () {
           if (CZ.heroes && Math.random() < 0.35) { const hid = CZ.heroes.randomDrop(2); if (hid) heroUi(); }
           if (CZ.pass) CZ.pass.addXp(25);
           c.st.until = Date.now() + 4 * 3600000; c.st.tier = Math.min(30, T2 + 1); c.awake = false; CD.campsDone = (CD.campsDone || 0) + 1; CZ.state.save(); resUi();
+          if (Math.random() < 0.5) dropLoot(c.x + 1.5, c.z + 1.5, 1.6);
           floatAt(c, t('camp.clear', { g: gold, i: iron, e: gems }), 'wave'); CZ.audio.sfx('win'); CZ.audio.vibrate([80, 40, 120]);
           for (let k = 0; k < 12; k++) { const m = new THREE.Mesh(chipGeo, chipMats['g' + (k % 3)]); m.position.set(c.x, 1, c.z); scene.add(m); chips.push({ m, vx: rand(-5, 5), vy: rand(5, 9), vz: rand(-5, 5) }); }
         }
@@ -1098,6 +1099,33 @@ CZ.screens.valley = (function () {
     const orbMat = new THREE.MeshBasicMaterial({ color: 0x9fe6ff });
     function slashFx(x, z, dir) { const m = new THREE.Mesh(new THREE.RingGeometry(1.2, 2.9, 24, 1, -Math.PI * 0.42, Math.PI * 0.84), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75, depthWrite: false, side: THREE.DoubleSide }));
       m.rotation.x = -Math.PI / 2; m.rotation.z = dir + Math.PI / 2; m.position.set(P.x, 0.9, P.z); scene.add(m); let tt = 0; const tick = () => { tt += 0.05; m.material.opacity = 0.75 * (1 - tt / 0.3); m.scale.setScalar(1 + tt); if (tt < 0.3 && V) requestAnimationFrame(tick); else { scene.remove(m); m.geometry.dispose(); m.material.dispose(); } }; requestAnimationFrame(tick); }
+    // ===== NADİR GANİMET (21 Kas): yere ışık sütunuyla silah düşer — sıradan / nadir / destansı / efsanevi =====
+    const RAR = [{ k: 'c', col: 0xd8dde6, css: '#c8d0dc', mul: 1.0 }, { k: 'r', col: 0x4aa8ff, css: '#4aa8ff', mul: 1.25 }, { k: 'e', col: 0xb45aff, css: '#b45aff', mul: 1.6 }, { k: 'l', col: 0xffb02a, css: '#ffb02a', mul: 2.1 }];
+    if (!d.inv) d.inv = []; if (!d.eq) d.eq = {};
+    const itemMul = type => { const it = d.inv.find(x => x.id === d.eq[type]); return it ? it.mul : 1; };
+    const itemName = it => t('it.' + it.type + '.' + RAR[it.rar].k + (it.v || 0));
+    const loots = [];
+    function rollRar(luck) { const r = Math.random() / (luck || 1); return r < 0.012 ? 3 : r < 0.08 ? 2 : r < 0.3 ? 1 : 0; }
+    function dropLoot(x, z, luck) {
+      const types = ['bow', 'sword', 'staff'], type = types[Math.floor(Math.random() * 3)], rar = rollRar(luck), R = RAR[rar];
+      const it = { id: 'i' + Date.now().toString(36) + Math.floor(Math.random() * 1e4), type, rar, v: Math.floor(Math.random() * 2), mul: +(R.mul * rand(0.95, 1.08)).toFixed(2) };
+      const g = new THREE.Group(); const mdl = handW[type].clone(); mdl.visible = true; mdl.rotation.set(0, 0, 0.5); mdl.position.y = 0.6; mdl.scale.setScalar(1.4); g.add(mdl);
+      const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.18 + rar * 0.06, 0.32 + rar * 0.08, 6 + rar * 3, 10, 1, true), new THREE.MeshBasicMaterial({ color: R.col, transparent: true, opacity: 0.35 + rar * 0.08, depthWrite: false, side: THREE.DoubleSide })); beam.position.y = (6 + rar * 3) / 2; g.add(beam);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.5, 0.75, 24), new THREE.MeshBasicMaterial({ color: R.col, transparent: true, opacity: 0.9, depthWrite: false, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.05; g.add(ring);
+      g.position.set(x, 0, z); scene.add(g); loots.push({ it, g, mdl, t: 0, x, z });
+      if (rar >= 2) { CZ.audio.sfx('star'); floatAt({ x, z }, t('loot.drop' + rar), 'wave'); }
+      if (rar === 3) { V.shake = Math.max(V.shake || 0, 0.3); CZ.audio.vibrate([80, 40, 80, 40, 160]); }
+    }
+    function lootTick(dt) {
+      for (let i = loots.length - 1; i >= 0; i--) { const L = loots[i]; L.t += dt; L.mdl.rotation.y += dt * 2; L.mdl.position.y = 0.6 + Math.sin(L.t * 3) * 0.12;
+        if (Math.hypot(L.x - P.x, L.z - P.z) < 1.4) { scene.remove(L.g); loots.splice(i, 1); const it = L.it, R = RAR[it.rar];
+          d.inv.push(it); if (d.inv.length > 40) { const worst = d.inv.filter(x => !Object.values(d.eq).includes(x.id)).sort((a, b) => a.mul - b.mul)[0]; if (worst) d.inv.splice(d.inv.indexOf(worst), 1); }
+          if (!d.vwOwn.includes(it.type)) d.vwOwn.push(it.type);
+          if (itemMul(it.type) < it.mul) { d.eq[it.type] = it.id; }   // daha iyiyse kendiliğinden kuşan
+          CZ.state.save(); CZ.audio.sfx(it.rar >= 2 ? 'win' : 'coin'); CZ.audio.vibrate(it.rar >= 2 ? [40, 30, 80] : 20);
+          const f = floatAt(P, VWPN[it.type].icon + ' ' + itemName(it), 'wave'); }
+        else if (L.t > 90) { scene.remove(L.g); loots.splice(i, 1); } }
+    }
     // ===== YETENEKLER (21 Kas): silaha özel yetenek + herkese atılma =====
     const SKILL = { bow: { id: 'volley', cd: 9, icon: '🌧️' }, sword: { id: 'whirl', cd: 10, icon: '🌀' }, staff: { id: 'storm', cd: 12, icon: '❄️' } };
     const DASH_CD = 5;
@@ -1138,7 +1166,7 @@ CZ.screens.valley = (function () {
       V.cool = Math.max(0.12, (0.42 - W.dmg * 0.025) * B.cool * Math.pow(0.95, powLv()) * WP.cd);
       const L2 = Math.hypot(dx, dz) || 1; dx /= L2; dz /= L2;
       P.dir = Math.atan2(-dx, -dz);
-      const baseDmg = W.dmg * 2 + B.dmg + powLv() * 2 + (P.riding ? 1 : 0);
+      const baseDmg = (W.dmg * 2 + B.dmg + powLv() * 2 + (P.riding ? 1 : 0)) * itemMul(d.vw);
       if (WP.melee) {   // KILIÇ: öndeki yarım daire içindeki herkese vurur
         let n2 = 0; targets.slice().forEach(o => { if (o.dead || o.locked) return; const ox = o.x - P.x, oz = o.z - P.z, od = Math.hypot(ox, oz); if (od < WP.melee + o.r && (ox * dx + oz * dz) / (od || 1) > -0.1) { hit(o, Math.round(baseDmg * WP.dmgK)); n2++; } });
         slashFx(P.x + dx * 1.2, P.z + dz * 1.2, P.dir); if (hero.throwNow) hero.throwNow(); CZ.audio.sfx(n2 ? 'slash' : 'throw'); if (n2) { V.shake = Math.max(V.shake || 0, 0.06); CZ.audio.vibrate(15); } return;
@@ -1148,7 +1176,7 @@ CZ.screens.valley = (function () {
       m = arrowTpl.clone();   // (21 Kas) gerçek ok: düz uçar, gittiği yöne bakar
       m.position.set(P.x + dx * 0.6, P.riding ? mount.seatY + 1.1 : 1.2, P.z + dz * 0.6); m.rotation.y = Math.atan2(dx, dz);
       scene.add(m);
-      const sp2 = P.riding ? 34 : 28; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2, ph: null, y0: m.position.y, arrow: !WP.freeze, dmgK: WP.dmgK, freeze: WP.freeze || 0 });
+      const sp2 = P.riding ? 34 : 28; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2, ph: null, y0: m.position.y, arrow: !WP.freeze, dmgK: WP.dmgK * itemMul(d.vw), freeze: WP.freeze || 0 });
       if (hero.throwNow) hero.throwNow();
       CZ.audio.sfx('throw');
     }
@@ -1194,6 +1222,7 @@ CZ.screens.valley = (function () {
       if (o.type === 'goblin' && BUD.id === 'noel') total = Math.round(total * (1.05 + CZ.heroes.lv('noel') * 0.02));
       if (o.type === 'goblin' && CZ.heroes && (d.tutV || 0) >= 5) { const sh = o.boss ? 4 : (Math.random() < 0.03 ? 1 : 0); if (sh) { const hid = CZ.heroes.randomDrop(sh); if (hid) { setTimeout(() => { if (V) floatAt(o, t('hero.shardGot', { n: sh, name: t('hero.n.' + hid) }), 'wave'); }, o.boss ? 900 : 0); heroUi(); } } }
       if (o.type === 'goblin' && CZ.pass) CZ.pass.addXp(3);
+      if (o.type === 'goblin' && (d.tutV || 0) >= 5) { const ch = o.boss ? 0.7 : o.rush ? 0.06 : 0.025; if (Math.random() < ch) dropLoot(o.x, o.z, o.boss ? 2.5 : 1); }
       if (o.type === 'goblin' && V.tut) V.tut.on('goblin');
       if (o.boss) { d.emeralds = (d.emeralds || 0) + o.gems; resUi(); floatAt(o, t('boss.down', { n: o.gems }), 'wave'); CZ.audio.vibrate([60, 30, 120]); }
       if (byTower) { gain(total, true); floatAt(o, '+' + total, 'auto'); CZ.audio.sfx('coin'); V.kills++; }   // kule vurdu: altın kendiliğinden kasaya
@@ -1354,11 +1383,16 @@ CZ.screens.valley = (function () {
         ...Object.entries(VWPN).map(([id, w]) => { const own = d.vwOwn.includes(id), on = d.vw === id;
           const price = w.cost ? Object.entries(w.cost).map(([r2, n]) => (r2 === 'gold' ? '🪙' : '💎') + n).join(' ') : '';
           return h('div', { class: 'wpn-row' + (on ? ' on' : '') }, h('i', { class: 'wpn-ico', text: w.icon }),
-            h('div', { class: 'wpn-txt' }, h('b', { text: t('wpn.' + id) }), h('small', { text: t('wpn.d.' + id) })),
+            h('div', { class: 'wpn-txt' }, h('b', { text: t('wpn.' + id) }), h('small', { text: t('wpn.d.' + id) }), (() => { const eq = d.inv.find(x => x.id === d.eq[id]); return eq ? h('small', { class: 'wpn-item', style: 'color:' + RAR[eq.rar].css, text: '★ ' + itemName(eq) + ' · x' + eq.mul }) : null; })()),
             on ? h('span', { class: 'wpn-on', text: '✓' }) : own ? btn(t('wpn.equip'), () => { d.vw = id; CZ.state.save(); wpnVis(false); fireBtn.firstChild.textContent = w.icon; CZ.audio.sfx('buy'); draw(); }, 'small primary')
               : btn(price, () => { const ok = Object.entries(w.cost).every(([r2, n]) => (d[r2] || 0) >= n); if (!ok) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('wpn.short2')); }
                   Object.entries(w.cost).forEach(([r2, n]) => { d[r2] -= n; }); d.vwOwn.push(id); d.vw = id; CZ.state.save(); resUi(); wpnVis(false); fireBtn.firstChild.textContent = w.icon; CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]); draw(); }, 'small'));
         }),
+        d.inv.length ? h('b', { class: 'tr-lbl', text: t('loot.bag', { n: d.inv.length }) }) : h('small', { class: 'tr-sub', text: t('loot.empty') }),
+        h('div', { class: 'bag' }, d.inv.slice().sort((a, b) => b.mul - a.mul).map(it => { const on = d.eq[it.type] === it.id, R = RAR[it.rar];
+          return h('div', { class: 'bag-it' + (on ? ' on' : ''), style: 'border-color:' + R.css }, h('i', { text: VWPN[it.type].icon }), h('b', { style: 'color:' + R.css, text: itemName(it) }), h('small', { text: 'x' + it.mul }),
+            on ? h('span', { class: 'wpn-on', text: '✓' }) : h('div', { class: 'bag-btns' }, btn(t('wpn.equip'), () => { d.eq[it.type] = it.id; if (!d.vwOwn.includes(it.type)) d.vwOwn.push(it.type); d.vw = it.type; CZ.state.save(); wpnVis(false); fireBtn.firstChild.textContent = VWPN[it.type].icon; CZ.audio.sfx('buy'); draw(); }, 'small primary'),
+              btn('🪙' + (20 + it.rar * it.rar * 60), () => { d.inv.splice(d.inv.indexOf(it), 1); gain(20 + it.rar * it.rar * 60, true); CZ.state.save(); CZ.audio.sfx('coin'); draw(); }, 'small ghost-dark'))); })),
         btn(t('common.close'), () => { box.remove(); V.paused = false; V.last = 0; }, 'small ghost-dark')));
       draw(); wrap.append(box);
     }
@@ -1549,7 +1583,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
-    V.pause = pause;
+    V.pause = pause; V.debug.dropLoot = dropLoot; V.debug.loots = loots;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -1633,7 +1667,7 @@ CZ.screens.valley = (function () {
         rushEl.textContent = t('rush.fight', { n: left }); rushEl.classList.remove('low');
         if (left === 0) {
           const g = Math.round((150 + V.wave * 40) * DIFF().rew); gain(g, true); const gem = Math.random() < 0.35 ? 2 : 0; if (gem) { d.emeralds = (d.emeralds || 0) + gem; resUi(); }
-          floatAt(P, t('rush.win', { n: g }) + (gem ? ' +' + gem + '💎' : ''), 'wave'); giftFx(R.x, R.z); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]); CZ.state.save();
+          floatAt(P, t('rush.win', { n: g }) + (gem ? ' +' + gem + '💎' : ''), 'wave'); giftFx(R.x, R.z); if (Math.random() < 0.4) dropLoot(R.x, R.z, 1.8); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]); CZ.state.save();
           rushEnd(rand(55, 75));
         }
       }
@@ -1910,7 +1944,7 @@ CZ.screens.valley = (function () {
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
       if (V_wind) V_wind.value += dt;
-      skillTick(dt);
+      skillTick(dt); lootTick(dt);
       { const near = Math.hypot(P.x - TRADER.x, P.z - TRADER.z) < 4.2; if (near !== V.trNear) { V.trNear = near; tradeBtn.style.display = near ? '' : 'none'; if (near) CZ.audio.sfx('star'); } }
       if (handW.staff.visible) { const gm = handW.staff.userData.gem; gm.rotation.y += dt * 3; gm.scale.setScalar(1 + Math.sin(performance.now() / 200) * 0.12); }
       { const a = flakeGeo.attributes.position; for (let i = 0; i < flakeN; i++) { let y = a.array[i * 3 + 1] - dt * 2.2; if (y < 0) y += 18; a.array[i * 3 + 1] = y; a.array[i * 3] += Math.sin(y + i) * dt * 0.4; } a.needsUpdate = true; flakes.position.set(P.x, 0, P.z); }
