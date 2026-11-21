@@ -496,6 +496,8 @@ self.CZ_FILES = [
  "assets/zibo/mad.svg",
  "assets/zibo/nervous.svg",
  "assets/zibo/png/angry.webp",
+ "assets/zibo/png/coin.webp",
+ "assets/zibo/png/evil.webp",
  "assets/zibo/png/back.webp",
  "assets/zibo/png/back1.webp",
  "assets/zibo/png/back2.webp",
