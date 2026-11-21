@@ -2113,3 +2113,10 @@ body.wide #rotate-note { display: none !important; }
 .wpn-txt { flex: 1; display: flex; flex-direction: column; color: #3a2414; }
 .wpn-txt small { font-size: 12px; opacity: .8; }
 .wpn-on { font-size: 22px; color: #2fd08a; font-weight: 900; }
+
+/* Büyük harita (küçük haritaya dokun) */
+.vl-map { pointer-events: auto !important; cursor: pointer; }
+.bigmap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.bigmap-cv { border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,.45); background: #e8eef8; touch-action: none; }
+.bigmap-bar { display: flex; align-items: center; gap: 8px; }
+.bigmap-z { min-width: 44px; text-align: center; color: #fff; font-weight: 900; font-size: 18px; }

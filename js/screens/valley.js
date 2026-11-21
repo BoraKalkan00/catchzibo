@@ -1294,7 +1294,8 @@ CZ.screens.valley = (function () {
     }
     const floats = h('div', { class: 'vl-floats' });
     const mapC = h('canvas', { class: 'vl-map', width: '220', height: '220' });
-    const mctx = mapC.getContext('2d');
+    const mctx0 = mapC.getContext('2d');
+    mapC.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openBigMap(); });
     const edgeArrows = [0, 1, 2].map(() => h('div', { class: 'vl-edge' }, h('i')));
     const stick = h('div', { class: 'vl-stick' }, h('i'));
     const fireBtn = h('button', { class: 'vl-fire', type: 'button' }, h('i', { class: 'vl-fire-emo', text: (VWPN[d.vw] || VWPN.bow).icon }));
@@ -1834,28 +1835,44 @@ CZ.screens.valley = (function () {
       mapT -= dt; if (mapT <= 0) { mapT = 0.12; drawMap(); drawEdges(); }
     }
     // Mini harita: kutular, altın yığınları, yardakçılar, mağara, bineğin ve sen
-    function drawMap() {
-      const W2 = 220, k = W2 / 2 / (WORLD_R + 2), cx = W2 / 2;
-      const X = x => cx + x * k, Z = z => cx + z * k;
+    // (21 Kas) aynı çizim hem küçük haritada hem büyük haritada (yakınlaştırılabilir, LoL gibi)
+    function openBigMap() {
+      if (V.paused) return; CZ.audio.sfx('button'); V.paused = true;
+      const S = Math.round(Math.min(window.innerWidth - 24, window.innerHeight - 170, 720));
+      const cv = h('canvas', { class: 'bigmap-cv', width: String(S), height: String(S) }), cx2 = cv.getContext('2d');
+      let zoom = 1, timer = 0;
+      const lvl = h('b', { class: 'bigmap-z' });
+      const redraw = () => { lvl.textContent = 'x' + zoom; drawMap(cx2, S, zoom, zoom > 1 ? P.x : 0, zoom > 1 ? P.z : 0); };
+      const z = dz => { const L = [1, 1.8, 3, 4.5]; zoom = L[Math.max(0, Math.min(L.length - 1, L.indexOf(zoom) + dz))]; redraw(); CZ.audio.sfx('button'); };
+      cv.addEventListener('wheel', e => { e.preventDefault(); z(e.deltaY < 0 ? 1 : -1); }, { passive: false });
+      let pinch = 0; cv.addEventListener('touchmove', e => { if (e.touches.length === 2) { const dd = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); if (pinch && Math.abs(dd - pinch) > 40) { z(dd > pinch ? 1 : -1); pinch = dd; } else if (!pinch) pinch = dd; } }, { passive: true }); cv.addEventListener('touchend', () => { pinch = 0; });
+      const box = h('div', { class: 'modal-wrap bigmap-wrap' }, h('div', { class: 'bigmap' }, cv,
+        h('div', { class: 'bigmap-bar' }, btn('−', () => z(-1), 'small ghost-dark'), lvl, btn('+', () => z(1), 'small ghost-dark'), btn(t('common.close'), () => { clearInterval(timer); box.remove(); V.paused = false; V.last = 0; }, 'small primary'))));
+      wrap.append(box); redraw(); timer = setInterval(() => { if (!V || !box.isConnected) return clearInterval(timer); redraw(); }, 150);
+    }
+    function drawMap(mctx = mctx0, W2 = 220, zoom = 1, ox = 0, oz = 0) {
+      const k = W2 / 2 / (WORLD_R + 2) * zoom, cx = W2 / 2;
+      const X = x => cx + (x - ox) * k, Z = z => cx + (z - oz) * k;
       mctx.clearRect(0, 0, W2, W2);
-      if (!V.mapBg) {   // arazi bir kez çizilir: kar, çimen, nehir, göller, orman ve kayalıklar
+      const BG = W2 > 300 ? 900 : 220; V.mapBgs = V.mapBgs || {};
+      if (!V.mapBgs[BG]) {   // arazi bir kez çizilir: kar, çimen, nehir, göller, orman ve kayalıklar
+        const W2 = BG, k = W2 / 2 / (WORLD_R + 2), cx = W2 / 2, X = x => cx + x * k, Z = z => cx + z * k;
         const c = document.createElement('canvas'); c.width = c.height = W2; const x = c.getContext('2d');
         x.save(); x.beginPath(); x.arc(cx, cx, cx - 2, 0, 7); x.clip();
         for (let py = 0; py < W2; py += 4) for (let px = 0; px < W2; px += 4) { const wx = (px - cx) / k, wz = (py - cx) / k; const nz = noise(wx, wz);
           x.fillStyle = inRiver(wx, wz) ? '#3d8fd6' : inLake(wx, wz) ? '#a8dcf6' : nz > 0.75 ? '#9ec08a' : nz > 0.55 ? '#c4d8c4' : '#e8eef8'; x.fillRect(px, py, 4, 4); }
         chunkList.forEach(ch => ch.items.forEach(it => { x.fillStyle = it.kind === 'tree' ? 'rgba(40,110,60,.55)' : 'rgba(110,116,130,.6)'; x.fillRect(X(it.x) - 1, Z(it.z) - 1, 2.5, 2.5); }));
         bridges.forEach(([bx, bz]) => { x.fillStyle = '#8a5a30'; x.fillRect(X(bx) - 3, Z(bz) - 3, 6, 6); });
-        x.restore(); V.mapBg = c;
+        x.restore(); V.mapBgs[BG] = c;
       }
-      mctx.drawImage(V.mapBg, 0, 0);
-      mctx.fillStyle = 'rgba(200,210,230,.9)'; mctx.beginPath(); mctx.arc(cx, cx, FENCE_R * k, 0, 7); mctx.fill();
-      pads.forEach(p => { const it = slot(p); if (p.kind === 'f') { if (it && it.lv) { mctx.strokeStyle = it.job ? '#4ab0ff' : '#8a5a2a'; mctx.lineWidth = 3; mctx.beginPath(); mctx.arc(cx, cx, FENCE_R * k, p.i / 8 * Math.PI * 2, (p.i + 1) / 8 * Math.PI * 2); mctx.stroke(); } }
+      { const k0 = BG / 2 / (WORLD_R + 2), sw = W2 / k * k0; mctx.drawImage(V.mapBgs[BG], BG / 2 + (ox - cx / k) * k0, BG / 2 + (oz - cx / k) * k0, sw, sw, 0, 0, W2, W2); }
+      mctx.fillStyle = 'rgba(200,210,230,.9)'; mctx.beginPath(); mctx.arc(X(0), Z(0), FENCE_R * k, 0, 7); mctx.fill();
+      pads.forEach(p => { const it = slot(p); if (p.kind === 'f') { if (it && it.lv) { mctx.strokeStyle = it.job ? '#4ab0ff' : '#8a5a2a'; mctx.lineWidth = 3; mctx.beginPath(); mctx.arc(X(0), Z(0), FENCE_R * k, p.i / 8 * Math.PI * 2, (p.i + 1) / 8 * Math.PI * 2); mctx.stroke(); } }
         else if (it) { mctx.fillStyle = it.type === 'cannon' ? '#3a3a44' : '#5a7ab8'; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 4.5, 0, 7); mctx.fill(); }
         else { mctx.strokeStyle = '#d8a010'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(X(p.x), Z(p.z), 3.5, 0, 7); mctx.stroke(); } });
-      mctx.fillStyle = '#c8302a'; mctx.fillRect(cx - 4, cx - 5, 8, 8);
+      mctx.fillStyle = '#c8302a'; mctx.fillRect(X(0) - 4, Z(0) - 5, 8, 8);
       camps.forEach(c => { const on = campOn(c); mctx.fillStyle = on ? '#7a2a9a' : '#3cbe5a'; mctx.beginPath(); mctx.moveTo(X(c.x), Z(c.z) - 6); mctx.lineTo(X(c.x) + 5.5, Z(c.z) + 4); mctx.lineTo(X(c.x) - 5.5, Z(c.z) + 4); mctx.closePath(); mctx.fill(); mctx.strokeStyle = '#fff'; mctx.lineWidth = 1.2; mctx.stroke();
         if (on) { mctx.fillStyle = '#fff'; mctx.font = 'bold 8px sans-serif'; mctx.textAlign = 'center'; mctx.fillText(String(c.st.tier), X(c.x), Z(c.z) + 3); } });
-      mctx.fillStyle = '#7a8296'; mctx.beginPath(); mctx.arc(X(-38), Z(-31), 5, 0, 7); mctx.fill();
       targets.forEach(o => {
         if (o.dead) return;
         if (o.type === 'box') { mctx.fillStyle = o.maxHp > 3 ? '#9a4ad0' : '#e0323a'; mctx.fillRect(X(o.x) - 4.5, Z(o.z) - 4.5, 9, 9); mctx.strokeStyle = '#fff'; mctx.lineWidth = 1.5; mctx.strokeRect(X(o.x) - 4.5, Z(o.z) - 4.5, 9, 9); }
@@ -1863,6 +1880,7 @@ CZ.screens.valley = (function () {
         else if (o.type === 'chest') { mctx.fillStyle = o.locked ? '#7fd0ff' : '#ffd23a'; mctx.font = 'bold 16px sans-serif'; mctx.textAlign = 'center'; mctx.fillText(o.locked ? '❄' : '★', X(o.x), Z(o.z) + 6); }
       });
       if (!P.riding) { mctx.fillStyle = '#7a4a2a'; mctx.beginPath(); mctx.arc(X(M.x), Z(M.z), 5, 0, 7); mctx.fill(); }
+      if (V.rush) { mctx.fillStyle = '#ffd34a'; mctx.strokeStyle = '#7a4a08'; mctx.lineWidth = 2; mctx.beginPath(); mctx.arc(X(V.rush.x), Z(V.rush.z), 7 + Math.sin(performance.now() / 150) * 1.5, 0, 7); mctx.fill(); mctx.stroke(); mctx.fillStyle = '#7a4a08'; mctx.font = 'bold 10px sans-serif'; mctx.textAlign = 'center'; mctx.fillText('$', X(V.rush.x), Z(V.rush.z) + 4); }
       // görüş alanı ve oyuncu oku
       mctx.strokeStyle = 'rgba(30,40,80,.35)'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(X(P.x), Z(P.z), RANGE * k, 0, 7); mctx.stroke();
       mctx.save(); mctx.translate(X(P.x), Z(P.z)); mctx.rotate(-P.dir);
