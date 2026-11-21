@@ -1310,5 +1310,7 @@ CZ.i18n.register('ko', '한국어', {
   "it.staff.l1": "Eternal Ice",
   "zone.locked": "안개! 이 지역은 마을회관 Lv{n}에 열려요",
   "zone.short": "마을회관 Lv{n}",
-  "zone.open": "새 지역 개방! 안개가 걷혔어요 🌫️ → 🌲"
+  "zone.open": "새 지역 개방! 안개가 걷혔어요 🌫️ → 🌲",
+  "upg.fill": "부족분을 골드로 채우고 업그레이드 · {n}",
+  "upg.collect": "부족한 자원을 모으세요 (또는 골드 {n} 모으기)"
 });

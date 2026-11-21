@@ -1310,5 +1310,7 @@ CZ.i18n.register('es', 'Español', {
   "it.staff.l1": "Eternal Ice",
   "zone.locked": "¡Niebla! Esta zona se abre con el Ayuntamiento nv. {n}",
   "zone.short": "Ayuntamiento nv. {n}",
-  "zone.open": "¡Nueva zona! La niebla se disipa 🌫️ → 🌲"
+  "zone.open": "¡Nueva zona! La niebla se disipa 🌫️ → 🌲",
+  "upg.fill": "Completa con oro y mejora · {n}",
+  "upg.collect": "Reúne los recursos que faltan (o ahorra {n} de oro)"
 });

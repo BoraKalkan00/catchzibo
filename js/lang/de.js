@@ -1310,5 +1310,7 @@ CZ.i18n.register('de', 'Deutsch', {
   "it.staff.l1": "Eternal Ice",
   "zone.locked": "Nebel! Dieser Bereich öffnet mit Rathaus Stufe {n}",
   "zone.short": "Rathaus St. {n}",
-  "zone.open": "Neues Gebiet frei! Der Nebel lichtet sich 🌫️ → 🌲"
+  "zone.open": "Neues Gebiet frei! Der Nebel lichtet sich 🌫️ → 🌲",
+  "upg.fill": "Rest mit Gold auffüllen & verbessern · {n}",
+  "upg.collect": "Sammle die fehlenden Ressourcen (oder spare {n} Gold)"
 });

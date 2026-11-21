@@ -1310,5 +1310,7 @@ CZ.i18n.register('pt', 'Português', {
   "it.staff.l1": "Eternal Ice",
   "zone.locked": "Névoa! Esta área abre com a Prefeitura nv. {n}",
   "zone.short": "Prefeitura nv. {n}",
-  "zone.open": "Nova área! A névoa se dissipa 🌫️ → 🌲"
+  "zone.open": "Nova área! A névoa se dissipa 🌫️ → 🌲",
+  "upg.fill": "Complete com ouro e melhore · {n}",
+  "upg.collect": "Junte os recursos que faltam (ou guarde {n} de ouro)"
 });

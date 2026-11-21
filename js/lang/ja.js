@@ -1310,5 +1310,7 @@ CZ.i18n.register('ja', '日本語', {
   "it.staff.l1": "Eternal Ice",
   "zone.locked": "霧！このエリアは町役場Lv{n}で開放",
   "zone.short": "町役場Lv{n}",
-  "zone.open": "新エリア開放！霧が晴れた 🌫️ → 🌲"
+  "zone.open": "新エリア開放！霧が晴れた 🌫️ → 🌲",
+  "upg.fill": "足りない分を金で補って強化 · {n}",
+  "upg.collect": "足りない資源を集めよう（または金{n}を貯める）"
 });

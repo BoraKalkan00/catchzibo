@@ -1492,5 +1492,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "it.staff.l1": "Sonsuz Buz",
   "zone.locked": "Sis! Bu bölge Belediye Sv.{n} ile açılır",
   "zone.short": "Belediye Sv.{n}",
-  "zone.open": "Yeni bölge açıldı! Sis dağıldı 🌫️ → 🌲"
+  "zone.open": "Yeni bölge açıldı! Sis dağıldı 🌫️ → 🌲",
+  "upg.fill": "Eksikleri altınla tamamla ve yükselt · {n}",
+  "upg.collect": "Eksik kaynakları topla (ya da {n} altın biriktir)"
 });

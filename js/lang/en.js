@@ -1492,5 +1492,7 @@ CZ.i18n.register('en', 'English', {
   "it.staff.l1": "Eternal Ice",
   "zone.locked": "Fog! This area opens at Town Hall Lv {n}",
   "zone.short": "Town Hall Lv {n}",
-  "zone.open": "New area unlocked! The fog lifts 🌫️ → 🌲"
+  "zone.open": "New area unlocked! The fog lifts 🌫️ → 🌲",
+  "upg.fill": "Fill the rest with gold & upgrade · {n}",
+  "upg.collect": "Collect the missing resources (or save {n} gold)"
 });

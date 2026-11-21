@@ -1599,7 +1599,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
-    V.pause = pause; V.debug.dropLoot = dropLoot; V.debug.loots = loots;
+    V.pause = pause; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -2129,6 +2129,20 @@ CZ.screens.valley = (function () {
       if (D2.splash) R.push([t('st.splash'), D2.splash]);
       return R;
     }
+    // (21 Kas) yükseltme kartı için 3D modelin fotoğrafı: şimdiki ve sonraki seviye gerçekten görünür
+    const snapR = { r: null, cache: {} };
+    function snap3d(key, mk) {
+      if (snapR.cache[key]) return snapR.cache[key];
+      const g = mk(); if (!g) return null;
+      if (!snapR.r) { snapR.r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); snapR.r.setSize(220, 220); snapR.s = new THREE.Scene(); snapR.s.add(new THREE.HemisphereLight(0xdfeaff, 0x56648a, 0.55)); const dl = new THREE.DirectionalLight(0xffe0b0, 0.92); dl.position.set(4, 8, 6); snapR.s.add(dl); snapR.c = new THREE.PerspectiveCamera(30, 1, 0.1, 200); }
+      const box = new THREE.Box3().setFromObject(g), sz = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3()), R = Math.max(sz.x, sz.y, sz.z);
+      snapR.s.add(g); snapR.c.position.set(ctr.x + R * 1.5, ctr.y + R * 1.3, ctr.z + R * 1.9); snapR.c.lookAt(ctr); snapR.r.render(snapR.s, snapR.c);
+      const url = snapR.r.domElement.toDataURL('image/png'); snapR.s.remove(g); snapR.cache[key] = url; return url;
+    }
+    const vSnap = (id, L) => L > 0 && CZ.KH && CZ.KH.has('flag_blue') ? snap3d('v' + id + L, () => CZ.KH.village(THREE, id, L, false)) : null;
+    const tSnap = (type, L) => L > 0 && CZ.KH && CZ.KH.has('flag_blue') ? snap3d('t' + type + L, () => type === 'fence' ? fenceModel(0, L) : CZ.KH.tower(THREE, type, L, false)) : null;
+    // eksik kaynakların altın karşılığı (tüccar fiyatı, biraz pahalı)
+    const missGold = L2 => Math.ceil(L2.reduce((a, x) => x.r === 'gold' ? a : a + Math.max(0, x.n - (d[x.r] || 0)) * (TVAL[x.r] || 1) * 1.3, 0));
     function openPad(p) {
       CZ.audio.sfx('button');
       const n = need(p), L2 = n ? left(p) : [], it = slot(p);
@@ -2139,18 +2153,24 @@ CZ.screens.valley = (function () {
         if (!left(p).every(x => (d[x.r] || 0) >= x.n)) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('def.lacking')); }
         const pd = pd0(p); left(p).forEach(x => { d[x.r] -= x.n; pd[x.r] += x.n; }); resUi(); complete(p); close();
       }, 'primary wide', 'ic:up');
+      // eksik varsa: "Eksikleri altınla tamamla ve yükselt" (CoC gibi tek dokunuş)
+      const shortBtn = () => { const mg = missGold(L2), gNeed = (L2.find(x => x.r === 'gold') || {}).n || 0;
+        if (mg <= 0) return payBtn();
+        if ((d.gold || 0) < mg + gNeed) return h('p', { class: 'small-note', text: t('upg.collect', { n: mg }) });
+        return btn(t('upg.fill', { n: mg }), () => { if ((d.gold || 0) < missGold(left(p)) + gNeed) return; d.gold -= missGold(left(p)); left(p).forEach(x => { if (x.r !== 'gold') d[x.r] = Math.max(d[x.r] || 0, x.n); });
+          const pd = pd0(p); left(p).forEach(x => { d[x.r] -= x.n; pd[x.r] += x.n; }); resUi(); complete(p); close(); }, 'primary wide', 'ui.gold'); };
       if (p.kind === 'v') {
         const id = p.id, L = CZ.village.lv(id), max = CZ.village.def(id).max, nx = L < max ? L + 1 : null, V2 = CZ.village.ensure();
         const sa = CZ.village.stats(id, L), sb = nx ? CZ.village.stats(id, nx) : [];
         const acts = [];
         if (V2.job && V2.job.id === id) acts.push(h('p', { class: 'small-note', text: t('vil.busy') + ' · ' + CZ.village.fmt(CZ.village.left()) }));
         else if (nx && (V2.job || L >= CZ.village.cap(id))) acts.push(h('p', { class: 'small-note', text: V2.job ? t('vil.busy') : t('vil.needHall', { n: Math.max(1, Math.ceil(11 * (L + 1) / max) - 1) }) }));
-        else if (nx) acts.push(can ? payBtn() : h('p', { class: 'small-note', text: t('upg.stand') }));
-        o = { title: t('vil.b.' + id), desc: t('vil.d.' + id), from: L, to: nx, imgFrom: CZ.vImg && CZ.vImg(id, L), imgTo: nx && CZ.vImg && CZ.vImg(id, nx),
+        else if (nx) acts.push(can ? payBtn() : shortBtn());
+        o = { title: t('vil.b.' + id), desc: t('vil.d.' + id), from: L, to: nx, imgFrom: vSnap(id, L) || (CZ.vImg && CZ.vImg(id, L)), imgTo: nx && (vSnap(id, nx) || (CZ.vImg && CZ.vImg(id, nx))),
           rows: sa.map(([k, v], i) => [t(k), L ? v : '—', sb[i] ? sb[i][1] : null]), cost, time: nx ? CZ.village.fmt(CZ.village.minutes(id, L) * 60000) : '', actions: acts };
       } else if (p.kind === 'x') {
         const L = expLv(), nx = L < EXP_MAX ? L + 1 : null;
-        o = { title: t('exp.title'), from: L, to: nx, emoji: '🗺️', rows: [], cost, actions: nx ? [can ? payBtn() : h('p', { class: 'small-note', text: t('upg.stand') })] : [] };
+        o = { title: t('exp.title'), from: L, to: nx, emoji: '🗺️', rows: [], cost, actions: nx ? [can ? payBtn() : shortBtn()] : [] };
       } else {
         const type = p.kind === 'f' ? 'fence' : p.type, D2 = DEF[type], L = it ? it.lv : 0, max = D2.cost.length;
         const busy = it && it.job, nx = busy ? it.job.to : (L < max ? L + 1 : null);
@@ -2158,9 +2178,9 @@ CZ.screens.valley = (function () {
         if (busy) { const jl = jobLeft(it), s2 = Math.ceil(jl / 1000);
           acts.push(h('p', { class: 'upg-time', text: '🔨 ' + Math.floor(s2 / 60) + ':' + String(s2 % 60).padStart(2, '0') }),
             h('div', { class: 'def-row' }, btn(t('def.now') + ' ' + (it.lv === 0 ? RUSH_BUILD : rushPrice(jl)), () => { rushGold(p); close(); }, 'primary', 'ui.gold'), btn(t('def.ad'), () => { rushAd(p); close(); }, 'ghost-dark', 'ic:play'))); }
-        else if (nx) acts.push(can ? payBtn() : h('p', { class: 'small-note', text: t('upg.stand') }));
+        else if (nx) acts.push(can ? payBtn() : shortBtn());
         const ra = defRows(type, L), rb = nx ? defRows(type, nx) : [];
-        o = { title: t('def.' + type), desc: t('def.d.' + type), from: L, to: nx, emoji: DEF_EMO[type],
+        o = { title: t('def.' + type), desc: t('def.d.' + type), from: L, to: nx, emoji: DEF_EMO[type], imgFrom: tSnap(type, L), imgTo: nx && tSnap(type, nx),
           rows: ra.map(([k, v], i) => [k, L ? v : '—', rb[i] ? rb[i][1] : null]), cost: busy ? [] : cost, time: nx && !busy ? D2.min[L] + ' dk' : '', actions: acts };
       }
       const wasPaused = V.paused; V.paused = true;
@@ -2169,7 +2189,7 @@ CZ.screens.valley = (function () {
     function padAt(cx, cy) {
       const r = renderer.domElement.getBoundingClientRect(); tapN.set((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
       tapRay.setFromCamera(tapN, camera); if (!tapRay.ray.intersectPlane(tapPlane, tapV)) return null;
-      let best = null, bd = 1.7;
+      let best = null, bd = 2.4;
       pads.forEach(q => { const [mx, mz] = markPos(q); let dd = Math.hypot(mx - tapV.x, mz - tapV.z);
         if (q.kind === 'v' && CZ.VILLAGE_SPOTS) { const [sx, sz] = CZ.VILLAGE_SPOTS[q.id]; dd = Math.min(dd, Math.hypot(sx * VS - tapV.x, sz * VS + 0.6 - tapV.z) * 0.8); }
         if (dd < bd) { bd = dd; best = q; } });
@@ -2204,7 +2224,7 @@ CZ.screens.valley = (function () {
           V2.job.ads < 3 ? btn('-30 ' + t('def.min'), () => CZ.ads.show(() => { CZ.village.adRush(); placeVillage(); padUi(true); }), 'ghost-dark', 'ic:play') : null));
       } else if (L2 && L2.length) {
         if (armedPad === p) kids.push(h('small', { class: 'def-flow', text: '⏳ ' + t('def.flowing') }));
-        else kids.push(h('div', { class: 'def-row' }, btn(((it && it.lv) || (p.kind === 'v' && CZ.village.lv(p.id)) || (p.kind === 'x' && expLv()) ? '⬆️ ' + t('def.upBtn') : '🔨 ' + t('def.buildBtn')), () => { armedPad = p; panelKey = ''; CZ.audio.sfx('buy'); CZ.audio.vibrate(20); if (V.tut && p.kind === 't') V.tut.on && 0; padUi(true); }, 'primary wide')));
+        else kids.push(h('div', { class: 'def-row' }, btn(((it && it.lv) || (p.kind === 'v' && CZ.village.lv(p.id)) || (p.kind === 'x' && expLv()) ? '⬆️ ' + t('def.upBtn') : '🔨 ' + t('def.buildBtn')), () => openPad(p), 'primary wide')));
         { const dd = CZ.state.data, sw = Math.max(0, ((L2.find(x => x.r === 'wood') || {}).n || 0) - (dd.wood || 0)), ss = Math.max(0, ((L2.find(x => x.r === 'stone') || {}).n || 0) - (dd.stone || 0));
           const cost = Math.ceil(sw * 0.4 + ss * 0.67), gNeed = (L2.find(x => x.r === 'gold') || {}).n || 0;
           if (cost > 0 && (dd.gold || 0) >= cost + Math.min(gNeed, 1)) kids.push(h('div', { class: 'def-row' }, btn(t('def.buyShort') + ' · ' + cost, () => { if ((dd.gold || 0) < cost) return; dd.gold -= cost; dd.wood = (dd.wood || 0) + sw; dd.stone = (dd.stone || 0) + ss; CZ.state.save(); resUi(); CZ.audio.sfx('coin'); padUi(true); }, 'primary', 'ui.gold'))); }

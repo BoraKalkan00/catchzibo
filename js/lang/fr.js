@@ -1310,5 +1310,7 @@ CZ.i18n.register('fr', 'Français', {
   "it.staff.l1": "Eternal Ice",
   "zone.locked": "Brouillard ! Zone ouverte avec la Mairie niv. {n}",
   "zone.short": "Mairie niv. {n}",
-  "zone.open": "Nouvelle zone ! Le brouillard se lève 🌫️ → 🌲"
+  "zone.open": "Nouvelle zone ! Le brouillard se lève 🌫️ → 🌲",
+  "upg.fill": "Compléter avec de l'or et améliorer · {n}",
+  "upg.collect": "Récolte les ressources manquantes (ou économise {n} or)"
 });
