@@ -192,7 +192,7 @@ CZ.screens.valley = (function () {
     let ratioIdx = 0;
     renderer.setPixelRatio(RATIOS[0]);
     stage.append(renderer.domElement);
-    const post = CZ.post.create(renderer, { bloom: 0.5, thr: 0.84 });
+    const post = CZ.post.create(renderer, { bloom: 0.35, thr: 0.93, sat: 1.08 });
     const scene = new THREE.Scene();
     const SKY = 0xbcd4f2;
     scene.background = new THREE.Color(SKY);
@@ -232,7 +232,7 @@ CZ.screens.valley = (function () {
     const pMats = {};
     const pMat = (id, see) => { const k = id + (see ? '+s' : ''); if (pMats[k]) return pMats[k];
       const t = new THREE.TextureLoader().load('assets/map/prop/' + id + '.webp'); t.anisotropy = 4;
-      let m = new THREE.MeshLambertMaterial({ map: t, alphaTest: 0.45, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.42, side: THREE.DoubleSide });
+      let m = new THREE.MeshLambertMaterial({ map: t, alphaTest: 0.45, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.3, side: THREE.DoubleSide });
       if (see) m = seeThrough(m); return (pMats[k] = m); };
     const pGeo = (id, hh) => { const g = new THREE.PlaneGeometry(hh * PASP[id], hh); g.translate(0, hh / 2, 0); g.rotateX(PTILT); g.computeVertexNormals(); return g; };
     const pMesh = (id, hh, see) => { const m = new THREE.Mesh(pGeo(id, hh), pMat(id, see)); m.userData.ol = true; return m; };
@@ -306,24 +306,24 @@ CZ.screens.valley = (function () {
       const sm = (a, b, v) => { const q = Math.min(1, Math.max(0, (v - a) / (b - a))); return q * q * (3 - 2 * q); };
       const mix = (A, Bc, k) => A.map((v, j) => v + (Bc[j] - v) * k);
       let c = [0.84 + n, 0.88 + n, 0.96];                                         // kar
-      c = mix(c, [0.58 + n, 0.68 + n, 0.6], sm(0.4, 0.62, nz));                   // ince kar + çimen
-      c = mix(c, [0.5 + n, 0.62 + n, 0.42], sm(0.66, 0.9, nz));                   // karı erimiş çimen
-      c = mix(c, [0.6 + n, 0.6 + n, 0.66], sm(-0.95, -1.25, nz));                 // kayalık
+      c = mix(c, [0.8 + n, 0.88 + n, 0.86], sm(0.4, 0.62, nz));                   // ince kar + hafif çimen
+      c = mix(c, [0.8 + n, 0.88 + n, 0.82], sm(0.66, 0.9, nz));                   // karı erimiş çimen
+      c = mix(c, [0.8 + n, 0.83 + n, 0.9], sm(-0.95, -1.25, nz));                 // kayalık
       const rd = Math.min(...roads.map(s2 => distSeg(x, z, s2)));
-      c = mix(c, [0.52 + n, 0.44 + n, 0.36], 1 - sm(1.9, 3.1, rd));               // toprak yol (kenarı yumuşak)
+      c = mix(c, [0.86 + n, 0.8 + n, 0.74], 1 - sm(1.9, 3.1, rd));               // karlı patika (kenarı yumuşak)
       const dr = Math.min(Math.abs(z - riverZ(x)), z < riverZ(x) ? Math.abs(x - creekX(z)) : 99);
       c = mix(c, [0.42 + n, 0.38 + n, 0.32], 1 - sm(RIVER_W + 0.6, RIVER_W + 2.2, dr));   // nehir kıyısı: çamur
       { const dR = Math.min(Math.abs(z - riverZ(x)) - RIVER_W, z < riverZ(x) ? Math.abs(x - creekX(z)) - CREEK_W : 99), k = 1 - sm(-0.9, 0.5, dR);   // nehir yatağı: kıyıya doğru yumuşak iner
         if (k > 0) { c = mix(c, [0.16, 0.3, 0.42], k); y = Math.min(y, -0.5 * k); } }
       if (inLake(x, z)) c = [0.6, 0.8, 0.93];                                     // donmuş göl
-      c = mix(c, [0.58 + n, 0.52 + n, 0.46], 1 - sm(FENCE_R - 0.5, FENCE_R + 1.5, r));   // köy meydanı: toprak
+      c = mix(c, [0.9 + n, 0.86 + n, 0.8], 1 - sm(FENCE_R - 0.5, FENCE_R + 1.5, r));   // köy meydanı: açık taş
       if (y > 3) c = [0.72 + n, 0.77 + n, 0.9];
       pos.setY(i, y);
       col.push(...c);
     }
     groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     groundGeo.computeVertexNormals();
-    const snowTex = (() => { const tx = new THREE.TextureLoader().load('assets/map/tile/snow.webp'); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(24, 24); tx.anisotropy = renderer.capabilities.getMaxAnisotropy(); return tx; })();
+    const snowTex = (() => { const tx = new THREE.TextureLoader().load('assets/map/tile/snow.webp'); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(46, 46); tx.anisotropy = renderer.capabilities.getMaxAnisotropy(); return tx; })();
     const ground = new THREE.Mesh(groundGeo, new THREE.MeshLambertMaterial({ vertexColors: true, map: snowTex })); ground.receiveShadow = true; scene.add(ground);
     // akan su: nehir ve dere şeritleri, kayan dalga dokusu
     const waterTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d');
@@ -457,7 +457,7 @@ CZ.screens.valley = (function () {
       c.mesh.setMatrixAt(it.idx, tmp.matrix); c.mesh.instanceMatrix.needsUpdate = true;
     }
     Object.values(chunks).forEach(c => {
-      const TV = [['pine_big', 4.4], ['pine_small', 3.2], ['pine_group', 4.8]], RV = [['rock_big', 2.1], ['rocks', 1.7]];
+      const TV = [['pine_big', 4.4], ['pine_small', 3.2], ['pine_group', 4.8]], RV = [['rock_big', 1.6], ['rocks', 1.35]];
       const [pid, ph] = (c.kind === 't' ? TV : RV)[c.v];
       c.mesh = new THREE.InstancedMesh(pGeo(pid, ph), pMat(pid, c.kind === 't'), c.items.length);
       c.mesh.frustumCulled = false;
@@ -1716,7 +1716,8 @@ CZ.screens.valley = (function () {
       if (onPad && P.down <= 0) flowTick(onPad, dt);
       prodTick(dt);
       // köy daireleri uzaktayken küçülür (kalabalık görünmesin), yaklaşınca büyür
-      pads.forEach(p => { if (p.kind !== 'v' || !p.mark) return; const [mx, mz] = markPos(p); const tg = Math.hypot(mx - P.x, mz - P.z) < 5.5 ? 0.8 : 0.42; const sc = p.mark.scale.x + (tg - p.mark.scale.x) * Math.min(1, dt * 8); p.mark.scale.setScalar(sc); p.mark.material.opacity = 0.35 + (sc - 0.42) / 0.38 * 0.65; });
+      pads.forEach(p => { if (p.mark && p.kind !== 'v') { const [ax, az] = markPos(p); const op = Math.hypot(ax - P.x, az - P.z) < 4.2 ? 1 : 0.3; p.mark.material.opacity += (op - p.mark.material.opacity) * Math.min(1, dt * 6); }
+        if (p.kind !== 'v' || !p.mark) return; const [mx, mz] = markPos(p); const tg = Math.hypot(mx - P.x, mz - P.z) < 5.5 ? 0.8 : 0.42; const sc = p.mark.scale.x + (tg - p.mark.scale.x) * Math.min(1, dt * 8); p.mark.scale.setScalar(sc); p.mark.material.opacity = 0.35 + (sc - 0.42) / 0.38 * 0.65; });
       if (!best) { const rr = Math.hypot(P.x, P.z); if (Math.abs(rr - FENCE_R) < 1.4) { const seg = ((Math.floor(((Math.atan2(P.z, P.x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8); const fp = pads.find(p => p.kind === 'f' && p.i === seg); if (fp && slot(fp) && slot(fp).lv >= 1) { best = fp; onPad = fp; } } }   // çitin üstündeyken canını ve yükseltmesini göster
       if (best && !onPad && Math.hypot(P.vx, P.vz) > 2.2) best = null;   // koşarken panel ekranı kapatmasın
       if (best !== nearPad) { nearPad = best; padUi(true); }
