@@ -753,6 +753,7 @@ self.CZ_FILES = [
  "js/vendor/three.LICENSE.txt",
  "js/vendor/three.min.js",
  "js/core/post.js",
+ "js/core/upgrade.js",
  "assets/3d/gen/h_buzbas.glb",
  "assets/3d/gen/h_demir.glb",
  "assets/3d/gen/h_ela.glb",

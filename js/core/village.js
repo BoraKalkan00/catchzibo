@@ -139,5 +139,27 @@ CZ.village = (function () {
   const fmt = ms => { const s = Math.ceil(ms / 1000), p2 = n => String(n).padStart(2, '0'); return s >= 3600 ? Math.floor(s / 3600) + ':' + p2(Math.floor(s % 3600 / 60)) + ':' + p2(s % 60) : Math.floor(s / 60) + ':' + p2(s % 60); };
   const power = () => CZ.VB.reduce((n, b) => n + lv(b.id) * (b.id === 'hall' ? 5 : 1), 0);
   const ready = () => { tick(); const V = ensure(); return Math.floor(V.store.mine + V.store.bakery + V.store.goldmine) >= 50 || V.store.elf >= 5 || (!V.job && CZ.VB.some(b => lv(b.id) < cap(b.id) && price(b.id, lv(b.id)) <= (d().gold || 0))); };
-  return { PRODS, ensure, startJob, lv, cap, price, minutes, rate, storeCap, protect, defense, bonus, tick, collect, upgrade, left, gemCost, rush, adRush, fmt, power, ready, def };
+  // Bir binanın L seviyesindeki gerçek sayıları (oyunda kullanılan formüllerin aynısı)
+  const rateAt = (id, L) => { if (!L) return 0; const r = 240 * L * (1 + L * 0.15); return Math.round(id === 'goldmine' ? r * 0.35 : id === 'elf' ? Math.max(1, r * 0.006) : r); };
+  function stats(id, L) {
+    const R = [];
+    switch (id) {
+      case 'hall': R.push(['st.cap10', Math.ceil(10 * (L + 1) / 11)], ['st.cap5', Math.ceil(5 * (L + 1) / 11)]); break;
+      case 'goldmine': R.push(['st.goldH', rateAt(id, L)]); break;
+      case 'mine': R.push(['st.stoneH', rateAt(id, L)]); break;
+      case 'bakery': R.push(['st.woodH', rateAt(id, L)]); break;
+      case 'elf': R.push(['st.gemH', rateAt(id, L)], ['st.gemCap', 12 * L]); break;
+      case 'vault': R.push(['st.protect', L ? Math.round(300 * Math.pow(L, 1.5)) : 0], ['st.store', Math.round(400 * Math.pow(L + 1, 1.55))]); break;
+      case 'tower': R.push(['st.def', L * 3]); break;
+      case 'stable': R.push(['st.mount', '+' + L * 4 + '%'], ['st.magnet', '+' + (L * 0.25).toFixed(2) + ' m']); break;
+      case 'forge': R.push(['st.dmgP', '+' + Math.floor(L / 2)], ['st.cool', '-' + L * 3 + '%']); break;
+      case 'lookout': R.push(['st.time', '+' + L * 10 + ' s'], ['st.boxes', '+' + L]); break;
+      case 'cookie': R.push(['st.hp', '+' + L * 3], ['st.run', '+' + L * 5 + '%']); break;
+      case 'gate': R.push(['st.slow', L * 5 + '%']); break;
+      case 'jail': R.push(['st.loot', '+' + L * 10 + '%']); break;
+      case 'tree': R.push(['st.glory', L]); break;
+    }
+    return R;
+  }
+  return { PRODS, stats, rateAt, ensure, startJob, lv, cap, price, minutes, rate, storeCap, protect, defense, bonus, tick, collect, upgrade, left, gemCost, rush, adRush, fmt, power, ready, def };
 })();

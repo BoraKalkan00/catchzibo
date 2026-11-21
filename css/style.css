@@ -2042,3 +2042,27 @@ body.wide #rotate-note { display: none !important; }
 .dec-item small { font-weight: 800; font-size: 11px; line-height: 1.1; min-height: 24px; }
 .dec-cost { display: flex; align-items: center; gap: 3px; font-weight: 800; font-size: 13px; }
 .dec-cost img, .dec-cost .mini-ico { width: 18px !important; height: 18px !important; }
+/* Ayrıntılı yükseltme kartı */
+.upg-card { max-width: 400px; width: calc(100vw - 28px); text-align: center; display: flex; flex-direction: column; gap: 8px; max-height: calc(100vh - 40px); overflow: auto; }
+.upg-desc { margin: 0; font-size: 13px; opacity: .85; }
+.upg-pics { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.upg-pic { position: relative; width: 132px; height: 132px; border-radius: 16px; background: radial-gradient(circle at 50% 40%, #e8f2ff, #b9cbe6); border: 3px solid #1b2a44; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.upg-pic.next { background: radial-gradient(circle at 50% 40%, #fff6d0, #f2cf6a); box-shadow: 0 0 0 3px #ffe27a, 0 0 18px rgba(255,210,80,.7); }
+.upg-pic img { width: 92%; height: 92%; object-fit: contain; }
+.upg-emoji { font-size: 64px; font-style: normal; }
+.upg-lv { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); background: #1b2a44; color: #fff; font-weight: 800; font-size: 12px; padding: 1px 8px; border-radius: 8px; white-space: nowrap; }
+.upg-arrow { font-size: 26px; color: #3aa84a; }
+.upg-max { margin: 0; font-weight: 800; color: #c98a00; }
+.upg-table { background: #fff8e8; border: 2px solid #e2cfa4; border-radius: 12px; padding: 4px 8px; }
+.upg-row { display: grid; grid-template-columns: 1fr 64px 64px 44px; align-items: center; gap: 4px; padding: 4px 0; border-bottom: 1px dashed #e6d6b2; font-size: 13px; text-align: right; }
+.upg-row:last-child { border-bottom: 0; }
+.upg-row .upg-k { text-align: left; font-weight: 700; }
+.upg-head small { font-weight: 800; opacity: .6; }
+.upg-row.up .upg-b { color: #2a9a3a; }
+.upg-d { font-style: normal; font-weight: 800; font-size: 12px; color: #fff; background: #3aa84a; border-radius: 8px; padding: 0 5px; text-align: center; }
+.upg-costs { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; }
+.upg-costs > small { width: 100%; font-weight: 800; opacity: .7; }
+.upg-c { display: inline-flex; align-items: center; gap: 3px; background: #eef6ff; border: 2px solid #9fc0e6; border-radius: 10px; padding: 3px 8px; font-size: 14px; }
+.upg-c.lack { background: #ffe8e6; border-color: #e8484a; color: #b81f22; }
+.upg-c .mini-ico { width: 18px; height: 18px; }
+.upg-time { margin: 0; font-weight: 800; }

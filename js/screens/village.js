@@ -180,6 +180,7 @@ CZ.screens.village = (function () {
   }
 
   CZ.villageModel = model; CZ.VILLAGE_SPOTS = SPOTS;
+  CZ.vImg = (id, L) => VART[id] && L > 0 ? 'assets/village/' + id + '/' + Math.min(VART[id].n, L) + '.webp' : null;
   function render(el) {
     el.classList.add('village-screen');
     const loading = CZ.ui.loading(el);
@@ -396,32 +397,24 @@ CZ.screens.village = (function () {
         const lab = labelEls[id]; const f = h('div', { class: 'vl-float', text: '+' + n }); f.style.left = lab.style.left; f.style.top = lab.style.top; labels.append(f); setTimeout(() => f.remove(), 1100);
         return;
       }
-      const old = wrap.querySelector('.vil-sheet-wrap'); if (old) old.remove();
       const L = VL().lv(id), capL = VL().cap(id), max = VL().def(id).max;
-      const p = VL().price(id, L), mins = VL().minutes(id, L);
-      const sheetWrap = h('div', { class: 'modal-wrap vil-sheet-wrap', onClick: e => { if (e.target === sheetWrap) sheetWrap.remove(); } });
-      let action;
-      if (L >= max) action = h('b', { class: 'up-max', text: t('up.max') });
-      else if (L >= capL) action = h('p', { class: 'small-note', text: t('vil.needHall', { n: Math.ceil((L + 1) / 2) }) });
-      else if (Vd.job) action = h('p', { class: 'small-note', text: t('vil.busy') });
-      else action = btn(String(p), () => {
+      const p = VL().price(id, L), mins = VL().minutes(id, L), nx = L < max ? L + 1 : null;
+      const sa = VL().stats(id, L), sb = nx ? VL().stats(id, nx) : [];
+      let action, close;
+      const needH = Math.max(1, Math.ceil(11 * (L + 1) / max) - 1);
+      if (nx && L >= capL) action = h('p', { class: 'small-note', text: t('vil.needHall', { n: needH }) });
+      else if (nx && Vd.job) action = h('p', { class: 'small-note', text: t('vil.busy') });
+      else if (nx) action = btn(t('upg.pay'), () => {
         const r = VL().upgrade(id);
         if (r === 'short') { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.goldShort', { n: p - (CZ.state.data.gold || 0) })); }
         if (r !== 'ok') return;
-        sheetWrap.remove(); CZ.audio.sfx('buy'); refreshMoney(); refreshJob(); refreshLabels();
+        close(); CZ.audio.sfx('buy'); refreshMoney(); refreshJob(); refreshLabels();
         if (!VL().ensure().job) done();
       }, 'primary wide', 'ui.gold');
-      sheetWrap.append(h('div', { class: 'modal vil-sheet' },
-        h('b', { class: 'lg-title', text: t('vil.b.' + id) }),
-        h('small', { class: 'vil-lvl', text: L ? t('vil.lv', { n: L }) + ' / ' + max : t('vil.notBuilt') }),
-        h('p', { text: t('vil.d.' + id) }),
-        h('div', { class: 'vil-eff' },
-          h('div', {}, h('small', { text: t('vil.now') }), h('b', { text: effect(id, L) })),
-          L < max ? h('div', { class: 'next' }, h('small', { text: t('vil.next') }), h('b', { text: effect(id, L + 1) })) : null),
-        L < max ? h('p', { class: 'small-note', text: '⏱ ' + VL().fmt(mins * 60000) }) : null,
-        action,
-        btn(t('common.close'), () => sheetWrap.remove(), 'small ghost-dark')));
-      wrap.append(sheetWrap);
+      close = CZ.upgradeCard({ parent: wrap, title: t('vil.b.' + id), desc: t('vil.d.' + id), from: L, to: nx,
+        imgFrom: CZ.vImg(id, L), imgTo: nx ? CZ.vImg(id, nx) : null,
+        rows: sa.map(([k, v], i) => [t(k), L ? v : '—', sb[i] ? sb[i][1] : null]),
+        cost: [{ icon: 'ui.gold', n: p, have: CZ.state.data.gold || 0 }], time: VL().fmt(mins * 60000), actions: action ? [action] : [] });
     }
 
     // dokunma: binaya dokununca aç; parmakla sürükleyince kamera kayar

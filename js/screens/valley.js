@@ -1248,6 +1248,7 @@ CZ.screens.valley = (function () {
     }
     ui.addEventListener('pointerdown', e => {
       if (e.target.closest('button') || e.target.closest('.vl-panel, .pause-card, .def-down')) return;
+      if (!V.cine && !V.paused) { const pp = padAt(e.clientX, e.clientY); if (pp) { openPad(pp); return; } }
       if (e.pointerType === 'mouse' || e.clientX > window.innerWidth * 0.55) { tapAim.id = e.pointerId; tapAim.x = e.clientX; tapAim.y = e.clientY; fireAt(e.clientX, e.clientY); return; }   // sağ taraf / fare: oraya at (basılı tutunca atmaya devam)
       if (joy.id !== null) return;
       joy.id = e.pointerId; joy.x0 = e.clientX; joy.y0 = e.clientY; joy.dx = joy.dy = 0;
@@ -1725,6 +1726,62 @@ CZ.screens.valley = (function () {
       pads.forEach(p => { if (p.dirty) { p.redraw = (p.redraw || 0) - dt; if (p.redraw <= 0) { p.redraw = 0.15; p.dirty = false; drawMark(p); } } });
     }
     // bilgi paneli: ne yapılıyor, inşaat süresi ve hızlandırma (satın alma düğmesi yok: daireye girince akar)
+    // Dairelere ve binalara dokununca: ayrıntılı yükseltme kartı (resim, seviye, sayıların öncesi/sonrası, fiyat, süre)
+    const DEF_EMO = { snow: '☃️', cannon: '💣', fence: '🪵' };
+    const resIcon = r2 => r2 === 'gold' ? 'ui.gold' : 'assets/ui/mat/' + MAT_IMG[r2] + '.webp';
+    function defRows(type, L) {
+      const D2 = DEF[type]; if (type === 'fence') return [[t('st.fhp'), L ? D2.hp + D2.hpUp * (L - 1) : 0]];
+      const dmg = L ? D2.dmg + D2.dmgUp * (L - 1) : 0, gap = L ? D2.rate * Math.pow(0.9, L - 1) : 0;
+      const R = [[t('st.dmg'), dmg], [t('st.fire'), L ? gap.toFixed(2) : '—'], [t('st.dps'), L ? (dmg / gap).toFixed(1) : 0], [t('st.range'), D2.range]];
+      if (D2.splash) R.push([t('st.splash'), D2.splash]);
+      return R;
+    }
+    function openPad(p) {
+      CZ.audio.sfx('button');
+      const n = need(p), L2 = n ? left(p) : [], it = slot(p);
+      const cost = L2.map(x => ({ icon: resIcon(x.r), n: x.n, have: d[x.r] || 0 }));
+      const can = L2.length && L2.every(x => (d[x.r] || 0) >= x.n);
+      let o, close;
+      const payBtn = () => btn(t('upg.pay'), () => {
+        if (!left(p).every(x => (d[x.r] || 0) >= x.n)) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('def.lacking')); }
+        const pd = pd0(p); left(p).forEach(x => { d[x.r] -= x.n; pd[x.r] += x.n; }); resUi(); complete(p); close();
+      }, 'primary wide', 'ic:up');
+      if (p.kind === 'v') {
+        const id = p.id, L = CZ.village.lv(id), max = CZ.village.def(id).max, nx = L < max ? L + 1 : null, V2 = CZ.village.ensure();
+        const sa = CZ.village.stats(id, L), sb = nx ? CZ.village.stats(id, nx) : [];
+        const acts = [];
+        if (V2.job && V2.job.id === id) acts.push(h('p', { class: 'small-note', text: t('vil.busy') + ' · ' + CZ.village.fmt(CZ.village.left()) }));
+        else if (nx && (V2.job || L >= CZ.village.cap(id))) acts.push(h('p', { class: 'small-note', text: V2.job ? t('vil.busy') : t('vil.needHall', { n: Math.max(1, Math.ceil(11 * (L + 1) / max) - 1) }) }));
+        else if (nx) acts.push(can ? payBtn() : h('p', { class: 'small-note', text: t('upg.stand') }));
+        o = { title: t('vil.b.' + id), desc: t('vil.d.' + id), from: L, to: nx, imgFrom: CZ.vImg && CZ.vImg(id, L), imgTo: nx && CZ.vImg && CZ.vImg(id, nx),
+          rows: sa.map(([k, v], i) => [t(k), L ? v : '—', sb[i] ? sb[i][1] : null]), cost, time: nx ? CZ.village.fmt(CZ.village.minutes(id, L) * 60000) : '', actions: acts };
+      } else if (p.kind === 'x') {
+        const L = expLv(), nx = L < EXP_MAX ? L + 1 : null;
+        o = { title: t('exp.title'), from: L, to: nx, emoji: '🗺️', rows: [], cost, actions: nx ? [can ? payBtn() : h('p', { class: 'small-note', text: t('upg.stand') })] : [] };
+      } else {
+        const type = p.kind === 'f' ? 'fence' : p.type, D2 = DEF[type], L = it ? it.lv : 0, max = D2.cost.length;
+        const busy = it && it.job, nx = busy ? it.job.to : (L < max ? L + 1 : null);
+        const acts = [];
+        if (busy) { const jl = jobLeft(it), s2 = Math.ceil(jl / 1000);
+          acts.push(h('p', { class: 'upg-time', text: '🔨 ' + Math.floor(s2 / 60) + ':' + String(s2 % 60).padStart(2, '0') }),
+            h('div', { class: 'def-row' }, btn(t('def.now') + ' ' + (it.lv === 0 ? RUSH_BUILD : rushPrice(jl)), () => { rushGold(p); close(); }, 'primary', 'ui.gold'), btn(t('def.ad'), () => { rushAd(p); close(); }, 'ghost-dark', 'ic:play'))); }
+        else if (nx) acts.push(can ? payBtn() : h('p', { class: 'small-note', text: t('upg.stand') }));
+        const ra = defRows(type, L), rb = nx ? defRows(type, nx) : [];
+        o = { title: t('def.' + type), desc: t('def.d.' + type), from: L, to: nx, emoji: DEF_EMO[type],
+          rows: ra.map(([k, v], i) => [k, L ? v : '—', rb[i] ? rb[i][1] : null]), cost: busy ? [] : cost, time: nx && !busy ? D2.min[L] + ' dk' : '', actions: acts };
+      }
+      const wasPaused = V.paused; V.paused = true;
+      close = CZ.upgradeCard(Object.assign(o, { parent: wrap, onClose: () => { if (V && !wasPaused) V.paused = false; } }));
+    }
+    function padAt(cx, cy) {
+      const r = renderer.domElement.getBoundingClientRect(); tapN.set((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
+      tapRay.setFromCamera(tapN, camera); if (!tapRay.ray.intersectPlane(tapPlane, tapV)) return null;
+      let best = null, bd = 1.7;
+      pads.forEach(q => { const [mx, mz] = markPos(q); let dd = Math.hypot(mx - tapV.x, mz - tapV.z);
+        if (q.kind === 'v' && CZ.VILLAGE_SPOTS) { const [sx, sz] = CZ.VILLAGE_SPOTS[q.id]; dd = Math.min(dd, Math.hypot(sx * VS - tapV.x, sz * VS + 0.6 - tapV.z) * 0.8); }
+        if (dd < bd) { bd = dd; best = q; } });
+      return best;
+    }
     function padUi(force) {
       const p = nearPad;
       if (!p) { panel.classList.remove('on'); panel.replaceChildren(); panelKey = ''; return; }
