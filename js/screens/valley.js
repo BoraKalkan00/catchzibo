@@ -226,6 +226,16 @@ CZ.screens.valley = (function () {
       m.onBeforeCompile = sh => { sh.uniforms.uPh = df.U.uPh; sh.uniforms.uAmp = df.U.uAmp; sh.vertexShader = 'uniform float uPh; uniform float uAmp;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + df.glsl + '\ntransformed += normalize(normal) * ' + th.toFixed(4) + ';'); };
       m.customProgramCacheKey = () => 'ol' + df.key + th; return m; }
     // büyük nesnelerde kontur kalınlığı dünyada hep aynı olsun (model ölçeğine bölünür)
+    // Gemini'den gelen harita parçaları: kameraya dönük, tabanı yerde duran düz resimler
+    const PASP = {"bush":0.971,"cave":1.164,"chest":0.908,"crate":1.081,"crate_big":1.041,"fence":0.984,"g_fire":1.243,"g_tent":0.943,"g_totem":0.743,"g_tower":0.553,"ice":1.073,"lamp":0.611,"log":1.522,"pine_big":0.509,"pine_group":0.754,"pine_small":0.58,"rock_big":1.011,"rocks":1.184,"stump":1.141,"woodpile":1.153};
+    const PTILT = -0.96;   // kamera eğimi (~55°)
+    const pMats = {};
+    const pMat = (id, see) => { const k = id + (see ? '+s' : ''); if (pMats[k]) return pMats[k];
+      const t = new THREE.TextureLoader().load('assets/map/prop/' + id + '.webp'); t.anisotropy = 4;
+      let m = new THREE.MeshLambertMaterial({ map: t, alphaTest: 0.45, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.42, side: THREE.DoubleSide });
+      if (see) m = seeThrough(m); return (pMats[k] = m); };
+    const pGeo = (id, hh) => { const g = new THREE.PlaneGeometry(hh * PASP[id], hh); g.translate(0, hh / 2, 0); g.rotateX(PTILT); g.computeVertexNormals(); return g; };
+    const pMesh = (id, hh, see) => { const m = new THREE.Mesh(pGeo(id, hh), pMat(id, see)); m.userData.ol = true; return m; };
     function outlineWorld(root, w) { root.updateWorldMatrix(true, true); const v = new THREE.Vector3(), list = [];
       root.traverse(o => { if (o.isMesh && !o.userData.ol && !o.userData.olDone && o.geometry && o.geometry.attributes.normal && !(o.material && (o.material.transparent || o.material.isMeshBasicMaterial))) list.push(o); });
       list.forEach(o => { o.getWorldScale(v); o.userData.olDone = true; olMesh(o, Math.max(0.002, Math.round(w / Math.max(0.05, v.x) * 1000) / 1000)); }); }
@@ -295,7 +305,7 @@ CZ.screens.valley = (function () {
       const nz = noise(x, z), n = Math.sin(x * 0.7) * Math.cos(z * 0.6) * 0.03;
       const sm = (a, b, v) => { const q = Math.min(1, Math.max(0, (v - a) / (b - a))); return q * q * (3 - 2 * q); };
       const mix = (A, Bc, k) => A.map((v, j) => v + (Bc[j] - v) * k);
-      let c = [0.66 + n, 0.72 + n, 0.86];                                         // kar
+      let c = [0.84 + n, 0.88 + n, 0.96];                                         // kar
       c = mix(c, [0.58 + n, 0.68 + n, 0.6], sm(0.4, 0.62, nz));                   // ince kar + çimen
       c = mix(c, [0.5 + n, 0.62 + n, 0.42], sm(0.66, 0.9, nz));                   // karı erimiş çimen
       c = mix(c, [0.6 + n, 0.6 + n, 0.66], sm(-0.95, -1.25, nz));                 // kayalık
@@ -313,13 +323,7 @@ CZ.screens.valley = (function () {
     }
     groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     groundGeo.computeVertexNormals();
-    const snowTex = (() => { const S = 512, c = document.createElement('canvas'); c.width = c.height = S; const x = c.getContext('2d');
-      x.fillStyle = '#ffffff'; x.fillRect(0, 0, S, S);
-      // döşemede dikiş görünmesin: her lekeyi dört kenara sarmalayarak çiz
-      const blob = (gx, gy, rr, col) => [-S, 0, S].forEach(ox => [-S, 0, S].forEach(oy => { const gg = x.createRadialGradient(gx + ox, gy + oy, 0, gx + ox, gy + oy, rr); gg.addColorStop(0, col); gg.addColorStop(1, 'rgba(120,140,170,0)'); x.fillStyle = gg; x.fillRect(gx + ox - rr, gy + oy - rr, rr * 2, rr * 2); }));
-      for (let i = 0; i < 70; i++) blob(Math.random() * S, Math.random() * S, 30 + Math.random() * 70, 'rgba(120,140,170,.12)');
-      for (let i = 0; i < 260; i++) blob(Math.random() * S, Math.random() * S, 2 + Math.random() * 3, Math.random() < 0.5 ? 'rgba(255,255,255,.9)' : 'rgba(110,130,150,.22)');
-      const tx = new THREE.CanvasTexture(c); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(26, 26); tx.anisotropy = renderer.capabilities.getMaxAnisotropy(); return tx; })();
+    const snowTex = (() => { const tx = new THREE.TextureLoader().load('assets/map/tile/snow.webp'); tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(24, 24); tx.anisotropy = renderer.capabilities.getMaxAnisotropy(); return tx; })();
     const ground = new THREE.Mesh(groundGeo, new THREE.MeshLambertMaterial({ vertexColors: true, map: snowTex })); ground.receiveShadow = true; scene.add(ground);
     // akan su: nehir ve dere şeritleri, kayan dalga dokusu
     const waterTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d');
@@ -386,18 +390,19 @@ CZ.screens.valley = (function () {
     }
     placeVillage();
     // Zibo'nun kampı: çadır + ateş
-    const tent = new THREE.Mesh(new THREE.ConeGeometry(3.2, 3.6, 6), toon(0x4a8a3a)); tent.position.set(38, 1.8, 34); scene.add(tent); solids.push({ x: 38, z: 34, r: 3.1 });
+    const tent = new THREE.Mesh(new THREE.ConeGeometry(3.2, 3.6, 6), toon(0x4a8a3a)); tent.position.set(38, 1.8, 34); tent.visible = false; scene.add(tent); { const zt = pMesh('g_tent', 6); zt.position.set(38, 0, 34); scene.add(zt); const zf = pMesh('g_fire', 2.2); zf.position.set(34, 0, 30); scene.add(zf); } solids.push({ x: 38, z: 34, r: 3.1 });
     const campLight = new THREE.PointLight(0xff8a3a, 1.4, 14); campLight.position.set(34, 1.5, 30); scene.add(campLight);
-    const logs = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 0.4, 8), toon(0x5a3418)); logs.position.set(34, 0.2, 30); scene.add(logs);
-    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.4, 8), new THREE.MeshBasicMaterial({ color: 0xffa83a, transparent: true, opacity: 0.85 })); flame.position.set(34, 1, 30); scene.add(flame);
+    const logs = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 0.4, 8), toon(0x5a3418)); logs.position.set(34, 0.2, 30); logs.visible = false; scene.add(logs);
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.4, 8), new THREE.MeshBasicMaterial({ color: 0xffa83a, transparent: true, opacity: 0.85 })); flame.position.set(34, 1, 30); flame.visible = false; scene.add(flame);
     // Buz mağarası: sadece kutup ayısı buz duvarını kırabilir; içinde hazine sandığı
     // kayalık tepe + karanlık mağara ağzı
     const caveMat = seeThrough(CZ.style.mat({ color: 0x8a94aa, flatShading: true }));
-    [[-38, -32, 3.4, 3], [-41, -28, 2.8, 2.4], [-35, -35, 2.6, 2.2], [-42, -34, 3, 2.6], [-38.5, -30, 2.2, 3.6]].forEach(([x, z, r2, hh]) => {
+    { const cv = pMesh('cave', 7.2, true); cv.position.set(-37, 0, -30); scene.add(cv); }
+    [].forEach(([x, z, r2, hh]) => {
       const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(r2, 0), caveMat); rk.position.set(x, hh * 0.45, z); rk.scale.set(1, hh / r2 * 0.75, 1); rk.rotation.y = x; rk.castShadow = true; scene.add(rk);
       const cap = new THREE.Mesh(new THREE.DodecahedronGeometry(r2 * 0.6, 0), seeThrough(toon(0xffffff))); cap.position.set(x, hh * 0.45 + hh * 0.6, z); cap.scale.set(1, 0.4, 1); scene.add(cap);
     });
-    const mouth = new THREE.Mesh(new THREE.CircleGeometry(1.8, 16, 0, Math.PI), new THREE.MeshBasicMaterial({ color: 0x141a28 })); mouth.position.set(-33.4, 0.02, -27.9); mouth.rotation.y = -0.75; scene.add(mouth);
+    
     solids.push({ x: -40, z: -31, r: 4.2 });
     const iceWall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 3.2, 0.8), CZ.style.mat({ color: 0x9fe0ff, transparent: true, opacity: 0.8 }));
     iceWall.position.set(-32, 1.6, -26.5); iceWall.rotation.y = -0.75; scene.add(iceWall);
@@ -407,7 +412,7 @@ CZ.screens.valley = (function () {
     // ===== KAYNAKLAR: ağaçlar (balta → odun) ve kayalar (kazma → taş). Parçalara bölünmüş InstancedMesh =====
     const CH = 28;
     const chunks = {};
-    const chunkOf = (kind, x, z) => { const k = kind + Math.floor(x / CH) + ',' + Math.floor(z / CH); return chunks[k] || (chunks[k] = { kind, items: [], cx: (Math.floor(x / CH) + 0.5) * CH, cz: (Math.floor(z / CH) + 0.5) * CH }); };
+    const chunkOf = (kind, x, z, v) => { const k = kind + (v || 0) + '|' + Math.floor(x / CH) + ',' + Math.floor(z / CH); return chunks[k] || (chunks[k] = { kind, v: v || 0, items: [], cx: (Math.floor(x / CH) + 0.5) * CH, cz: (Math.floor(z / CH) + 0.5) * CH }); };
     const trees = [], rocks = [];
     for (let k = 0; k < 6000 && trees.length < 620; k++) {
       const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R);
@@ -417,7 +422,8 @@ CZ.screens.valley = (function () {
       if (!free(x, z, 0.8)) continue;
       const sol = { x, z, r: 0.7 };
       const tr = { kind: 'tree', x, z, s: rand(0.85, 1.3), hp: 3, maxHp: 3, solid: sol, alive: true };
-      solids.push(sol); trees.push(tr); chunkOf('t', x, z).items.push(tr);
+      const tv = Math.random() < 0.58 ? 0 : Math.random() < 0.6 ? 1 : 2; tr.v = tv; if (tv === 2) sol.r = 1.3;
+      solids.push(sol); trees.push(tr); chunkOf('t', x, z, tv).items.push(tr);
     }
     for (let k = 0; k < 6000 && rocks.length < 260; k++) {
       const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R), sc = rand(0.7, 1.35);
@@ -426,7 +432,8 @@ CZ.screens.valley = (function () {
       if (!free(x, z, sc)) continue;
       const sol = { x, z, r: sc * 0.85 };
       const rk = { kind: 'rock', x, z, s: sc, hp: 4, maxHp: 4, solid: sol, alive: true, rot: rand(0, 6) };
-      solids.push(sol); rocks.push(rk); chunkOf('r', x, z).items.push(rk);
+      const rv = Math.random() < 0.5 ? 0 : 1; rk.v = rv;
+      solids.push(sol); rocks.push(rk); chunkOf('r', x, z, rv).items.push(rk);
     }
     // köy yakınında da birkaç tane olsun (öğretici için)
     const treeGeo = CZ.gen3d.has('cam_hi') ? CZ.gen3d.geo('cam_hi') : CZ.gen3d.has('cam_lo') ? CZ.gen3d.geo('cam_lo') : (() => { const g = new THREE.ConeGeometry(0.45, 1, 8); g.translate(0, 0.5, 0); const c = []; for (let i = 0; i < g.attributes.position.count; i++) c.push(0.2, 0.5, 0.3); g.setAttribute('color', new THREE.Float32BufferAttribute(c, 3)); return g; })();
@@ -444,19 +451,38 @@ CZ.screens.valley = (function () {
     function setInst(it) {
       const c = it.chunk;
       if (!it.alive) tmp.scale.setScalar(0.0001);
-      else if (it.kind === 'tree') tmp.scale.setScalar(it.s * 3.3 * (it.shrink || 1));
+      else if (it.kind === 'tree') tmp.scale.setScalar(it.s * (it.shrink || 1));
       else tmp.scale.set(it.s, it.s, it.s);
-      tmp.position.set(it.x, 0, it.z); tmp.rotation.set(it.kind === 'tree' ? (it.tilt || 0) : 0, it.kind === 'tree' ? it.yaw : it.rot, 0); tmp.updateMatrix();
+      tmp.position.set(it.x, 0, it.z); tmp.rotation.set(0, 0, (it.tilt || 0) * (it.idx % 2 ? 1 : -1)); tmp.updateMatrix();
       c.mesh.setMatrixAt(it.idx, tmp.matrix); c.mesh.instanceMatrix.needsUpdate = true;
     }
     Object.values(chunks).forEach(c => {
-      c.mesh = new THREE.InstancedMesh(c.kind === 't' ? treeGeo : rockGeo, c.kind === 't' ? resMatT : resMatR, c.items.length);
-      c.mesh.frustumCulled = false; c.mesh.castShadow = true; c.mesh.receiveShadow = c.kind === 'r';
-      c.items.forEach((it, i) => { it.chunk = c; it.idx = i; it.yaw = rand(0, 6); setInst(it); if (c.kind === 't') c.mesh.setColorAt(i, new THREE.Color().setHSL(0.4, 0.14, 0.46 + rand(-0.06, 0.08))); });
+      const TV = [['pine_big', 4.4], ['pine_small', 3.2], ['pine_group', 4.8]], RV = [['rock_big', 2.1], ['rocks', 1.7]];
+      const [pid, ph] = (c.kind === 't' ? TV : RV)[c.v];
+      c.mesh = new THREE.InstancedMesh(pGeo(pid, ph), pMat(pid, c.kind === 't'), c.items.length);
+      c.mesh.frustumCulled = false;
+      c.items.forEach((it, i) => { it.chunk = c; it.idx = i; it.yaw = 0; setInst(it); c.mesh.setColorAt(i, new THREE.Color().setScalar(rand(0.9, 1.04))); });
       scene.add(c.mesh);
-      if (c.kind === 'r') { const ol = new THREE.InstancedMesh(rockGeo, outlineMat(0.035), c.items.length); ol.instanceMatrix = c.mesh.instanceMatrix; ol.frustumCulled = false; c.ol = ol; scene.add(ol); }   // kayalara da aynı kontur
     });
     const chunkList = Object.values(chunks);
+    // süs parçaları: çalı, kütük, odun yığını, buz kristali, yol kenarı fener ve çit
+    [['bush', 1.6, 150], ['stump', 1.1, 60], ['log', 1.1, 45], ['woodpile', 1.3, 22], ['ice', 1.3, 45], ['lamp', 2.6, 36], ['fence', 1.5, 40]].forEach(([id, hh, n]) => {
+      const pts = [];
+      for (let k = 0; k < n * 30 && pts.length < n; k++) {
+        let x, z;
+        if (id === 'lamp' || id === 'fence') { const sg = pick(roads), u = Math.random(); const a = sg[0] !== undefined && sg.length === 4 ? sg : [sg.a ? sg.a[0] : sg.x1, sg.a ? sg.a[1] : sg.z1, sg.b ? sg.b[0] : sg.x2, sg.b ? sg.b[1] : sg.z2];
+          if (a.some(q => q === undefined || isNaN(q))) break;
+          const dx = a[2] - a[0], dz = a[3] - a[1], L = Math.hypot(dx, dz) || 1, sd = Math.random() < 0.5 ? 1 : -1;
+          x = a[0] + dx * u - dz / L * 3.4 * sd; z = a[1] + dz * u + dx / L * 3.4 * sd; }
+        else { x = rand(-WORLD_R, WORLD_R); z = rand(-WORLD_R, WORLD_R); }
+        if (Math.hypot(x, z) < FENCE_R + 6 || !free(x, z, 0.6) || pts.some(q => Math.hypot(q[0] - x, q[1] - z) < 2.5)) continue;
+        pts.push([x, z]);
+      }
+      if (!pts.length) return;
+      const im = new THREE.InstancedMesh(pGeo(id, hh), pMat(id), pts.length); im.frustumCulled = false;
+      pts.forEach(([x, z], i) => { const sc = rand(0.85, 1.15); tmp.position.set(x, 0, z); tmp.rotation.set(0, 0, 0); tmp.scale.setScalar(sc); tmp.updateMatrix(); im.setMatrixAt(i, tmp.matrix); });
+      scene.add(im);
+    });
 
     // Yağan kar: oyuncunun etrafında dönen nokta bulutu
     const flakeN = 420, flakePos = new Float32Array(flakeN * 3);
@@ -489,13 +515,13 @@ CZ.screens.valley = (function () {
         const x = rand(-WORLD_R + 3, WORLD_R - 3), z = rand(-WORLD_R + 3, WORLD_R - 3);
         if (!free(x, z, 1) || targets.some(o => Math.hypot(o.x - x, o.z - z) < 3)) continue;
         const g = new THREE.Group();
-        if (CZ.gen3d.has('hediye_lo')) { const gm = CZ.gen3d.get('hediye_lo', 1.25, pick([0xffffff, 0xffffff, 0xb8ffb8, 0xb8d8ff, 0xffe0a0])); gm.position.y = -0.6; g.add(gm); } else {
+        if (true) { const gm = pMesh(big ? 'crate_big' : 'crate', 1.9); gm.position.y = -0.6; g.add(gm); } else if (CZ.gen3d.has('hediye_lo')) { const gm = CZ.gen3d.get('hediye_lo', 1.25, pick([0xffffff, 0xffffff, 0xb8ffb8, 0xb8d8ff, 0xffe0a0])); gm.position.y = -0.6; g.add(gm); } else {
         g.add(new THREE.Mesh(boxGeo, toon(pick(giftCols))));
         const r1 = new THREE.Mesh(ribGeo, ribMat); g.add(r1);
         const r2 = new THREE.Mesh(ribGeo, ribMat); r2.rotation.y = Math.PI / 2; g.add(r2);
         [-1, 1].forEach(sd => { const b = new THREE.Mesh(bowGeo, ribMat); b.position.set(sd * 0.2, 0.68, 0); b.rotation.y = Math.PI / 2; g.add(b); }); }
         const s = big ? 1.5 : rand(0.85, 1.1);
-        g.scale.setScalar(s); g.position.set(x, 0.6 * s, z); g.rotation.y = rand(0, 3);
+        g.scale.setScalar(s); g.position.set(x, 0.6 * s, z);
         g.traverse(o => { o.castShadow = true; }); scene.add(g);
         targets.push({ type: 'box', x, z, r: 0.75 * s, hp: big ? 8 : 3, maxHp: big ? 8 : 3, mesh: g, coins: big ? 30 : 8 });
         return;
@@ -523,7 +549,8 @@ CZ.screens.valley = (function () {
     const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 1.6, 10, 1, false, 0, Math.PI), toon(0x9a6230)); lid.rotation.z = Math.PI / 2; lid.position.y = 1; chestG.add(lid);
     chestG.add(at(new THREE.Mesh(new THREE.BoxGeometry(1.64, 0.15, 1.14), toon(0xf2c230)), 0, 0.75, 0));
     if (CZ.gen3d.has('sandik_lo')) { chestG.clear(); chestG.add(CZ.gen3d.get('sandik_lo', 1.6)); }
-    chestG.position.set(-34.2, 0, -28.6); chestG.rotation.y = -0.75; scene.add(chestG);
+    chestG.clear(); chestG.add(pMesh('chest', 2.1));
+    chestG.position.set(-34.2, 0, -28.6); scene.add(chestG);
     const chest = { type: 'chest', x: -34.2, z: -28.6, r: 1, hp: 6, maxHp: 6, mesh: chestG, coins: 0, gems: 15, locked: true };
     targets.push(chest);
 
@@ -606,13 +633,16 @@ CZ.screens.valley = (function () {
     const camps = campSites.map(([x, z, i]) => {
       const st = CD.camps[i] || (CD.camps[i] = { tier: 1 + (i % 3), until: 0 });
       const g = new THREE.Group(), tents = new THREE.Group(); g.position.set(x, 0, z); g.add(tents);
-      const put = (id, hh, px, pz, ry, fb) => { let m; if (CZ.gen3d && CZ.gen3d.has(id)) m = CZ.gen3d.get(id, hh); else m = fb(); m.position.set(px, 0, pz); m.rotation.y = ry; m.traverse(o => { if (o.isMesh) o.castShadow = true; }); tents.add(m); };
+      const SPR = { g_cadir: ['g_tent', 3.6], g_totem: ['g_totem', 3.2], g_ates: ['g_fire', 1.9] };
+      const put = (id, hh, px, pz, ry, fb) => { let m; if (SPR[id]) { m = pMesh(SPR[id][0], SPR[id][1]); ry = 0; } else if (CZ.gen3d && CZ.gen3d.has(id)) m = CZ.gen3d.get(id, hh); else m = fb(); m.position.set(px, 0, pz); m.rotation.y = ry; m.traverse(o => { if (o.isMesh) o.castShadow = true; }); tents.add(m); };
       const tentFb = () => { const m = new THREE.Mesh(new THREE.ConeGeometry(1.5, 2.4, 6), toon(0x6a7a3a)); m.position.y = 1.2; const w = new THREE.Group(); w.add(m); return w; };
       [0, 1, 2].forEach(k => { const a = k / 3 * Math.PI * 2 + 0.5; put('g_cadir', 2.6, Math.cos(a) * 3.6, Math.sin(a) * 3.6, -a + Math.PI / 2, tentFb); solids.push({ x: x + Math.cos(a) * 3.6, z: z + Math.sin(a) * 3.6, r: 1.2 }); });
       put('g_totem', 2.8, 0, -1.2, 0, () => { const w = new THREE.Group(); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 2.8, 8), toon(0x8a5a2a)); m.position.y = 1.4; w.add(m); return w; });
       put('g_ates', 1.0, 0, 1.0, 0, () => { const w = new THREE.Group(); const m = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1, 6), new THREE.MeshBasicMaterial({ color: 0xff8a2a })); m.position.y = 0.5; w.add(m); return w; });
       const flag = new THREE.Group(); const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.6, 6), toon(0xd8d8d8)); pole.position.y = 1.3; flag.add(pole);
       const cloth = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.7), new THREE.MeshBasicMaterial({ color: 0x3cbe5a, side: THREE.DoubleSide })); cloth.position.set(0.55, 2.2, 0); flag.add(cloth); g.add(flag);
+      { const tw = pMesh('g_tower', 5.2); tw.position.set(-4.2, 0, -3.4); tents.add(tw); solids.push({ x: x - 4.2, z: z - 3.4, r: 1 }); }
+      flag.visible = false;
       scene.add(g); outlineWorld(tents, 0.035);
       return { id: i, x, z, st, g, tents, flag, awake: false };
     });
@@ -870,7 +900,7 @@ CZ.screens.valley = (function () {
     function rushAd(p) { CZ.ads.show(() => { if (V && slot(p) && slot(p).job) { finishJob(p); padUi(true); } }); }
 
     /* ---------- Oyuncu ve binek ---------- */
-    const P = { x: 2.5, z: 6.5, dir: Math.PI, riding: false, vx: 0, vz: 0, hp: 12 + (B.hp || 0), maxHp: 12 + (B.hp || 0), hurtT: 0, down: 0 };
+    const P = CZ.screens.valley._P = { x: 2.5, z: 6.5, dir: Math.PI, riding: false, vx: 0, vz: 0, hp: 12 + (B.hp || 0), maxHp: 12 + (B.hp || 0), hurtT: 0, down: 0 };
     const hero = CZ.kk.hero(THREE, d.avatar || 'girl');
     if (hero.setWeapon) hero.setWeapon(W.id);
     hero.root.traverse(o => { o.castShadow = true; }); scene.add(hero.root); addOutline(hero.root, 0.02);
