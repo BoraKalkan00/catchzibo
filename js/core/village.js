@@ -16,7 +16,7 @@ CZ.VB = [
   { id: 'stable', max: 6, base: 800, mul: 2.3, tbase: 3 },
   { id: 'forge', max: 8, base: 900, mul: 2, tbase: 3 },
   { id: 'lookout', max: 5, base: 700, mul: 2.6, tbase: 3 },
-  { id: 'tree', max: 25, base: 1000, mul: 1.45, tbase: 1 }
+  { id: 'tree', max: 15, base: 1000, mul: 1.6, tbase: 1 }
 ];
 CZ.village = (function () {
   const PRODS = ['goldmine', 'elf', 'mine', 'bakery'];   // sen yokken üreten binalar
