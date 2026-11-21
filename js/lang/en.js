@@ -1326,7 +1326,7 @@ CZ.i18n.register('en', 'English', {
   "quest.goblin": "Hit the goblins",
   "quest.ride": "Ride your bear",
   "quest.done": "Quest done!",
-  "mila.first": "Welcome, chief! I’m Mila, the village guard. Goblins are roaming around. Chop wood, break rocks, stand on the yellow circles: let’s build towers together!",
+  "mila.first": "Welcome, chief! I’m Mila, the village guard. Goblins are roaming around. Chop wood, break rocks, step on a yellow circle and tap Build: let’s raise towers together!",
   "mila.back": "Welcome back, chief! While you were away I chased off {k} goblins and put {g} gold in the vault. I’m exhausted, time to rest. It’s all yours now!",
   "mila.hi": "Welcome back, chief! The village is safe. I’ll rest a bit, it’s all yours!",
   "mila.bye": "Mila: Chief, leave the village to me! I’ll guard it until you’re back.",

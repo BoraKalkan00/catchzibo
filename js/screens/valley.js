@@ -387,8 +387,11 @@ CZ.screens.valley = (function () {
       if (!CZ.villageModel || !CZ.village) return;
       CZ.VB.forEach(b => {
         const [sx, sz] = CZ.VILLAGE_SPOTS[b.id];
-        if (!CZ.village.lv(b.id)) return;
-        const g = CZ.villageModel(THREE, b.id, CZ.village.lv(b.id));
+        const J0 = CZ.village.ensure().job, ghost = !CZ.village.lv(b.id) && J0 && J0.id === b.id;   // (21 Kas) ilk inşaatta bina hemen yarı saydam + iskeleyle görünür
+        if (!CZ.village.lv(b.id) && !ghost) return;
+        const g = CZ.villageModel(THREE, b.id, CZ.village.lv(b.id) || 1, !!(J0 && J0.id === b.id));   // inşaat/yükseltme sürerken iskeleli resim
+        if (ghost && !g.userData.sprite) { g.traverse(o => { if (o.material) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
+          [[-1.1, -1.1], [1.1, -1.1], [-1.1, 1.1], [1.1, 1.1]].forEach(([x, z]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.6, 0.1), CZ.style.mat({ color: 0xf2c230 })); m.position.set(x, 1.3, z); g.add(m); }); }
         g.scale.setScalar(VS); g.position.set(sx * VS, 0, sz * VS);
         if (g.userData.sprite) { const sp = g.children[0], W = sp.scale.x; sp.center.set(0.5, 0.02); sp.position.z = W * 0.4; sp.material.depthTest = true; sp.renderOrder = 0; sp.material.alphaTest = 0.4; }
         g.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && !o.material.isMeshBasicMaterial) o.material = seeThrough(o.material.clone()); } });
@@ -775,7 +778,10 @@ CZ.screens.valley = (function () {
       g.userData.top = top;
       return g;
     }
-    function towerModel(type, L) {
+    function towerModel(type, L, busy) {
+      // (21 Kas) kartopu kulesi: erimiş görünen yapay zekâ 3D modeli yerine köydeki gibi 2D çizim (seviye başına ayrı resim, inşaatta iskele resmi)
+      if (type === 'snow' && CZ.villageModel) { const g = CZ.villageModel(THREE, 'tower', Math.min(10, L * 2), busy);
+        if (g.userData.sprite) { const sp = g.children[0]; sp.center.set(0.5, 0.06); sp.material.depthTest = true; sp.material.alphaTest = 0.4; g.scale.setScalar(1.25); return g; } }
       const gid = type === 'cannon' ? 'topkulesi' : 'kartopukulesi';
       if (CZ.gen3d.has(gid)) { const g = new THREE.Group(); g.add(CZ.gen3d.get(gid, (type === 'cannon' ? 3.0 : 3.8) * (0.85 + L * 0.08))); return g; }
       if (type === 'cannon') return cannonModel(L);
@@ -783,6 +789,7 @@ CZ.screens.valley = (function () {
       g.scale.setScalar(0.8);
       return g;
     }
+    const stoneMats = [toon(0x7d8796), toon(0x8f98a6), toon(0x6c7584)], snowCapMat = toon(0xf4f8ff), snowCapGeo = new THREE.BoxGeometry(1.16, 0.14, 0.7), merlonGeo = new THREE.BoxGeometry(0.5, 0.45, 0.62);
     function fenceModel(i, L) {
       const g = new THREE.Group();
       const a0 = i / 8 * Math.PI * 2, a1 = (i + 1) / 8 * Math.PI * 2;
@@ -791,7 +798,9 @@ CZ.screens.valley = (function () {
       const n = 12;
       for (let k = 0; k <= n; k++) {
         const a = a0 + (a1 - a0) * k / n;
-        const m = new THREE.Mesh(geo, mat); m.position.set(Math.cos(a) * FENCE_R, stone ? 0.65 : 0.75, Math.sin(a) * FENCE_R); m.rotation.y = -a + Math.PI / 2; m.castShadow = true; g.add(m);
+        const m = new THREE.Mesh(geo, stone ? stoneMats[k % 3] : mat); m.position.set(Math.cos(a) * FENCE_R, stone ? 0.65 : 0.75, Math.sin(a) * FENCE_R); m.rotation.y = -a + Math.PI / 2; m.castShadow = true; g.add(m);
+        if (stone) { const hh = 1.3 + L * 0.2; const cap = new THREE.Mesh(snowCapGeo, snowCapMat); cap.position.set(m.position.x, hh + 0.02, m.position.z); cap.rotation.y = m.rotation.y; g.add(cap);
+          if (k % 2 === 0) { const mz = new THREE.Mesh(merlonGeo, stoneMats[(k + 1) % 3]); mz.position.set(m.position.x, hh + 0.3, m.position.z); mz.rotation.y = m.rotation.y; mz.castShadow = true; g.add(mz); } }
         if (!stone && k % 3 === 0) { const tip = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.35, 6), mat); tip.position.set(m.position.x, 1.65, m.position.z); g.add(tip); }
       }
       if (!stone) [0.5, 1.1].forEach(y => { for (let k = 0; k < n; k++) { const a = a0 + (a1 - a0) * (k + 0.5) / n; const rail = new THREE.Mesh(new THREE.BoxGeometry(FENCE_R * (a1 - a0) / n + 0.1, 0.12, 0.08), mat); rail.position.set(Math.cos(a) * FENCE_R, y, Math.sin(a) * FENCE_R); rail.rotation.y = -a + Math.PI / 2; g.add(rail); } });
@@ -849,10 +858,10 @@ CZ.screens.valley = (function () {
       const building = it && it.job;
       if (!it) { if (p.kind === 'f') { p.hp = 0; } return; }
       const lv = building && it.lv === 0 ? 1 : it.lv;
-      p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(p.type, lv);
+      p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(p.type, lv, !!building);
       if (p.kind === 't') p.g.position.set(p.x, 0, p.z);
       outlineWorld(p.g, 0.03);
-      if (building) {
+      if (building && !p.g.userData.sprite) {
         // inşaat: hemen görünür ama yarı saydam + iskele
         p.g.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.45; } });
         const sc = new THREE.Group();
@@ -893,7 +902,7 @@ CZ.screens.valley = (function () {
     function complete(p) {
       delete DS.pp[paidKey(p)];
       if (p.kind === 'x') { d.vil.exp = expLv() + 1; floatAt(p, t('exp.done'), 'wave'); CZ.audio.sfx('win'); pads.forEach(drawMark); }
-      else if (p.kind === 'v') { CZ.village.startJob(p.id); floatAt(p, t('def.building'), 'wave'); pads.forEach(drawMark); }
+      else if (p.kind === 'v') { CZ.village.startJob(p.id); floatAt(p, t('def.building'), 'wave'); placeVillage(); pads.forEach(drawMark); }
       else {
         const it = slot(p), D2 = defOf(p);
         if (!it) DS[p.kind][p.i] = { type: p.kind === 'f' ? 'fence' : p.type, lv: 0, job: { to: 1, end: Date.now() + D2.min[0] * 60000 } };

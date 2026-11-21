@@ -1326,7 +1326,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "quest.goblin": "Goblinleri vur",
   "quest.ride": "Ayına bin",
   "quest.done": "Görev tamam!",
-  "mila.first": "Şef, hoş geldin! Ben Mila, köyün bekçisiyim. Goblinler etrafta dolaşıyor. Ağaçtan odun, kayadan taş topla, sarı dairelerin üstünde dur: kuleleri birlikte dikelim!",
+  "mila.first": "Şef, hoş geldin! Ben Mila, köyün bekçisiyim. Goblinler etrafta dolaşıyor. Ağaçtan odun, kayadan taş topla, sarı daireye gel ve İnşa et’e bas: kuleleri birlikte dikelim!",
   "mila.back": "Şef hoş geldin! Sen yokken {k} goblin kovaladım, {g} altın kasaya koydum. Çok yoruldum, biraz dinleneceğim. Artık işler sende!",
   "mila.hi": "Şef hoş geldin! Köy sağlam. Ben biraz dinleneyim, işler sende!",
   "mila.bye": "Mila: Şef, köy bize emanet! Sen gelene kadar ben korurum.",
