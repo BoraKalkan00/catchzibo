@@ -200,6 +200,13 @@ CZ.screens.valley = (function () {
     const camera = new THREE.PerspectiveCamera(46, 1, 0.5, 160);
     const hemi = new THREE.HemisphereLight(0xdfeaff, 0x56648a, 0.55); scene.add(hemi);
     const sun = new THREE.DirectionalLight(0xffe0b0, 0.92); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
+    // GECE-GÜNDÜZ ışığı: k=0 gündüz, k=1 gece (oynanır kalsın diye tam karanlık değil)
+    const SKY_D = { bg: null, hs: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sun.color.clone(), si: sun.intensity };
+    const SKY_N = { bg: new THREE.Color(0x1a2350), hs: new THREE.Color(0x7d8fd8), hg: new THREE.Color(0x232c58), hi: 0.5, sc: new THREE.Color(0xa8bcff), si: 0.55 };
+    const nightSky = k => { if (!SKY_D.bg) SKY_D.bg = scene.background && scene.background.isColor ? scene.background.clone() : new THREE.Color(SKY);
+      if (scene.background && scene.background.isColor) { scene.background.copy(SKY_D.bg).lerp(SKY_N.bg, k); if (scene.fog) scene.fog.color.copy(scene.background); }
+      hemi.color.copy(SKY_D.hs).lerp(SKY_N.hs, k); hemi.groundColor.copy(SKY_D.hg).lerp(SKY_N.hg, k); hemi.intensity = SKY_D.hi + (SKY_N.hi - SKY_D.hi) * k;
+      sun.color.copy(SKY_D.sc).lerp(SKY_N.sc, k); sun.intensity = SKY_D.si + (SKY_N.si - SKY_D.si) * k; };
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
     sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
     // gölge alanı tüm ekranı kapsasın: dar kalınca ortada parlak bir daire, dışında karanlık halka oluşuyordu
@@ -1079,6 +1086,8 @@ CZ.screens.valley = (function () {
     /* ---------- Arayüz ---------- */
     const goldEl = h('b', { text: String(d.gold || 0) }), woodEl = h('b', { text: '0' }), stoneEl = h('b', { text: '0' }), gemEl = h('b', { text: '0' });
     const timeEl = h('b', { class: 'vl-time', text: t('def.wave', { n: 1 }) });
+    const nightBtn = h('button', { type: 'button', class: 'vl-nightbtn', style: 'display:none', text: '🌙 ' + t('night.now') });
+    nightBtn.addEventListener('pointerdown', e => { e.stopPropagation(); if (V && V.phase === 'day') { V.phT = 0; CZ.audio.sfx('button'); } });
     const raidEl = h('div', { class: 'vl-raid' });
     const GIFT_DUR = 240000;
     const giftBtn = h('button', { type: 'button', class: 'vl-gift' }, h('i', { text: '🎁' }), h('b'));
@@ -1204,7 +1213,7 @@ CZ.screens.valley = (function () {
     const mpBtn = h('button', { class: 'vl-mp', type: 'button' }, h('i'), h('b', { text: t('mp.' + MP.id) }));
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
-      h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl),
+      h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
       hpBarEl, raidEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
@@ -1367,18 +1376,62 @@ CZ.screens.valley = (function () {
       const rr = Math.hypot(x, z); if (rr > WORLD_R) { x *= WORLD_R / rr; z *= WORLD_R / rr; }
       return [x, z];
     };
+    // ===== GECE-GÜNDÜZ DÖNGÜSÜ: gündüz topla + kamp yağmala (köye saldırı yok), gece Zibo'nun ordusu köye gelir =====
+    const DAY_LEN = 150, NIGHT_LEN = 90;
+    const ZTALK = ['Grak bloo!', 'Hihihi, nyek!', 'Zub zub ZIBO!', 'Blorp! Ha-ha!', 'Nyaaa-krik!'];
+    function startNight() {
+      V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 1.5;
+      V.nS = { kills: V.kills, earned: V.earned, lost: V.lost || 0 };
+      d.bestNight = Math.max(d.bestNight || 0, V.wave);
+      const k = Math.floor(Math.random() * 5);
+      floatAt(P, '🌙 ' + t('night.start', { n: V.wave }), 'wave');
+      setTimeout(() => { if (V) floatAt(P, '👺 "' + ZTALK[k] + '" — ' + t('night.z' + (k + 1)), 'wave'); }, 1400);
+      CZ.audio.sfx('horn'); CZ.audio.vibrate([80, 40, 80]);
+      if (V.wave % 5 === 0) { spawnGoblin(true);
+        if (!V.raid) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); } }
+    }
+    function endNight() {
+      V.phase = 'day'; V.phT = DAY_LEN;
+      goblins.forEach(o => { if (!o.dead && !o.boss && !o.stolen) o.flee = true; });
+      const S = V.nS || { kills: 0, earned: 0, lost: 0 }, kills = V.kills - S.kills, earned = Math.max(0, V.earned - S.earned), lost = Math.max(0, (V.lost || 0) - S.lost);
+      const bonus = 20 + V.wave * 10; gain(bonus, true);
+      CZ.state.save(); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]);
+      let doubled = false;
+      const box = h('div', { class: 'modal-wrap raid-wrap' }, h('div', { class: 'modal raid-rep night-rep' },
+        h('b', { class: 'lg-title', text: lost ? t('night.endBad', { n: V.wave }) : t('night.endGood', { n: V.wave }) }),
+        h('p', { class: 'raid-say', text: lost ? t('night.zWin') : t('night.zLose') }),
+        h('div', { class: 'raid-grid' },
+          h('span', {}, '👺 ', h('b', { text: String(kills) }), h('small', { text: t('night.kills') })),
+          h('span', {}, img('ui.gold', 'mini-ico'), h('b', { text: '+' + (earned + bonus) }), h('small', { text: t('night.loot') })),
+          h('span', { class: lost ? 'bad' : '' }, '🏰 ', h('b', { text: lost ? '-' + lost : '✓' }), h('small', { text: t('night.village') })),
+          h('span', {}, '⭐ ', h('b', { text: String(d.bestNight || V.wave) }), h('small', { text: t('night.best') }))),
+        btn(t('night.x2'), function () { if (doubled) return; CZ.ads.show(() => { doubled = true; gain(earned + bonus, true); CZ.ui.fly && CZ.ui.fly(this, 'gold', earned + bonus); CZ.audio.sfx('star'); this.disabled = true; CZ.state.save(); }); }, 'primary wide', 'ic:play'),
+        btn(t('share.btn'), () => { if (CZ.share && CZ.share.share) CZ.share.share({ big: t('night.shareBig', { n: V.wave }), label: t('night.shareLabel'), line: '👺 ' + kills, avatar: d.avatar }); }, 'ghost-dark wide'),
+        btn(t('night.go'), () => { box.remove(); V.paused = false; V.last = 0; }, 'small ghost-dark')));
+      wrap.append(box); V.paused = true;
+    }
+    function cycleTick(dt) {
+      if (!V.phase) { V.phase = 'day'; V.phT = DAY_LEN; V.skyK = 0; V.wave = 0; }
+      V.phT -= dt;
+      if (V.phase === 'day' && V.phT <= 0) startNight();
+      else if (V.phase === 'night' && V.phT <= 0 && !V.raid && !goblins.some(o => o.boss && !o.dead)) endNight();
+      V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
+    }
     function step(dt) {
       if (V.cine) return;
       V.cool -= dt;
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
-      V.waveT += dt;
-      if (V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true);
+      const cyc = !V.story && (d.tutV || 0) >= 5;
+      if (cyc) cycleTick(dt); else V.waveT += dt;
+      if (!cyc && V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true);
         if (V.wave % 5 === 0 && !V.raid && !V.story) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
-      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); timeEl.textContent = t('def.wave', { n: V.wave }) + ' · 🏰' + vilLevel(); }
+      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
+        timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' ' + mm(Math.max(0, V.phT)) : '☀️ ' + mm(Math.max(0, V.phT))) : t('def.wave', { n: V.wave })) + ' · 🏰' + vilLevel();
+        if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 ? '' : 'none'; } }
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
-      if (V.spawnT <= 0 && goblins.length < cap && !V.story) { V.spawnT = Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); }
+      if (V.spawnT <= 0 && goblins.length < cap + (cyc ? 3 : 0) && !V.story && !(cyc && V.phase === 'day')) { V.spawnT = cyc ? Math.max(1.1, 2.6 - V.wave * 0.12) : Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); }
       // inşaat süreleri
       pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
       // KULELER: menzildeki en yakın goblini kendileri vurur
@@ -1915,7 +1968,7 @@ CZ.screens.valley = (function () {
       // Albion gibi yukarıdan, hafif açılı kamera
       // dikey ekranda görüş alanı dar kalmasın: en-boy oranına göre uzaklaş
       const far = (camera.aspect < 1 ? 1 / Math.max(0.42, camera.aspect) * 0.62 : 1) * (P.riding ? 1.12 : 1);
-      const ch = 15 * far, cd = 10.5 * far;
+      const ch = 11.8 * far, cd = 8.2 * far;   // yakın kamera: karakterler büyük, ekran boş kar değil
       const cx = P.x, cz = P.z + cd;
       camera.position.x += (cx - camera.position.x) * Math.min(1, dt * 5);
       camera.position.z += (cz - camera.position.z) * Math.min(1, dt * 5);

@@ -82,3 +82,7 @@ Gift popup'ı kapatmak için `CZ.state.data.login={last:bugünYYYYMMDD,n:1}`.
 - Görüntü: gölge alanı ±52 (ortadaki parlak daire giderildi), bloom düşük, temiz kar tonları.
 - Prompt sayfası: https://claude.ai/artifact/B3YaieDYXpqLmFmUJLktJB (kaynak /home/claude/promptsayfa).
 - SIRADA: Savunma kuleleri resimleri (Kartopu Atıcı 5, Top Kulesi 5, Çit 3) + Demirci Sv8 gelince bağla (valley.js DEF_EMO yerine resim); goblinlerin 3D stilini resimlerle uyumlu hale getir; telefonda gerçek APK testi.
+## 21 Kas — YENİ YÖN (Bora onayladı): tek çekirdek döngü = açık dünya köy savunması
+- Hedef: 100M'a yaklaşmak → yayıncı metrikleri (D1 %40+, D7 %15+), kapalı test (12 kişi/14 gün), soft launch, CPI testi. İsim değişecek (Bora seçiyor).
+- GECE-GÜNDÜZ (valley.js cycleTick/startNight/endNight): gündüz 150 sn (köye goblin yok), gece 90 sn (hızlı doğum, cap+3), her 5. gece boss+büyük baskın. Gece sonu özeti (öldürülen, ganimet, köy kaybı, d.bestNight, reklamla x2, Paylaş). HUD ☀️/🌙 süre, gündüzde "Geceyi başlat". Döngü yalnız d.tutV>=5 ve !V.story iken. night.* 9 dilde.
+- Kamera yakınlaştı (ch 11.8, cd 8.2). Menü: koşu, malikane, soygun, kitap gizlendi (kod duruyor).

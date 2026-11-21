@@ -2066,3 +2066,9 @@ body.wide #rotate-note { display: none !important; }
 .upg-c.lack { background: #ffe8e6; border-color: #e8484a; color: #b81f22; }
 .upg-c .mini-ico { width: 18px; height: 18px; }
 .upg-time { margin: 0; font-weight: 800; }
+
+/* Gece-gündüz */
+.vl-time.night { background: linear-gradient(#2a2f7a, #141a4a); box-shadow: 0 0 12px rgba(120,140,255,.6); }
+.vl-nightbtn { margin-left: 6px; padding: 5px 12px; border: 0; border-radius: 12px; background: linear-gradient(#4b4fc4, #2b2f8a); color: #fff; font: 900 14px/1 inherit; box-shadow: 0 3px 0 #1a1d5c; white-space: nowrap; pointer-events: auto; }
+.vl-nightbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #1a1d5c; }
+.night-rep .lg-title { font-size: 26px; }

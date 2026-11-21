@@ -231,7 +231,6 @@
         h('div', { class: 'season-chip' }, CZ.icon('snowflake'), h('b', { text: t('season.' + CZ.SEASON.id) }), h('small', { text: t('season.left', { n: CZ.seasonDaysLeft() }) })),
         zibo.el,
         h('div', { class: 'hub-rail left' },
-          runOpen ? null : heistBtn,
           rb('quests', CZ.icon('list'), t('quest.short'), () => CZ.quests.open(document.getElementById('app'), () => CZ.ui.refresh()), { dot: CZ.quests.ready(), badge: h('span', {}, q.list.filter(x => x.claimed).length + '/3') }),
           runOpen ? rb(null, img('ui.gold', 'rb-img'), t('shop.title'), () => CZ.shopUi.open(() => CZ.ui.refresh()), { hot: !(state.data.bought && state.data.bought.starter) }) : null,
           runOpen ? rb(null, CZ.icon('star'), t('pass.short'), () => CZ.shopUi.openPass(() => CZ.ui.refresh()), { dot: CZ.pass.ready() }) : null,
@@ -246,17 +245,13 @@
             wrap.append(h('div', { class: 'modal more-modal' },
               h('b', { class: 'lg-title', text: t('hub.more') }),
               h('div', { class: 'more-grid' },
-                pickBtn(heistBtn),
-                pickBtn(rb(null, CZ.icon('lens'), t('hub.enter'), () => CZ.ui.wipeTo('mansion'))),
                 pickBtn(rb(null, CZ.icon('gift'), t('adv.short'), () => CZ.advent.open(document.getElementById('app'), () => CZ.ui.refresh()), { hot: CZ.advent.ready(), dot: CZ.advent.ready() })),
-                pickBtn(rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book'))),
                 pickBtn(rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() }))),
               btn(t('common.close'), () => wrap.remove(), 'small ghost')));
             el.append(wrap);
           }, { dot: !!dNext || goldFree || game.diaryUnread() })) : h('div', { class: 'hub-rail right' },
           rb('gold', img('ui.gold', 'rb-img'), t('hub.gold'), () => CZ.ui.wipeTo('valley'), { hot: goldFree, dot: goldFree }),
           rb(null, CZ.charArt.img(state.data.avatar || 'girl', 'front', 'rb-img rb-char'), t('chars.title'), () => CZ.ui.wipeTo('chars')),
-          rb('book', img('ui.book', 'rb-img'), t('hub.bookShort'), () => go('book')),
           rb('diary', img('ui.diary', 'rb-img'), t('hub.diaryShort'), () => go('diary'), { dot: game.diaryUnread() })),
         h('div', { class: 'hub-cta' },
           // Ana oyun: sonsuz kovalamaca. Odalar (hikâye) ikinci düğme.
@@ -264,12 +259,13 @@
           runOpen ? h('button', { class: 'play-big run-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('valley'); } },
             h('b', { text: t('valley.title') }),
             h('small', { text: t('hub.villageSub') })) : null,
-          runOpen ? h('button', { class: 'play-big play-small', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('chase', { endless: true }); } },
+          // (21 Kas) TEK ÇEKİRDEK DÖNGÜ: koşu modu ve malikane rafta — kod duruyor, menüde yok
+          false ? h('button', { class: 'play-big play-small', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('chase', { endless: true }); } },
             h('b', { text: t('endless.play') }),
             h('small', { text: t('endless.best', { n: state.data.bestRun || 0 }) + (endlessMult() > 1 ? '  ·  x' + endlessMult() : '') }))
-          : h('button', { class: 'play-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('mansion'); } },
-            h('b', { text: t('hub.enter') }),
-            h('small', { text: t('mansion.progress', { found: game.foundCount(), total: game.rounds().length }) }))));
+          : h('button', { class: 'play-big run-big', type: 'button', onClick: () => { CZ.audio.sfx('button'); CZ.ui.wipeTo('valley'); } },
+            h('b', { text: t('valley.title') }),
+            h('small', { text: t('hub.villageSub') }))));
       // Günlük ödül ve seviye pencereleri merkeze girer girmez çıkar.
       // İlk girişte pencere açılmaz: oyuncu önce merkezi görsün.
       state.data.hubVisits = (state.data.hubVisits || 0) + 1;
