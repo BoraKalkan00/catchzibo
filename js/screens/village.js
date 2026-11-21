@@ -60,7 +60,7 @@ CZ.screens.village = (function () {
     return g;
   }
   // Gemini'den gelen 2D bina resimleri: assets/village/<id>/<seviye>.webp, inşaat hali c.webp
-  const VART = { hall: { n: 10, c: true, w: 4.4, k: 0.24 }, goldmine: { n: 10, c: true, w: 3.6, k: 0.2 }, bakery: { n: 10, c: true, w: 3.6, k: 0.2 }, mine: { n: 10, c: true, w: 3.6, k: 0.2 }, vault: { n: 8, c: true, w: 3.4, k: 0.22 }, tower: { n: 10, c: true, w: 2.9, k: 0.16 }, stable: { n: 6, c: true, w: 3.4, k: 0.25 } };
+  const VART = { hall: { n: 10, c: true, w: 4.4, k: 0.24 }, goldmine: { n: 10, c: true, w: 3.6, k: 0.2 }, bakery: { n: 10, c: true, w: 3.6, k: 0.2 }, mine: { n: 10, c: true, w: 3.6, k: 0.2 }, vault: { n: 8, c: true, w: 3.4, k: 0.22 }, tower: { n: 10, c: true, w: 2.9, k: 0.16 }, stable: { n: 6, c: true, w: 3.4, k: 0.25 }, forge: { n: 7, c: true, w: 3.4, k: 0.22 } };
   const texCache = {};
   function spriteModel(THREE, id, L, busy) {
     const A = VART[id], key = busy && A.c ? 'c' : String(Math.min(A.n, L));
