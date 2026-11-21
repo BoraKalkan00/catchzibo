@@ -1432,5 +1432,11 @@ CZ.i18n.register('tr', 'Türkçe', {
   "opt.tip": "Çok kolay ya da çok zor mu? Duraklat → Zorluk'tan değiştirebilirsin.",
   "def.upBtn": "Yükselt",
   "def.buildBtn": "İnşa et",
-  "def.flowing": "Kaynaklar aktarılıyor… dairenin üstünde kal"
+  "def.flowing": "Kaynaklar aktarılıyor… dairenin üstünde kal",
+  "rush.start": "Haritada altın parlıyor! Koş! 💰",
+  "rush.go": "💰 Altın Akını · {s} sn · {m} m",
+  "rush.fight": "👺 Sürüyü temizle: {n}",
+  "rush.lost": "Zibo sandığı kaptı! 😜",
+  "rush.ambush": "Pusu! Zibo'nun adamları etrafını sardı!",
+  "rush.win": "Altın Akını! +{n} 💰"
 });

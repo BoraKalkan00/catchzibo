@@ -1432,5 +1432,11 @@ CZ.i18n.register('en', 'English', {
   "opt.tip": "Too easy or too hard? Change it in Pause → Difficulty.",
   "def.upBtn": "Upgrade",
   "def.buildBtn": "Build",
-  "def.flowing": "Sending resources… stay on the circle"
+  "def.flowing": "Sending resources… stay on the circle",
+  "rush.start": "Gold is shining on the map! Run! 💰",
+  "rush.go": "💰 Gold Rush · {s}s · {m} m",
+  "rush.fight": "👺 Clear the swarm: {n}",
+  "rush.lost": "Zibo grabbed the chest! 😜",
+  "rush.ambush": "Ambush! Zibo's gang surrounds you!",
+  "rush.win": "Gold Rush! +{n} 💰"
 });

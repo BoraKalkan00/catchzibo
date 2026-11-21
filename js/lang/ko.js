@@ -1250,5 +1250,11 @@ CZ.i18n.register('ko', '한국어', {
   "opt.tip": "너무 쉽거나 어려운가요? 일시정지 → 난이도에서 바꿀 수 있어요.",
   "def.upBtn": "업그레이드",
   "def.buildBtn": "건설",
-  "def.flowing": "자원 보내는 중… 원 안에 있어요"
+  "def.flowing": "자원 보내는 중… 원 안에 있어요",
+  "rush.start": "지도에 금이 반짝여요! 달려요! 💰",
+  "rush.go": "💰 골드 러시 · {s}초 · {m}m",
+  "rush.fight": "👺 무리를 처치하세요: {n}",
+  "rush.lost": "지보가 상자를 낚아챘어요! 😜",
+  "rush.ambush": "매복이다! 지보 일당이 포위했어요!",
+  "rush.win": "골드 러시! +{n} 💰"
 });

@@ -1250,5 +1250,11 @@ CZ.i18n.register('es', 'Español', {
   "opt.tip": "¿Muy fácil o muy difícil? Cámbialo en Pausa → Dificultad.",
   "def.upBtn": "Mejorar",
   "def.buildBtn": "Construir",
-  "def.flowing": "Enviando recursos… quédate en el círculo"
+  "def.flowing": "Enviando recursos… quédate en el círculo",
+  "rush.start": "¡Brilla oro en el mapa! ¡Corre! 💰",
+  "rush.go": "💰 Fiebre del oro · {s} s · {m} m",
+  "rush.fight": "👺 Acaba con la horda: {n}",
+  "rush.lost": "¡Zibo se llevó el cofre! 😜",
+  "rush.ambush": "¡Emboscada! ¡La banda de Zibo te rodea!",
+  "rush.win": "¡Fiebre del oro! +{n} 💰"
 });

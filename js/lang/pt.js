@@ -1250,5 +1250,11 @@ CZ.i18n.register('pt', 'Português', {
   "opt.tip": "Fácil ou difícil demais? Mude em Pausa → Dificuldade.",
   "def.upBtn": "Melhorar",
   "def.buildBtn": "Construir",
-  "def.flowing": "Enviando recursos… fique no círculo"
+  "def.flowing": "Enviando recursos… fique no círculo",
+  "rush.start": "Tem ouro brilhando no mapa! Corre! 💰",
+  "rush.go": "💰 Corrida do ouro · {s} s · {m} m",
+  "rush.fight": "👺 Derrote o bando: {n}",
+  "rush.lost": "O Zibo pegou o baú! 😜",
+  "rush.ambush": "Emboscada! A gangue do Zibo te cercou!",
+  "rush.win": "Corrida do ouro! +{n} 💰"
 });

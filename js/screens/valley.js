@@ -1141,6 +1141,7 @@ CZ.screens.valley = (function () {
     nightBtn.addEventListener('pointerdown', e => { e.stopPropagation(); if (V && V.phase === 'day') { V.phT = 0; CZ.audio.sfx('button'); } });
     const raidEl = h('div', { class: 'vl-raid' });
     const vigEl = h('div', { class: 'vl-nightvig' });
+    const rushEl = h('div', { class: 'vl-rush' }), rushArrow = h('div', { class: 'vl-edge gold' }, h('i'));
     const cdEl = h('div', { class: 'vl-nightcd' }, h('b', { text: '10' }), h('small', { text: t('night.coming') }));
     const GIFT_DUR = 240000;
     const giftBtn = h('button', { type: 'button', class: 'vl-gift' }, h('i', { text: '🎁' }), h('b'));
@@ -1267,7 +1268,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1434,6 +1435,7 @@ CZ.screens.valley = (function () {
     const DAY_LEN = 150, NIGHT_LEN = 150;   // gece: belli sayıda goblin gelir, hepsi düşünce biter (süre yalnız üst sınır)
     const ZTALK = ['Grak bloo!', 'Hihihi, nyek!', 'Zub zub ZIBO!', 'Blorp! Ha-ha!', 'Nyaaa-krik!'];
     function startNight() {
+      if (V.rush && V.rush.state === 'go') rushEnd(30);
       V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 2.5;
       V.nTot = Math.min(50, Math.round((5 + V.wave * 3 + Math.floor(vilPower() / 2)) * DIFF().n)); V.nSp = 0;
       vigEl.classList.add('on'); cdEl.classList.remove('on');
@@ -1468,6 +1470,45 @@ CZ.screens.valley = (function () {
       wrap.append(box); V.paused = true;
     }
     function nightLeft() { return Math.max(0, (V.nTot || 0) - (V.nSp || 0)) + goblins.filter(o => o.night && !o.dead).length; }
+    // ===== ALTIN AKINI (21 Kas): gündüz haritada parlayan nokta → süre bitmeden yetiş → goblin sürüsü sarar → hepsini temizle → büyük altın =====
+    const rushBeam = (() => { const g = new THREE.Group();
+      const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.4, 34, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd34a, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide })); beam.position.y = 17; g.add(beam);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(2.6, 3.2, 40), new THREE.MeshBasicMaterial({ color: 0xffd34a, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.07; g.add(ring);
+      g.userData.ring = ring; g.visible = false; scene.add(g); return g; })();
+    let rushChest = null;
+    function rushEnd(cd) { V.rush = null; V.rushCd = cd; rushBeam.visible = false; rushEl.classList.remove('on'); rushArrow.style.display = 'none'; if (rushChest) { scene.remove(rushChest); rushChest = null; } }
+    function rushTick(dt) {
+      const R = V.rush;
+      if (!R) {
+        if (V.phase !== 'day' || V.story) return;
+        V.rushCd = (V.rushCd == null ? 25 : V.rushCd) - dt; if (V.rushCd > 0) return;
+        for (let k = 0; k < 40; k++) { const a = rand(0, Math.PI * 2), rr = rand(22, 40), x = P.x + Math.cos(a) * rr, z = P.z + Math.sin(a) * rr, rc = Math.hypot(x, z);
+          if (water(x, z) || rc < FENCE_R + 8 || rc > WORLD_R - 6 || solids.some(q => !q.off && Math.hypot(q.x - x, q.z - z) < q.r + 2.5)) continue;
+          V.rush = { x, z, t: 40, state: 'go' }; rushBeam.position.set(x, 0, z); rushBeam.visible = true; rushEl.classList.add('on');
+          floatAt(P, t('rush.start'), 'wave'); CZ.audio.sfx('horn'); CZ.audio.vibrate([60, 40, 60]); return; }
+        V.rushCd = 5; return;
+      }
+      rushBeam.userData.ring.scale.setScalar(1 + Math.sin(performance.now() / 160) * 0.08);
+      if (R.state === 'go') {
+        R.t -= dt; const dd = Math.hypot(R.x - P.x, R.z - P.z);
+        rushEl.textContent = t('rush.go', { s: Math.max(0, Math.ceil(R.t)), m: Math.round(dd) }); rushEl.classList.toggle('low', R.t < 10);
+        if (dd < 3.4) {
+          R.state = 'fight'; R.ids = [];
+          const n = Math.round((7 + V.wave * 1.5) * DIFF().n);
+          for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; spawnGoblin(i === 0 && V.wave >= 3, [R.x + Math.cos(a) * 8.5, R.z + Math.sin(a) * 8.5]); const gb = goblins[goblins.length - 1]; if (gb) { gb.rush = true; gb.village = false; R.ids.push(gb); } }
+          if (CZ.KH && CZ.KH.has('crate_A_small')) { rushChest = CZ.KH.get('crate_A_small', 1.3); rushChest.position.set(R.x, 0, R.z); scene.add(rushChest); }
+          floatAt(P, t('rush.ambush'), 'wave'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); V.shake = Math.max(V.shake || 0, 0.25);
+        } else if (R.t <= 0) { floatAt(P, t('rush.lost'), 'wave'); CZ.audio.sfx('wrong'); rushEnd(45); }
+      } else {
+        const left = R.ids.filter(o => !o.dead).length;
+        rushEl.textContent = t('rush.fight', { n: left }); rushEl.classList.remove('low');
+        if (left === 0) {
+          const g = Math.round((150 + V.wave * 40) * DIFF().rew); gain(g, true); const gem = Math.random() < 0.35 ? 2 : 0; if (gem) { d.emeralds = (d.emeralds || 0) + gem; resUi(); }
+          floatAt(P, t('rush.win', { n: g }) + (gem ? ' +' + gem + '💎' : ''), 'wave'); giftFx(R.x, R.z); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]); CZ.state.save();
+          rushEnd(rand(55, 75));
+        }
+      }
+    }
     function cycleTick(dt) {
       if (!V.phase) { V.phase = 'day'; V.phT = DAY_LEN; V.skyK = 0; V.wave = 0; }
       V.phT -= dt;
@@ -1487,7 +1528,7 @@ CZ.screens.valley = (function () {
       V.cool -= dt;
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
       const cyc = !V.story && (d.tutV || 0) >= 5;
-      if (cyc) cycleTick(dt); else V.waveT += dt;
+      if (cyc) { cycleTick(dt); rushTick(dt); } else V.waveT += dt;
       if (!cyc && V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true);
         if (V.wave % 5 === 0 && !V.raid && !V.story) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
@@ -1793,6 +1834,14 @@ CZ.screens.valley = (function () {
         a.firstChild.textContent = Math.round(L2) + 'm';
         a.classList.toggle('big', it.o.type === 'chest' || it.o.maxHp > 3);
       });
+      // altın akını oku (altın renkli, her zaman en önde)
+      if (V.rush && V.rush.state === 'go') { const R = V.rush; v3.set(R.x, 1, R.z).project(camera);
+        if (Math.abs(v3.x) < 0.95 && Math.abs(v3.y) < 0.9) rushArrow.style.display = 'none';
+        else { const dx = R.x - P.x, dz = R.z - P.z, L2 = Math.hypot(dx, dz), W2 = ui.clientWidth, H2 = ui.clientHeight, sx = dx / L2, sy = dz / L2;
+          const tt = Math.min((W2 / 2 - 34) / Math.max(0.01, Math.abs(sx)), (H2 / 2 - (sy > 0 ? 190 : 150)) / Math.max(0.01, Math.abs(sy)));
+          rushArrow.style.display = 'block'; rushArrow.style.left = (W2 / 2 + sx * tt) + 'px'; rushArrow.style.top = (H2 / 2 + sy * tt) + 'px';
+          rushArrow.style.transform = `translate(-50%,-50%) rotate(${Math.atan2(sy, sx)}rad)`; rushArrow.firstChild.style.transform = `rotate(${-Math.atan2(sy, sx)}rad)`; rushArrow.firstChild.textContent = '💰 ' + Math.round(L2) + 'm'; } }
+      else rushArrow.style.display = 'none';
     }
     let mapT = 0;
     const rings = [];

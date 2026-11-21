@@ -2094,3 +2094,9 @@ body.wide #rotate-note { display: none !important; }
 .opt-row .seg button { min-height: 36px; padding: 4px 10px; font-size: 13px; }
 .pause-card .opt-row span { color: #3a2414; font-weight: 900; }
 .def-flow { color: #ffd36a; font-weight: 900; }
+
+/* Altın Akını */
+.vl-rush { position: absolute; left: 50%; top: calc(64px + var(--safe-top, 0px)); transform: translateX(-50%); z-index: 6; display: none; padding: 6px 14px; border-radius: 14px; background: linear-gradient(#ffd34a, #e8a512); color: #3a2414; font-weight: 900; font-size: 15px; white-space: nowrap; box-shadow: 0 3px 0 #a86a08, 0 6px 14px rgba(0,0,0,.25); pointer-events: none; }
+.vl-rush.on { display: block; }
+.vl-rush.low { background: linear-gradient(#ff7a5a, #d8282a); color: #fff; box-shadow: 0 3px 0 #8a1414; animation: btnpulse .6s ease-in-out infinite; }
+.vl-edge.gold i { background: linear-gradient(#ffd34a, #e8a512); color: #3a2414; font-size: 14px; }

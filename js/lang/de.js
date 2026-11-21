@@ -1250,5 +1250,11 @@ CZ.i18n.register('de', 'Deutsch', {
   "opt.tip": "Zu leicht oder zu schwer? Ändere es unter Pause → Schwierigkeit.",
   "def.upBtn": "Verbessern",
   "def.buildBtn": "Bauen",
-  "def.flowing": "Ressourcen fließen… bleib im Kreis"
+  "def.flowing": "Ressourcen fließen… bleib im Kreis",
+  "rush.start": "Auf der Karte glänzt Gold! Lauf! 💰",
+  "rush.go": "💰 Goldrausch · {s} s · {m} m",
+  "rush.fight": "👺 Besiege die Horde: {n}",
+  "rush.lost": "Zibo hat die Truhe geschnappt! 😜",
+  "rush.ambush": "Hinterhalt! Zibos Bande umzingelt dich!",
+  "rush.win": "Goldrausch! +{n} 💰"
 });

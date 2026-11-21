@@ -1250,5 +1250,11 @@ CZ.i18n.register('fr', 'Français', {
   "opt.tip": "Trop facile ou trop dur ? Change-le dans Pause → Difficulté.",
   "def.upBtn": "Améliorer",
   "def.buildBtn": "Construire",
-  "def.flowing": "Envoi des ressources… reste dans le cercle"
+  "def.flowing": "Envoi des ressources… reste dans le cercle",
+  "rush.start": "De l'or brille sur la carte ! Cours ! 💰",
+  "rush.go": "💰 Ruée vers l'or · {s} s · {m} m",
+  "rush.fight": "👺 Élimine la horde : {n}",
+  "rush.lost": "Zibo a pris le coffre ! 😜",
+  "rush.ambush": "Embuscade ! La bande de Zibo t'encercle !",
+  "rush.win": "Ruée vers l'or ! +{n} 💰"
 });
