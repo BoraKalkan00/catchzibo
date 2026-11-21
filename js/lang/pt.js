@@ -1256,5 +1256,15 @@ CZ.i18n.register('pt', 'Português', {
   "rush.fight": "👺 Derrote o bando: {n}",
   "rush.lost": "O Zibo pegou o baú! 😜",
   "rush.ambush": "Emboscada! A gangue do Zibo te cercou!",
-  "rush.win": "Corrida do ouro! +{n} 💰"
+  "rush.win": "Corrida do ouro! +{n} 💰",
+  "wpn.short": "Arma",
+  "wpn.title": "Armas",
+  "wpn.bow": "Arco",
+  "wpn.sword": "Espada",
+  "wpn.staff": "Cajado de gelo",
+  "wpn.d.bow": "Atira flechas de longe. Equilibrado.",
+  "wpn.d.sword": "Corpo a corpo: acerta todos na frente. Muito forte.",
+  "wpn.d.staff": "Lança orbes de gelo que congelam goblins.",
+  "wpn.equip": "Equipar",
+  "wpn.short2": "Recursos insuficientes"
 });

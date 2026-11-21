@@ -1256,5 +1256,15 @@ CZ.i18n.register('ja', '日本語', {
   "rush.fight": "👺 群れを倒せ：{n}",
   "rush.lost": "ジボに宝箱を取られた！😜",
   "rush.ambush": "待ち伏せだ！ジボの手下に囲まれた！",
-  "rush.win": "ゴールドラッシュ！+{n} 💰"
+  "rush.win": "ゴールドラッシュ！+{n} 💰",
+  "wpn.short": "武器",
+  "wpn.title": "武器",
+  "wpn.bow": "弓",
+  "wpn.sword": "剣",
+  "wpn.staff": "氷の杖",
+  "wpn.d.bow": "遠くから矢を放つ。バランス型。",
+  "wpn.d.sword": "近接：前方の敵全員にまとめて当たる。とても強い。",
+  "wpn.d.staff": "ゴブリンを凍らせる氷の玉を放つ。",
+  "wpn.equip": "装備",
+  "wpn.short2": "資源が足りません"
 });

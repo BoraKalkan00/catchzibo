@@ -1438,5 +1438,15 @@ CZ.i18n.register('en', 'English', {
   "rush.fight": "👺 Clear the swarm: {n}",
   "rush.lost": "Zibo grabbed the chest! 😜",
   "rush.ambush": "Ambush! Zibo's gang surrounds you!",
-  "rush.win": "Gold Rush! +{n} 💰"
+  "rush.win": "Gold Rush! +{n} 💰",
+  "wpn.short": "Weapon",
+  "wpn.title": "Weapons",
+  "wpn.bow": "Bow",
+  "wpn.sword": "Sword",
+  "wpn.staff": "Ice Staff",
+  "wpn.d.bow": "Shoots arrows from range. Balanced.",
+  "wpn.d.sword": "Melee: hits everyone in front at once. Very strong.",
+  "wpn.d.staff": "Throws ice orbs that freeze goblins.",
+  "wpn.equip": "Equip",
+  "wpn.short2": "Not enough resources"
 });

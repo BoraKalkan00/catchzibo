@@ -1256,5 +1256,15 @@ CZ.i18n.register('ko', '한국어', {
   "rush.fight": "👺 무리를 처치하세요: {n}",
   "rush.lost": "지보가 상자를 낚아챘어요! 😜",
   "rush.ambush": "매복이다! 지보 일당이 포위했어요!",
-  "rush.win": "골드 러시! +{n} 💰"
+  "rush.win": "골드 러시! +{n} 💰",
+  "wpn.short": "무기",
+  "wpn.title": "무기",
+  "wpn.bow": "활",
+  "wpn.sword": "검",
+  "wpn.staff": "얼음 지팡이",
+  "wpn.d.bow": "멀리서 화살을 쏩니다. 균형형.",
+  "wpn.d.sword": "근접: 앞의 모두를 한 번에 벱니다. 매우 강함.",
+  "wpn.d.staff": "고블린을 얼리는 얼음 구슬을 던집니다.",
+  "wpn.equip": "장착",
+  "wpn.short2": "자원이 부족해요"
 });

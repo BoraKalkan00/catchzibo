@@ -1256,5 +1256,15 @@ CZ.i18n.register('es', 'Español', {
   "rush.fight": "👺 Acaba con la horda: {n}",
   "rush.lost": "¡Zibo se llevó el cofre! 😜",
   "rush.ambush": "¡Emboscada! ¡La banda de Zibo te rodea!",
-  "rush.win": "¡Fiebre del oro! +{n} 💰"
+  "rush.win": "¡Fiebre del oro! +{n} 💰",
+  "wpn.short": "Arma",
+  "wpn.title": "Armas",
+  "wpn.bow": "Arco",
+  "wpn.sword": "Espada",
+  "wpn.staff": "Bastón de hielo",
+  "wpn.d.bow": "Dispara flechas a distancia. Equilibrado.",
+  "wpn.d.sword": "Cuerpo a cuerpo: golpea a todos los de delante. Muy fuerte.",
+  "wpn.d.staff": "Lanza orbes de hielo que congelan goblins.",
+  "wpn.equip": "Equipar",
+  "wpn.short2": "No tienes suficientes recursos"
 });

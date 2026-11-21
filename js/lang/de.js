@@ -1256,5 +1256,15 @@ CZ.i18n.register('de', 'Deutsch', {
   "rush.fight": "👺 Besiege die Horde: {n}",
   "rush.lost": "Zibo hat die Truhe geschnappt! 😜",
   "rush.ambush": "Hinterhalt! Zibos Bande umzingelt dich!",
-  "rush.win": "Goldrausch! +{n} 💰"
+  "rush.win": "Goldrausch! +{n} 💰",
+  "wpn.short": "Waffe",
+  "wpn.title": "Waffen",
+  "wpn.bow": "Bogen",
+  "wpn.sword": "Schwert",
+  "wpn.staff": "Eisstab",
+  "wpn.d.bow": "Schießt Pfeile auf Distanz. Ausgewogen.",
+  "wpn.d.sword": "Nahkampf: trifft alle vor dir auf einmal. Sehr stark.",
+  "wpn.d.staff": "Wirft Eiskugeln, die Goblins einfrieren.",
+  "wpn.equip": "Ausrüsten",
+  "wpn.short2": "Nicht genug Ressourcen"
 });

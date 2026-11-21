@@ -1057,22 +1057,59 @@ CZ.screens.valley = (function () {
     const ballMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(W.ball || '#f4fbff') });
     const trails = [], trailMat = new THREE.MeshBasicMaterial({ color: 0xdff4ff, transparent: true, opacity: 0.5, depthWrite: false });
     function trailTick(dt) { for (let i = trails.length - 1; i >= 0; i--) { const q = trails[i]; q.t += dt; q.m.scale.setScalar(Math.max(0.01, 0.6 - q.t * 2.6)); if (q.t > 0.22) { scene.remove(q.m); trails.splice(i, 1); } } }
+    // ===== SİLAHLAR (21 Kas): yay (ok), kılıç (yakın dövüş, geniş savurma), buz asası (dondurur) — elde gerçek 3D =====
+    const VWPN = {
+      bow: { icon: '🏹', dmgK: 1, cd: 1, cost: null },
+      sword: { icon: '⚔️', dmgK: 1.6, cd: 1.15, melee: 3.1, cost: { gold: 900 } },
+      staff: { icon: '🔮', dmgK: 0.9, cd: 1.3, freeze: 1.6, cost: { gold: 2500, emeralds: 10 } }
+    };
+    if (!d.vwOwn) d.vwOwn = ['bow']; if (!VWPN[d.vw] || !d.vwOwn.includes(d.vw)) d.vw = 'bow';
+    const curW = () => VWPN[d.vw] || VWPN.bow;
+    const handW = (() => { const M = {};
+      { const g = new THREE.Group(); const wood = toon(0x8a5228);
+        const arc = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 6, 18, Math.PI * 1.15), wood); arc.rotation.z = Math.PI / 2 - Math.PI * 0.575; arc.position.set(-0.12, 0.42, 0); g.add(arc);
+        const str = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.8, 4), toon(0xf4f0e8)); str.position.set(0.1, 0.42, 0); g.add(str);
+        const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.16, 6), toon(0x4a2a14)); grip.position.set(-0.5, 0.42, 0); g.add(grip); M.bow = g; }
+      { const g = new THREE.Group(); const steel = toon(0xd8e0ea);
+        const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.22, 6), toon(0x4a2a14)); hilt.position.y = 0.05; g.add(hilt);
+        const guard = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.06, 0.08), toon(0xf2c230)); guard.position.y = 0.18; g.add(guard);
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.85, 0.035), steel); blade.position.y = 0.62; g.add(blade);
+        const tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.16, 4), steel); tip.position.y = 1.12; tip.rotation.y = Math.PI / 4; tip.scale.z = 0.35; g.add(tip); M.sword = g; }
+      { const g = new THREE.Group();
+        const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 1.25, 6), toon(0x6a4a8a)); rod.position.y = 0.35; g.add(rod);
+        const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.15, 0), new THREE.MeshBasicMaterial({ color: 0x9fe6ff })); gem.position.y = 1.05; g.add(gem); g.userData.gem = gem;
+        const halo = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.02, 6, 16), toon(0xf2c230)); halo.position.y = 1.05; halo.rotation.x = Math.PI / 2; g.add(halo); M.staff = g; }
+      Object.values(M).forEach(g => { g.rotation.x = Math.PI / 2; g.visible = false; g.userData.vw = true; });
+      if (hero.weaponSlot) { hero.weaponSlot.children.forEach(c => { c.userData.old = true; c.visible = false; }); Object.values(M).forEach(g => hero.weaponSlot.add(g)); }
+      return M; })();
+    function wpnVis(hidden) { Object.entries(handW).forEach(([k, g]) => { g.visible = !hidden && k === d.vw; }); }
+    wpnVis(false);
     const arrowTpl = (() => { const g = new THREE.Group();
       const sh = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.1, 6), toon(0x9a6a3a)); sh.rotation.x = Math.PI / 2; g.add(sh);
       const hd = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.26, 6), toon(0xc8d0dc)); hd.rotation.x = Math.PI / 2; hd.position.z = 0.66; g.add(hd);
       const fm = toon(0xf4f0e8); [0, Math.PI / 2].forEach(r => { const f = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.18, 0.26), fm); f.rotation.z = r; f.position.z = -0.48; g.add(f); });
       g.scale.setScalar(1.15); return g; })();
     function fenceUp(x, z) { const seg = ((Math.floor(((Math.atan2(z, x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8); const fp = pads.find(q => q.kind === 'f' && q.i === seg), it = DS.f[seg]; return !!(fp && it && it.lv >= 1 && fp.hp > 0); }
+    const orbMat = new THREE.MeshBasicMaterial({ color: 0x9fe6ff });
+    function slashFx(x, z, dir) { const m = new THREE.Mesh(new THREE.RingGeometry(1.2, 2.9, 24, 1, -Math.PI * 0.42, Math.PI * 0.84), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75, depthWrite: false, side: THREE.DoubleSide }));
+      m.rotation.x = -Math.PI / 2; m.rotation.z = dir + Math.PI / 2; m.position.set(P.x, 0.9, P.z); scene.add(m); let tt = 0; const tick = () => { tt += 0.05; m.material.opacity = 0.75 * (1 - tt / 0.3); m.scale.setScalar(1 + tt); if (tt < 0.3 && V) requestAnimationFrame(tick); else { scene.remove(m); m.geometry.dispose(); m.material.dispose(); } }; requestAnimationFrame(tick); }
     function fire(dx, dz) {
       if (V.cool > 0) return;
-      V.cool = Math.max(0.12, (0.42 - W.dmg * 0.025) * B.cool * Math.pow(0.95, powLv()));
+      const WP = curW();
+      V.cool = Math.max(0.12, (0.42 - W.dmg * 0.025) * B.cool * Math.pow(0.95, powLv()) * WP.cd);
       const L2 = Math.hypot(dx, dz) || 1; dx /= L2; dz /= L2;
       P.dir = Math.atan2(-dx, -dz);
+      const baseDmg = W.dmg * 2 + B.dmg + powLv() * 2 + (P.riding ? 1 : 0);
+      if (WP.melee) {   // KILIÇ: öndeki yarım daire içindeki herkese vurur
+        let n2 = 0; targets.slice().forEach(o => { if (o.dead || o.locked) return; const ox = o.x - P.x, oz = o.z - P.z, od = Math.hypot(ox, oz); if (od < WP.melee + o.r && (ox * dx + oz * dz) / (od || 1) > -0.1) { hit(o, Math.round(baseDmg * WP.dmgK)); n2++; } });
+        slashFx(P.x + dx * 1.2, P.z + dz * 1.2, P.dir); if (hero.throwNow) hero.throwNow(); CZ.audio.sfx(n2 ? 'slash' : 'throw'); if (n2) { V.shake = Math.max(V.shake || 0, 0.06); CZ.audio.vibrate(15); } return;
+      }
       let m;
+      if (WP.freeze) { m = new THREE.Mesh(ballGeo, orbMat); m.scale.setScalar(1.3); } else
       m = arrowTpl.clone();   // (21 Kas) gerçek ok: düz uçar, gittiği yöne bakar
       m.position.set(P.x + dx * 0.6, P.riding ? mount.seatY + 1.1 : 1.2, P.z + dz * 0.6); m.rotation.y = Math.atan2(dx, dz);
       scene.add(m);
-      const sp2 = P.riding ? 34 : 28; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2, ph: null, y0: m.position.y, arrow: true });
+      const sp2 = P.riding ? 34 : 28; shots.push({ m, dx, dz, life: (RANGE + 0.8) / sp2, sp: sp2, ph: null, y0: m.position.y, arrow: !WP.freeze, dmgK: WP.dmgK, freeze: WP.freeze || 0 });
       if (hero.throwNow) hero.throwNow();
       CZ.audio.sfx('throw');
     }
@@ -1260,7 +1297,25 @@ CZ.screens.valley = (function () {
     const mctx = mapC.getContext('2d');
     const edgeArrows = [0, 1, 2].map(() => h('div', { class: 'vl-edge' }, h('i')));
     const stick = h('div', { class: 'vl-stick' }, h('i'));
-    const fireBtn = h('button', { class: 'vl-fire', type: 'button' }, img(W.art, 'vl-fire-ico'));
+    const fireBtn = h('button', { class: 'vl-fire', type: 'button' }, h('i', { class: 'vl-fire-emo', text: (VWPN[d.vw] || VWPN.bow).icon }));
+    const wpnBtn = h('button', { class: 'vl-wpn', type: 'button' }, h('i', { text: '🗡️' }), h('b', { text: t('wpn.short') }));
+    wpnBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openWeapons(); });
+    function openWeapons() {
+      CZ.audio.sfx('button'); V.paused = true;
+      const box = h('div', { class: 'modal-wrap' });
+      const draw = () => box.replaceChildren(h('div', { class: 'modal wpn-modal' },
+        h('b', { class: 'lg-title', text: t('wpn.title') }),
+        ...Object.entries(VWPN).map(([id, w]) => { const own = d.vwOwn.includes(id), on = d.vw === id;
+          const price = w.cost ? Object.entries(w.cost).map(([r2, n]) => (r2 === 'gold' ? '🪙' : '💎') + n).join(' ') : '';
+          return h('div', { class: 'wpn-row' + (on ? ' on' : '') }, h('i', { class: 'wpn-ico', text: w.icon }),
+            h('div', { class: 'wpn-txt' }, h('b', { text: t('wpn.' + id) }), h('small', { text: t('wpn.d.' + id) })),
+            on ? h('span', { class: 'wpn-on', text: '✓' }) : own ? btn(t('wpn.equip'), () => { d.vw = id; CZ.state.save(); wpnVis(false); fireBtn.firstChild.textContent = w.icon; CZ.audio.sfx('buy'); draw(); }, 'small primary')
+              : btn(price, () => { const ok = Object.entries(w.cost).every(([r2, n]) => (d[r2] || 0) >= n); if (!ok) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('wpn.short2')); }
+                  Object.entries(w.cost).forEach(([r2, n]) => { d[r2] -= n; }); d.vwOwn.push(id); d.vw = id; CZ.state.save(); resUi(); wpnVis(false); fireBtn.firstChild.textContent = w.icon; CZ.audio.sfx('win'); CZ.audio.vibrate([30, 20, 60]); draw(); }, 'small'));
+        }),
+        btn(t('common.close'), () => { box.remove(); V.paused = false; V.last = 0; }, 'small ghost-dark')));
+      draw(); wrap.append(box);
+    }
     const rideBtn = h('button', { class: 'vl-ride', type: 'button', text: t('valley.ride') });
     // BİNEK GÜCÜ: her binek farklı (kükreme, buz nefesi, hız, atılma, deprem)
     const MP = CZ.MOUNT_POWER[mountDef.id] || CZ.MOUNT_POWER.brown;
@@ -1268,7 +1323,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1748,7 +1803,7 @@ CZ.screens.valley = (function () {
         let hitO = null;
         for (const o of targets) { if (o.dead || o.locked) continue; if (Math.hypot(o.x - s2.m.position.x, o.z - s2.m.position.z) < o.r + 0.35) { hitO = o; break; } }
         if (!hitO && ice.alive && Math.hypot(ice.x - s2.m.position.x, ice.z - s2.m.position.z) < ice.r) { s2.life = 0; if (!V.iceHint2) { V.iceHint2 = true; floatAt(ice, t('valley.needPolar')); } }
-        if (hitO) { hit(hitO, W.dmg * 2 + B.dmg + powLv() * 2 + (P.riding ? 1 : 0)); s2.life = 0; }
+        if (hitO) { hit(hitO, Math.max(1, Math.round((W.dmg * 2 + B.dmg + powLv() * 2 + (P.riding ? 1 : 0)) * (s2.dmgK || 1)))); if (s2.freeze && !hitO.dead && hitO.type === 'goblin') { hitO.stun = Math.max(hitO.stun || 0, s2.freeze); hitO.frozen = hitO.stun; iceOn(hitO); CZ.audio.sfx('freeze'); } s2.life = 0; }
         else if (solids.some(sd => sd !== ice && Math.hypot(sd.x - s2.m.position.x, sd.z - s2.m.position.z) < sd.r * 0.8)) s2.life = 0;
         if (s2.life <= 0) { scene.remove(s2.m); shots.splice(i, 1); }
       }
@@ -1772,6 +1827,7 @@ CZ.screens.valley = (function () {
       }
       // doğrudan kazanç (kutudan kalan kısım) yavaş yavaş sayılır: sayaç tıkır tıkır artsın
       if (V_wind) V_wind.value += dt;
+      if (handW.staff.visible) { const gm = handW.staff.userData.gem; gm.rotation.y += dt * 3; gm.scale.setScalar(1 + Math.sin(performance.now() / 200) * 0.12); }
       { const a = flakeGeo.attributes.position; for (let i = 0; i < flakeN; i++) { let y = a.array[i * 3 + 1] - dt * 2.2; if (y < 0) y += 18; a.array[i * 3 + 1] = y; a.array[i * 3] += Math.sin(y + i) * dt * 0.4; } a.needsUpdate = true; flakes.position.set(P.x, 0, P.z); }
       flame.scale.set(1 + Math.sin(performance.now() / 90) * 0.12, 1 + Math.sin(performance.now() / 70) * 0.18, 1);
       star.rotation.y += dt;
@@ -2013,7 +2069,7 @@ CZ.screens.valley = (function () {
         g.rotation.x = Math.PI / 2; g.visible = false; if (hero.weaponSlot) hero.weaponSlot.add(g); return g; };
       return { tree: mk(false), rock: mk(true) }; })();
     let toolT = 0;
-    function showTool(kind) { if (!hero.weaponSlot) return; hero.weaponSlot.children.forEach(c => { if (c !== tools.tree && c !== tools.rock) c.visible = !kind; }); tools.tree.visible = kind === 'tree'; tools.rock.visible = kind === 'rock'; }
+    function showTool(kind) { if (!hero.weaponSlot) return; hero.weaponSlot.children.forEach(c => { if (c.userData.old) c.visible = false; }); wpnVis(!!kind); tools.tree.visible = kind === 'tree'; tools.rock.visible = kind === 'rock'; }
     function harvest(dt) {
       if (V.swingT > 0) { V.swingT -= dt; const k = 1 - Math.max(0, V.swingT) / 0.32, a = k < 0.45 ? -1.3 * (k / 0.45) : -1.3 + 2.1 * Math.min(1, (k - 0.45) / 0.3);   // geri çek → hızla indir
         [tools.tree, tools.rock].forEach(tl => { tl.rotation.x = Math.PI / 2 + a; }); } else [tools.tree, tools.rock].forEach(tl => { tl.rotation.x = Math.PI / 2; });

@@ -1256,5 +1256,15 @@ CZ.i18n.register('fr', 'Français', {
   "rush.fight": "👺 Élimine la horde : {n}",
   "rush.lost": "Zibo a pris le coffre ! 😜",
   "rush.ambush": "Embuscade ! La bande de Zibo t'encercle !",
-  "rush.win": "Ruée vers l'or ! +{n} 💰"
+  "rush.win": "Ruée vers l'or ! +{n} 💰",
+  "wpn.short": "Arme",
+  "wpn.title": "Armes",
+  "wpn.bow": "Arc",
+  "wpn.sword": "Épée",
+  "wpn.staff": "Bâton de glace",
+  "wpn.d.bow": "Tire des flèches à distance. Équilibré.",
+  "wpn.d.sword": "Corps à corps : frappe tous ceux devant toi. Très fort.",
+  "wpn.d.staff": "Lance des orbes de glace qui gèlent les gobelins.",
+  "wpn.equip": "Équiper",
+  "wpn.short2": "Pas assez de ressources"
 });

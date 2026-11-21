@@ -1438,5 +1438,15 @@ CZ.i18n.register('tr', 'Türkçe', {
   "rush.fight": "👺 Sürüyü temizle: {n}",
   "rush.lost": "Zibo sandığı kaptı! 😜",
   "rush.ambush": "Pusu! Zibo'nun adamları etrafını sardı!",
-  "rush.win": "Altın Akını! +{n} 💰"
+  "rush.win": "Altın Akını! +{n} 💰",
+  "wpn.short": "Silah",
+  "wpn.title": "Silahlar",
+  "wpn.bow": "Yay",
+  "wpn.sword": "Kılıç",
+  "wpn.staff": "Buz Asası",
+  "wpn.d.bow": "Uzaktan ok atar. Dengeli.",
+  "wpn.d.sword": "Yakın dövüş: öndeki herkese birden vurur. Çok güçlü.",
+  "wpn.d.staff": "Buz küresi atar, goblinleri dondurur.",
+  "wpn.equip": "Kuşan",
+  "wpn.short2": "Yeterli kaynağın yok"
 });

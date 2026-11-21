@@ -2100,3 +2100,16 @@ body.wide #rotate-note { display: none !important; }
 .vl-rush.on { display: block; }
 .vl-rush.low { background: linear-gradient(#ff7a5a, #d8282a); color: #fff; box-shadow: 0 3px 0 #8a1414; animation: btnpulse .6s ease-in-out infinite; }
 .vl-edge.gold i { background: linear-gradient(#ffd34a, #e8a512); color: #3a2414; font-size: 14px; }
+
+/* Silahlar */
+.vl-fire-emo { font-style: normal; font-size: 46px; line-height: 1; filter: drop-shadow(0 2px 1px rgba(0,0,0,.35)); }
+.vl-wpn { position: absolute; right: 34px; bottom: calc(142px + var(--safe-bottom, 0px)); width: 64px; height: 64px; border-radius: 18px; border: 3px solid #fff; background: linear-gradient(#6a5ad8, #3e2f9a); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 0 #261b6a; pointer-events: auto; z-index: 6; }
+.vl-wpn i { font-style: normal; font-size: 26px; line-height: 1; }
+.vl-wpn b { font-size: 10px; font-weight: 900; }
+.wpn-modal { display: flex; flex-direction: column; gap: 8px; }
+.wpn-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: rgba(0,0,0,.06); }
+.wpn-row.on { background: rgba(47,208,138,.18); outline: 2px solid #2fd08a; }
+.wpn-ico { font-style: normal; font-size: 34px; }
+.wpn-txt { flex: 1; display: flex; flex-direction: column; color: #3a2414; }
+.wpn-txt small { font-size: 12px; opacity: .8; }
+.wpn-on { font-size: 22px; color: #2fd08a; font-weight: 900; }
