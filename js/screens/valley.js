@@ -853,7 +853,8 @@ CZ.screens.valley = (function () {
         else if (pw >= 12 && rr0 < Math.min(0.5, 0.2 + pw * 0.01)) kind = 'shield';
         else if (V.wave >= 2 && Math.random() < Math.min(0.3, 0.1 + V.wave * 0.025)) kind = 'ranged';   // üfleme borulu goblin
       }
-      if (at && at[2] === 'ranged') kind = 'ranged';   // (22 Kas) sürü lideri: her sürüde 1 nişancı (gece 1'den itibaren tehdit)
+      if (at && at[2] === 'ranged') kind = 'ranged';
+      if (at && ['jumper', 'bomber', 'shield'].includes(at[2])) kind = at[2];   // (22 Kas) erken gecelerde yeni düşman tanıtımı   // (22 Kas) sürü lideri: her sürüde 1 nişancı (gece 1'den itibaren tehdit)
       const ranged = kind === 'ranged';
       const z3 = goblinBody(boss, tough, kind);
       if (ranged) { const pipe = new THREE.Mesh(pipeGeo, spearWood); pipe.position.set(0, 1.0, -0.45); z3.root.add(pipe); }
@@ -2076,13 +2077,16 @@ CZ.screens.valley = (function () {
       glowMat = new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
     function torchUp(gb) { const sp = gb.spear; if (!sp) return; const f = new THREE.Mesh(flameGeo, flameMat); f.position.y = 1.08; sp.add(f); const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(2.4); gl.position.y = 1.1; sp.add(gl); gb.flame = f; }
     const DIRS8 = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
+    const NEWK = { 2: 'jumper', 3: 'bomber', 4: 'shield' };   // 2., 3., 4. gecede her sürüde bir yeni tür (ilk görüşte tanıtım)
+    function newKindIntro() { const k = NEWK[V.wave]; if (!k) return; if (!d.seenK) d.seenK = {}; if (d.seenK[k]) return; d.seenK[k] = 1; CZ.state.save();
+      setTimeout(() => { if (V) floatAt(P, t('newk.' + k), 'wave'); }, 3400); }
     function hordeTick(dt) {
       const H = V.hd || (V.hd = { t: 3, dir: null }); if (H.dir) H.dir.t -= dt;
       if ((H.t -= dt) > 0 || V.nSp >= V.nTot) return;
       const left = V.nTot - V.nSp, size = Math.min(left, 3 + Math.floor(V.wave / 2), 8);
       let cx = 0, cz = 0, a = 0;
       for (let k = 0; k < 30; k++) { a = rand(0, Math.PI * 2); const rr = rand(22, 27); cx = P.x + Math.cos(a) * rr; cz = P.z + Math.sin(a) * rr; if (Math.hypot(cx, cz) > FENCE_R + 6 && Math.hypot(cx, cz) < WORLD_R - 3 && !water(cx, cz)) break; }
-      for (let i = 0; i < size; i++) { const gb = spawnGoblin(false, [cx + rand(-2.6, 2.6), cz + rand(-2.6, 2.6), i === 0 ? 'ranged' : null]); if (gb) { gb.night = true; gb.horde = true; gb.flank = (i - (size - 1) / 2) * 0.55 + rand(-0.15, 0.15); torchUp(gb); } }
+      for (let i = 0; i < size; i++) { const gb = spawnGoblin(false, [cx + rand(-2.6, 2.6), cz + rand(-2.6, 2.6), i === 0 ? 'ranged' : i === 1 ? NEWK[V.wave] || null : null]); if (gb) { gb.night = true; gb.horde = true; gb.flank = (i - (size - 1) / 2) * 0.55 + rand(-0.15, 0.15); torchUp(gb); } }
       V.nSp += size; H.t = Math.max(7, 13 - V.wave * 0.5);
       H.dir = { x: cx, z: cz, t: 4.5, n: size };
       const dn = DIRS8[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8];
@@ -2171,7 +2175,7 @@ CZ.screens.valley = (function () {
       const k = Math.floor(Math.random() * 5);
       ncardEl.replaceChildren(h('small', { text: '🌙 ' + t('night.lbl', { n: V.wave }) }), h('b', { text: t('night.title') }), h('span', { text: '👺 "' + ZTALK[k] + '"' }), h('em', { text: '👺 × ' + V.nTot }));
       ncardEl.classList.remove('on'); void ncardEl.offsetWidth; ncardEl.classList.add('on'); setTimeout(() => ncardEl.classList.remove('on'), 2600);
-      V.hd = { t: 3.2, dir: null }; V.shake = Math.max(V.shake || 0, 0.5);
+      V.hd = { t: 3.2, dir: null }; V.shake = Math.max(V.shake || 0, 0.5); newKindIntro();
       CZ.audio.sfx('stinger'); CZ.audio.vibrate([80, 40, 80, 40, 120]);
       if (V.wave % 5 === 0) ziboBoss();   // (22 Kas) Zibo gecesi tek başına büyük olay; köy kuşatması artık 3., 8., 13. gecede
       if (V.wave % 5 === 3) {

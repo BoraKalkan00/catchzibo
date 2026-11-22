@@ -1721,5 +1721,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "upg.build": "İnşa et",
   "upg.min": "{n} dk",
   "zb.escape": "Hihihi! Bir dahaki sefere!",
-  "siege.fled": "Baskıncılar ganimetle kaçtı!"
+  "siege.fled": "Baskıncılar ganimetle kaçtı!",
+  "newk.jumper": "🆕 Yeni düşman: Zıplayan goblin — çitlerin üstünden atlar!",
+  "newk.bomber": "🆕 Yeni düşman: Bombacı — kulelere bomba atar, önce onu vur!",
+  "newk.shield": "🆕 Yeni düşman: Kalkanlı — kulelere dayanıklı, sen vur!"
 });

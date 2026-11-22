@@ -1539,5 +1539,8 @@ CZ.i18n.register('de', 'Deutsch', {
   "upg.build": "Build",
   "upg.min": "{n} min",
   "zb.escape": "Hehehe! See you next time!",
-  "siege.fled": "The raiders ran off with their loot!"
+  "siege.fled": "The raiders ran off with their loot!",
+  "newk.jumper": "🆕 New enemy: Jumper — leaps over fences!",
+  "newk.bomber": "🆕 New enemy: Bomber — bombs your towers, hit it first!",
+  "newk.shield": "🆕 New enemy: Shield goblin — towers barely hurt it, you must!"
 });
