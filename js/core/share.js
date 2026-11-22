@@ -19,7 +19,7 @@ CZ.share = (function () {
     const W = 1080, H = 1920;
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const x = c.getContext('2d');
-    const bg = await load(CZ.art('story.fest')) || await load(CZ.art('story.1'));
+    const bg = (info.photo && await load(info.photo)) || await load(CZ.art('story.fest')) || await load(CZ.art('story.1'));   // (22 Kas) oyundan gerçek 3D kare
     if (bg) {
       const s = Math.max(W / bg.width, H / bg.height);
       x.drawImage(bg, (W - bg.width * s) / 2, (H - bg.height * s) / 2, bg.width * s, bg.height * s);

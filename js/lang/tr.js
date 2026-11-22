@@ -1713,5 +1713,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "zb.jail": "Hapishaneye attın. ({n}. kez)",
   "opt.priv": "Gizlilik",
   "opt.privAds": "Reklam izni",
-  "ad.privNA": "Bu seçenek telefondaki uygulamada çalışır."
+  "ad.privNA": "Bu seçenek telefondaki uygulamada çalışır.",
+  "photo.busy": "Fotoğraf için sakin bir an bekle (gündüz, düşman yokken).",
+  "photo.shoot": "Çek",
+  "photo.label": "Köyüm · {n}. gece"
 });

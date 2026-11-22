@@ -42,9 +42,11 @@ Kurallar:
 - [ ] D17 steamworks.js entegrasyonu (App ID gelince açılacak şekilde bayrakla): başarımlar (ilk gece, Zibo yakalandı, 10 gece, belediye sv5 ...) ve bulut kayıt
 
 ## E) Tutma (retention)
-- [ ] E18 "Bak" düğmesi (fotoğraf modu): savaş yokken kamera karakter etrafında döner + ekran görüntüsü paylaş
+- [x] E18 "Bak" düğmesi (fotoğraf modu): savaş yokken kamera karakter etrafında döner + ekran görüntüsü paylaş
+  - Yapıldı: sağdaki 📷 düğmesi (gündüz, 14 m'de düşman yokken): kamera alçaktan karakterin etrafında döner, arayüz ve yer daireleri gizlenir, Çek → gerçek 3D kareyle paylaşım kartı.
 - [ ] E19 Gündüz sakinken kamera biraz alçalır/yaklaşır, gece/savaşta normale döner (ayarlarda kapatılabilir)
-- [ ] E20 Gece sonu paylaşım kartı (goblin sayısı, en yüksek kombo, Zibo durumu) — mevcut paylaş düğmesine bağla
+- [x] E20 Gece sonu paylaşım kartı (goblin sayısı, en yüksek kombo, Zibo durumu) — mevcut paylaş düğmesine bağla
+  - Yapıldı: gece sonu paylaşım kartı artık o gecenin gerçek ekran görüntüsünü ve en yüksek komboyu kullanıyor (eskiden 2D eski çizim).
 - [ ] E21 Mağaza ekran görüntülerini yeni dünyayla yeniden çek (store/ tr_/en_ 1080×1920, 8'er adet) — Playwright ile
 
 ## F) Çıkış sonrası (şimdilik dokunma)

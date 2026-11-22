@@ -1538,6 +1538,18 @@ CZ.screens.valley = (function () {
     // KAHRAMANLAR düğmesi
     const heroBtn = h('button', { type: 'button', class: 'vl-heroes' });
     // (22 Kas) SADE EKRAN: 5 sol düğme tek "Menü" düğmesinde toplanır; bildirim varsa kırmızı sayı
+    // (22 Kas) FOTOĞRAF MODU: gündüz, savaş yokken kamera karakterin etrafında alçaktan döner; HUD gizlenir; Çek → gerçek kareyle paylaşım kartı
+    const photoBtn = h('button', { type: 'button', class: 'vl-photo' }, h('i', { text: '📷' }));
+    photoBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); photoStart(); });
+    const photoBar = h('div', { class: 'vl-photobar' });
+    function photoStart() { if (!V || V.paused || V.cine || V.phase === 'night' || goblins.some(o => !o.dead && Math.hypot(o.x - P.x, o.z - P.z) < 14)) { CZ.ui.toast(t('photo.busy')); return; }
+      V.photo = { a: Math.atan2(camera.position.x - P.x, camera.position.z - P.z), look: new THREE.Vector3(P.x, 1, P.z) }; V.paused = true; wrap.classList.add('vl-photo-on'); CZ.audio.sfx('button'); pads.forEach(q => { if (q.mark) q.mark.visible = false; if (q.ring) q.ring.visible = false; });
+      photoBar.replaceChildren(btn('📸 ' + t('photo.shoot'), () => { const img = snap(); CZ.audio.sfx('star'); const fl = h('div', { class: 'vl-flash' }); wrap.append(fl); setTimeout(() => fl.remove(), 400);
+          if (CZ.share && CZ.share.share) CZ.share.share({ big: d.vname || t('title.name'), label: t('photo.label', { n: V.wave || 0 }), line: '🏰 ' + t('vil.lv', { n: CZ.village.lv('hall') }), avatar: d.avatar, photo: img }); }, 'primary'),
+        btn('✕', () => photoEnd(), 'ghost-dark')); wrap.append(photoBar); }
+    function photoEnd() { pads.forEach(q => { if (q.ring) q.ring.visible = true; }); V.photo = null; wrap.classList.remove('vl-photo-on'); photoBar.remove(); V.paused = false; V.last = 0; }
+    function photoTick(dt) { const F = V.photo; if (!F) return; F.a += dt * 0.35; const r = 7.5, q = Math.min(1, dt * 3);
+      camera.position.lerp(new THREE.Vector3(P.x + Math.sin(F.a) * r, 3.2, P.z + Math.cos(F.a) * r), q); F.look.lerp(new THREE.Vector3(P.x, 1.3, P.z), q); camera.lookAt(F.look); }
     const menuBtn = h('button', { type: 'button', class: 'vl-menu' }, h('i', { text: '☰' }), h('b', { text: t('menu.btn') }), h('em'));
     menuBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); CZ.audio.sfx('button'); ui.classList.toggle('dock-open'); menuUi(); });
     function menuUi() { try { const n = [heroBtn, ordBtn].filter(b => b.querySelector('em')).length + [mailBtn, qBtn].filter(b => b.classList.contains('has')).length;
@@ -1621,7 +1633,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, hordeArrow, comboEl, ncardEl, dawnEl, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, menuBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, hordeArrow, comboEl, ncardEl, dawnEl, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, menuBtn, photoBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -2096,7 +2108,7 @@ CZ.screens.valley = (function () {
       if (V.hd) hordeArrowUi();
     }
     function comboHit(o) {
-      const C = V.cmb || (V.cmb = { n: 0, t: 0 }); C.n = C.t > 0 ? C.n + 1 : 1; C.t = 2.4;
+      const C = V.cmb || (V.cmb = { n: 0, t: 0 }); C.n = C.t > 0 ? C.n + 1 : 1; C.t = 2.4; V.cmbMax = Math.max(V.cmbMax || 0, C.n);
       if (C.n >= 2) { comboEl.replaceChildren(h('b', { text: '×' + C.n }), h('small', { text: t('night.combo') })); comboEl.classList.remove('on', 'pop'); void comboEl.offsetWidth; comboEl.classList.add('on', 'pop'); CZ.audio.sfx('combo', Math.min(C.n - 2, 10)); }
       if (C.n % 5 === 0) { const b = C.n * 3; gain(b, true); floatAt(o, '🔥 ' + t('night.comboB', { n: b }), 'wave'); resFly(o, 'gold', b); V.shake = Math.max(V.shake || 0, 0.45); }
     }
@@ -2161,7 +2173,9 @@ CZ.screens.valley = (function () {
       if (V.wave % 5 === 0) { ziboBoss();
         if (!V.raid) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); } }
     }
+    function snap() { try { post.render(scene, camera); return renderer.domElement.toDataURL('image/jpeg', 0.86); } catch (e) { return null; } }
     function endNight() {
+      V.lastSnap = snap();
       V.phase = 'day'; V.phT = DAY_LEN; vigEl.classList.remove('on'); if (!arrival && Math.random() < 0.7) V.svT = rand(15, 45); dawnTick();
       goblins.forEach(o => { if (!o.dead && !o.boss && !o.stolen) o.flee = true; });
       if (!d.diffTip && V.wave >= 1) { d.diffTip = 1; setTimeout(() => { if (V) CZ.ui.toast(t('opt.tip')); }, 2500); }
@@ -2178,7 +2192,7 @@ CZ.screens.valley = (function () {
           h('span', { class: lost ? 'bad' : '' }, '🏰 ', h('b', { text: lost ? '-' + lost : '✓' }), h('small', { text: t('night.village') })),
           h('span', {}, '⭐ ', h('b', { text: String(d.bestNight || V.wave) }), h('small', { text: t('night.best') }))),
         btn(t('night.x2'), function () { if (doubled) return; CZ.ads.show(() => { doubled = true; gain(earned + bonus, true); CZ.ui.fly && CZ.ui.fly(this, 'gold', earned + bonus); CZ.audio.sfx('star'); this.disabled = true; CZ.state.save(); }); }, 'primary wide', 'ic:play'),
-        btn(t('share.btn'), () => { if (CZ.share && CZ.share.share) CZ.share.share({ big: t('night.shareBig', { n: V.wave }), label: t('night.shareLabel'), line: '👺 ' + kills, avatar: d.avatar }); }, 'ghost-dark wide'),
+        btn(t('share.btn'), () => { if (CZ.share && CZ.share.share) CZ.share.share({ big: t('night.shareBig', { n: V.wave }), label: t('night.shareLabel'), line: '👺 ' + kills + ((V.cmbMax || 0) >= 3 ? '  🔥 ×' + V.cmbMax : ''), avatar: d.avatar, photo: V.lastSnap }); }, 'ghost-dark wide'),
         btn(t('night.go'), () => { box.remove(); V.paused = false; V.last = 0; if (V.wave >= 3 && V.wave % 2 === 1) { V.paused = true; CZ.ads.gameOver(() => { if (V) { V.paused = false; V.last = 0; } }); }  /* geçiş reklamı: 3. geceden sonra her 2 gecede, 3 dk ara, reklamsızda yok */ if (V.wave >= 2 && Math.random() < 0.55) setTimeout(() => { if (V && V.phase === 'day') ziboHeist(); }, 1800); }, 'small ghost-dark')));
       dawnEl.classList.remove("on"); void dawnEl.offsetWidth; dawnEl.classList.add("on");
       V.paused = true; setTimeout(() => { if (V) wrap.append(box); }, 1100);
@@ -3160,7 +3174,7 @@ CZ.screens.valley = (function () {
       if (V.running && !V.paused) { if (V.hs > 0) V.hs -= dt; else step(dt); }
       if (!V) return;
       draw(V.paused ? 0 : dt);
-      if (V.ins) insTick(dt);
+      if (V.ins) insTick(dt); if (V.photo) photoTick(dt);
       post.render(scene, camera);
       // zayıf telefonda çözünürlüğü düşür (30 FPS altına inmesin)
       perf.acc += dt; perf.n++;

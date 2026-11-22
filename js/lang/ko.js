@@ -1531,5 +1531,8 @@ CZ.i18n.register('ko', '한국어', {
   "zb.jail": "Locked in jail. (time #{n})",
   "opt.priv": "Privacy",
   "opt.privAds": "Ad consent",
-  "ad.privNA": "This option works in the phone app."
+  "ad.privNA": "This option works in the phone app.",
+  "photo.busy": "Wait for a calm moment to take a photo (daytime, no enemies).",
+  "photo.shoot": "Snap",
+  "photo.label": "My village · night {n}"
 });
