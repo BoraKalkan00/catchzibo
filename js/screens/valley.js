@@ -1717,22 +1717,41 @@ CZ.screens.valley = (function () {
     const HAIR = [0x2a1a10, 0x5a3418, 0x8a5228, 0xc0502a, 0xe0b04a, 0x1d1d26, 0xd8d0c8];
     const PCOL = { wood: [[0x8a3a2a, 0x3a5a2a, 0x4a3a2a], [0x2e6a3a, 0x8a5228, 0x3a2a1a]], miner: [[0x5d6d7e, 0xf2c230, 0x3a3a44], [0x8d6e63, 0x5d6d7e, 0x2a2a30]], cook: [[0xf4f4f8, 0xd8282a, 0x3a3a44], [0xf0e0c0, 0xe67e22, 0x4a3a2a]],
       hunter: [[0x33691e, 0x8a5228, 0x3a2a1a], [0x4e342e, 0x2e7d32, 0x2a2018]], builder: [[0xf39c12, 0x1565c0, 0x3a3a44], [0x1565c0, 0xf2c230, 0x2a2a30]], healer: [[0xe91e63, 0xf4f4f8, 0x4a3a5a], [0x26a69a, 0xf4f4f8, 0x2a4a4a]] };
-    const PACC = { wood: ['beanie'], miner: ['beanie'], cook: ['beret'], hunter: [], builder: ['topHat'], healer: ['beret'] };
+    // (22 Kas, Bora) Her meslek × cinsiyet = KENDİ TİPİ (gövde, kafa, şapka, saç, boy-kilo). Aynı meslekteki 2 tip yalnız kıyafet rengiyle ayrılır.
+    const ARCH = {
+      m: {
+        wood: { body: 'barbarian', hide: ['Barbarian_Hat', 'Barbarian_Cape'], acc: ['beanie', 'beard'], scale: [1.12, 1.02, 1.12] },
+        miner: { body: 'knight', hide: ['Knight_Helmet', 'Knight_Cape'], acc: ['hardHat', 'lamp', 'mustache'], scale: [1.14, 0.86, 1.14] },
+        cook: { body: 'mage', head: 'knight', hide: ['Mage_Hat', 'Mage_Cape', 'Mage_Head'], acc: ['chefHat', 'mustache'], scale: [1.22, 0.94, 1.22] },
+        hunter: { body: 'knight', hide: ['Knight_Helmet'], acc: ['featherHat'], scale: [0.92, 1.08, 0.92] },
+        builder: { body: 'barbarian', head: 'knight', hide: ['Barbarian_Head', 'Barbarian_Hat', 'Barbarian_Cape'], acc: ['cap', 'beard'], scale: [1.06, 1, 1.06] },
+        healer: { body: 'mage', acc: ['beard'], scale: [0.96, 1.04, 0.96], hair: 0xe8e4dc }
+      },
+      f: {
+        wood: { body: 'rogue', hide: ['Rogue_Cape'], acc: ['bandana', 'ponytail'], scale: [1.06, 1, 1.06] },
+        miner: { body: 'rogue', hide: ['Rogue_Cape'], acc: ['hardHat', 'lamp'], scale: [1.1, 0.88, 1.1] },
+        cook: { body: 'rogue', hide: ['Rogue_Cape'], acc: ['chefHat', 'longHair'], scale: [1.18, 0.95, 1.18] },
+        hunter: { body: 'rogue_hooded', acc: [], scale: [0.94, 1.07, 0.94] },
+        builder: { body: 'rogue', hide: ['Rogue_Cape'], acc: ['cap', 'braids'], scale: [1, 1, 1] },
+        healer: { body: 'rogue', hide: ['Rogue_Cape'], acc: ['flowerCrown', 'bun'], scale: [0.96, 1.02, 0.96] }
+      }
+    };
     function vLook(s0) {
-      const hair = HAIR[(s0.hair != null ? s0.hair : (s0.name || '').length) % HAIR.length], [jk, ac, pt] = PCOL[s0.prof][s0.ty % 2], key = 'v_' + s0.g + '_' + s0.prof + '_' + (s0.ty % 2) + '_' + hair.toString(16);
+      const A = ARCH[s0.g === 'f' ? 'f' : 'm'][s0.prof], hair = A.hair || HAIR[(s0.hair != null ? s0.hair : (s0.name || '').length) % HAIR.length], [jk, ac, pt] = PCOL[s0.prof][s0.ty % 2], key = 'v_' + s0.g + '_' + s0.prof + '_' + (s0.ty % 2) + '_' + hair.toString(16);
       if (CZ.KK_LOOKS[key]) return key;
-      const acc = PACC[s0.prof];
-      if (s0.g === 'f') CZ.KK_LOOKS[key] = s0.ty % 2 === 0
-        ? { body: 'rogue', hide: ['Rogue_Cape'], paint: { rogue: { '1,0': hair, '0,1': jk, '1,1': ac, '3,2': pt, '7,1': 0x3a2a1a, '6,0': 0x3a2a1a, '5,2': 0xf6f0ff, '5,0': 0xe8e0f4 } }, acc }
-        : { body: 'rogue_hooded', hide: ['Rogue_Cape'], paint: { rogue_hooded: { '1,1': jk, '0,1': ac, '3,2': pt, '7,1': jk, '1,0': hair } }, acc: [] };
-      else CZ.KK_LOOKS[key] = s0.ty % 2 === 0
-        ? { body: 'mage', head: 'knight', hide: ['Mage_Hat', 'Mage_Cape', 'Mage_Head'], paint: { knight: { '1,0': hair }, mage: { '1,0': 0x6b3f22, '0,1': jk, '2,2': ac, '2,1': ac, '3,2': pt, '7,1': 0x3a2a1a } }, acc }
-        : { body: 'barbarian', head: 'knight', hide: ['Barbarian_Head', 'Barbarian_Cape'], paint: { knight: { '1,0': hair }, barbarian: { '7,0': jk, '2,1': 0xf2dcc0, '0,1': jk, '1,1': ac, '6,0': 0x3a2a1a, '3,2': pt, '7,1': 0x3a2a1a, '7,2': 0xf2dcc0 } }, acc };
+      const P = {};
+      if (A.body === 'rogue') P.rogue = { '1,0': hair, '0,1': jk, '1,1': ac, '3,2': pt, '7,1': 0x3a2a1a, '6,0': 0x3a2a1a, '5,2': 0xf6f0ff, '5,0': 0xe8e0f4 };
+      if (A.body === 'rogue_hooded') P.rogue_hooded = { '1,1': jk, '0,1': ac, '3,2': pt, '7,1': jk, '1,0': hair };
+      if (A.body === 'mage') P.mage = { '1,0': 0x6b3f22, '0,1': jk, '2,2': ac, '2,1': ac, '3,2': pt, '7,1': 0x3a2a1a };
+      if (A.body === 'barbarian') P.barbarian = { '7,0': jk, '2,1': 0xf2dcc0, '0,1': jk, '1,1': ac, '6,0': 0x3a2a1a, '3,2': pt, '7,1': 0x3a2a1a, '7,2': 0xf2dcc0, '1,0': hair };
+      if (A.body === 'knight') P.knight = { '1,0': hair, '7,0': jk, '3,0': ac, '2,1': ac, '7,1': pt, '0,1': jk };
+      if (A.head === 'knight') P.knight = Object.assign(P.knight || {}, { '1,0': hair });
+      CZ.KK_LOOKS[key] = Object.assign({}, A, { paint: P, hat: ac, hair });
       return key;
     }
     const RARC = ['#c8d0dc', '#4aa8ff', '#b45aff', '#ffb02a'];
     function npcModel(s0) { const kind = vLook(s0);
-      const hm = CZ.kk.hero(THREE, kind, { hatColor: PCOL[s0.prof][s0.ty % 2][1] }); hm.root.scale.multiplyScalar(s0.g === 'f' ? 0.8 : 0.86); scene.add(hm.root);
+      const hm = CZ.kk.hero(THREE, kind, {}); hm.root.scale.multiplyScalar(s0.g === 'f' ? 0.8 : 0.86); scene.add(hm.root);
       if ((s0.rar || 0) > 0) { const rg = new THREE.Mesh(new THREE.RingGeometry(0.38, 0.52, 24), new THREE.MeshBasicMaterial({ color: RAR[Math.min(3, s0.rar)].col, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide })); rg.rotation.x = -Math.PI / 2; rg.position.y = 0.04; hm.root.add(rg); }
       return hm; }
     function npcSpawn(s0, x, z) { const n = { s: s0, x, z, dir: 0, hm: npcModel(s0), st: 'idle', t: rand(0.5, 2), tx: x, tz: z, carry: null, task: null, bubble: 0, hp: s0.joined ? 1 : 0.12 };

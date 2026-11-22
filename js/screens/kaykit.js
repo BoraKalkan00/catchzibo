@@ -269,6 +269,51 @@
         add(head, sph, hc, [0, 0.88, 0.02], null, [0.47, 0.36, 0.5]);
         add(head, tor, hc, [0, 0.8, 0.02], [Math.PI / 2, 0, 0], [0.45, 0.47, 0.3]);
         add(head, sph, white, [0, 1.24, 0.02], null, [0.1, 0.1, 0.1]);
+      } else if (a === 'hardHat') {
+        const hc = m(mat.hat || 0xf2c230);
+        add(head, sph, hc, [0, 0.95, 0], null, [0.58, 0.42, 0.6]);
+        add(head, cyl, hc, [0, 0.86, 0.06], null, [0.68, 0.04, 0.72]);
+        add(head, cyl, hc, [0, 1.05, 0], null, [0.08, 0.38, 0.62]);
+      } else if (a === 'lamp') {
+        add(head, cyl, gold, [0, 1.0, 0.56], [Math.PI / 2, 0, 0], [0.13, 0.12, 0.13]);
+        add(head, sph, new G.MeshBasicMaterial({ color: 0xfff6c0 }), [0, 1.0, 0.63], null, [0.1, 0.1, 0.04]);
+      } else if (a === 'chefHat') {
+        add(head, cyl, white, [0, 1.08, 0], null, [0.5, 0.3, 0.5]);
+        add(head, sph, white, [0, 1.42, 0], null, [0.64, 0.38, 0.64]);
+      } else if (a === 'featherHat') {
+        const hc = m(mat.hat || 0x2e6a3a);
+        add(head, cyl, hc, [0, 0.95, 0], null, [0.78, 0.04, 0.78]);
+        add(head, cone, hc, [0, 1.22, 0], null, [0.48, 0.55, 0.48]);
+        add(head, sph, red, [0.32, 1.32, -0.18], [0, 0, -0.6], [0.06, 0.38, 0.06]);
+      } else if (a === 'bandana') {
+        const hc = m(mat.hat || 0xd23a32);
+        add(head, sph, hc, [0, 0.93, -0.02], null, [0.57, 0.3, 0.59]);
+        add(head, sph, hc, [0, 0.85, -0.56], null, [0.13, 0.13, 0.13]);
+        add(head, sph, hc, [0.08, 0.68, -0.6], [0.3, 0, 0.3], [0.07, 0.2, 0.05]);
+      } else if (a === 'cap') {
+        const hc = m(mat.hat || 0x1565c0);
+        add(head, sph, hc, [0, 0.95, 0], null, [0.57, 0.32, 0.58]);
+        add(head, cyl, hc, [0, 0.9, 0.5], null, [0.34, 0.035, 0.28]);
+      } else if (a === 'ponytail') {
+        const hm = m(mat.hair || 0x5a3418);
+        add(head, sph, hm, [0, 0.92, -0.55], null, [0.18, 0.18, 0.18]);
+        add(head, sph, hm, [0, 0.58, -0.7], [0.3, 0, 0], [0.17, 0.4, 0.17]);
+      } else if (a === 'bun') {
+        add(head, sph, m(mat.hair || 0x5a3418), [0, 1.0, -0.42], null, [0.27, 0.25, 0.27]);
+      } else if (a === 'braids') {
+        const hm = m(mat.hair || 0x5a3418);
+        [-1, 1].forEach(sd => { add(head, sph, hm, [sd * 0.46, 0.3, -0.12], null, [0.12, 0.42, 0.12]); add(head, sph, red, [sd * 0.46, -0.1, -0.12], null, [0.08, 0.06, 0.08]); });
+      } else if (a === 'longHair') {
+        add(head, sph, m(mat.hair || 0x5a3418), [0, 0.5, -0.3], null, [0.56, 0.68, 0.42]);
+      } else if (a === 'beard') {
+        const hm = m(mat.hair || 0x5a3418);
+        add(head, sph, hm, [0, 0.02, 0.4], null, [0.34, 0.22, 0.2]);
+        [-1, 1].forEach(sd => add(head, sph, hm, [sd * 0.34, 0.2, 0.36], null, [0.1, 0.2, 0.12]));
+      } else if (a === 'mustache') {
+        [-1, 1].forEach(sd => add(head, sph, m(mat.hair || 0x3a200e), [sd * 0.13, 0.33, 0.55], [0, 0, sd * 0.35], [0.15, 0.06, 0.07]));
+      } else if (a === 'flowerCrown') {
+        add(head, tor, m(0x3a8a3a), [0, 0.86, 0], [Math.PI / 2, 0, 0], [0.56, 0.56, 0.25]);
+        [0xf07aa8, 0xffffff, 0xf2c230, 0xb45aff, 0xf07aa8, 0xffffff].forEach((c, i) => { const a2 = i / 6 * Math.PI * 2; add(head, sph, m(c), [Math.sin(a2) * 0.56, 0.88, Math.cos(a2) * 0.56], null, [0.09, 0.09, 0.09]); });
       } else if (a === 'beret') {
         add(head, sph, m(mat.hat || 0xf07aa8), [0.06, 1.0, 0], [0, 0, -0.22], [0.54, 0.16, 0.52]);
         add(head, sph, white, [0.06, 1.16, 0], null, [0.08, 0.08, 0.08]);
@@ -450,7 +495,8 @@
       if (L.head) borrowHead(model, L.head, { mage: 'Mage_Head', knight: 'Knight_Head', rogue: 'Rogue_Head', barbarian: 'Barbarian_Head' }[L.head] || L.head);
       (L.hide || []).forEach(n => { const o = model.getObjectByName(n); if (o) o.visible = false; });
       const gid = CZ.KK_GEN[kind], genOk = gid && CZ.gen3d && CZ.gen3d.has(gid) && skinGen(model, gid, kind);
-      if (!genOk) { toonize(model, L.paint || {}, kind + JSON.stringify(hx)); accessories(model, L.acc || [], { hat: hx.hatColor }); }
+      if (!genOk) { toonize(model, L.paint || {}, kind + JSON.stringify(hx)); accessories(model, L.acc || [], { hat: hx.hatColor || L.hat, hair: L.hair }); }
+      if (L.scale) model.scale.set(model.scale.x * L.scale[0], model.scale.y * L.scale[1], model.scale.z * L.scale[2]);
     }
     const root = new T.Group();
     const holder = new T.Group();
