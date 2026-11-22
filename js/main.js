@@ -10,11 +10,8 @@
   };
 
   function preload() {
-    const items = new Set(CZ.ROOMS.reduce((all, room) => all.concat(room.pool || CZ.ALL_ITEMS), []));
-    const keys = [...items].map(id => 'item.' + id).concat(CZ.ROOMS.map(room => 'scene.' + room.scene)).concat(
-      [ 'scene.town', 'scene.title', 'ui.hand', 'ui.emerald']);
-    keys.forEach(key => { new Image().src = CZ.art(key); });
-    CZ.game.preloadZibo();
+    // (22 Kas) eski gizli-nesne oyununun yüzlerce eşya/oda görseli açılışta iniyordu (~5 MB, yavaş açılış) → kaldırıldı
+    ['ui.emerald'].forEach(key => { new Image().src = CZ.art(key); });
   }
 
   const data = CZ.state.load();
