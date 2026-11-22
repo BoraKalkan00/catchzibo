@@ -62,13 +62,15 @@ CZ.ui = (function () {
     opts = opts || {};
     const tips = ['tip.1', 'tip.2', 'tip.3', 'tip.4', 'tip.5', 'tip.6'];
     const bar = h('i');
-    // Sinematik arka plan: dikey ekranda (telefon) _v, yatayda (PC/tablet) _h görsel; döndürünce kendiliğinden değişir.
-    const SC = ['kacis', 'savunma', 'atolye'];
-    loading.i = ((loading.i == null ? Math.floor(Math.random() * 3) : loading.i) + 1) % 3;
-    const sc = SC[loading.i];
-    const pic = h('picture', { class: 'ld-bg' },
-      h('source', { media: '(orientation: landscape)', srcset: 'assets/ld/' + sc + '_h.webp' }),
-      h('img', { src: 'assets/ld/' + sc + '_v.webp', alt: '', draggable: 'false' }));
+    // (22 Kas) Sinematik slayt: her yüklemede 2 sahne. 1. sahne yavaş yakınlaşır, sonra ışık süpürmesi + çapraz geçişle 2. sahne itilerek gelir.
+    // Yeni sahne eklemek: assets/ld/<ad>_v.webp (dikey) + <ad>_h.webp (yatay) koy, LD_SC listesine adını yaz.
+    const SC = CZ.LD_SC || ['kacis', 'savunma', 'atolye'];
+    loading.i = ((loading.i == null ? Math.floor(Math.random() * SC.length) : loading.i) + 2) % SC.length;
+    const sc = SC[loading.i], sc2 = SC[(loading.i + 1) % SC.length];
+    const mk = (n, cls) => h('picture', { class: 'ld-bg ' + cls },
+      h('source', { media: '(orientation: landscape)', srcset: 'assets/ld/' + n + '_h.webp' }),
+      h('img', { src: 'assets/ld/' + n + '_v.webp', alt: '', draggable: 'false' }));
+    const pic = h('div', { class: 'ld-stage' }, mk(sc, 'ld-a'), mk(sc2, 'ld-b'), h('i', { class: 'ld-sweep' }));
     const box = h('div', { class: 'loading-screen ld-cine ld-' + sc },
       pic, h('div', { class: 'ld-shade' }),
       snow(14),
@@ -83,11 +85,12 @@ CZ.ui = (function () {
     const tm = setInterval(() => { p = Math.min(0.95, p + (1 - p) * 0.05); bar.style.width = p * 100 + '%'; if (pctEl) pctEl.textContent = Math.round(p * 100) + '%';
       if ((tt += 60) >= 2600) { tt = 0; ti = (ti + 1) % tips.length; if (tipEl) { tipEl.classList.remove('ld-tip-in'); void tipEl.offsetWidth; tipEl.textContent = CZ.t(tips[ti]); tipEl.classList.add('ld-tip-in'); } } }, 60);   // (21 Kas) ipuçları döner, yüzde görünür
     const t0 = performance.now();
+    const swT = setTimeout(() => box.classList.add('ld-two'), opts.swap || 1300);
     return {
       done() {
         if (closed) return; closed = true;
-        clearInterval(tm); bar.style.width = '100%'; if (pctEl) pctEl.textContent = '100%';
-        const wait = Math.max(0, (opts.min || 450) - (performance.now() - t0));
+        clearInterval(tm); bar.style.width = '100%'; box.classList.add('ld-two'); clearTimeout(swT); if (pctEl) pctEl.textContent = '100%';
+        const wait = Math.max(0, (opts.min || 2300) - (performance.now() - t0));
         setTimeout(() => { box.classList.add('out'); setTimeout(() => box.remove(), 350); }, wait);
       }
     };
