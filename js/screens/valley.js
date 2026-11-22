@@ -1544,6 +1544,13 @@ CZ.screens.valley = (function () {
     // (22 Kas) SADE EKRAN: 5 sol düğme tek "Menü" düğmesinde toplanır; bildirim varsa kırmızı sayı
     // (22 Kas) FOTOĞRAF MODU: gündüz, savaş yokken kamera karakterin etrafında alçaktan döner; HUD gizlenir; Çek → gerçek kareyle paylaşım kartı
     const photoBtn = h('button', { type: 'button', class: 'vl-photo' }, h('i', { text: '📷' }));
+    // (23 Kas) MAĞAZA köyden açılmıyordu (yalnız eski menüdeydi → hiç satış olamazdı): sağda 🛒 düğmesi + altın/zümrüt sayısına dokununca açılır
+    function openShop(pass) { if (!V || V.cine || CZ.PC) { if (CZ.PC) CZ.ui.toast(t('pc.noShop')); return; } const wasP = V.paused; V.paused = true; CZ.audio.sfx('button');
+      const done = () => { resUi(); if (V && !wasP) { V.paused = false; V.last = 0; } }; if (pass) CZ.shopUi.openPass(done); else CZ.shopUi.open(done); }
+    const shopBtn = h('button', { type: 'button', class: 'vl-shop' }, h('i', { text: '🛒' }), h('b', { text: t('shop.title') }));
+    shopBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openShop(); });
+    const passBtn = h('button', { type: 'button', class: 'vl-pass' }, h('i', { text: '⭐' }), h('b', { text: t('pass.short') }), h('em'));
+    passBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openShop(true); });
     photoBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); photoStart(); });
     const photoBar = h('div', { class: 'vl-photobar' });
     function photoStart() { if (!V || V.paused || V.cine || V.phase === 'night' || goblins.some(o => !o.dead && Math.hypot(o.x - P.x, o.z - P.z) < 14)) { CZ.ui.toast(t('photo.busy')); return; }
@@ -1637,7 +1644,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, hordeArrow, comboEl, ncardEl, dawnEl, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, menuBtn, photoBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, hordeArrow, comboEl, ncardEl, dawnEl, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, menuBtn, photoBtn, CZ.PC ? null : shopBtn, CZ.PC ? null : passBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -2058,6 +2065,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
+    ui.querySelectorAll('.res-bar .res.gold, .res-bar .res.gem').forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openShop(); }));
     V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.info = () => { let n = 0; scene.traverse(() => n++); return { top: scene.children.length, all: n, geo: renderer.info.memory.geometries, tex: renderer.info.memory.textures, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1e6) : 0 }; }; V.debug.solidsNear = (x, z) => solids.filter(q => Math.hypot(q.x - x, q.z - z) < q.r + 2).map(q => [+q.x.toFixed(1), +q.z.toFixed(1), q.r, q.vil || q.kind || '']); V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
@@ -2297,7 +2305,7 @@ CZ.screens.valley = (function () {
       if (!cyc && V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); /* öğreticide patron/kuşatma yok */
         if (false) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
-      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); menuUi(); const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
+      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); menuUi(); try { passBtn.classList.toggle('dot', !!(CZ.pass && CZ.pass.ready && CZ.pass.ready())); } catch (e) { /* */ } const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
         timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' · 👺 ' + nightLeft() : '☀️ ' + mm(Math.max(0, V.phT))) : t('def.wave', { n: V.wave })) + ' · 🏰' + vilLevel();
         if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 ? '' : 'none'; } }
       V.spawnT -= dt;

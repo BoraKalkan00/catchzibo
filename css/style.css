@@ -2344,3 +2344,12 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
   .def-panel.on { animation: none; }
   .vl-ui:has(.def-panel.on) .vl-chap { display: none !important; }
 }
+
+/* (23 Kas) köyde mağaza + Kış Bileti düğmeleri (sağ sütun, fotoğrafın altında) */
+.vl-shop, .vl-pass { position: absolute; right: 10px; width: 48px; height: 52px; border-radius: 14px; border: 3px solid #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; pointer-events: auto; color: #fff; }
+.vl-shop { top: calc(356px + var(--safe-top, 0px)); background: linear-gradient(#ffc93a, #e88a0a); box-shadow: 0 3px 0 #9a5a06; }
+.vl-pass { top: calc(416px + var(--safe-top, 0px)); background: linear-gradient(#b07aff, #7a3ad8); box-shadow: 0 3px 0 #4a1a90; }
+.vl-shop i, .vl-pass i { font-style: normal; font-size: 20px; line-height: 1; } .vl-shop b, .vl-pass b { font-size: 8px; font-weight: 900; text-shadow: 0 1px 1px rgba(0,0,0,.5); white-space: nowrap; }
+.vl-pass em { display: none; } .vl-pass.dot em { display: block; position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 8px; background: #ff3a3a; border: 2px solid #fff; }
+@media (orientation: landscape) { .vl-shop, .vl-pass { display: none; } }
+@media (orientation: portrait) and (max-height: 720px) { .vl-photo { top: calc(240px + var(--safe-top, 0px)); width: 44px; height: 44px; } .vl-shop { top: calc(290px + var(--safe-top, 0px)); height: 48px; } .vl-pass { top: calc(344px + var(--safe-top, 0px)); height: 48px; } }
