@@ -1792,8 +1792,7 @@ CZ.screens.valley = (function () {
     function nearRes(list, n, maxR) { let best = null, bd = maxR; list.forEach(it => { if (!it.alive || it.npc || Math.hypot(it.x, it.z) > FENCE_R + 26) return; const dd = Math.hypot(it.x - n.x, it.z - n.z); if (dd < bd) { bd = dd; best = it; } }); return best; }
     const stv = (S0, k) => (S0.st && S0.st[k]) || 5;
     function eff(n) { const S0 = n.s, k = { wood: 'str', miner: 'str', cook: 'int', hunter: 'spd', builder: 'int', healer: 'int' }[S0.job] || 'str';
-      const HF = CZ.village.furn('house');
-      return (1 + 0.03 * (HF[1] + HF[2])) * (0.5 + (S0.happy || 50) / 100) * (S0.job === S0.prof ? 2 : 1) * (1 + (S0.rar || 0) * 0.2) * (0.7 + stv(S0, k) * 0.06); }
+      return (1 + 0.03 * CZ.village.fx('work')) * (0.5 + (S0.happy || 50) / 100) * (S0.job === S0.prof ? 2 : 1) * (1 + (S0.rar || 0) * 0.2) * (0.7 + stv(S0, k) * 0.06); }
     const nspd = (n, b) => b * (0.8 + stv(n.s, 'spd') * 0.04);
     function npcTick(dt) {
       // geliş: her şafakta %70, ilk seferde 40 sn sonra
@@ -2544,10 +2543,12 @@ CZ.screens.valley = (function () {
         a.onfinish = () => { f.remove(); const b = el.parentNode; b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); if (i === 0) CZ.audio.sfx('coin', 2); }; }
     }
     // ===== (22 Kas) BİNA EŞYALARI (3 eşya × 5 sv) + SAKİNLER (köylüyü binaya ata) =====
-    const FURN = { mine: ['prod', 'prod', 'prod'], bakery: ['prod', 'prod', 'prod'], goldmine: ['prod', 'prod', 'prod'], canteen: ['bread', 'seat', 'bread'], house: ['bed', 'work', 'work'] };
-    const FEMO = { mine: ['⛏️', '🛒', '🪣'], bakery: ['🪚', '🪵', '🪓'], goldmine: ['🪣', '📦', '💰'], canteen: ['🍲', '🍽️', '🥖'], house: ['🛏️', '🔥', '🧺'] };
-    const FVAL = { prod: 4, bread: 1, seat: 1, bed: 1, work: 3 };
-    const BJOB = { mine: 'miner', goldmine: 'miner', bakery: 'wood', canteen: 'cook' };
+    const FURN = CZ.village.FX;
+    const FEMO = { mine: ['⛏️', '🛒', '🪣'], bakery: ['🪚', '🪵', '🪓'], goldmine: ['🪣', '📦', '💰'], canteen: ['🍲', '🍽️', '🥖'], house: ['🛏️', '🔥', '🧺'],
+      elf: ['🛠️', '🎁', '🎀'], hall: ['👑', '🚩', '🗺️'], vault: ['🔐', '⚖️', '💰'], tower: ['☃️', '🎯', '🔔'], stable: ['🌾', '🪣', '🐴'], forge: ['⚒️', '🔥', '🛡️'],
+      lookout: ['🔭', '🗺️', '🏮'], cookie: ['🍪', '🥣', '🫙'], gate: ['🪵', '🛢️', '🔥'], jail: ['⛓️', '🗝️', '📜'] };
+    const FVAL = CZ.village.FXV;
+    const BJOB = { mine: 'miner', goldmine: 'miner', bakery: 'wood', canteen: 'cook', elf: 'builder' };
     const fLv = id => (CZ.village.furn ? CZ.village.furn(id) : [0, 0, 0]);
     const fSum = () => Object.keys(FURN).reduce((a, id) => a + fLv(id).reduce((x, y) => x + y, 0), 0);
     const r5 = v => Math.max(5, Math.round(v / 5) * 5);
@@ -2577,7 +2578,7 @@ CZ.screens.valley = (function () {
             Object.entries(c2).forEach(([k, v]) => { d[k] -= v; }); fLv(id)[i] = L0 + 1; CZ.state.save(); resUi(); CZ.audio.sfx('star', L0); CZ.audio.vibrate(12);
             placeVillage(); insRefresh(i); chUi(); setTimeout(draw, 0); return true; });
           return h('div', { class: 'fu-row' }, h('i', { class: 'fu-ic', text: FEMO[id][i] }),
-            h('div', { class: 'wpn-txt' }, h('b', { text: t('fu.' + id + '.' + i) + ' · ' + t('vil.lv', { n: lv }) + '/5' }), h('small', { text: t('fu.e.' + ef, { n: FVAL[ef] * Math.max(1, lv) }) + (lv ? '' : ' (' + t('fu.perLv') + ')') }),
+            h('div', { class: 'wpn-txt' }, h('b', { text: t('fu.' + id + '.' + i) + ' · ' + t('vil.lv', { n: lv }) + '/5' }), h('small', { text: t('fu.e.' + ef, { n: Math.round(FVAL[ef] * Math.max(1, lv) * 10) / 10 }) + (lv ? '' : ' (' + t('fu.perLv') + ')') }),
               h('div', { class: 'dq-bar' }, h('i', { style: 'width:' + lv * 20 + '%' }))), b);
         }), h('small', { class: 'small-note', text: '👆 ' + t('fu.hold') }));
         else { const R = resIdents(id), cap = resCap(L);
@@ -2683,7 +2684,7 @@ CZ.screens.valley = (function () {
       wrap.classList.add('vl-inside'); CZ.audio.sfx('star');
     }
     function insExit() { if (V && V.ins) V.ins.dir = -1; }
-    function insDone() { const I = V.ins; if (!I) return; if (I.g) scene.remove(I.g); (I.hid || []).forEach(c => { c.visible = true; }); wrap.classList.remove('vl-inside'); if (I.ext) { I.ext.visible = true; I.ext.position.y = 0; I.ext.scale.setScalar(VS); } V.ins = null; }
+    function insDone() { const I = V.ins; if (!I) return; if (I.g) scene.remove(I.g); [hero.root, mount.root].forEach(o => { if (o) o.visible = true; }); npcs.forEach(n => { n.hm.root.visible = true; }); (I.hid || []).forEach(c => { c.visible = true; }); wrap.classList.remove('vl-inside'); if (I.ext) { I.ext.visible = true; I.ext.position.y = 0; I.ext.scale.setScalar(VS); } V.ins = null; }
     function insRefresh(i) { if (!V || !V.ins) return; insBuild(V.ins.id); V.ins.pop = { i, t: 0 };
       const s = V.ins.g.userData.items[i]; if (s) ringFx(V.ins.x + s.position.x, V.ins.z + s.position.z, 1.2, 0xffd84a); }
     function insApply() { const I = V.ins; if (!I) return; const e = I.t * I.t * (3 - 2 * I.t);
@@ -2694,8 +2695,11 @@ CZ.screens.valley = (function () {
       I.t = Math.max(0, Math.min(1, I.t + I.dir * dt * 2.6)); insApply();
       if (I.dir < 0 && I.t <= 0) { insDone(); return; }
       if (I.pop) { I.pop.t += dt * 3; const s = I.g.userData.items[I.pop.i]; if (s) s.scale.setScalar(1 + Math.sin(Math.min(1, I.pop.t) * Math.PI) * 0.35); if (I.pop.t >= 1) I.pop = null; }
+      // oda içinde/önünde duran oyuncu, binek ve başka köylüler gizlenir (görünüşü bozmasın)
+      const inR = o => Math.abs(o.position.x - I.x) < I.W * 0.85 && o.position.z - I.z < I.W * 1.1 && o.position.z - I.z > -I.W * 1.3;
+      [hero.root, mount.root].forEach(o => { if (o && I.t > 0.3) o.visible = !inR(o); });
       // sakinler içeride çalışır (aşçılar yemekhanede)
-      let k = 0; npcs.forEach(n => { const S0 = n.s; if (!(S0.bld === I.id || (I.id === 'canteen' && S0.job === 'cook'))) return; const sl = CZ.interior.slotsOf(I.id)[k % 3];
+      let k = 0; npcs.forEach(n => { const S0 = n.s; if (!(S0.bld === I.id || (I.id === 'canteen' && S0.job === 'cook'))) { if (I.t > 0.3 && inR(n.hm.root)) n.hm.root.visible = false; return; } const sl = CZ.interior.slotsOf(I.id)[k % 3];
         n.hm.root.visible = true; n.hm.root.rotation.set(0, Math.PI + 0.3 * (k % 2 ? 1 : -1), 0); n.hm.root.position.set(I.x + sl[0] * I.W + 0.2, 0.14, I.z + sl[1] * I.W * 0.8 + 0.75); n.hm.update(dt, { idle: true }); k++; });
       // kamera: binaya yaklaş, bina ekranın üst yarısında (alt yarıda kart)
       const e = I.t * I.t * (3 - 2 * I.t), q = Math.min(1, dt * 4);

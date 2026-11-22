@@ -24,6 +24,12 @@ CZ.village = (function () {
   const PRODS = ['goldmine', 'elf', 'mine', 'bakery'];   // sen yokken üreten binalar
   // (22 Kas) bina içi EŞYALAR (3 eşya × 5 seviye) + atanmış SAKİNLER üretimi artırır
   const furn = id => { const V = ensure(); if (!V.furn) V.furn = {}; return V.furn[id] || (V.furn[id] = [0, 0, 0]); };
+  // her binanın 3 eşyasının etki türü (tek kaynak; valley ve interior buradan okur)
+  const FX = { mine: ['prod', 'prod', 'prod'], bakery: ['prod', 'prod', 'prod'], goldmine: ['prod', 'prod', 'prod'], elf: ['prod', 'prod', 'prod'], canteen: ['bread', 'seat', 'bread'], house: ['bed', 'work', 'work'],
+    hall: ['work', 'loot', 'store'], vault: ['protect', 'store', 'protect'], tower: ['def', 'def', 'slow'], stable: ['speed', 'magnet', 'speed'], forge: ['cool', 'cool', 'hp'],
+    lookout: ['time', 'time', 'loot'], cookie: ['hp', 'run', 'hp'], gate: ['slow', 'def', 'slow'], jail: ['loot', 'loot', 'loot'] };
+  const FXV = { prod: 4, bread: 1, seat: 1, bed: 1, work: 3, loot: 3, store: 4, protect: 5, def: 1, slow: 1, speed: 1, magnet: 0.1, cool: 1, time: 2, hp: 1, run: 1 };
+  const fx = k => { let s = 0; Object.keys(FX).forEach(id => FX[id].forEach((e, i) => { if (e === k) s += furn(id)[i]; })); return s; };
   const fmul = id => 1 + 0.04 * (PRODS.includes(id) ? furn(id).reduce((a, b) => a + b, 0) : 0) + (CZ.vilResB ? CZ.vilResB(id) : 0);
   const d = () => CZ.state.data;
   const def = id => CZ.VB.find(b => b.id === id);
@@ -50,21 +56,21 @@ CZ.village = (function () {
   const minutes = (id, L) => Math.min(720, Math.round(def(id).tbase * Math.pow(1.55, L)));
   // Üretim (saatte) ve depo
   const rate = id => { const L = lv(id); if (!L) return 0; const r = 240 * L * (1 + L * 0.15) * fmul(id); return Math.round(id === 'goldmine' ? r * 0.35 : id === 'elf' ? Math.max(1, r * 0.006) : r); };
-  const storeCap = () => Math.round(400 * Math.pow(lv('vault') + 1, 1.55));
-  const protect = () => lv('vault') ? Math.round(300 * Math.pow(lv('vault'), 1.5)) : 0;
-  const defense = () => lv('tower') * 3;
+  const storeCap = () => Math.round(400 * Math.pow(lv('vault') + 1, 1.55) * (1 + fx('store') * 0.04));
+  const protect = () => lv('vault') ? Math.round(300 * Math.pow(lv('vault'), 1.5) * (1 + fx('protect') * 0.05)) : 0;
+  const defense = () => lv('tower') * 3 + fx('def');
   // Vadi etkileri
   const bonus = () => ({
-    speed: 1 + lv('stable') * 0.04,
-    magnet: lv('stable') * 0.25,
+    speed: 1 + lv('stable') * 0.04 + fx('speed') * 0.01,
+    magnet: lv('stable') * 0.25 + fx('magnet') * 0.1,
     dmg: Math.floor(lv('forge') / 2),
-    cool: 1 - lv('forge') * 0.03,
-    time: lv('lookout') * 10,
+    cool: Math.max(0.5, 1 - lv('forge') * 0.03 - fx('cool') * 0.01),
+    time: lv('lookout') * 10 + fx('time') * 2,
     boxes: lv('lookout'),
-    hp: lv('cookie') * 3,
-    slow: 1 - lv('gate') * 0.05,
-    loot: 1 + lv('jail') * 0.1,
-    run: 1 + lv('cookie') * 0.05
+    hp: lv('cookie') * 3 + fx('hp'),
+    slow: Math.max(0.4, 1 - lv('gate') * 0.05 - fx('slow') * 0.01),
+    loot: 1 + lv('jail') * 0.1 + fx('loot') * 0.03,
+    run: 1 + lv('cookie') * 0.05 + fx('run') * 0.01
   });
   function tick() {
     const V = ensure();
@@ -169,5 +175,5 @@ CZ.village = (function () {
     }
     return R;
   }
-  return { PRODS, furn, fmul, stats, rateAt, ensure, startJob, lv, cap, price, minutes, rate, storeCap, protect, defense, bonus, tick, collect, upgrade, left, gemCost, rush, adRush, fmt, power, ready, def };
+  return { PRODS, FX, FXV, fx, furn, fmul, stats, rateAt, ensure, startJob, lv, cap, price, minutes, rate, storeCap, protect, defense, bonus, tick, collect, upgrade, left, gemCost, rush, adRush, fmt, power, ready, def };
 })();
