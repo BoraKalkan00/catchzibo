@@ -15,7 +15,7 @@ Kurallar:
   - Yapıldı: 6 tip küme (çit, fıçı+sandık, el arabası+çuval, kütük, büyük sandık, palet) yollar boyunca 5-8 m arayla (~18 küme), patika rengi koyulaştı. İleride: kamp/maden çevresi.
 - [x] A5 Köy çevresi yaşanmışlık: çit ile çevrili tarla (karlı), kuyu, odun yığınları, köy girişinde tabela ve 2 fener; köy meydanı zemini taş döşeme dokusu
   - Yapıldı: köyün 4 çaprazında çitli karlı bostan (toprak sıraları + filiz), kuyu, kütük yığını, fıçı; 4 köy girişinde 2 fener + 'Tiny Keep' tabelası. Meydan taş dokusu sonraya.
-- [ ] A6 Oyuncu karakteri %10 büyük (rider/seat ve hitbox'la uyumlu), ad etiketi okunur
+- [x] A6 Oyuncu karakteri %10 büyük (rider/seat ve hitbox'la uyumlu), ad etiketi okunur
 
 ## B) İlk 10 dakika
 - [x] B7 Görev şeridi ilk 5 görev metnini netleştir (Zibo'yu yakala → İlk kuleni kur → 5 ağaç kes → Geceyi atlat → Köylü kurtar) ve üstteki "Tiny Keep 0/1" quest göstergesini kaldır/birleştir
@@ -36,7 +36,8 @@ Kurallar:
   - Yapıldı: 711 anahtar tarandı, tr/en'de eksik yok (yalnız dinamik önekler).
 
 ## D) PC/Steam sürümü (hesap Bora'da, sen sadece oyunu hazırla)
-- [ ] D15 Klavye/fare: e.code ile WASD/oklar (Türkçe klavye, CapsLock), Shift=atılma, Q=yetenek, R=kükreme, M=harita, Esc=duraklat, 1-3 silah; fareyle tıklanan yöne ateş zaten var; ekranda tuş ipuçları (yalnız fare/klavye varsa)
+- [x] D15 Klavye/fare: e.code ile WASD/oklar (Türkçe klavye, CapsLock), Shift=atılma, Q=yetenek, R=kükreme, M=harita, Esc=duraklat, 1-3 silah; fareyle tıklanan yöne ateş zaten var; ekranda tuş ipuçları (yalnız fare/klavye varsa)
+  - Yapıldı: e.code ile WASD/oklar, Boşluk saldırı, Shift atılma, Q yetenek, R binek gücü, E bin/in, M harita, Esc duraklat/kapat; pencere odağı kaybolunca tuşlar sıfırlanır; fare/klavye varsa düğmelerde tuş etiketi. (Bin düğmesi yazısını yenilediği için E etiketi kayboluyor — küçük, sonra.)
 - [ ] D16 Electron masaüstü sarmalayıcısı (desktop/ klasörü) + GitHub Actions ile Windows x64 zip; ads.show PC'de reklamsız doğrudan ödül, gerçek para mağazası PC'de gizli
 - [ ] D17 steamworks.js entegrasyonu (App ID gelince açılacak şekilde bayrakla): başarımlar (ilk gece, Zibo yakalandı, 10 gece, belediye sv5 ...) ve bulut kayıt
 

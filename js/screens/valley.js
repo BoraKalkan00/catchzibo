@@ -1121,7 +1121,7 @@ CZ.screens.valley = (function () {
     const hero = CZ.kk.hero(THREE, d.avatar || 'girl');
     if (hero.setWeapon) hero.setWeapon(W.id);
     hero.root.traverse(o => { o.castShadow = true; }); scene.add(hero.root); addOutline(hero.root, 0.02);
-    const HS = 1.35; hero.root.scale.setScalar(HS);
+    const HS = 1.48; hero.root.scale.setScalar(HS);   // (22 Kas) karakter %10 büyük: dünyada kaybolmasın
     const heroShadow = new THREE.Mesh(new THREE.CircleGeometry(0.45, 16), new THREE.MeshBasicMaterial({ color: 0x0a1030, transparent: true, opacity: 0.25, depthWrite: false }));
     heroShadow.rotation.x = -Math.PI / 2; heroShadow.position.y = 0.02; scene.add(heroShadow);
     const mountDef = CZ.MOUNTS.find(m => m.id === (d.mount || 'brown')) || CZ.MOUNTS[0];
@@ -3168,8 +3168,18 @@ CZ.screens.valley = (function () {
     }
     V.raf = requestAnimationFrame(loop);
     V.keys = {};
-    V.kd = e => { V.keys[e.key] = true; if (e.key === ' ') autoFire(); if (e.key === 'e') rideBtn.click(); };
-    V.ku = e => { V.keys[e.key] = false; };
+    // (22 Kas) PC KONTROLLERİ: fiziksel tuş kodu (Türkçe klavye/CapsLock fark etmez). WASD/oklar yürü, Boşluk saldır, Shift atıl, Q yetenek, R binek gücü, E bin/in, M harita, Esc duraklat
+    const KMAP = { KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown', ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight' };
+    V.kd = e => { if (e.target && /input|textarea/i.test(e.target.tagName)) return; const k = KMAP[e.code]; if (k) { V.keys[k] = true; e.preventDefault(); }
+      if (e.repeat) { if (e.code === 'Space') autoFire(); return; }
+      const modal = wrap.querySelector('.modal-wrap, .upg-wrap');
+      if (e.code === 'Escape') { const pc = wrap.querySelector('.pause-card'); if (pc) { const r = pc.querySelector('.btn.primary'); if (r) r.click(); return; } if (modal) { const c = modal.querySelector('.upg-close, .btn.ghost-dark:last-child, .btn:last-child'); if (c) c.click(); else modal.remove(); } else pause(); return; }
+      if (modal || V.paused || V.cine) return;
+      if (e.code === 'Space') { e.preventDefault(); autoFire(); } else if (e.code === 'KeyE') rideBtn.click(); else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') useDash();
+      else if (e.code === 'KeyQ') useSkill(); else if (e.code === 'KeyR') usePower(); else if (e.code === 'KeyM') openBigMap(); };
+    V.ku = e => { const k = KMAP[e.code]; if (k) V.keys[k] = false; };
+    window.addEventListener('blur', () => { if (V && V.keys) Object.keys(V.keys).forEach(k => { V.keys[k] = false; }); });
+    if (window.matchMedia && matchMedia('(pointer: fine)').matches) { ui.classList.add('kbd'); [[fireBtn, 'Space'], [dsBtn, 'Shift'], [skBtn, 'Q'], [mpBtn, 'R'], [rideBtn, 'E'], [pauseB, 'Esc']].forEach(([b, k]) => { if (b) b.append(h('span', { class: 'kb-hint', text: k })); }); }
     window.addEventListener('keydown', V.kd); window.addEventListener('keyup', V.ku);
     CZ.audio.music('play');
     if (CZ.ads.playing) CZ.ads.playing();
