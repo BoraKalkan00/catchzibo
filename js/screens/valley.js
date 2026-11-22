@@ -853,6 +853,7 @@ CZ.screens.valley = (function () {
         else if (pw >= 12 && rr0 < Math.min(0.5, 0.2 + pw * 0.01)) kind = 'shield';
         else if (V.wave >= 2 && Math.random() < Math.min(0.3, 0.1 + V.wave * 0.025)) kind = 'ranged';   // üfleme borulu goblin
       }
+      if (at && at[2] === 'ranged') kind = 'ranged';   // (22 Kas) sürü lideri: her sürüde 1 nişancı (gece 1'den itibaren tehdit)
       const ranged = kind === 'ranged';
       const z3 = goblinBody(boss, tough, kind);
       if (ranged) { const pipe = new THREE.Mesh(pipeGeo, spearWood); pipe.position.set(0, 1.0, -0.45); z3.root.add(pipe); }
@@ -2061,7 +2062,7 @@ CZ.screens.valley = (function () {
       const left = V.nTot - V.nSp, size = Math.min(left, 3 + Math.floor(V.wave / 2), 8);
       let cx = 0, cz = 0, a = 0;
       for (let k = 0; k < 30; k++) { a = rand(0, Math.PI * 2); const rr = rand(22, 27); cx = P.x + Math.cos(a) * rr; cz = P.z + Math.sin(a) * rr; if (Math.hypot(cx, cz) > FENCE_R + 6 && Math.hypot(cx, cz) < WORLD_R - 3 && !water(cx, cz)) break; }
-      for (let i = 0; i < size; i++) { const gb = spawnGoblin(false, [cx + rand(-2.6, 2.6), cz + rand(-2.6, 2.6)]); if (gb) { gb.night = true; gb.horde = true; gb.flank = (i - (size - 1) / 2) * 0.55 + rand(-0.15, 0.15); torchUp(gb); } }
+      for (let i = 0; i < size; i++) { const gb = spawnGoblin(false, [cx + rand(-2.6, 2.6), cz + rand(-2.6, 2.6), i === 0 ? 'ranged' : null]); if (gb) { gb.night = true; gb.horde = true; gb.flank = (i - (size - 1) / 2) * 0.55 + rand(-0.15, 0.15); torchUp(gb); } }
       V.nSp += size; H.t = Math.max(7, 13 - V.wave * 0.5);
       H.dir = { x: cx, z: cz, t: 4.5, n: size };
       const dn = DIRS8[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8];
@@ -2253,6 +2254,7 @@ CZ.screens.valley = (function () {
         if (V.phT <= 0) { V.cdN = 0; startNight(); }
       } else {
         const left = nightLeft();
+        if (V.nSp >= V.nTot && left > 0 && left <= 2 && !goblins.some(o => o.boss && !o.dead)) { V.strag = (V.strag || 0) + dt; if (V.strag > 12) { goblins.forEach(o => { if (o.night && !o.dead) { o.night = false; o.flee = true; floatAt(o, '😱', 'auto'); } }); V.strag = 0; } } else V.strag = 0;   // (22 Kas) son goblin geceyi uzatmasın
         if ((left === 0 || V.phT <= 0) && !V.raid && !goblins.some(o => o.boss && !o.dead)) endNight();
       }
       V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);

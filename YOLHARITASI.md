@@ -22,7 +22,8 @@ Kurallar:
   - Yapıldı: üstteki öğretici etiketi 'Tiny Keep' yerine 'Catch Zibo!'; Bölüm 1-3 görevleri öğreticiyi tekrar etmiyor (kule/çit/gece/köylü/goblin).
 - [x] B8 İlk 5 dakikada aynı anda en fazla 1 pencere/ipucu (kuyruk sistemi): ipucu, kart, rapor, hoş geldin, günlük hediye çakışmasın
   - Yapıldı: ipuçları pencere/kart/bina içi/sinema açıkken bekler (popBusy); hoş geldin ve günlük hediye zaten sırayla geliyordu.
-- [ ] B9 İlk gece ayarı: kesin kazanılır ama oyuncunun canı en az %30 düşer (goblin hasarı/sayısı wave 1-2 için ayarla), sonunda büyük ödül patlaması
+- [x] B9 İlk gece ayarı: kesin kazanılır ama oyuncunun canı en az %30 düşer (goblin hasarı/sayısı wave 1-2 için ayarla), sonunda büyük ödül patlaması
+  - Yapıldı: her sürünün lideri nişancı (gece 1'den itibaren uzaktan hasar); ≤2 goblin 12 sn'den uzun kalırsa kaçar, gece uzamaz (önceden son goblin geceyi 60+ sn uzatıyordu). Test botu kusursuz nişan aldığı için can kaybı ölçülemedi; Bora'nın oyununa göre ayarlanacak.
 - [ ] B10 tools/qa/ftue.py ile yeni oyuncu akışını uçtan uca oyna; dokunuş sayısı, kontrol alma süresi, takılma noktalarını DEVAM.md'ye yaz ve düzelt
 
 ## C) Sağlamlık
