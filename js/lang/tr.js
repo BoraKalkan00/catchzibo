@@ -1719,5 +1719,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   "photo.label": "Köyüm · {n}. gece",
   "pc.noShop": "PC sürümünde gerçek parayla satış yok: her şey oyun içinde kazanılır!",
   "upg.build": "İnşa et",
-  "upg.min": "{n} dk"
+  "upg.min": "{n} dk",
+  "zb.escape": "Hihihi! Bir dahaki sefere!"
 });

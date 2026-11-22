@@ -1537,5 +1537,6 @@ CZ.i18n.register('ko', '한국어', {
   "photo.label": "My village · night {n}",
   "pc.noShop": "No real-money store on PC: everything is earned in the game!",
   "upg.build": "Build",
-  "upg.min": "{n} min"
+  "upg.min": "{n} min",
+  "zb.escape": "Hehehe! See you next time!"
 });

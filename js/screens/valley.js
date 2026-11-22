@@ -2276,6 +2276,7 @@ CZ.screens.valley = (function () {
       } else {
         const left = nightLeft();
         if (V.nSp >= V.nTot && left > 0 && left <= 2 && !goblins.some(o => o.boss && !o.dead)) { V.strag = (V.strag || 0) + dt; if (V.strag > 12) { goblins.forEach(o => { if (o.night && !o.dead) { o.night = false; o.flee = true; floatAt(o, '😱', 'auto'); } }); V.strag = 0; } } else V.strag = 0;   // (22 Kas) son goblin geceyi uzatmasın
+        if (V.phT < -25) goblins.forEach(o => { if (o.boss && !o.dead) { o.dead = true; o.hp = 0; const i9 = targets.indexOf(o); if (i9 >= 0) targets.splice(i9, 1); if (o.bar) { scene.remove(o.bar.g); o.bar = null; } corpseAdd(o); floatAt(o, o.zibo ? t('zb.escape') : '💨', 'zibo'); if (o.zibo) { V.zibo = null; fires.forEach(F => scene.remove(F.g)); fires.length = 0; } } });   // (22 Kas) patron sonsuza dek kalmasın: gece bitince kaçar
         if ((left === 0 || V.phT <= 0) && !V.raid && !goblins.some(o => o.boss && !o.dead)) endNight();
       }
       V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
