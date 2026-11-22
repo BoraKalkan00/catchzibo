@@ -11,12 +11,13 @@
       c += (texture2D(tex, vUv + dir * 1.385).rgb + texture2D(tex, vUv - dir * 1.385).rgb) * 0.316;
       c += (texture2D(tex, vUv + dir * 3.231).rgb + texture2D(tex, vUv - dir * 3.231).rgb) * 0.070;
       gl_FragColor = vec4(c, 1.0); }`;
-  const COMP = `uniform sampler2D tex; uniform sampler2D bloom; uniform float bStr, sat, con, vig, warm; uniform vec2 asp; varying vec2 vUv;
+  const COMP = `uniform sampler2D tex; uniform sampler2D bloom; uniform float bStr, sat, con, vig, warm, expo, aces; uniform vec2 asp; varying vec2 vUv;
     void main(){ vec3 c = texture2D(tex, vUv).rgb + texture2D(bloom, vUv).rgb * bStr;
       float l = dot(c, vec3(0.299, 0.587, 0.114));
       c = mix(vec3(l), c, sat);
       c = (c - 0.5) * con + 0.5;
       c *= mix(vec3(1.0 - warm * 0.5, 1.0 - warm * 0.2, 1.0 + warm * 0.8), vec3(1.0 + warm * 0.6, 1.0 + warm * 0.15, 1.0 - warm * 0.6), smoothstep(0.15, 0.85, l));
+      if (aces > 0.5) { c *= expo; c = clamp((c * (2.51 * c + 0.03)) / (c * (2.43 * c + 0.59) + 0.14), 0.0, 1.0); }
       vec2 d = (vUv - 0.5) * asp; c *= 1.0 - vig * smoothstep(0.35, 0.95, dot(d, d) * 2.2);
       gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0); }`;
 
@@ -32,7 +33,7 @@
     const sm = (frag, u) => new THREE.ShaderMaterial({ vertexShader: VS, fragmentShader: frag, uniforms: u, depthTest: false, depthWrite: false });
     const mBright = sm(BRIGHT, { tex: { value: null }, thr: { value: opt.thr } });
     const mBlur = sm(BLUR, { tex: { value: null }, dir: { value: new THREE.Vector2() } });
-    const mComp = sm(COMP, { tex: { value: null }, bloom: { value: null }, bStr: { value: opt.bloom }, sat: { value: opt.sat }, con: { value: opt.con }, vig: { value: opt.vig }, warm: { value: opt.warm }, asp: { value: new THREE.Vector2(1, 1) } });
+    const mComp = sm(COMP, { tex: { value: null }, bloom: { value: null }, bStr: { value: opt.bloom }, sat: { value: opt.sat }, con: { value: opt.con }, vig: { value: opt.vig }, warm: { value: opt.warm }, expo: { value: opt.expo || 1 }, aces: { value: opt.aces ? 1 : 0 }, asp: { value: new THREE.Vector2(1, 1) } });
     let W = 4, H = 4;
     const P = {
       level: 2,    // 2 = tam, 1 = sadece renk/vinyet (bloom yok), 0 = kapalı

@@ -21,7 +21,20 @@ CZ.style = (function () {
     const d = new Uint8Array([112, 112, 112, 255, 178, 178, 178, 255, 228, 228, 228, 255, 255, 255, 255, 255]);   // gölge · ara · ışık · parlak
     G = new T.DataTexture(d, 4, 1, T.RGBAFormat); G.minFilter = G.magFilter = T.NearestFilter; G.needsUpdate = true; return G;
   }
-  const mat = o => new window.THREE.MeshToonMaterial(Object.assign({ gradientMap: grad() }, typeof o === 'number' ? { color: o } : o));
+  // (22 Kas) GRAFİK KALİTESİ: 'hi' = yumuşak gölgeli stilize PBR + kenar ışığı (Fortnite benzeri), 'lo' = eski çizgi film (zayıf telefon)
+  function gfx() { const d = CZ.state && CZ.state.data || {}; if (gfx.v && gfx.k === d.gfx) return gfx.v; gfx.k = d.gfx; let v = d.gfx;
+    if (v !== 'hi' && v !== 'lo') { const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4; v = (mem <= 3 || cores <= 4) ? 'lo' : 'hi'; }
+    return (gfx.v = v); }
+  const RIM = { value: null };
+  function soft(o) { const T = window.THREE; o = Object.assign({}, o); delete o.gradientMap;
+    const m = new T.MeshStandardMaterial(Object.assign({ roughness: 0.82, metalness: 0 }, o));
+    if (!RIM.value) RIM.value = new T.Color(0xfff2dd);
+    m.onBeforeCompile = sh => { sh.uniforms.uRim = RIM;
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uRim;').replace('#include <output_fragment>',
+        'float rimF = 1.0 - clamp(dot(normalize(vViewPosition), normal), 0.0, 1.0); rimF = 1.0 - rimF; rimF = pow(clamp(1.0 - abs(dot(normalize(-vViewPosition), normal)), 0.0, 1.0), 2.6);\n outgoingLight += uRim * rimF * 0.22 * (0.4 + 0.6 * diffuseColor.rgb);\n#include <output_fragment>'); };
+    m.customProgramCacheKey = () => 'czsoft';
+    return m; }
+  const mat = o => { o = typeof o === 'number' ? { color: o } : o; return gfx() === 'hi' ? soft(o) : new window.THREE.MeshToonMaterial(Object.assign({ gradientMap: grad() }, o)); };
   // yapay zekâ modellerinin renklerini ortak paletle uyumlu yap: aşırı soluk/aşırı koyu tonları topla, doygunluğu dengele
   function harmonize(geo) {
     const c = geo.attributes.color; if (!c || c.userData && c.userData.hz) return; const T = window.THREE, col = new T.Color(), hsl = {};
@@ -29,7 +42,7 @@ CZ.style = (function () {
       const s2 = Math.min(0.85, hsl.s * 1.3 + 0.05), l2 = 0.08 + hsl.l * 0.74; col.setHSL(hsl.h, s2, l2); c.setXYZ(i, col.r, col.g, col.b); }
     c.needsUpdate = true; c.userData = { hz: true };
   }
-  return { grad, mat, harmonize, OL: 0x1c1a2e };
+  return { grad, mat, harmonize, gfx, RIM, OL: 0x1c1a2e };
 })();
 CZ.gen3d = (function () {
   const cache = {}, maps = {};

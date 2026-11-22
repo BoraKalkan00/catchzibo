@@ -1402,5 +1402,8 @@ CZ.i18n.register('ko', '한국어', {
   "sv.r0": "Common",
   "sv.r1": "Rare",
   "sv.r2": "Epic",
-  "sv.r3": "Legendary"
+  "sv.r3": "Legendary",
+  "opt.gfx": "Graphics",
+  "opt.gfxHi": "High",
+  "opt.gfxLo": "Low"
 });

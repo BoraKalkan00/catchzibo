@@ -100,12 +100,12 @@
   const WEAPON_STYLE = { snowball: 'throw', ice: 'throw', sling: 'shoot', candy: 'shoot', staff: 'cast', thunder: 'cast' };
   function makeWeapon(id) {
     const g = new T.Group();
-    const m = c => new T.MeshToonMaterial({ color: c, gradientMap: grad() });
+    const m = c => KTM({ color: c, gradientMap: grad() });
     const add = (geo, mat, p, r, sc) => { const o = new T.Mesh(geo, mat); if (p) o.position.set(p[0], p[1], p[2]); if (r) o.rotation.set(r[0], r[1], r[2]); if (sc) o.scale.set(sc[0], sc[1], sc[2]); g.add(o); return o; };
     const cloneW = (k, tint, glow) => {
       if (!WEAP[k]) return null;
       const o = WEAP[k].clone(true);
-      o.traverse(x => { if (x.isMesh) { x.material = new T.MeshToonMaterial({ map: x.material.map, color: tint || 0xffffff, gradientMap: grad() }); if (x.material.map) x.material.map.encoding = T.LinearEncoding; } });
+      o.traverse(x => { if (x.isMesh) { x.material = KTM({ map: x.material.map, color: tint || 0xffffff, gradientMap: grad() }); if (x.material.map) x.material.map.encoding = T.LinearEncoding; } });
       g.add(o);
       if (glow) {
         const bb = new T.Box3().setFromObject(o);
@@ -129,7 +129,7 @@
       const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 8, 64); x.fillStyle = '#e0302e';
       for (let i = 0; i < 64; i += 16) x.fillRect(0, i, 8, 8);
       const tx = new T.CanvasTexture(c); tx.wrapS = tx.wrapT = T.RepeatWrapping; tx.magFilter = T.NearestFilter;
-      const mat = new T.MeshToonMaterial({ map: tx, gradientMap: grad() });
+      const mat = KTM({ map: tx, gradientMap: grad() });
       add(new T.CylinderGeometry(0.07, 0.07, 0.7, 12), mat, [0, 0.2, 0.25], [Math.PI / 2, 0, 0]);
       add(new T.TorusGeometry(0.14, 0.07, 8, 14, Math.PI), mat, [0, 0.2, -0.15], [0, Math.PI / 2, 0]);
       add(new T.CylinderGeometry(0.05, 0.05, 0.25, 8), m(0x8a5228), [0, 0.02, 0.05]);
@@ -182,6 +182,7 @@
     return t2;
   }
 
+  const KTM = o => (CZ.style ? CZ.style.mat(o) : new T.MeshToonMaterial(o));   // (22 Kas) grafik kalitesine göre malzeme
   let GRAD = null;
   function grad() {
     if (CZ.style) return CZ.style.grad();   // oyunun ortak ışık rampası
@@ -213,7 +214,7 @@
       const model = o.userData.kkModel;
       const map = m.map ? paint(m.map, paints[model], keyBase + ':' + model) : null;
       if (map) map.encoding = T.LinearEncoding;   // oyun doğrusal çıktı kullanıyor: renkler olduğu gibi
-      o.material = new T.MeshToonMaterial({ map, color: map ? 0xffffff : m.color, gradientMap: grad(), transparent: false });
+      o.material = KTM({ map, color: map ? 0xffffff : m.color, gradientMap: grad(), transparent: false });
       o.castShadow = false;
       o.frustumCulled = false;
     });
@@ -243,7 +244,7 @@
     const head = root.getObjectByName('head');
     const chest = root.getObjectByName('chest');
     const G = T;
-    const m = c => new G.MeshToonMaterial({ color: c, gradientMap: grad() });
+    const m = c => KTM({ color: c, gradientMap: grad() });
     const add = (parent, geo, material, p, r, s) => {
       const o = new G.Mesh(geo, material);
       if (p) o.position.set(p[0], p[1], p[2]);
@@ -651,7 +652,7 @@
     model.traverse(o => {
       if (!o.isMesh) return;
       const mp = o.material.map; if (mp) mp.encoding = T.LinearEncoding;
-      o.material = CZ.style ? CZ.style.mat({ map: mp }) : new T.MeshToonMaterial({ map: mp, gradientMap: grad() });
+      o.material = KTM({ map: mp, gradientMap: grad() });
       o.frustumCulled = false;
     });
     if (!KK_H) { const b = new T.Box3().setFromObject(base.barbarian); KK_H = b.max.y - b.min.y; }
@@ -694,7 +695,7 @@
     }
     function setCrown(on) {
       if (!on || crown || !head) return;
-      const gold = new T.MeshToonMaterial({ color: 0xf2c230, gradientMap: grad() });
+      const gold = KTM({ color: 0xf2c230, gradientMap: grad() });
       crown = new T.Group(); crown.scale.setScalar(0.5 / s);
       crown.position.copy(top ? top.position : new T.Vector3(0, 0.3, 0)).multiplyScalar(0.92);
       head.add(crown);
@@ -731,7 +732,7 @@
       barbarian: { '0,0': face, '1,0': dark, '6,0': 0x5a3418, '1,1': 0x3f8a2c, '0,1': 0x3f8a2c, '2,1': 0x3f8a2c, '7,0': 0x5a3418, '3,2': 0x5a3418, '7,1': 0x2a1a10, '7,2': dark },
       knight: { '0,0': face, '1,0': dark }
     }, 'zibo:' + skin);
-    const skinMat = new T.MeshToonMaterial({ color: dark, gradientMap: grad() });
+    const skinMat = KTM({ color: dark, gradientMap: grad() });
     accessories(model, ['goblinEars', 'goblinFace', 'santaHatZibo', 'sack'], { skin: skinMat });
     if (CZ.KK_GEN.zibo && CZ.gen3d && CZ.gen3d.has(CZ.KK_GEN.zibo)) skinGen(model, CZ.KK_GEN.zibo, 'zibo');   // Gemini çizimli Zibo (aksesuarlar gizlenir)
     const root = new T.Group();
@@ -769,7 +770,7 @@
     }
     function setCrown(on) {
       if (!on || crown) return;
-      const gold = new T.MeshToonMaterial({ color: 0xf2c230, gradientMap: grad() });
+      const gold = KTM({ color: 0xf2c230, gradientMap: grad() });
       crown = new T.Group(); crown.position.set(0, 1.25, 0); head.add(crown);
       crown.add(new T.Mesh(new T.CylinderGeometry(0.42, 0.42, 0.16, 18), gold));
       for (let i = 0; i < 5; i++) {

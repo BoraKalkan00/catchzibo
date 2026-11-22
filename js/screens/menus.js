@@ -527,6 +527,7 @@ CZ.optsPanel = function (onChange) {
   const row = (lbl, el) => h('div', { class: 'set-row opt-row' }, h('span', { text: lbl }), el);
   return h('div', { class: 'opt-panel' },
     row(t('opt.diff'), seg('diff', [['easy', t('opt.easy')], ['normal', t('opt.normal')], ['hard', t('opt.hard')]], 'normal')),
-    row(t('opt.cam'), seg('camZ', [['near', t('opt.near')], ['normal', t('opt.camN')], ['far', t('opt.far')]], 'normal')));
+    row(t('opt.cam'), seg('camZ', [['near', t('opt.near')], ['normal', t('opt.camN')], ['far', t('opt.far')]], 'normal')),
+    row(t('opt.gfx'), seg('gfx', [['hi', t('opt.gfxHi')], ['lo', t('opt.gfxLo')]], CZ.style ? CZ.style.gfx() : 'hi')));
 };
 

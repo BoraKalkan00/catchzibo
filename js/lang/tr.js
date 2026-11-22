@@ -1584,5 +1584,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "sv.r0": "Sıradan",
   "sv.r1": "Ender",
   "sv.r2": "Destansı",
-  "sv.r3": "Efsanevi"
+  "sv.r3": "Efsanevi",
+  "opt.gfx": "Grafik",
+  "opt.gfxHi": "Yüksek",
+  "opt.gfxLo": "Düşük"
 });

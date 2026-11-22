@@ -192,14 +192,15 @@ CZ.screens.valley = (function () {
     let ratioIdx = 0;
     renderer.setPixelRatio(RATIOS[0]);
     stage.append(renderer.domElement);
-    const post = CZ.post.create(renderer, { bloom: 0.3, thr: 0.93, sat: 1.08, vig: 0.14 });
+    const HI = CZ.style.gfx() === 'hi';
+    const post = CZ.post.create(renderer, HI ? { bloom: 0.3, thr: 0.93, sat: 1.14, con: 1.08, vig: 0.2, warm: 0.06 } : { bloom: 0.3, thr: 0.93, sat: 1.08, vig: 0.14 });
     const scene = new THREE.Scene();
     const SKY = 0xbcd4f2;
     scene.background = new THREE.Color(SKY);
     scene.fog = new THREE.Fog(SKY, 70, 140);   // geniş ekranda köşeler sisli kalmasın (ortada ışık lekesi gibi görünüyordu)
     const camera = new THREE.PerspectiveCamera(32, 1, 0.5, 200);   // dar açı: izometrik his, 2D binalar dünyaya oturur
-    const hemi = new THREE.HemisphereLight(0xdfeaff, 0x56648a, 0.55); scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffe0b0, 0.92); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
+    const hemi = new THREE.HemisphereLight(0xdfeaff, HI ? 0x6a6478 : 0x56648a, HI ? 0.62 : 0.55); scene.add(hemi);
+    const sun = new THREE.DirectionalLight(HI ? 0xffdcb0 : 0xffe0b0, HI ? 1.05 : 0.92); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     // GECE-GÜNDÜZ ışığı: k=0 gündüz, k=1 gece (oynanır kalsın diye tam karanlık değil)
     const SKY_D = { bg: null, hs: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sun.color.clone(), si: sun.intensity };
     const SKY_N = { bg: new THREE.Color(0x1a2350), hs: new THREE.Color(0x7d8fd8), hg: new THREE.Color(0x232c58), hi: 0.5, sc: new THREE.Color(0xa8bcff), si: 0.55 };
@@ -209,16 +210,17 @@ CZ.screens.valley = (function () {
       sun.color.copy(SKY_D.sc).lerp(SKY_N.sc, k); sun.intensity = SKY_D.si + (SKY_N.si - SKY_D.si) * k;
       if (Math.abs(k - (nightSky.k || 0)) > 0.02 || nightSky.k === undefined) { nightSky.k = k; const tc = new THREE.Color(0xf4efe6).lerp(new THREE.Color(0x6f7cb8), k);
         scene.traverse(o => { if (o.isSprite && o.material && o.material.map) o.material.color.copy(tc); }); } };
-    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = HI ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
     // gölge alanı tüm ekranı kapsasın: dar kalınca ortada parlak bir daire, dışında karanlık halka oluşuyordu
-    Object.assign(sun.shadow.camera, { left: -52, right: 52, top: 52, bottom: -52, near: 1, far: 160 }); sun.shadow.bias = -0.002;
+    Object.assign(sun.shadow.camera, { left: -52, right: 52, top: 52, bottom: -52, near: 1, far: 160 }); sun.shadow.bias = -0.002; if (HI) { sun.shadow.normalBias = 0.03; sun.shadow.radius = 3; }
     const toon = c => CZ.style.mat(c);
     const at = (m, x, y, z) => { m.position.set(x, y, z); return m; };
     const seeU = { uSee: { value: new THREE.Vector3(-999, -999, 0) }, uSeeR: { value: 90 } };
     const seeThrough = mat => {
       mat.userData.see = true;
-      mat.onBeforeCompile = sh => {
+      const prevC = mat.onBeforeCompile; mat.customProgramCacheKey = () => 'czsee' + (prevC ? 1 : 0);
+      mat.onBeforeCompile = sh => { if (prevC) prevC(sh);
         Object.assign(sh.uniforms, seeU);
         sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying float vVZ;').replace('#include <project_vertex>', '#include <project_vertex>\nvVZ = -mvPosition.z;');
         sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vVZ; uniform vec3 uSee; uniform float uSeeR;').replace('void main() {', `void main() {
@@ -357,7 +359,7 @@ CZ.screens.valley = (function () {
       { const dR = Math.min(Math.abs(z - riverZ(x)) - RIVER_W, z < riverZ(x) ? Math.abs(x - creekX(z)) - CREEK_W : 99), k = 1 - sm(-0.9, 0.5, dR);   // nehir yatağı: kıyıya doğru yumuşak iner
         if (k > 0) { c = mix(c, [0.16, 0.3, 0.42], k); y = Math.min(y, -0.5 * k); } }
       if (inLake(x, z)) c = [0.6, 0.8, 0.93];                                     // donmuş göl
-      c = mix(c, [0.9 + n, 0.78 + n, 0.6], 1 - sm(FENCE_R - 0.5, FENCE_R + 1.5, r));   // köy meydanı: açık taş
+      c = mix(c, [0.9 + n, 0.87 + n, 0.82], 1 - sm(FENCE_R - 0.5, FENCE_R + 1.5, r));   // köy meydanı: karlı açık taş (22 Kas: turuncu çöl gibi duruyordu)
       if (y > 3) c = [0.72 + n, 0.77 + n, 0.9];
       pos.setY(i, y);
       col.push(...c);
