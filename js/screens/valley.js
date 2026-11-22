@@ -1713,6 +1713,7 @@ CZ.screens.valley = (function () {
     const JOBCOL = { wood: ['#7a4a1e', '#2e7d32'], miner: ['#5d6d7e', '#8d6e63'], cook: ['#f5f5f5', '#e67e22'], hunter: ['#33691e', '#4e342e'], builder: ['#f39c12', '#1565c0'], healer: ['#e91e63', '#26a69a'] };
     const STATK = ['loy', 'str', 'spd', 'int', 'fit'], STATI = { loy: '❤️', str: '💪', spd: '⚡', int: '🧠', fit: '🤝' };
     if (!d.surv) d.surv = { list: [], n: 0 }; if (d.food == null) d.food = 6;
+    const AWAY = d.seenAt ? Date.now() - d.seenAt : 0;   // (22 Kas) çevrimdışı gelir için
     const SV = d.surv, npcs = [];
     const spotW = id => { const [sx, sz] = CZ.VILLAGE_SPOTS[id]; return [sx * VS, sz * VS + 1.8]; };
     const bedsCap = () => 2 + CZ.village.lv('house') * 2 + CZ.village.furn('house')[0];
@@ -2912,7 +2913,8 @@ CZ.screens.valley = (function () {
       if (!V) return;
       V.raf = requestAnimationFrame(loop);
       const dt = Math.min(0.05, (now - (V.last || now)) / 1000);
-      V.last = now;
+      V.last = now; V.rdt = dt;
+      if ((V.seenT = (V.seenT || 0) - dt) <= 0) { V.seenT = 5; d.seenAt = Date.now(); }
       if (V.running && !V.paused) step(dt);
       if (!V) return;
       draw(V.paused ? 0 : dt);
@@ -2968,9 +2970,31 @@ CZ.screens.valley = (function () {
         } else milaSay(t('mila.hi'), 6500);
       }
       CZ.state.save();
-      setTimeout(dailyGift, 1600);
+      setTimeout(dailyGift, 1600); setTimeout(welcomeBack, 900);
     }
     // GÜNLÜK HEDİYE: 7 günlük seri; bir gün kaçırılırsa baştan başlar
+    // ===== (22 Kas) TEKRAR HOŞ GELDİN: sen yokken binalar üretti (en fazla 12 saat) =====
+    function welcomeBack() {
+      if (!V || (d.tutV || 0) < 5 || AWAY < 180000) return;
+      if (wrap.querySelector('.modal-wrap') || V.cine) return setTimeout(welcomeBack, 1200);
+      CZ.village.tick(); const VV = CZ.village.ensure(), hrs = Math.min(12, AWAY / 3600000);
+      const RM = { mine: 'stone', bakery: 'wood', goldmine: 'gold', elf: 'emeralds' };
+      const got = {}; CZ.village.PRODS.forEach(id => { const n = Math.floor(VV.store[id] || 0); if (n > 0) got[RM[id]] = (got[RM[id]] || 0) + n; });
+      const bread = Math.floor(CZ.village.lv('canteen') * 40 * hrs); if (bread > 0) got.food = bread;
+      if (!Object.keys(got).length) return;
+      V.paused = true; CZ.audio.sfx('win');
+      const s = Math.floor(AWAY / 1000), tm = String(Math.min(99, Math.floor(s / 3600))).padStart(2, '0') + ':' + String(Math.floor(s % 3600 / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      const IC = { wood: '🪵', stone: '🪨', gold: '🪙', emeralds: '💎', food: '🍞' };
+      const box = h('div', { class: 'modal-wrap' }), items = h('div', { class: 'wb-items' }, ...Object.entries(got).map(([k, v]) => h('div', { class: 'wb-it', 'data-r': k }, h('i', { text: IC[k] }), h('b', { text: v >= 1000 ? (v / 1000).toFixed(1) + 'K' : String(v) }))));
+      const take = mul => { CZ.village.PRODS.forEach(id => CZ.village.collect(id)); Object.entries(got).forEach(([k, v]) => { if (k === 'food') d.food = (d.food || 0) + v * mul; else if (mul > 1) d[k] = (d[k] || 0) + v * (mul - 1); });
+        resUi(); CZ.state.save(); items.querySelectorAll('.wb-it').forEach(el => resFly(el, el.dataset.r, got[el.dataset.r])); CZ.audio.vibrate([20, 30, 60]);
+        setTimeout(() => { box.remove(); if (V) { V.paused = false; V.last = 0; } }, 350); };
+      box.append(h('div', { class: 'modal wb-card' }, h('b', { class: 'lg-title', text: t('wb.title') }),
+        h('div', { class: 'wb-sec' }, h('small', { text: t('wb.time') }), h('div', { class: 'wb-bar' }, h('i', { style: 'width:' + Math.max(3, hrs / 12 * 100) + '%' }), h('b', { text: tm })), h('small', { class: 'wb-max', text: t('wb.max') })),
+        h('div', { class: 'wb-sec gold' }, h('small', { text: t('wb.inc') }), items),
+        h('div', { class: 'def-row' }, btn(t('wb.ok'), () => take(1), 'primary'), btn(t('wb.ad'), () => CZ.ads.show(() => take(2)), 'ghost-dark', 'ic:play'))));
+      wrap.append(box);
+    }
     function dailyGift() {
       if (!V || !d.introDone || (d.tutV || 0) < 5) return;
       if (wrap.querySelector('.modal-wrap') || V.cine) return setTimeout(dailyGift, 1500);
@@ -3198,7 +3222,7 @@ CZ.screens.valley = (function () {
   }
   function leave() {
     if (!V) return;
-    if (CZ.village) { CZ.village.ensure().leftAt = Date.now(); CZ.state.save(); }
+    if (CZ.village) { CZ.village.ensure().leftAt = Date.now(); d.seenAt = Date.now(); CZ.state.save(); }
     CZ.ui.toast(t('mila.bye'));
     if (CZ.notify) CZ.notify.schedule();
     if (V.running) { const d = CZ.state.data; d.gold = (d.gold || 0) + V.pending; CZ.state.save(); }

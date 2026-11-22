@@ -2266,3 +2266,17 @@ body.wide #rotate-note { display: none !important; }
 .fu-pick i { font-style: normal; font-size: 22px; } .fu-pick small { margin-left: auto; opacity: .7; }
 .ch-done { text-align: center; } .ch-big { font-style: normal; font-size: 64px; display: block; animation: chPulse 1.2s ease-in-out infinite; }
 .ch-rew { display: flex; justify-content: center; gap: 16px; font-size: 22px; font-weight: 900; margin: 10px 0; }
+
+/* (22 Kas) tekrar hoş geldin */
+.wb-card { text-align: center; }
+.wb-sec { margin: 10px 0; padding: 10px; border-radius: 14px; background: rgba(0,0,0,.06); }
+.wb-sec > small { display: block; font-weight: 900; opacity: .75; margin-bottom: 6px; }
+.wb-sec.gold { background: #f6dc84; }
+.wb-bar { position: relative; height: 26px; border-radius: 13px; background: #9c8b78; overflow: hidden; }
+.wb-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: #3ccf7a; border-radius: 13px; }
+.wb-bar b { position: relative; line-height: 26px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.wb-max { display: block; margin-top: 6px; opacity: .7; }
+.wb-items { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.wb-it { width: 74px; height: 74px; border-radius: 14px; background: linear-gradient(#8c96a8, #5d6676); border: 3px solid #fff; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 0 rgba(0,0,0,.2); }
+.wb-it i { font-style: normal; font-size: 36px; }
+.wb-it b { position: absolute; right: 5px; bottom: 2px; color: #fff; font-size: 14px; text-shadow: 0 1px 2px #000, 0 0 3px #000; }

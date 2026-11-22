@@ -1647,5 +1647,11 @@ CZ.i18n.register('tr', 'Türkçe', {
   "ch.h.rock": "Yakında kaya yok.",
   "ch.done": "Bölüm {n} tamamlandı!",
   "ch.next": "Sıradaki",
-  "ch.go": "Devam!"
+  "ch.go": "Devam!",
+  "wb.title": "Tekrar hoş geldin!",
+  "wb.time": "Uzakta kaldığın süre",
+  "wb.max": "En fazla 12 saatlik üretim birikir",
+  "wb.inc": "Sen yokken üretilenler",
+  "wb.ok": "Topla",
+  "wb.ad": "2 kat topla"
 });

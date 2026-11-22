@@ -69,7 +69,7 @@ CZ.village = (function () {
   function tick() {
     const V = ensure();
     const now = Date.now();
-    const hrs = Math.max(0, (now - (V.at || now)) / 3600000);
+    const hrs = Math.min(12, Math.max(0, (now - (V.at || now)) / 3600000));   // (22 Kas) çevrimdışı gelir en fazla 12 saat
     V.at = now;
     PRODS.forEach(id => {
       const capEach = id === 'elf' ? 12 * lv('elf') : Math.round(storeCap() * (id === 'mine' ? 0.6 : id === 'goldmine' ? 0.3 : 0.4));

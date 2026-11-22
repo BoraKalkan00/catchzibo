@@ -1465,5 +1465,11 @@ CZ.i18n.register('ja', '日本語', {
   "ch.h.rock": "No rocks nearby.",
   "ch.done": "Chapter {n} complete!",
   "ch.next": "Next",
-  "ch.go": "Continue!"
+  "ch.go": "Continue!",
+  "wb.title": "Welcome back!",
+  "wb.time": "Time away",
+  "wb.max": "Up to 12 hours of production is stored",
+  "wb.inc": "Made while you were away",
+  "wb.ok": "Collect",
+  "wb.ad": "Collect 2x"
 });
