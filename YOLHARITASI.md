@@ -45,9 +45,12 @@ Kurallar:
 ## E) Tutma (retention)
 - [x] E18 "Bak" düğmesi (fotoğraf modu): savaş yokken kamera karakter etrafında döner + ekran görüntüsü paylaş
   - Yapıldı: sağdaki 📷 düğmesi (gündüz, 14 m'de düşman yokken): kamera alçaktan karakterin etrafında döner, arayüz ve yer daireleri gizlenir, Çek → gerçek 3D kareyle paylaşım kartı.
-- [ ] E19 Gündüz sakinken kamera biraz alçalır/yaklaşır, gece/savaşta normale döner (ayarlarda kapatılabilir)
+- [x] E19 Gündüz sakinken kamera biraz alçalır/yaklaşır, gece/savaşta normale döner (ayarlarda kapatılabilir)
+  - Yapıldı: gündüz, 18 m'de düşman yokken kamera ~3 sn'de %24 alçalır; tehlikede 0.4 sn'de geri çıkar ('uzak' kamerada ve d.camFix ile kapalı).
 - [x] E20 Gece sonu paylaşım kartı (goblin sayısı, en yüksek kombo, Zibo durumu) — mevcut paylaş düğmesine bağla
   - Yapıldı: gece sonu paylaşım kartı artık o gecenin gerçek ekran görüntüsünü ve en yüksek komboyu kullanıyor (eskiden 2D eski çizim).
+- [ ] E22 Üst kaynak çubuğu 'Geceyi başlat' düğmesi görünürken 412 px'te iki satıra kırılıyor: küçült/taşı
+- [ ] E23 Bin düğmesinin 'E' tuş etiketi düğme yazısı yenilenince kayboluyor
 - [ ] E21 Mağaza ekran görüntülerini yeni dünyayla yeniden çek (store/ tr_/en_ 1080×1920, 8'er adet) — Playwright ile
 
 ## F) Çıkış sonrası (şimdilik dokunma)

@@ -3147,7 +3147,9 @@ CZ.screens.valley = (function () {
       // Albion gibi yukarıdan, hafif açılı kamera
       // dikey ekranda görüş alanı dar kalmasın: en-boy oranına göre uzaklaş
       const far = (camera.aspect < 1 ? 1 / Math.max(0.42, camera.aspect) * 0.62 : 1) * (P.riding ? 1.12 : 1) * ({ near: 0.78, far: 1.3 }[d.camZ] || 1);
-      const ch = 17.4 * far, cd = 12.1 * far;   // yakın kamera: karakterler büyük, ekran boş kar değil
+      // (22 Kas) GÜNDÜZ GEZİNTİ KAMERASI: gündüz ve 18 m'de düşman yokken kamera yavaşça biraz alçalır/yaklaşır (ormanda olma hissi); tehlike gelince geri çıkar
+      if (dt > 0) { const calm = V.phase !== 'night' && !V.rush && !goblins.some(o => !o.dead && Math.hypot(o.x - P.x, o.z - P.z) < 18) && d.camZ !== 'far' && !d.camFix; V.calmK = (V.calmK || 0) + ((calm ? 1 : 0) - (V.calmK || 0)) * Math.min(1, dt * (calm ? 0.35 : 2.5)); }
+      const ck = V.calmK || 0, ch = 17.4 * far * (1 - ck * 0.24), cd = 12.1 * far * (1 - ck * 0.08);   // yakın kamera: karakterler büyük, ekran boş kar değil
       const cx = P.x, cz = P.z + cd;
       camera.position.x += (cx - camera.position.x) * Math.min(1, dt * 5);
       camera.position.z += (cz - camera.position.z) * Math.min(1, dt * 5);

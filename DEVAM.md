@@ -129,3 +129,4 @@ Gift popup'ı kapatmak için `CZ.state.data.login={last:bugünYYYYMMDD,n:1}`.
 - (22 Kas) Binek %20 küçüldü (mount.root ve seatY ×0.8), binince oturuş doğru.
 - (22 Kas) GELİR: hedef kitle 13+ yapıldı (çocuk etiketi + Families kaldırıldı: çocuk reklamları ~3-5 kat az kazandırır), npa:false, AB/UK için Google UMP izin formu (ads.js consent), Ayarlar → Gizlilik → Reklam izni düğmesi, maxAdContentRating PG. Gizlilik sayfası ve listing.md güncellendi. Geçiş reklamı artık gece raporundan sonra da (3. geceden sonra her 2 gecede, 3 dk ara, noAds yoksa).
 - (22 Kas) Karakter ×1.48 (eski 1.35). PC tuşları (D15). HUD çakışmaları (C13).
+- (22 Kas) PC sürümü Electron ile Linux/Xvfb'de test edildi: app:// protokolüyle oyun ve KayKit modelleri yükleniyor, CZ.PC=true. CI 'pc-build' zip ~142 MB.
