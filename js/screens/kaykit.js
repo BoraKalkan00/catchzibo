@@ -310,7 +310,7 @@
         add(head, sph, hm, [0, 0.02, 0.4], null, [0.34, 0.22, 0.2]);
         [-1, 1].forEach(sd => add(head, sph, hm, [sd * 0.34, 0.2, 0.36], null, [0.1, 0.2, 0.12]));
       } else if (a === 'mustache') {
-        [-1, 1].forEach(sd => add(head, sph, m(mat.hair || 0x3a200e), [sd * 0.13, 0.33, 0.55], [0, 0, sd * 0.35], [0.15, 0.06, 0.07]));
+        [-1, 1].forEach(sd => add(head, sph, m(mat.hair || 0x3a200e), [sd * 0.12, 0.13, 0.5], [0, 0, sd * 0.3], [0.14, 0.055, 0.07]));
       } else if (a === 'flowerCrown') {
         add(head, tor, m(0x3a8a3a), [0, 0.86, 0], [Math.PI / 2, 0, 0], [0.56, 0.56, 0.25]);
         [0xf07aa8, 0xffffff, 0xf2c230, 0xb45aff, 0xf07aa8, 0xffffff].forEach((c, i) => { const a2 = i / 6 * Math.PI * 2; add(head, sph, m(c), [Math.sin(a2) * 0.56, 0.88, Math.cos(a2) * 0.56], null, [0.09, 0.09, 0.09]); });
