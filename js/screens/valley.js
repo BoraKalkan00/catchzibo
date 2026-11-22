@@ -623,6 +623,31 @@ CZ.screens.valley = (function () {
           const set = SETS[pk++ % SETS.length], rot = Math.atan2(ux, uz) + (set[0][0].startsWith('fence') ? Math.PI / 2 : rand(-0.6, 0.6));
           set.forEach(([n, w, ox, oz]) => { if (!K.has(n)) return; const m = K.get(n, w); const ca = Math.cos(rot), sa = Math.sin(rot); m.position.set(cx + ox * ca + oz * sa, 0, cz - ox * sa + oz * ca); m.rotation.y = rot; m.traverse(o => { if (o.isMesh) o.castShadow = true; }); scene.add(m); });
           solids.push({ x: cx, z: cz, r: 0.8 }); V.nProps = (V.nProps || 0) + 1; } });
+      // (22 Kas) KÖY ÇEVRESİ: çitle çevrili karlı tarlalar + kuyu + kütük yığınları + köy girişlerinde tabela ve fenerler
+      const putK = (n, w, x, z, ry) => { if (!K.has(n)) return null; const m = K.get(n, w); m.position.set(x, 0, z); m.rotation.y = ry || 0; m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); scene.add(m); return m; };
+      const rowMat = CZ.style.mat({ color: 0xf2f6fc }), soilMat = CZ.style.mat({ color: 0x8a6a4e });
+      [[1, 1], [-1, 1], [1, -1], [-1, -1]].forEach(([sx, sz], fi) => {
+        const cx = sx * 14.6, cz = sz * 14.6; if (water(cx, cz) || pads.some(q => Math.hypot(q.x - cx, q.z - cz) < 5.5)) return;
+        trees.concat(rocks).forEach(o => { if (o.alive && Math.abs(o.x - cx) < 5.5 && Math.abs(o.z - cz) < 4.5) { o.alive = false; o.solid.r = 0; setInst(o); } });
+        const W2 = 7, D2 = 5;
+        { const fm = CZ.style.mat({ color: 0x8a5a32 }), post = new THREE.CylinderGeometry(0.07, 0.08, 0.8, 6), rail = (len, x, z, ry) => { [0.3, 0.6].forEach(y => { const r2 = new THREE.Mesh(new THREE.BoxGeometry(len, 0.07, 0.06), fm); r2.position.set(x, y, z); r2.rotation.y = ry; r2.castShadow = true; scene.add(r2); }); };
+          for (let i = 0; i <= 7; i++) [-1, 1].forEach(e => { const pp = new THREE.Mesh(post, fm); pp.position.set(cx - W2 / 2 + i * W2 / 7, 0.4, cz + e * D2 / 2); pp.castShadow = true; scene.add(pp); });
+          for (let i = 1; i < 5; i++) [-1, 1].forEach(e => { const pp = new THREE.Mesh(post, fm); pp.position.set(cx + e * W2 / 2, 0.4, cz - D2 / 2 + i * D2 / 5); scene.add(pp); });
+          rail(W2, cx, cz - D2 / 2, 0); rail(W2, cx, cz + D2 / 2, 0); rail(D2, cx - W2 / 2, cz, Math.PI / 2); rail(D2 * 0.55, cx + W2 / 2, cz - D2 * 0.225, Math.PI / 2); }
+        for (let r = 0; r < 4; r++) { const b = new THREE.Mesh(new THREE.BoxGeometry(W2 - 1, 0.18, 0.5), r % 2 ? rowMat : soilMat); b.position.set(cx, 0.09, cz - D2 / 2 + 1 + r * 1.0); b.receiveShadow = true; scene.add(b);
+          if (r % 2 === 0) for (let k = 0; k < 5; k++) { const sp = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.3, 5), CZ.style.mat({ color: 0x4f8a3a })); sp.position.set(cx - W2 / 2 + 1 + k * 1.2, 0.3, cz - D2 / 2 + 1 + r); scene.add(sp); } }
+        if (fi === 0) putK('building_well_blue', 1.8, cx + W2 / 2 + 2.2, cz - 1, 0.4);
+        putK('resource_lumber', 1.6, cx - W2 / 2 - 1.6, cz + 1.2, 0.3); putK('barrel', 0.7, cx + W2 / 2 + 1.2, cz + 1.8, 0);
+        solids.push({ x: cx, z: cz, r: 3.8 }); });
+      // köy girişleri: 4 yol çitten çıktığı yerde iki fener + tabela
+      const signTex = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 128; const x = c.getContext('2d'); x.fillStyle = '#9a6638'; x.fillRect(0, 0, 256, 128); x.fillStyle = '#7a4a26'; for (let i = 0; i < 4; i++) x.fillRect(0, i * 32 + 30, 256, 3);
+        x.fillStyle = '#fff4dc'; x.font = 'bold 44px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('Tiny Keep', 128, 64); return new THREE.CanvasTexture(c); })();
+      const postM = CZ.style.mat({ color: 0x5e3a1e }), glowL = new THREE.MeshBasicMaterial({ color: 0xffd27a });
+      roads.forEach(([x1, z1, x2, z2]) => { const L3 = Math.hypot(x2 - x1, z2 - z1), ux = (x2 - x1) / L3, uz = (z2 - z1) / L3, ex = ux * (FENCE_R + 2.5), ez = uz * (FENCE_R + 2.5);
+        [-1, 1].forEach(s => { const lx = ex - uz * 2.4 * s, lz = ez + ux * 2.4 * s; const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 2.4, 6), postM); p2.position.set(lx, 1.2, lz); p2.castShadow = true; scene.add(p2);
+          const lb = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.4, 0.34), glowL); lb.position.set(lx, 2.5, lz); scene.add(lb); solids.push({ x: lx, z: lz, r: 0.3 }); });
+        const sx2 = ex - uz * 3.6, sz2 = ez + ux * 3.6; const sp2 = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.8, 6), postM); sp2.position.set(sx2, 0.9, sz2); scene.add(sp2);
+        const bd = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.75, 0.08), [postM, postM, postM, postM, CZ.style.mat({ map: signTex }), CZ.style.mat({ map: signTex })]); bd.position.set(sx2, 1.75, sz2); bd.rotation.y = Math.atan2(ux, uz) + Math.PI; bd.castShadow = true; scene.add(bd); });
       // bulutlar
       if (K.has('cloud_big')) { V.clouds = []; for (let i = 0; i < 9; i++) { const m = K.get(i % 2 ? 'cloud_big' : 'cloud_small', rand(5, 9)); m.position.set(rand(-WORLD_R, WORLD_R), rand(14, 20), rand(-WORLD_R, WORLD_R)); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } }); scene.add(m); V.clouds.push(m); } }
     }

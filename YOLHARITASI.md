@@ -13,7 +13,8 @@ Kurallar:
 - [x] A3 Binek %20 küçük
 - [x] A4 Yol kenarı süsleri: KayKit props (fence, barrel, crate, sack, wheelbarrow, resource_lumber, tent, flag) yollar boyunca ve kamp/maden çevresinde; çarpışma ekle; köyden 18 m dışında; performans için mümkünse InstancedMesh
   - Yapıldı: 6 tip küme (çit, fıçı+sandık, el arabası+çuval, kütük, büyük sandık, palet) yollar boyunca 5-8 m arayla (~18 küme), patika rengi koyulaştı. İleride: kamp/maden çevresi.
-- [ ] A5 Köy çevresi yaşanmışlık: çit ile çevrili tarla (karlı), kuyu, odun yığınları, köy girişinde tabela ve 2 fener; köy meydanı zemini taş döşeme dokusu
+- [x] A5 Köy çevresi yaşanmışlık: çit ile çevrili tarla (karlı), kuyu, odun yığınları, köy girişinde tabela ve 2 fener; köy meydanı zemini taş döşeme dokusu
+  - Yapıldı: köyün 4 çaprazında çitli karlı bostan (toprak sıraları + filiz), kuyu, kütük yığını, fıçı; 4 köy girişinde 2 fener + 'Tiny Keep' tabelası. Meydan taş dokusu sonraya.
 - [ ] A6 Oyuncu karakteri %10 büyük (rider/seat ve hitbox'la uyumlu), ad etiketi okunur
 
 ## B) İlk 10 dakika
