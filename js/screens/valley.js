@@ -3202,7 +3202,7 @@ CZ.screens.valley = (function () {
           box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
           CZ.audio.sfx(who === 'zibo' ? 'poke' : 'button');
           let i2 = 0; clearInterval(typing);
-          typing = setInterval(() => { i2 += 2; el2.textContent = full.slice(0, i2); if (i2 >= full.length) { clearInterval(typing); typing = null; } }, 28);
+          typing = setInterval(() => { i2 += 2; el2.textContent = full.slice(0, i2); if (i2 >= full.length) { clearInterval(typing); typing = null; const me = waitTap; setTimeout(() => { if (waitTap && waitTap === me) waitTap(); }, 2600); } }, 24);
           waitTap = () => { if (typing) { clearInterval(typing); typing = null; el2.textContent = full; return; } waitTap = null; ok(); };
         });
       }
@@ -3222,26 +3222,21 @@ CZ.screens.valley = (function () {
       skip.addEventListener('click', () => { skipping = true; if (waitTap) waitTap(); if (V.story.cancel) V.story.cancel(); });
       (async () => {
         camTo([0, 34, 30], [0, 0, -4], 0.01); await wait(60);
-        camTo([0, 22, 22], [0, 0, 0], 4.5);
-        await caption('pro.c1', 3000);
-        await caption('pro.c2', 2600);
-        // Zibo ve çetesi kuzeyden sessizce köye girer
-        crewOn = true; ziboGoal = [0, 2.6, 5.5];
-        camTo([8, 7, 7], [0, 1.2, 2.4], 3);
-        await wait(3600);
+        camTo([0, 22, 22], [0, 0, 0], 2.6);
+        // (22 Kas) açılış kısaltıldı: oyuncu ~15 sn'de kontrolü alır (eskiden ~35 sn)
+        crewOn = true; ziboGoal = [0, 2.6, 14];
+        await caption('pro.c1', 2200);
+        camTo([7, 10, 13], [0, 1, 3.5], 1.8);
+        await wait(1500);
         hallChest.visible = false; loot.visible = true; CZ.audio.sfx('coin');
         await say('zibo', 'pro.z1');
         CZ.audio.sfx('horn'); CZ.audio.vibrate([60, 40, 60]);
         // Mila uyanır, sana koşar
-        camTo([P.x + 1, 9, P.z + 8], [P.x, 0.8, P.z], 1.6);
+        camTo([P.x + 3, 9, P.z + 10], [P.x, 0.8, P.z], 1.2);
         await say('mila', 'pro.m1');
-        await say('you', 'pro.p1');
-        camTo([Z.x, 9, Z.z + 9], [Z.x, 1, Z.z], 1.3);
-        await say('zibo', 'pro.z2');
+        camTo([Z.x + 4, 13, Z.z + 13], [Z.x, 1, Z.z], 1.0);
         ziboGoal = [0, -30, 9];
-        await wait(900);
-        camTo([P.x + 1, 9, P.z + 8], [P.x, 0.8, P.z], 1.2);
-        await say('mila', 'pro.m2');
+        await say('zibo', 'pro.z2');
         // binişe geç: oyun başlar
         bars.classList.add('out'); skip.remove(); box.remove(); cap.remove();
         setTimeout(() => bars.remove(), 600);
