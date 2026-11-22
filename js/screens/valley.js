@@ -934,6 +934,9 @@ CZ.screens.valley = (function () {
     // daire nerede durur: kule kurulduysa kulenin dışına kayar
     const markPos = p => { if (p.kind === 't' && slot(p)) return [Math.cos(p.a) * (PAD_R + 2.8), Math.sin(p.a) * (PAD_R + 2.8)]; return [p.x, p.z]; };
     // daireler yavaş yavaş açılır (Kingshot gibi): önce 2 kule yeri, kule kurdukça yenisi, sonra çit, görevler bitince köy binaları
+    // (22 Kas) yer daireleri: kurulmamış yerler 18 m içinde, yükseltme daireleri sadece yakındayken (8 m) görünür
+    function markVis() { pads.forEach(p => { if (!p.mark) return; const [mx, mz] = markPos(p), dd = Math.hypot(mx - P.x, mz - P.z), unbuilt = p.kind === 't' || p.kind === 'f' ? !slot(p) : p.kind === 'v' ? !CZ.village.lv(p.id) : true;
+      p.mark.visible = dd < (unbuilt ? 18 : 8) || (chGuide && Math.hypot(chGuide.x - mx, chGuide.z - mz) < 3); }); }
     function padVisible(p) {
       if ((d.tutV || 0) < 1) return false;   // Zibo kovalamacası bitene kadar daire yok
       const built = DS.t.filter(Boolean).length;
@@ -1458,6 +1461,11 @@ CZ.screens.valley = (function () {
     });
     // KAHRAMANLAR düğmesi
     const heroBtn = h('button', { type: 'button', class: 'vl-heroes' });
+    // (22 Kas) SADE EKRAN: 5 sol düğme tek "Menü" düğmesinde toplanır; bildirim varsa kırmızı sayı
+    const menuBtn = h('button', { type: 'button', class: 'vl-menu' }, h('i', { text: '☰' }), h('b', { text: t('menu.btn') }), h('em'));
+    menuBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); CZ.audio.sfx('button'); ui.classList.toggle('dock-open'); menuUi(); });
+    function menuUi() { try { const n = [heroBtn, ordBtn].filter(b => b.querySelector('em')).length + [mailBtn, qBtn].filter(b => b.classList.contains('has')).length;
+      const em = menuBtn.querySelector('em'); em.textContent = n ? String(n) : ''; em.style.display = n ? '' : 'none'; menuBtn.classList.toggle('open', ui.classList.contains('dock-open')); } catch (e) { /* hazır değil */ } }
     function heroUi() {
       if (!CZ.heroes) return;
       const b = CZ.heroes.buddy();
@@ -1537,7 +1545,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, hordeArrow, comboEl, ncardEl, dawnEl, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, hordeArrow, comboEl, ncardEl, dawnEl, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, menuBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -2134,7 +2142,7 @@ CZ.screens.valley = (function () {
       if (!cyc && V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true);
         if (V.wave % 5 === 0 && !V.raid && !V.story) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
-      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
+      if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); menuUi(); const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
         timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' · 👺 ' + nightLeft() : '☀️ ' + mm(Math.max(0, V.phT))) : t('def.wave', { n: V.wave })) + ' · 🏰' + vilLevel();
         if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 ? '' : 'none'; } }
       V.spawnT -= dt;
@@ -2712,6 +2720,7 @@ CZ.screens.valley = (function () {
     }
     function chTick(dt) {
       if ((V.chT = (V.chT || 0) - dt) <= 0) { V.chT = 0.8; chUi(); }
+      if ((V.mvT = (V.mvT || 0) - dt) <= 0) { V.mvT = 0.25; markVis(); }
       if (chGuide) { chGuide.t -= dt; const dx = chGuide.x - P.x, dz = chGuide.z - P.z, dd = Math.hypot(dx, dz);
         if (chGuide.t <= 0 || dd < 2.2) { chGuide = null; gPil.visible = gArr.visible = false; return; }
         gPil.visible = gArr.visible = true; gPil.position.x = chGuide.x; gPil.position.z = chGuide.z; gPil.material.opacity = 0.22 + Math.sin(performance.now() / 180) * 0.1;

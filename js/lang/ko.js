@@ -1516,5 +1516,6 @@ CZ.i18n.register('ko', '한국어', {
   "night.title": "Zibo's army is coming!",
   "night.horde": "👺 ×{n} horde incoming: {d}!",
   "night.combo": "COMBO",
-  "night.comboB": "Combo +{n} gold"
+  "night.comboB": "Combo +{n} gold",
+  "menu.btn": "Menu"
 });

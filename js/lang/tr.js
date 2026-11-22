@@ -1698,5 +1698,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   "night.title": "Zibo'nun ordusu geliyor!",
   "night.horde": "👺 ×{n} sürü geliyor: {d}!",
   "night.combo": "KOMBO",
-  "night.comboB": "Kombo +{n} altın"
+  "night.comboB": "Kombo +{n} altın",
+  "menu.btn": "Menü"
 });

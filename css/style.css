@@ -2302,3 +2302,19 @@ body.wide #rotate-note { display: none !important; }
 @keyframes ncard { 0% { transform: scaleY(0); opacity: 0; } 10% { transform: scaleY(1.15); opacity: 1; } 16% { transform: scaleY(1); } 82% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(-40px); } }
 .vl-dawn { position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 110%, rgba(255,226,140,.95), rgba(255,180,80,.5) 45%, rgba(255,160,60,0) 75%); }
 .vl-dawn.on { animation: dawnF 1.6s ease forwards; } @keyframes dawnF { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+
+/* (22 Kas) sade ekran: menü düğmesi + açılır sol sütun */
+.vl-menu { position: absolute; left: 10px; top: calc(236px + var(--safe-top, 0px)); width: 58px; height: 58px; border-radius: 16px; border: 3px solid #fff; background: linear-gradient(#4a5a8a, #2a3460); color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 3px 0 #1a2040; z-index: 5; pointer-events: auto; }
+.vl-menu i { font-style: normal; font-size: 24px; line-height: 1; } .vl-menu b { font-size: 10px; font-weight: 900; }
+.vl-menu em { position: absolute; top: -8px; right: -8px; min-width: 22px; height: 22px; border-radius: 11px; background: #ff3a3a; border: 2px solid #fff; font-style: normal; font-weight: 900; font-size: 12px; display: grid; place-items: center; }
+.vl-menu.open { background: linear-gradient(#ffb02a, #d87a0a); }
+@keyframes dockIn { from { opacity: 0; transform: translateX(-20px); } }
+@media (orientation: portrait) {
+.vl-ui:not(.dock-open) .vl-heroes, .vl-ui:not(.dock-open) .vl-orders, .vl-ui:not(.dock-open) .vl-vills, .vl-ui:not(.dock-open) .vl-mail, .vl-ui:not(.dock-open) .vl-q { display: none !important; }
+.vl-ui.dock-open .vl-heroes { top: calc(302px + var(--safe-top, 0px)) !important; } .vl-ui.dock-open .vl-orders { top: calc(366px + var(--safe-top, 0px)) !important; }
+.vl-ui.dock-open .vl-vills { top: calc(430px + var(--safe-top, 0px)) !important; } .vl-ui.dock-open .vl-mail { top: calc(494px + var(--safe-top, 0px)) !important; }
+.vl-ui.dock-open .vl-q { top: calc(558px + var(--safe-top, 0px)) !important; }
+.vl-ui.dock-open .vl-heroes, .vl-ui.dock-open .vl-orders, .vl-ui.dock-open .vl-vills, .vl-ui.dock-open .vl-mail, .vl-ui.dock-open .vl-q { animation: dockIn .2s ease-out; }
+}
+@media (orientation: landscape) { .vl-menu { display: none !important; } }
