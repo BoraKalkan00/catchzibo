@@ -37,13 +37,18 @@
   // merkezde / açılışta "Oyundan çıkmak istiyor musun?" diye sorar (kazara çıkış olmasın).
   const capApp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
   if (capApp && capApp.addListener) capApp.addListener('backButton', () => {
-    if (document.querySelector('.modal-wrap, .confirm-wrap')) { const m = document.querySelectorAll('.modal-wrap, .confirm-wrap'); m[m.length - 1].remove(); return; }
+    const up = document.querySelector('.upg-wrap'); if (up) { const c = up.querySelector('.upg-close'); if (c) c.click(); else up.click(); return; }   // (23 Kas) bina kartı: kapat (V.paused geri gelsin)
+    if (document.querySelector('.modal-wrap, .confirm-wrap')) { const m = document.querySelectorAll('.modal-wrap, .confirm-wrap'); const top = m[m.length - 1]; if ((top.classList.contains('pause-menu') || top.querySelector('.pause-menu')) && CZ.ui.current === 'valley') { CZ.ui.confirmBox(CZ.t('exit.ask'), CZ.t('exit.yes'), CZ.t('common.no'), () => { CZ.state.save(); capApp.exitApp(); }, 'danger'); return; } top.remove(); return; }
     const name = CZ.ui.current;
     const scr = CZ.screens[name];
     if (scr && scr.onBack && scr.onBack()) return;
     if (name === 'hub' || name === 'title') {
       CZ.ui.confirmBox(CZ.t('exit.ask'), CZ.t('exit.yes'), CZ.t('common.no'), () => capApp.exitApp(), 'danger');
-    } else if (name === 'chase' || name === 'play' || name === 'valley') {
+    } else if (name === 'valley') {   // (23 Kas) köyden eski menüye gitmek yerine: önce duraklat, sonra çıkış sor
+      const V = CZ.screens.valley.debug; if (V && V.paused && !document.querySelector('.pause-menu') && !V.cine) { V.paused = false; V.last = 0; return; }   // kapanan pencere oyunu donuk bırakmasın
+      if (V && !V.paused && V.pause) { V.pause(); return; }
+      CZ.ui.confirmBox(CZ.t('exit.ask'), CZ.t('exit.yes'), CZ.t('common.no'), () => { CZ.state.save(); capApp.exitApp(); }, 'danger');
+    } else if (name === 'chase' || name === 'play') {
       CZ.ui.confirmBox(CZ.t('pause.quitAsk'), CZ.t('pause.quit'), CZ.t('common.no'), () => CZ.ui.go('hub'), 'danger');
     } else CZ.ui.go('hub');
   });

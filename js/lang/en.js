@@ -1730,5 +1730,6 @@ CZ.i18n.register('en', 'English', {
   "notif.v3": "Your villagers are hungry, the canteen is empty! 🍲",
   "notif.v4": "I escaped from jail! Can you catch me? 😈",
   "notif.v5": "Your daily gift is ready. Grab it before I do! 🎁",
-  "notif.full": "Your storage is full! Production is going to waste, come collect 💰"
+  "notif.full": "Your storage is full! Production is going to waste, come collect 💰",
+  "pause.exit": "Quit game"
 });

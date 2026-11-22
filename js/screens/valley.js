@@ -1773,7 +1773,8 @@ CZ.screens.valley = (function () {
         CZ.audioPanel(),
         CZ.optsPanel(),
         btn(t('w.stable'), () => { box.remove(); V.paused = false; CZ.ui.go('gold'); }, 'ghost-dark wide'),
-        btn(t('pause.quit'), () => { box.remove(); V.paused = false; CZ.audio.duck(0.55, 0.1); end(); }, 'small ghost-dark')));
+        // (23 Kas) 'Koşuyu bitir' eski koşu oyunundan kalmaydı ve eski menüye atıyordu; köy kalıcı → yalnız uygulamada 'Oyundan çık' (kaydedip kapatır)
+        (CZ.PC || (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) ? btn(t('pause.exit'), () => { CZ.state.data.seenAt = Date.now(); CZ.state.save(); try { if (CZ.PC) window.close(); else { const A = window.Capacitor.Plugins && window.Capacitor.Plugins.App; if (A && A.exitApp) A.exitApp(); } } catch (e) { /* */ } }, 'small ghost-dark') : null));
       wrap.append(box);
     }
     // Köy süsleri: kuyu, fıçılar, fenerler (yeni yapay zekâ modelleri)

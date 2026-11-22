@@ -1730,5 +1730,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   "notif.v3": "Köylülerin acıktı, yemekhane boş kaldı! 🍲",
   "notif.v4": "Hapisten kaçtım! Beni yakalayabilir misin? 😈",
   "notif.v5": "Günlük hediyen hazır, ben kapmadan al! 🎁",
-  "notif.full": "Depoların doldu! Daha fazla üretim boşa gidiyor, gel topla 💰"
+  "notif.full": "Depoların doldu! Daha fazla üretim boşa gidiyor, gel topla 💰",
+  "pause.exit": "Oyundan çık"
 });
