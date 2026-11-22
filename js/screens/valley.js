@@ -3335,7 +3335,7 @@ CZ.screens.valley = (function () {
       loot.position.set(0, 1.55, 0.35); loot.visible = false; zb.root.add(loot);
       zb.root.traverse(o => { o.castShadow = true; }); addOutline(zb.root, 0.02);
       const Z = { type: 'zibo', x: 0, z: -40, r: 1.1, hp: 20, maxHp: 20, barY: 3.7, mesh: zb.root, z3: zb, vx: 0, vz: 0, run: false, taunt: 0, dropT: 4 };
-      zb.root.position.set(Z.x, 0, Z.z); scene.add(zb.root);
+      zb.root.position.set(Z.x, 0, Z.z); scene.add(zb.root); V.story.Z = Z; V.story.zb = zb;
       const hallChest = CZ.gen3d.has('sandik_lo') ? CZ.gen3d.get('sandik_lo', 1.0) : new THREE.Mesh(new THREE.BoxGeometry(1, 0.7, 0.7), toon(0x8a5228));
       hallChest.position.set(0, 0, 1.2); scene.add(hallChest);
       const crew = [];
@@ -3347,7 +3347,7 @@ CZ.screens.valley = (function () {
       const cap = h('div', { class: 'cine-cap' });
       const skip = h('button', { class: 'cine-skip', type: 'button', text: t('pro.skip') + ' ›' });
       const box = h('div', { class: 'talk' }, h('img', { class: 'talk-face', alt: '' }), h('div', { class: 'talk-body' }, h('b', { class: 'talk-name' }), h('p', { class: 'talk-text' })), h('i', { class: 'talk-next', text: '▼' }));
-      const faces = { zibo: CZ.gen3d && CZ.gen3d.has('zibo') ? 'assets/zibo/png/z3d.webp' : 'assets/zibo/png/laugh.webp', mila: (() => { try { return CZ.kk.portrait(d.avatar === 'elf' ? 'girl' : 'elf', 'wave'); } catch (e) { return ''; } })(), you: (() => { try { return CZ.kk.portrait(d.avatar || 'boy', 'front'); } catch (e) { return ''; } })() };
+      const faces = { zibo: (() => { try { return CZ.kk.hasMX && CZ.kk.hasMX('zibo') ? CZ.kk.portrait('zibo', 'front') : 'assets/zibo/png/laugh.webp'; } catch (e) { return 'assets/zibo/png/laugh.webp'; } })(), /* 3D Zibo yüzü */ mila: (() => { try { return CZ.kk.portrait(d.avatar === 'elf' ? 'girl' : 'elf', 'wave'); } catch (e) { return ''; } })(), you: (() => { try { return CZ.kk.portrait(d.avatar || 'boy', 'front'); } catch (e) { return ''; } })() };
       ui.classList.add('cine-on'); wrap.append(bars, cap, skip);
       let skipping = false, typing = null, waitTap = null;
       const wait = ms => new Promise(ok => { if (skipping) return ok(); const id = setTimeout(ok, ms); V.story.cancel = () => { clearTimeout(id); ok(); }; });
@@ -3385,8 +3385,8 @@ CZ.screens.valley = (function () {
         // (22 Kas) açılış kısaltıldı: oyuncu ~15 sn'de kontrolü alır (eskiden ~35 sn)
         crewOn = true; ziboGoal = [0, 2.6, 14];
         await caption('pro.c1', 2200);
-        camTo([7, 10, 13], [0, 1, 3.5], 1.8);
-        await wait(1500);
+        camTo([-7, 10.5, 9.5], [0, 1.2, 2.6], 1.8);   // Noel ağacı Zibo'yu kapatmasın (soldan)
+        for (let k = 0; k < 40 && !skipping && Math.hypot(Z.x - 0, Z.z - 2.6) > 0.6; k++) await wait(150);   // (22 Kas) Zibo gelmeden konuşma başlamasın (yavaş telefonda boş sahnede konuşuyordu)
         hallChest.visible = false; loot.visible = true; CZ.audio.sfx('coin');
         await say('zibo', 'pro.z1');
         CZ.audio.sfx('horn'); CZ.audio.vibrate([60, 40, 60]);

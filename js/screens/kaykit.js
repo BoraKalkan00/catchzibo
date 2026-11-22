@@ -663,6 +663,7 @@
   }
   function ziboMX(tint) {
     const { model, s } = mxModel('zibo');
+    model.traverse(o => { if (o.isMesh && !tint) o.material.color.setRGB(0.66, 0.8, 0.64); });   // (22 Kas) neon limon yeşili çok bağırıyordu: doğal goblin yeşili
     if (tint) model.traverse(o => { if (o.isMesh) o.material.color.lerp(new T.Color(tint), 0.35).multiplyScalar(1.15); });
     const root = new T.Group(), holder = new T.Group();
     holder.rotation.y = Math.PI; holder.scale.setScalar(0.66);
@@ -803,6 +804,7 @@
       PR = { r, sc, cam };
     }
     const o = hero(T, kind, hx);
+    if (kind === 'zibo') o.root.traverse(m => { if (m.isMesh && m.material && m.material.color) m.material.color.setRGB(0.66, 0.8, 0.64); });
     const P = { front: [Math.PI - 0.3, { idle: true }, 5], wave: [Math.PI - 0.3, { cheer: true }, 0.55], back1: [0.25, { idle: true }, 5], back2: [-0.25, { idle: true }, 5], jump: [Math.PI - 0.3, { jumping: true }, 0.35] }[pose] || [Math.PI - 0.3, { idle: true }, 5];
     o.root.rotation.y = P[0];
     PR.sc.add(o.root);
