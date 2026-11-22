@@ -17,14 +17,14 @@ CZ.notify = (function () {
 
   // Evin durumuna göre Zibo'nun mesajları. Her gün farklısı seçilir.
   // Zibo'nun günlük mesajları (ev sistemi kaldırıldı).
-  function messages() { return ['notif.stole2', 'notif.gift', 'notif.gold', 'notif.room', 'notif.rival2']; }
+  function messages() { return ['notif.v1', 'notif.v2', 'notif.v3', 'notif.v4', 'notif.v5']; }   // (22 Kas) köy oyununa uygun (eski Altın Avı/oda mesajları kaldırıldı)
   const text = key => CZ.t(key);
 
   async function schedule() {
     const ln = plugin();
     if (!ln) return;
     try {
-      await ln.cancel({ notifications: IDS.concat([JOB_ID]).map(id => ({ id })) });
+      await ln.cancel({ notifications: IDS.concat([JOB_ID, JOB_ID + 1]).map(id => ({ id })) });
       if (CZ.state.data.notify === false) return;
       const perm = await ln.checkPermissions();
       if (perm.display !== 'granted') return;
@@ -41,6 +41,8 @@ CZ.notify = (function () {
       if (d.vil && d.vil.job) soon = d.vil.job.end;
       const def = d.vil && d.vil.def;
       if (def) ['t', 'f'].forEach(k => (def[k] || []).forEach(it => { if (it && it.job && (!soon || it.job.end < soon)) soon = it.job.end; }));
+      // depolar dolunca (çevrimdışı gelir 12 saatte dolar) haber ver
+      if (CZ.village && CZ.village.lv && (CZ.village.lv('mine') || CZ.village.lv('goldmine') || CZ.village.lv('bakery'))) notifications.push({ id: JOB_ID + 1, title: CZ.t('notif.title'), body: CZ.t('notif.full'), schedule: { at: new Date(Date.now() + 12 * 3600000), allowWhileIdle: true } });
       if (soon > Date.now() + 60000) notifications.push({ id: JOB_ID, title: CZ.t('notif.title'), body: CZ.t('notif.built'), schedule: { at: new Date(soon), allowWhileIdle: true } });
       await ln.schedule({ notifications });
     } catch (e) {

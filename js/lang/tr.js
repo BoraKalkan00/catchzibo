@@ -1724,5 +1724,11 @@ CZ.i18n.register('tr', 'Türkçe', {
   "siege.fled": "Baskıncılar ganimetle kaçtı!",
   "newk.jumper": "🆕 Yeni düşman: Zıplayan goblin — çitlerin üstünden atlar!",
   "newk.bomber": "🆕 Yeni düşman: Bombacı — kulelere bomba atar, önce onu vur!",
-  "newk.shield": "🆕 Yeni düşman: Kalkanlı — kulelere dayanıklı, sen vur!"
+  "newk.shield": "🆕 Yeni düşman: Kalkanlı — kulelere dayanıklı, sen vur!",
+  "notif.v1": "Hihihi! Bu gece köyüne geliyorum, kulelerin hazır mı? 🌙",
+  "notif.v2": "Madenlerin dolup taşıyor, ben toplamadan sen topla! ⛏️",
+  "notif.v3": "Köylülerin acıktı, yemekhane boş kaldı! 🍲",
+  "notif.v4": "Hapisten kaçtım! Beni yakalayabilir misin? 😈",
+  "notif.v5": "Günlük hediyen hazır, ben kapmadan al! 🎁",
+  "notif.full": "Depoların doldu! Daha fazla üretim boşa gidiyor, gel topla 💰"
 });

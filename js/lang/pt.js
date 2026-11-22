@@ -1542,5 +1542,11 @@ CZ.i18n.register('pt', 'Português', {
   "siege.fled": "The raiders ran off with their loot!",
   "newk.jumper": "🆕 New enemy: Jumper — leaps over fences!",
   "newk.bomber": "🆕 New enemy: Bomber — bombs your towers, hit it first!",
-  "newk.shield": "🆕 New enemy: Shield goblin — towers barely hurt it, you must!"
+  "newk.shield": "🆕 New enemy: Shield goblin — towers barely hurt it, you must!",
+  "notif.v1": "Hehehe! I'm coming to your village tonight. Are your towers ready? 🌙",
+  "notif.v2": "Your mines are overflowing. Collect before I do! ⛏️",
+  "notif.v3": "Your villagers are hungry, the canteen is empty! 🍲",
+  "notif.v4": "I escaped from jail! Can you catch me? 😈",
+  "notif.v5": "Your daily gift is ready. Grab it before I do! 🎁",
+  "notif.full": "Your storage is full! Production is going to waste, come collect 💰"
 });

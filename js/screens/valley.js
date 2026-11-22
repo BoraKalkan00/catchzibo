@@ -2183,7 +2183,7 @@ CZ.screens.valley = (function () {
     }
     function snap() { try { post.render(scene, camera); return renderer.domElement.toDataURL('image/jpeg', 0.86); } catch (e) { return null; } }
     function endNight() {
-      V.lastSnap = snap();
+      V.lastSnap = snap(); if (V.wave === 1 && CZ.notify && CZ.notify.askOnce) setTimeout(() => CZ.notify.askOnce(), 4000);   // (22 Kas) bildirim izni: ilk geceyi atlattıktan sonra sorulur (eski menüde kalmıştı, hiç sorulmuyordu)
       V.phase = 'day'; V.phT = DAY_LEN; vigEl.classList.remove('on'); if (!arrival && Math.random() < 0.7) V.svT = rand(15, 45); dawnTick();
       goblins.forEach(o => { if (!o.dead && !o.boss && !o.stolen) o.flee = true; });
       if (!d.diffTip && V.wave >= 1) { d.diffTip = 1; setTimeout(() => { if (V) CZ.ui.toast(t('opt.tip')); }, 2500); }
