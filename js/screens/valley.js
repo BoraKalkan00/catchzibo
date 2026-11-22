@@ -1349,6 +1349,7 @@ CZ.screens.valley = (function () {
       if (o.type === 'goblin' && CZ.pass) CZ.pass.addXp(3);
       if (o.type === 'goblin' && (d.tutV || 0) >= 5) { const ch = o.boss ? 0.7 : o.rush ? 0.06 : 0.025; if (Math.random() < ch) dropLoot(o.x, o.z, o.boss ? 2.5 : 1); }
       if (o.type === 'goblin' && V.tut) V.tut.on('goblin');
+      if (o.zibo) ziboCaught(o);
       if (o.boss) { d.emeralds = (d.emeralds || 0) + o.gems; resUi(); floatAt(o, t('boss.down', { n: o.gems }), 'wave'); CZ.audio.vibrate([60, 30, 120]); }
       if (byTower) { gain(total, true); floatAt(o, '+' + total, 'auto'); CZ.audio.sfx('coin'); V.kills++; }   // kule vurdu: altın kendiliğinden kasaya
       else {
@@ -1958,7 +1959,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
-    V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -2017,6 +2018,52 @@ CZ.screens.valley = (function () {
       if (C.n >= 2) { comboEl.replaceChildren(h('b', { text: '×' + C.n }), h('small', { text: t('night.combo') })); comboEl.classList.remove('on', 'pop'); void comboEl.offsetWidth; comboEl.classList.add('on', 'pop'); CZ.audio.sfx('combo', Math.min(C.n - 2, 10)); }
       if (C.n % 5 === 0) { const b = C.n * 3; gain(b, true); floatAt(o, '🔥 ' + t('night.comboB', { n: b }), 'wave'); resFly(o, 'gold', b); V.shake = Math.max(V.shake || 0, 0.45); }
     }
+    // ===== (22 Kas) ZİBO PATRON GECESİ: her 5. gece Zibo bizzat gelir; binaları ateşe verir, yardakçı çağırır, yakalanınca hapse girer =====
+    const fires = [];
+    function ziboModel() { const zb = (CZ.kk.hasMX && CZ.kk.hasMX('zibo')) || (CZ.gen3d && CZ.KK_GEN && CZ.gen3d.has(CZ.KK_GEN.zibo)) ? CZ.kk.zibo(THREE) : CZ.gen3d && CZ.gen3d.has('zibo') ? genBody('zibo', 2.2) : CZ.kk.zibo(THREE);
+      if (!zb.gen) { zb.root.scale.setScalar(1.45); if (zb.setCrown) zb.setCrown(true); } zb.root.traverse(o => { o.castShadow = true; }); addOutline(zb.root, 0.02); return zb; }
+    function ziboBoss() {
+      const gb = spawnGoblin(true); if (!gb) return;
+      scene.remove(gb.mesh); const zb = ziboModel(); zb.root.position.set(gb.x, 0, gb.z); scene.add(zb.root);
+      gb.mesh = zb.root; gb.z3 = zb; gb.spear = null; gb.zibo = true; gb.base = null; gb.hp = gb.maxHp = Math.round(gb.maxHp * 1.5); gb.coins *= 2; gb.gems = 10; gb.zT = 7; gb.sum = 0; gb.barY = 3.7;
+      V.zibo = gb; hpBar(gb);
+      const esc = (d.ziboJail || 0) > 0;
+      setTimeout(() => { if (!V) return; ncardEl.replaceChildren(h('small', { text: '👑 ' + t('night.lbl', { n: V.wave }) }), h('b', { text: esc ? t('zb.escaped') : t('zb.come') }), h('span', { text: '"' + t('zb.t' + (1 + Math.floor(Math.random() * 3))) + '"' }));
+        ncardEl.classList.add('zb'); ncardEl.classList.remove('on'); void ncardEl.offsetWidth; ncardEl.classList.add('on'); setTimeout(() => ncardEl.classList.remove('on', 'zb'), 2800); CZ.audio.sfx('stinger'); V.shake = 0.6; }, 3000);
+    }
+    function ziboTick(dt) {
+      const Z = V.zibo; if (!Z) return; if (Z.dead) { V.zibo = null; return; }
+      if (Z.hp / Z.maxHp < 0.66 && Z.sum < 1 || Z.hp / Z.maxHp < 0.33 && Z.sum < 2) { Z.sum++; floatAt(Z, t('zb.sum'), 'zibo'); CZ.audio.sfx('drum', 1);
+        for (let i = 0; i < 3; i++) { const g = spawnGoblin(false, [Z.x + rand(-2.5, 2.5), Z.z + rand(-2.5, 2.5)]); if (g) { g.night = true; g.horde = true; g.flank = (i - 1) * 0.7; torchUp(g); V.nTot = (V.nTot || 0) + 1; V.nSp = (V.nSp || 0) + 1; } } }
+      if ((Z.zT -= dt) <= 0 && fires.length < 2) { Z.zT = rand(9, 13);
+        const ids = CZ.VB.map(b => b.id).filter(id => CZ.village.lv(id) > 0 && CZ.VILLAGE_SPOTS[id] && !fires.some(f => f.id === id)); if (!ids.length) return;
+        const id = ids[Math.floor(Math.random() * ids.length)], [sx, sz] = CZ.VILLAGE_SPOTS[id]; torchThrow(Z.x, Z.z, sx * VS, sz * VS, id); floatAt(Z, t('zb.t' + (1 + Math.floor(Math.random() * 3))), 'zibo'); }
+    }
+    const tossed = [];
+    function torchThrow(x0, z0, x1, z1, id) { const m = new THREE.Group(); const f = new THREE.Mesh(flameGeo, flameMat); f.scale.setScalar(1.6); m.add(f); const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(3); m.add(gl); scene.add(m); tossed.push({ m, t: 0, x0, z0, x1, z1, id }); CZ.audio.sfx('throw'); }
+    function fireStart(id, x, z) {
+      const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g);
+      for (let i = 0; i < 6; i++) { const f = new THREE.Mesh(flameGeo, flameMat); const a = i / 6 * Math.PI * 2; f.position.set(Math.cos(a) * 1.3, 1.6 + (i % 2) * 0.8, Math.sin(a) * 1.1); f.scale.setScalar(3 + (i % 3)); g.add(f); }
+      const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(9); gl.position.y = 2; g.add(gl);
+      fires.push({ id, x, z: z + 1.8, g, t: 15, ext: 0, smk: 0 });
+      floatAt(P, t('zb.fire', { b: t('vil.b.' + id) }), 'wave'); CZ.audio.sfx('horn'); CZ.audio.vibrate([60, 40, 60]); V.shake = Math.max(V.shake || 0, 0.4);
+    }
+    function fireTick(dt) {
+      for (let i = tossed.length - 1; i >= 0; i--) { const q = tossed[i]; q.t += dt / 0.9; const k = Math.min(1, q.t); q.m.position.set(q.x0 + (q.x1 - q.x0) * k, 1 + Math.sin(k * Math.PI) * 7, q.z0 + (q.z1 - q.z0) * k); q.m.rotation.z += dt * 10;
+        if (k >= 1) { scene.remove(q.m); tossed.splice(i, 1); fireStart(q.id, q.x1, q.z1); } }
+      for (let i = fires.length - 1; i >= 0; i--) { const F = fires[i]; F.t -= dt; const near = Math.hypot(P.x - F.x, P.z - F.z) < 4.2;
+        F.g.children.forEach((c, k) => { if (c.isMesh) c.scale.y = (3 + (k % 3)) * (0.8 + Math.sin(performance.now() / 90 + k) * 0.25); });
+        if ((F.smk -= dt) <= 0) { F.smk = 0.35; poof(F.x + rand(-1, 1), F.z - 1.8 + rand(-1, 1), 1); }
+        if (near) { F.ext += dt; if ((F.ef = (F.ef || 0) - dt) <= 0) { F.ef = 0.5; floatAt(P, '🧯 ' + Math.min(100, Math.round(F.ext / 2 * 100)) + '%', 'auto'); CZ.audio.sfx('poof'); } }
+        if (F.ext >= 2) { scene.remove(F.g); fires.splice(i, 1); floatAt(P, t('zb.out'), 'wave'); CZ.audio.sfx('star'); gain(15 + V.wave * 2, true); continue; }
+        if (F.t <= 0 || V.phase !== 'night') { scene.remove(F.g); fires.splice(i, 1); if (F.t <= 0) { const n = Math.min(400, Math.round((d.gold || 0) * 0.08)); d.gold = Math.max(0, (d.gold || 0) - n); resUi(); floatAt(P, t('zb.burnt', { b: t('vil.b.' + F.id), n }), 'wave'); CZ.audio.sfx('wrong'); V.lost = (V.lost || 0) + n; } } }
+    }
+    function ziboCaught(o) {
+      d.ziboJail = (d.ziboJail || 0) + 1; V.zibo = null; fires.forEach(F => scene.remove(F.g)); fires.length = 0;
+      dropLoot(o.x + 1.5, o.z, 3); dropLoot(o.x - 1.5, o.z, 2.5); dropCoins(o.x, o.z, 40, 1.6); V.shake = 0.9; CZ.audio.vibrate([80, 40, 80, 40, 200]);
+      ncardEl.replaceChildren(h('small', { text: '🏆 ' + t('night.lbl', { n: V.wave }) }), h('b', { text: t('zb.caught') }), h('span', { text: t('zb.jail', { n: d.ziboJail }) }), h('em', { text: '💎 +' + (o.gems || 10) }));
+      ncardEl.classList.add('win'); ncardEl.classList.remove('on'); void ncardEl.offsetWidth; ncardEl.classList.add('on'); setTimeout(() => ncardEl.classList.remove('on', 'win'), 3200); CZ.audio.sfx('win');
+    }
     function startNight() {
       if (V.rush && V.rush.state === 'go') rushEnd(30);
       V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 2.5;
@@ -2029,7 +2076,7 @@ CZ.screens.valley = (function () {
       ncardEl.classList.remove('on'); void ncardEl.offsetWidth; ncardEl.classList.add('on'); setTimeout(() => ncardEl.classList.remove('on'), 2600);
       V.hd = { t: 3.2, dir: null }; V.shake = Math.max(V.shake || 0, 0.5);
       CZ.audio.sfx('stinger'); CZ.audio.vibrate([80, 40, 80, 40, 120]);
-      if (V.wave % 5 === 0) { spawnGoblin(true);
+      if (V.wave % 5 === 0) { ziboBoss();
         if (!V.raid) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); } }
     }
     function endNight() {
@@ -2147,7 +2194,8 @@ CZ.screens.valley = (function () {
         if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 ? '' : 'none'; } }
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
-      if (cyc && V.phase === 'night' && !V.story) hordeTick(dt);
+      if (cyc && V.phase === 'night' && !V.story) { hordeTick(dt); ziboTick(dt); }
+      fireTick(dt);
       if (V.spawnT <= 0 && goblins.length < cap + (cyc ? 3 : 0) && !V.story && !(cyc && (V.phase === 'day' || V.phase === 'night' || V.nSp >= V.nTot))) { V.spawnT = cyc ? Math.max(1.0, 2.4 - V.wave * 0.12) : Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); if (cyc) { V.nSp++; const g2 = goblins[goblins.length - 1]; if (g2) g2.night = true; } }
       // inşaat süreleri
       pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg && p.barG) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
@@ -2359,7 +2407,7 @@ CZ.screens.valley = (function () {
         o.mesh.position.set(o.x, o.hop > 0 ? Math.sin(o.hop / 0.5 * Math.PI) * 2.2 : 0, o.z);
         const face = (o.vx || o.vz) ? Math.atan2(-o.vx, -o.vz) : Math.atan2(-dxp, -dzp);
         o.mesh.rotation.y = attackFence ? Math.atan2(o.x, o.z) : face;
-        o.spear.position.z = -0.1 - o.lunge * 2.2;
+        if (o.spear) o.spear.position.z = -0.1 - o.lunge * 2.2;
         if (o.ice && o.ice.visible) o.ice.position.set(o.x, o.ice.position.y, o.z);
         o.z3.update(dt, { running: mv > 0 && k > 0 && !(o.frozen > 0), dizzy: o.stun > 0 && !(o.frozen > 0), look: false });
       });

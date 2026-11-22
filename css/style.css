@@ -2318,3 +2318,5 @@ body.wide #rotate-note { display: none !important; }
 .vl-ui.dock-open .vl-heroes, .vl-ui.dock-open .vl-orders, .vl-ui.dock-open .vl-vills, .vl-ui.dock-open .vl-mail, .vl-ui.dock-open .vl-q { animation: dockIn .2s ease-out; }
 }
 @media (orientation: landscape) { .vl-menu { display: none !important; } }
+.vl-ncard.zb { background: linear-gradient(90deg, rgba(30,0,40,0), rgba(70,10,90,.9) 20%, rgba(70,10,90,.9) 80%, rgba(30,0,40,0)); border-color: #c77dff; }
+.vl-ncard.win { background: linear-gradient(90deg, rgba(60,40,0,0), rgba(150,100,10,.92) 20%, rgba(150,100,10,.92) 80%, rgba(60,40,0,0)); border-color: #ffd23a; }

@@ -1517,5 +1517,16 @@ CZ.i18n.register('ko', '한국어', {
   "night.horde": "👺 ×{n} horde incoming: {d}!",
   "night.combo": "COMBO",
   "night.comboB": "Combo +{n} gold",
-  "menu.btn": "Menu"
+  "menu.btn": "Menu",
+  "zb.come": "Zibo himself is here!",
+  "zb.escaped": "Zibo escaped from jail!",
+  "zb.t1": "Your village is mine tonight, hehe!",
+  "zb.t2": "I can smell your gold!",
+  "zb.t3": "Catch me if you can!",
+  "zb.sum": "Boys, attack!",
+  "zb.fire": "🔥 Zibo set the {b} on fire! Run there and put it out!",
+  "zb.out": "🧯 Fire out!",
+  "zb.burnt": "🔥 {b} burned: -{n} gold",
+  "zb.caught": "ZIBO CAUGHT!",
+  "zb.jail": "Locked in jail. (time #{n})"
 });

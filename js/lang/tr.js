@@ -1699,5 +1699,16 @@ CZ.i18n.register('tr', 'Türkçe', {
   "night.horde": "👺 ×{n} sürü geliyor: {d}!",
   "night.combo": "KOMBO",
   "night.comboB": "Kombo +{n} altın",
-  "menu.btn": "Menü"
+  "menu.btn": "Menü",
+  "zb.come": "Zibo bizzat geldi!",
+  "zb.escaped": "Zibo hapisten kaçtı!",
+  "zb.t1": "Bu gece köyün benim, hihihi!",
+  "zb.t2": "Altınlarını kokluyorum!",
+  "zb.t3": "Yakala beni, yakalayabilirsen!",
+  "zb.sum": "Çocuklar, saldırın!",
+  "zb.fire": "🔥 Zibo {b} binasını ateşe verdi! Yanına koş, söndür!",
+  "zb.out": "🧯 Söndürüldü!",
+  "zb.burnt": "🔥 {b} yandı: -{n} altın",
+  "zb.caught": "ZİBO YAKALANDI!",
+  "zb.jail": "Hapishaneye attın. ({n}. kez)"
 });
