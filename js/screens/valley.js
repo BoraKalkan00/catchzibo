@@ -1091,6 +1091,7 @@ CZ.screens.valley = (function () {
     heroShadow.rotation.x = -Math.PI / 2; heroShadow.position.y = 0.02; scene.add(heroShadow);
     const mountDef = CZ.MOUNTS.find(m => m.id === (d.mount || 'brown')) || CZ.MOUNTS[0];
     const mount = quadruped(THREE, mountDef);
+    { const MS = 0.8; mount.root.scale.multiplyScalar(MS); mount.seatY *= MS; }   // (22 Kas) binek karakteri ezmesin (videoda ekranın 1/4'ü ayıydı)
     const M = { x: 5.5, z: 3.8, dir: Math.PI, speed: 0 };
     mount.root.position.set(M.x, 0, M.z); mount.root.traverse(o => { if (o.geometry && o.geometry.type !== 'CircleGeometry') o.castShadow = true; }); scene.add(mount.root); outlineWorld(mount.root, 0.025);   // (bacaklar gölgelendiricide oynadığı için dış çizgi yok)
     // MİLA: köyün bekçisi. Kendi bineği Işıltı (satılmaz). Sen yokken köyü o korur; sen varken dinlenir ama köye giren goblini vurur.
