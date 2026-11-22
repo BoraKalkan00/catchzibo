@@ -2338,3 +2338,9 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 @media (max-width: 380px) { .vl-top .res-plus { display: none; } .vl-top .res-bar { gap: 2px; } .vl-top .res { padding: 2px 4px 2px 2px; } .vl-top .mini-ico { width: 14px; height: 14px; } }
 @media (max-width: 380px) { .vl-time { font-size: 14px !important; padding: 3px 6px !important; } .vl-top { right: 54px !important; } }
 .kb-hint { display: none; } .vl-ui.kbd .kb-hint { display: block; }
+/* (22 Kas) bina paneli: sol altta, saldırı/yetenek düğmelerinin solunda; açıkken görev şeridi gizlenir (üst üste binmesin) */
+@media (orientation: portrait) {
+  .def-panel { left: 8px; transform: none; width: min(300px, calc(100vw - 184px)); bottom: calc(132px + var(--safe-bottom, 0px)); }
+  .def-panel.on { animation: none; }
+  .vl-ui:has(.def-panel.on) .vl-chap { display: none !important; }
+}
