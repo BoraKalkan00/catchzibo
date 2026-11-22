@@ -2330,4 +2330,4 @@ body.wide #rotate-note { display: none !important; }
 .vl-photo-on .vl-ui { opacity: 0; pointer-events: none; transition: opacity .3s; }
 .vl-photobar { position: absolute; left: 50%; bottom: calc(40px + var(--safe-bottom, 0px)); transform: translateX(-50%); display: flex; gap: 10px; z-index: 9; }
 .vl-flash { position: absolute; inset: 0; background: #fff; z-index: 10; pointer-events: none; animation: dawnF .4s ease-out forwards; }
-body.pc .ico-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi gizli */
+body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi gizli */
