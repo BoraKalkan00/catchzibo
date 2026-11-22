@@ -1803,6 +1803,11 @@ CZ.screens.valley = (function () {
     if (!d.surv) d.surv = { list: [], n: 0 }; if (d.food == null) d.food = 6;
     const AWAY = d.seenAt ? Date.now() - d.seenAt : 0;   // (22 Kas) çevrimdışı gelir için
     const SV = d.surv, npcs = [];
+    // (22 Kas) ESKİ KAYIT GÖÇÜ: önceki sürümlerden gelen köylülerde eksik alanlar (cinsiyet, tip, saç, nadirlik, stat) tamamlanır — yoksa köy açılmıyordu
+    if (!Array.isArray(SV.list)) SV.list = []; if (typeof SV.n !== 'number') SV.n = SV.list.length; if (!Array.isArray(SV.mail)) SV.mail = [];
+    if (SV && Array.isArray(SV.list)) SV.list.forEach((s0, i) => { if (!s0.prof) s0.prof = 'wood'; if (!s0.job) s0.job = s0.prof; if (s0.g !== 'f' && s0.g !== 'm') s0.g = i % 2 ? 'f' : 'm';
+      if (typeof s0.ty !== 'number') s0.ty = i % 2; if (typeof s0.hair !== 'number') s0.hair = (s0.name || '').length % 7; if (typeof s0.rar !== 'number') s0.rar = 0;
+      if (!s0.st) s0.st = { loy: 3, str: 3, spd: 3, int: 3, fit: 3 }; ['loy', 'str', 'spd', 'int', 'fit'].forEach(k => { if (typeof s0.st[k] !== 'number') s0.st[k] = 3; }); if (!s0.name) s0.name = '?'; if (!s0.id) s0.id = 's' + i + 'x'; });
     const spotW = id => { const [sx, sz] = CZ.VILLAGE_SPOTS[id]; return [sx * VS, sz * VS + 1.8]; };
     const bedsCap = () => 2 + CZ.village.lv('house') * 2 + CZ.village.furn('house')[0];
     const seats = () => 2 + CZ.village.lv('canteen') * 2 + CZ.village.furn('canteen')[1];

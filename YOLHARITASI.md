@@ -28,9 +28,11 @@ Kurallar:
 
 ## C) Sağlamlık
 - [ ] C11 tools/qa/soak.py 10 dakika: sıfır konsol hatası; bulunan her hatayı düzelt
-- [ ] C12 Eski kayıt göçü: eksik alanlarla (d.surv yok, d.vil yok, eski sürüm alanları) açılış çökmesin
+- [x] C12 Eski kayıt göçü: eksik alanlarla (d.surv yok, d.vil yok, eski sürüm alanları) açılış çökmesin
+  - Yapıldı: KRİTİK HATA bulundu: eski kayıttaki köylülerde tip/cinsiyet yoktu → vLook çöküyor, köy hiç açılmıyordu. Göç kodu eksik alanları tamamlıyor (SV.list/n/mail, g, ty, hair, rar, st). Eski kayıtla test temiz.
 - [ ] C13 Yatay ekran (1280×720) ve küçük ekran (360×640) düzeni: HUD çakışmaları düzelt
-- [ ] C14 tr/en dil dosyalarında eksik anahtar taraması (kodda t('x') geçen ama dilde olmayan); eksikleri ekle
+- [x] C14 tr/en dil dosyalarında eksik anahtar taraması (kodda t('x') geçen ama dilde olmayan); eksikleri ekle
+  - Yapıldı: 711 anahtar tarandı, tr/en'de eksik yok (yalnız dinamik önekler).
 
 ## D) PC/Steam sürümü (hesap Bora'da, sen sadece oyunu hazırla)
 - [ ] D15 Klavye/fare: e.code ile WASD/oklar (Türkçe klavye, CapsLock), Shift=atılma, Q=yetenek, R=kükreme, M=harita, Esc=duraklat, 1-3 silah; fareyle tıklanan yöne ateş zaten var; ekranda tuş ipuçları (yalnız fare/klavye varsa)
