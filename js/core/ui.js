@@ -64,7 +64,7 @@ CZ.ui = (function () {
     const bar = h('i');
     // (22 Kas) Sinematik slayt: her yüklemede 2 sahne. 1. sahne yavaş yakınlaşır, sonra ışık süpürmesi + çapraz geçişle 2. sahne itilerek gelir.
     // Yeni sahne eklemek: assets/ld/<ad>_v.webp (dikey) + <ad>_h.webp (yatay) koy, LD_SC listesine adını yaz.
-    const SC = CZ.LD_SC || ['kacis', 'savunma', 'atolye'];
+    const SC = CZ.LD_SC || ['gece_baskini', 'koy_sabahi', 'zibo_soygun', 'altin_maden'];
     loading.i = ((loading.i == null ? Math.floor(Math.random() * SC.length) : loading.i) + 2) % SC.length;
     const sc = SC[loading.i], sc2 = SC[(loading.i + 1) % SC.length];
     const mk = (n, cls) => h('picture', { class: 'ld-bg ' + cls },
