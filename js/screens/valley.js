@@ -349,13 +349,13 @@ CZ.screens.valley = (function () {
       const sm = (a, b, v) => { const q = Math.min(1, Math.max(0, (v - a) / (b - a))); return q * q * (3 - 2 * q); };
       const mix = (A, Bc, k) => A.map((v, j) => v + (Bc[j] - v) * k);
       let c = [0.84 + n, 0.9 + n, 1.0];                                         // kar
-      c = mix(c, [0.7 + n, 0.86 + n, 0.7], sm(0.4, 0.62, nz));                   // ince kar + hafif çimen
-      c = mix(c, [0.5 + n, 0.76 + n, 0.42], sm(0.66, 0.9, nz));                   // karı erimiş çimen
+      c = mix(c, [0.8 + n, 0.87 + n, 0.96], sm(0.4, 0.62, nz));                   // ince kar + hafif çimen
+      c = mix(c, [0.74 + n, 0.82 + n, 0.92], sm(0.66, 0.9, nz));   // (22 Kas) yeşil-sarı lekeler kaldırıldı: sıkışmış kar                   // karı erimiş çimen
       c = mix(c, [0.66 + n, 0.72 + n, 0.86], sm(-0.95, -1.25, nz));                 // kayalık
       const rd = Math.min(...roads.map(s2 => distSeg(x, z, s2)));
-      c = mix(c, [0.82 + n, 0.64 + n, 0.46], 1 - sm(1.9, 3.1, rd));               // karlı patika (kenarı yumuşak)
+      c = mix(c, [0.86 + n, 0.8 + n, 0.74], 1 - sm(1.9, 3.1, rd));               // karlı patika (kenarı yumuşak)
       const dr = Math.min(Math.abs(z - riverZ(x)), z < riverZ(x) ? Math.abs(x - creekX(z)) : 99);
-      c = mix(c, [0.42 + n, 0.38 + n, 0.32], 1 - sm(RIVER_W + 0.6, RIVER_W + 2.2, dr));   // nehir kıyısı: çamur
+      c = mix(c, [0.6 + n, 0.62 + n, 0.66], 1 - sm(RIVER_W + 0.6, RIVER_W + 2.2, dr));   // nehir kıyısı: çamur
       { const dR = Math.min(Math.abs(z - riverZ(x)) - RIVER_W, z < riverZ(x) ? Math.abs(x - creekX(z)) - CREEK_W : 99), k = 1 - sm(-0.9, 0.5, dR);   // nehir yatağı: kıyıya doğru yumuşak iner
         if (k > 0) { c = mix(c, [0.16, 0.3, 0.42], k); y = Math.min(y, -0.5 * k); } }
       if (inLake(x, z)) c = [0.6, 0.8, 0.93];                                     // donmuş göl
@@ -1233,12 +1233,28 @@ CZ.screens.valley = (function () {
     function zoneLim() { let L = ZONES[0][0]; ZONES.forEach(([r, h]) => { if (hallLv() >= h) L = r; }); return L; }
     function zoneNeed() { const z = ZONES.find(([r, h]) => hallLv() < h); return z ? z[1] : 0; }
     const zoneOf = (x, z) => { const r = Math.hypot(x, z); return r < ZONES[0][0] ? 1 : r < ZONES[1][0] ? 2 : 3; };
-    const fogMesh = (() => { const g = new THREE.Group();
-      const flat = new THREE.Mesh(new THREE.RingGeometry(1, WORLD_R + 40, 96, 1), new THREE.MeshBasicMaterial({ color: 0xdfe8f6, transparent: true, opacity: 0.86, depthWrite: false, fog: false })); flat.rotation.x = -Math.PI / 2; flat.position.y = 4.5; g.add(flat);
-      const wallM = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 9, 96, 1, true), new THREE.MeshBasicMaterial({ color: 0xeef3fb, transparent: true, opacity: 0.55, depthWrite: false, side: THREE.DoubleSide, fog: false })); wallM.position.y = 4.5; g.add(wallM);
-      g.userData = { flat, wallM }; scene.add(g); return g; })();
+    // (22 Kas) KİLİTLİ BÖLGE SİSİ: beyaz duvar yerine yerden yükselen yumuşak sis bankası (4 katman, içten dışa koyulaşır, yavaşça kıpırdar) + kilit tabelaları
+    const fogU = { uL: { value: 58 }, uT: { value: 0 } };
+    const fogMesh = (() => { const g = new THREE.Group(), layers = [];
+      [[0.4, 0.95, 0], [1.6, 0.75, 3], [3.0, 0.55, 6], [4.6, 0.38, 9]].forEach(([y, a, off]) => {
+        const m = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, fog: false, uniforms: Object.assign({ uA: { value: a }, uO: { value: off } }, fogU),
+          vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+          fragmentShader: `uniform float uL, uT, uA, uO; varying vec3 vW;
+            float hs(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+            float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(hs(i), hs(i+vec2(1,0)), f.x), mix(hs(i+vec2(0,1)), hs(i+vec2(1,1)), f.x), f.y); }
+            void main(){ float r = length(vW.xz); float n = n2(vW.xz * 0.08 + vec2(uT * 0.05, uT * 0.03)) * 0.6 + n2(vW.xz * 0.21 - uT * 0.04) * 0.4;
+              float edge = uL + uO + (n - 0.5) * 5.0; float a = smoothstep(edge - 2.0, edge + 9.0, r) * uA * (0.75 + n * 0.35);
+              gl_FragColor = vec4(mix(vec3(0.86,0.9,0.97), vec3(1.0), n), a); }` });
+        const mesh = new THREE.Mesh(new THREE.RingGeometry(20, WORLD_R + 46, 120, 1), m); mesh.rotation.x = -Math.PI / 2; mesh.position.y = y; mesh.renderOrder = 3; g.add(mesh); layers.push(m); });
+      const signs = []; g.userData = { layers, signs }; scene.add(g); return g; })();
+    function lockSignTex(txt) { const c = document.createElement('canvas'); c.width = 256; c.height = 96; const x = c.getContext('2d');
+      x.fillStyle = 'rgba(40,52,96,.92)'; x.beginPath(); x.roundRect ? x.roundRect(4, 4, 248, 88, 22) : x.rect(4, 4, 248, 88); x.fill(); x.lineWidth = 6; x.strokeStyle = '#fff'; x.stroke();
+      x.fillStyle = '#fff'; x.font = 'bold 34px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, 128, 50); return new THREE.CanvasTexture(c); }
     function fogUpdate() { const L = zoneLim(); if (fogMesh.userData.L === L) return; fogMesh.userData.L = L; const on = L < WORLD_R; fogMesh.visible = on; if (!on) return;
-      fogMesh.userData.flat.geometry.dispose(); fogMesh.userData.flat.geometry = new THREE.RingGeometry(L + 1.5, WORLD_R + 40, 96, 1); fogMesh.userData.wallM.scale.set(L + 1.5, 1, L + 1.5); }
+      fogU.uL.value = L;
+      fogMesh.userData.signs.forEach(s => fogMesh.remove(s)); fogMesh.userData.signs = [];
+      const tex = lockSignTex('🔒 ' + t('vil.b.hall') + ' ' + zoneNeed());
+      for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2 + 0.3, s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false })); s.scale.set(4.2, 1.6, 1); s.position.set(Math.cos(a) * (L + 1.5), 2.6, Math.sin(a) * (L + 1.5)); s.renderOrder = 4; fogMesh.add(s); fogMesh.userData.signs.push(s); } }
     fogUpdate();
     function fenceUp(x, z) { const seg = ((Math.floor(((Math.atan2(z, x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8); const fp = pads.find(q => q.kind === 'f' && q.i === seg), it = DS.f[seg]; return !!(fp && it && it.lv >= 1 && fp.hp > 0); }
     const orbMat = new THREE.MeshBasicMaterial({ color: 0x9fe6ff });
@@ -3033,7 +3049,7 @@ CZ.screens.valley = (function () {
       fpMesh.count = fp.n; fpMesh.instanceMatrix.needsUpdate = true;
     }
     function draw(dt) {
-      footTick(dt); fxTick(dt); if (V.clouds) V.clouds.forEach((c, i) => { c.position.x += dt * (0.6 + i % 3 * 0.25); if (c.position.x > WORLD_R + 20) c.position.x = -WORLD_R - 20; });
+      fogU.uT.value += dt; footTick(dt); fxTick(dt); if (V.clouds) V.clouds.forEach((c, i) => { c.position.x += dt * (0.6 + i % 3 * 0.25); if (c.position.x > WORLD_R + 20) c.position.x = -WORLD_R - 20; });
       // oyuncu ve binek görünümü
       mount.root.position.set(M.x, P.riding ? (P.hopY || 0) : 0, M.z);
       mount.root.rotation.y = M.dir;
@@ -3235,7 +3251,7 @@ CZ.screens.valley = (function () {
     };
     // ===================== PROLOG: Noel gecesi Zibo köyün hazinesini çalar =====================
     if (!d.introDone) {
-      const NIGHT = { bg: new THREE.Color(0x141c3a), hemiS: new THREE.Color(0x6a7cc4), hemiG: new THREE.Color(0x1c2448), hi: 0.62, sun: new THREE.Color(0x9ab0ff), si: 0.45 };
+      const NIGHT = { bg: new THREE.Color(0x101c38), hemiS: new THREE.Color(0x7a94d4), hemiG: new THREE.Color(0x2a3a52), hi: 0.62, sun: new THREE.Color(0xb0c4ff), si: 0.5 };   // (22 Kas) mor-pembe yerine soğuk mavi gece
       const DAY = { bg: new THREE.Color(SKY), hemiS: hemi.color.clone(), hemiG: hemi.groundColor.clone(), hi: hemi.intensity, sun: sun.color.clone(), si: sun.intensity };
       const setSky = k => { scene.background.copy(NIGHT.bg).lerp(DAY.bg, k); scene.fog.color.copy(scene.background); hemi.color.copy(NIGHT.hemiS).lerp(DAY.hemiS, k); hemi.groundColor.copy(NIGHT.hemiG).lerp(DAY.hemiG, k); hemi.intensity = NIGHT.hi + (DAY.hi - NIGHT.hi) * k; sun.color.copy(NIGHT.sun).lerp(DAY.sun, k); sun.intensity = NIGHT.si + (DAY.si - NIGHT.si) * k; lamps.forEach(l => { l.intensity = 1.6 * (1 - k); }); };
       const lamps = [[-4, -1], [4, -1], [0, 5], [-5, 6], [5, 6]].map(([x, z]) => { const l = new THREE.PointLight(0xffb060, 1.6, 11); l.position.set(x, 2.5, z); scene.add(l); return l; });
@@ -3401,7 +3417,7 @@ CZ.screens.valley = (function () {
   }
   function leave() {
     if (!V) return;
-    if (CZ.village) { CZ.village.ensure().leftAt = Date.now(); d.seenAt = Date.now(); CZ.state.save(); }
+    if (CZ.village) { CZ.village.ensure().leftAt = Date.now(); CZ.state.data.seenAt = Date.now(); CZ.state.save(); }
     CZ.ui.toast(t('mila.bye'));
     if (CZ.notify) CZ.notify.schedule();
     if (V.running) { const d = CZ.state.data; d.gold = (d.gold || 0) + V.pending; CZ.state.save(); }
