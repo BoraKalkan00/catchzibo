@@ -264,8 +264,11 @@ CZ.audio = (function () {
     src.start();
     return true;
   }
+  const lastT = {};
   function sfx(name, step) {
     if (!enabled()) return;
+    // (23 Kas) aynı ses 45 ms içinde tekrar çalmaz: sürüde 6 goblin aynı anda ölünce 6 kat yüksek 'pof' patlamasın
+    const nowT = performance.now(); if (lastT[name] && nowT - lastT[name] < 45) return; lastT[name] = nowT;
     loadSamples();
     if (playSample(name, step)) {
       // altına parlak bir çın katmanı: daha dolgun ve tatmin edici
