@@ -1512,5 +1512,9 @@ CZ.i18n.register('ja', '日本語', {
   "fu.e.cool": "Attack cooldown -{n}%",
   "fu.e.time": "Raid time +{n}s",
   "fu.e.hp": "Health +{n}",
-  "fu.e.run": "Run speed +{n}%"
+  "fu.e.run": "Run speed +{n}%",
+  "night.title": "Zibo's army is coming!",
+  "night.horde": "👺 ×{n} horde incoming: {d}!",
+  "night.combo": "COMBO",
+  "night.comboB": "Combo +{n} gold"
 });

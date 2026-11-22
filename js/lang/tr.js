@@ -1694,5 +1694,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   "fu.e.cool": "Saldırı bekleme -%{n}",
   "fu.e.time": "Akın süresi +{n} sn",
   "fu.e.hp": "Can +{n}",
-  "fu.e.run": "Koşu +%{n}"
+  "fu.e.run": "Koşu +%{n}",
+  "night.title": "Zibo'nun ordusu geliyor!",
+  "night.horde": "👺 ×{n} sürü geliyor: {d}!",
+  "night.combo": "KOMBO",
+  "night.comboB": "Kombo +{n} altın"
 });

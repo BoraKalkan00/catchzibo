@@ -203,7 +203,7 @@ CZ.screens.valley = (function () {
     const sun = new THREE.DirectionalLight(HI ? 0xffdcb0 : 0xffe0b0, HI ? 1.05 : 0.92); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     // GECE-GÜNDÜZ ışığı: k=0 gündüz, k=1 gece (oynanır kalsın diye tam karanlık değil)
     const SKY_D = { bg: null, hs: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sun.color.clone(), si: sun.intensity };
-    const SKY_N = { bg: new THREE.Color(0x1a2350), hs: new THREE.Color(0x7d8fd8), hg: new THREE.Color(0x232c58), hi: 0.5, sc: new THREE.Color(0xa8bcff), si: 0.55 };
+    const SKY_N = { bg: new THREE.Color(0x1a2350), hs: new THREE.Color(0x7d8fd8), hg: new THREE.Color(0x1c2248), hi: 0.4, sc: new THREE.Color(0x98acf0), si: 0.45 };   // (22 Kas) gece biraz daha karanlık: meşaleler parlasın
     const nightSky = k => { if (!SKY_D.bg) SKY_D.bg = scene.background && scene.background.isColor ? scene.background.clone() : new THREE.Color(SKY);
       if (scene.background && scene.background.isColor) { scene.background.copy(SKY_D.bg).lerp(SKY_N.bg, k); if (scene.fog) scene.fog.color.copy(scene.background); }
       hemi.color.copy(SKY_D.hs).lerp(SKY_N.hs, k); hemi.groundColor.copy(SKY_D.hg).lerp(SKY_N.hg, k); hemi.intensity = SKY_D.hi + (SKY_N.hi - SKY_D.hi) * k;
@@ -1337,7 +1337,7 @@ CZ.screens.valley = (function () {
       if (o.type === 'zibo') return V.story && V.story.ziboDown(o);
       o.dead = true;
       if (o.bar) { scene.remove(o.bar.g); o.bar.fg.material.dispose(); o.bar = null; }
-      scene.remove(o.mesh); if (o.ice) { scene.remove(o.ice); o.ice = null; }
+      if (o.type === 'goblin' && o.mesh) { corpseAdd(o); if (!byTower) { V.hs = o.boss ? 0.16 : 0.055; comboHit(o); } } else scene.remove(o.mesh); if (o.ice) { scene.remove(o.ice); o.ice = null; }
       let total = o.coins + (o.stolen || 0);
       if (o.type === 'goblin' && BUD.id === 'noel') total = Math.round(total * (1.05 + CZ.heroes.lv('noel') * 0.02));
       if (o.type === 'goblin' && CZ.heroes && (d.tutV || 0) >= 5) { const sh = o.boss ? 4 : (Math.random() < 0.03 ? 1 : 0); if (sh) { const hid = CZ.heroes.randomDrop(sh); if (hid) { setTimeout(() => { if (V) floatAt(o, t('hero.shardGot', { n: sh, name: t('hero.n.' + hid) }), 'wave'); }, o.boss ? 900 : 0); heroUi(); } } }
@@ -1372,6 +1372,7 @@ CZ.screens.valley = (function () {
     tradeBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openTrader(); });
     const tipEl = h('div', { class: 'vl-coach' });
     const rushEl = h('div', { class: 'vl-rush' }), rushArrow = h('div', { class: 'vl-edge gold' }, h('i'));
+    const hordeArrow = h('div', { class: 'vl-edge horde' }, h('i')), comboEl = h('div', { class: 'vl-combo' }), ncardEl = h('div', { class: 'vl-ncard' }), dawnEl = h('div', { class: 'vl-dawn' });
     const cdEl = h('div', { class: 'vl-nightcd' }, h('b', { text: '10' }), h('small', { text: t('night.coming') }));
     const GIFT_DUR = 240000;
     const giftBtn = h('button', { type: 'button', class: 'vl-gift' }, h('i', { text: '🎁' }), h('b'));
@@ -1536,7 +1537,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, hordeArrow, comboEl, ncardEl, dawnEl, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1963,6 +1964,51 @@ CZ.screens.valley = (function () {
     // ===== GECE-GÜNDÜZ DÖNGÜSÜ: gündüz topla + kamp yağmala (köye saldırı yok), gece Zibo'nun ordusu köye gelir =====
     const DAY_LEN = 150, NIGHT_LEN = 150;   // gece: belli sayıda goblin gelir, hepsi düşünce biter (süre yalnız üst sınır)
     const ZTALK = ['Grak bloo!', 'Hihihi, nyek!', 'Zub zub ZIBO!', 'Blorp! Ha-ha!', 'Nyaaa-krik!'];
+    // ===== (22 Kas) GECE BASKINI 2.0: sürüler, meşaleler, ölüm animasyonu, vuruş donması, kombo =====
+    const flameGeo = new THREE.ConeGeometry(0.13, 0.34, 7), flameMat = new THREE.MeshBasicMaterial({ color: 0xffa030 }),
+      glowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,200,90,1)'); g.addColorStop(0.4, 'rgba(255,140,40,.5)'); g.addColorStop(1, 'rgba(255,120,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })(),
+      glowMat = new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+    function torchUp(gb) { const sp = gb.spear; if (!sp) return; const f = new THREE.Mesh(flameGeo, flameMat); f.position.y = 1.08; sp.add(f); const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(1.6); gl.position.y = 1.1; sp.add(gl); gb.flame = f; }
+    const DIRS8 = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
+    function hordeTick(dt) {
+      const H = V.hd || (V.hd = { t: 3, dir: null }); if (H.dir) H.dir.t -= dt;
+      if ((H.t -= dt) > 0 || V.nSp >= V.nTot) return;
+      const left = V.nTot - V.nSp, size = Math.min(left, 3 + Math.floor(V.wave / 2), 8);
+      let cx = 0, cz = 0, a = 0;
+      for (let k = 0; k < 30; k++) { a = rand(0, Math.PI * 2); const rr = rand(27, 34); cx = P.x + Math.cos(a) * rr; cz = P.z + Math.sin(a) * rr; if (Math.hypot(cx, cz) > FENCE_R + 6 && Math.hypot(cx, cz) < WORLD_R - 3 && !water(cx, cz)) break; }
+      for (let i = 0; i < size; i++) { const gb = spawnGoblin(false, [cx + rand(-2.6, 2.6), cz + rand(-2.6, 2.6)]); if (gb) { gb.night = true; if (i < 2 || Math.random() < 0.5) torchUp(gb); } }
+      V.nSp += size; H.t = Math.max(7, 13 - V.wave * 0.5);
+      H.dir = { x: cx, z: cz, t: 4.5, n: size };
+      const dn = DIRS8[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8];
+      floatAt(P, t('night.horde', { n: size, d: t('dir.' + dn) }), 'wave');
+      CZ.audio.sfx('drum', 1); setTimeout(() => CZ.audio.sfx('drum'), 380); CZ.audio.vibrate([40, 30, 40]);
+    }
+    function hordeArrowUi() {
+      const H = V.hd; if (!H || !H.dir || H.dir.t <= 0 || V.phase !== 'night') { hordeArrow.style.display = 'none'; return; }
+      const dx = H.dir.x - P.x, dz = H.dir.z - P.z, L2 = Math.hypot(dx, dz) || 1, W2 = ui.clientWidth, H2 = ui.clientHeight, sx = dx / L2, sy = dz / L2;
+      const tt = Math.min((W2 / 2 - 40) / Math.max(0.01, Math.abs(sx)), (H2 / 2 - (sy > 0 ? 200 : 160)) / Math.max(0.01, Math.abs(sy)));
+      hordeArrow.style.display = 'block'; hordeArrow.style.left = (W2 / 2 + sx * tt) + 'px'; hordeArrow.style.top = (H2 / 2 + sy * tt) + 'px';
+      hordeArrow.style.transform = `translate(-50%,-50%) rotate(${Math.atan2(sy, sx)}rad)`; hordeArrow.firstChild.style.transform = `rotate(${-Math.atan2(sy, sx)}rad)`; hordeArrow.firstChild.textContent = '👺×' + H.dir.n;
+    }
+    // ölüm: goblin geriye savrulur, döner, küçülür + duman pofu
+    const corpses = [], puffs = [], puffGeo = new THREE.SphereGeometry(0.35, 8, 6);
+    function corpseAdd(o) { const kx = o.x - P.x, kz = o.z - P.z, kl = Math.hypot(kx, kz) || 1; corpses.push({ m: o.mesh, t: 0, vx: kx / kl * 5, vz: kz / kl * 5, base: o.mesh.scale.x, sp: rand(8, 14) * (Math.random() < 0.5 ? -1 : 1), boss: o.boss }); }
+    function poof(x, z, n, big) { for (let i = 0; i < (n || 6); i++) { const m = new THREE.Mesh(puffGeo, new THREE.MeshBasicMaterial({ color: i % 3 ? 0xf4f4ff : 0xc8ccd8, transparent: true, opacity: 0.85, depthWrite: false })); m.position.set(x + rand(-0.4, 0.4), 0.6 + rand(0, 0.6), z + rand(-0.4, 0.4)); m.scale.setScalar(big ? 1.5 : 0.8); scene.add(m); puffs.push({ m, t: 0, vx: rand(-1.6, 1.6), vy: rand(0.6, 1.8), vz: rand(-1.6, 1.6) }); } }
+    function fxTick(dt) {
+      for (let i = corpses.length - 1; i >= 0; i--) { const c = corpses[i]; c.t += dt; const k = c.t / 0.5;
+        c.m.position.x += c.vx * dt; c.m.position.z += c.vz * dt; c.m.position.y = Math.sin(Math.min(1, k) * Math.PI) * 1.4; c.m.rotation.y += c.sp * dt; c.m.rotation.x = -k * 1.4;
+        c.m.scale.setScalar(c.base * Math.max(0.01, 1 - k * k));
+        if (k >= 1) { scene.remove(c.m); poof(c.m.position.x, c.m.position.z, c.boss ? 12 : 6, c.boss); CZ.audio.sfx('poof'); corpses.splice(i, 1); } }
+      for (let i = puffs.length - 1; i >= 0; i--) { const p = puffs[i]; p.t += dt; p.m.position.x += p.vx * dt; p.m.position.y += p.vy * dt; p.m.position.z += p.vz * dt; p.m.scale.multiplyScalar(1 + dt * 2.2); p.m.material.opacity = Math.max(0, 0.85 - p.t * 1.6);
+        if (p.t > 0.55) { scene.remove(p.m); p.m.material.dispose(); puffs.splice(i, 1); } }
+      if (V.cmb && V.cmb.t > 0 && (V.cmb.t -= dt) <= 0) { comboEl.classList.remove('on'); V.cmb.n = 0; }
+      if (V.hd) hordeArrowUi();
+    }
+    function comboHit(o) {
+      const C = V.cmb || (V.cmb = { n: 0, t: 0 }); C.n = C.t > 0 ? C.n + 1 : 1; C.t = 2.4;
+      if (C.n >= 2) { comboEl.replaceChildren(h('b', { text: '×' + C.n }), h('small', { text: t('night.combo') })); comboEl.classList.remove('on', 'pop'); void comboEl.offsetWidth; comboEl.classList.add('on', 'pop'); CZ.audio.sfx('combo', Math.min(C.n - 2, 10)); }
+      if (C.n % 5 === 0) { const b = C.n * 3; gain(b, true); floatAt(o, '🔥 ' + t('night.comboB', { n: b }), 'wave'); resFly(o, 'gold', b); V.shake = Math.max(V.shake || 0, 0.45); }
+    }
     function startNight() {
       if (V.rush && V.rush.state === 'go') rushEnd(30);
       V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 2.5;
@@ -1971,9 +2017,10 @@ CZ.screens.valley = (function () {
       V.nS = { kills: V.kills, earned: V.earned, lost: V.lost || 0 };
       d.bestNight = Math.max(d.bestNight || 0, V.wave);
       const k = Math.floor(Math.random() * 5);
-      floatAt(P, '🌙 ' + t('night.start', { n: V.wave }), 'wave');
-      setTimeout(() => { if (V) floatAt(P, '👺 "' + ZTALK[k] + '" — ' + t('night.z' + (k + 1)), 'wave'); }, 1400);
-      CZ.audio.sfx('horn'); CZ.audio.vibrate([80, 40, 80]);
+      ncardEl.replaceChildren(h('small', { text: '🌙 ' + t('night.lbl', { n: V.wave }) }), h('b', { text: t('night.title') }), h('span', { text: '👺 "' + ZTALK[k] + '"' }), h('em', { text: '👺 × ' + V.nTot }));
+      ncardEl.classList.remove('on'); void ncardEl.offsetWidth; ncardEl.classList.add('on'); setTimeout(() => ncardEl.classList.remove('on'), 2600);
+      V.hd = { t: 3.2, dir: null }; V.shake = Math.max(V.shake || 0, 0.5);
+      CZ.audio.sfx('stinger'); CZ.audio.vibrate([80, 40, 80, 40, 120]);
       if (V.wave % 5 === 0) { spawnGoblin(true);
         if (!V.raid) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); } }
     }
@@ -1996,7 +2043,8 @@ CZ.screens.valley = (function () {
         btn(t('night.x2'), function () { if (doubled) return; CZ.ads.show(() => { doubled = true; gain(earned + bonus, true); CZ.ui.fly && CZ.ui.fly(this, 'gold', earned + bonus); CZ.audio.sfx('star'); this.disabled = true; CZ.state.save(); }); }, 'primary wide', 'ic:play'),
         btn(t('share.btn'), () => { if (CZ.share && CZ.share.share) CZ.share.share({ big: t('night.shareBig', { n: V.wave }), label: t('night.shareLabel'), line: '👺 ' + kills, avatar: d.avatar }); }, 'ghost-dark wide'),
         btn(t('night.go'), () => { box.remove(); V.paused = false; V.last = 0; if (V.wave >= 2 && Math.random() < 0.55) setTimeout(() => { if (V && V.phase === 'day') ziboHeist(); }, 1800); }, 'small ghost-dark')));
-      wrap.append(box); V.paused = true;
+      dawnEl.classList.remove("on"); void dawnEl.offsetWidth; dawnEl.classList.add("on");
+      V.paused = true; setTimeout(() => { if (V) wrap.append(box); }, 1100);
     }
     function nightLeft() { return Math.max(0, (V.nTot || 0) - (V.nSp || 0)) + goblins.filter(o => o.night && !o.dead).length; }
     // ===== ALTIN AKINI (21 Kas): gündüz haritada parlayan nokta → süre bitmeden yetiş → goblin sürüsü sarar → hepsini temizle → büyük altın =====
@@ -2091,7 +2139,8 @@ CZ.screens.valley = (function () {
         if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 ? '' : 'none'; } }
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
-      if (V.spawnT <= 0 && goblins.length < cap + (cyc ? 3 : 0) && !V.story && !(cyc && (V.phase === 'day' || V.nSp >= V.nTot))) { V.spawnT = cyc ? Math.max(1.0, 2.4 - V.wave * 0.12) : Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); if (cyc) { V.nSp++; const g2 = goblins[goblins.length - 1]; if (g2) g2.night = true; } }
+      if (cyc && V.phase === 'night' && !V.story) hordeTick(dt);
+      if (V.spawnT <= 0 && goblins.length < cap + (cyc ? 3 : 0) && !V.story && !(cyc && (V.phase === 'day' || V.phase === 'night' || V.nSp >= V.nTot))) { V.spawnT = cyc ? Math.max(1.0, 2.4 - V.wave * 0.12) : Math.max(2.2, 5 - V.wave * 0.3); spawnGoblin(); if (cyc) { V.nSp++; const g2 = goblins[goblins.length - 1]; if (g2) g2.night = true; } }
       // inşaat süreleri
       pads.forEach(p => { const it = slot(p); if (it && it.job) { if (Date.now() >= it.job.end) finishJob(p); else if (p.barFg && p.barG) { const D2 = defOf(p); const tot = D2.min[it.job.to - 1] * 60000; const k = 1 - jobLeft(it) / tot; p.barFg.scale.x = 2.1 * Math.max(0.02, k); p.barFg.position.x = -1.05 * (1 - k); p.barG.quaternion.copy(camera.quaternion); } } if (p.pop > 0 && p.g) { p.pop -= dt; const k = 1 + Math.sin(p.pop / 0.35 * Math.PI) * 0.25; p.g.scale.setScalar((p.kind === 't' && slot(p).type !== 'cannon' ? 0.8 : 1) * k); } });
       // KULELER: menzildeki en yakın goblini kendileri vurur
@@ -2892,7 +2941,7 @@ CZ.screens.valley = (function () {
       fpMesh.count = fp.n; fpMesh.instanceMatrix.needsUpdate = true;
     }
     function draw(dt) {
-      footTick(dt);
+      footTick(dt); fxTick(dt);
       // oyuncu ve binek görünümü
       mount.root.position.set(M.x, P.riding ? (P.hopY || 0) : 0, M.z);
       mount.root.rotation.y = M.dir;
@@ -2957,7 +3006,7 @@ CZ.screens.valley = (function () {
       const dt = Math.min(0.05, (now - (V.last || now)) / 1000);
       V.last = now; V.rdt = dt;
       if ((V.seenT = (V.seenT || 0) - dt) <= 0) { V.seenT = 5; d.seenAt = Date.now(); }
-      if (V.running && !V.paused) step(dt);
+      if (V.running && !V.paused) { if (V.hs > 0) V.hs -= dt; else step(dt); }
       if (!V) return;
       draw(V.paused ? 0 : dt);
       if (V.ins) insTick(dt);

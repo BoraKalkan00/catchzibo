@@ -2288,3 +2288,17 @@ body.wide #rotate-note { display: none !important; }
 .upg-sheet .fu-list { max-height: none; }
 @keyframes sheetUp { from { transform: translateY(100%); } }
 .vl-inside .vl-ui > :not(.vl-top) { opacity: 0; pointer-events: none; transition: opacity .25s; }
+/* (22 Kas) gece baskını 2.0 */
+.vl-edge.horde { width: 58px; } .vl-edge.horde::before { border-left-color: #ff3030 !important; filter: drop-shadow(0 0 6px #ff2020); }
+.vl-edge.horde i { background: #b01818; }
+.vl-combo { position: absolute; top: 108px; left: 50%; transform: translateX(-50%); z-index: 6; display: none; text-align: center; pointer-events: none; color: #fff; text-shadow: 0 3px 0 #b4381a, 0 0 12px rgba(255,120,40,.8); }
+.vl-combo.on { display: block; } .vl-combo b { display: block; font-size: 44px; line-height: 1; font-weight: 900; } .vl-combo small { font-weight: 900; letter-spacing: 3px; font-size: 14px; }
+.vl-combo.pop { animation: comboPop .35s cubic-bezier(.2,1.6,.4,1); } @keyframes comboPop { from { transform: translateX(-50%) scale(1.8) rotate(-8deg); } }
+.vl-ncard { position: absolute; left: 0; right: 0; top: 30%; z-index: 7; display: none; text-align: center; pointer-events: none; padding: 16px 10px; color: #fff;
+  background: linear-gradient(90deg, rgba(60,0,0,0), rgba(90,8,8,.88) 20%, rgba(90,8,8,.88) 80%, rgba(60,0,0,0)); border-top: 2px solid #ff5a3a; border-bottom: 2px solid #ff5a3a; }
+.vl-ncard.on { display: block; animation: ncard 2.6s ease forwards; }
+.vl-ncard small { display: block; font-weight: 900; letter-spacing: 4px; color: #ffb0a0; } .vl-ncard b { display: block; font-size: 30px; font-weight: 900; text-shadow: 0 3px 0 #300; }
+.vl-ncard span { display: block; font-style: italic; opacity: .9; } .vl-ncard em { display: inline-block; margin-top: 6px; font-style: normal; font-weight: 900; font-size: 20px; background: #300; padding: 2px 14px; border-radius: 20px; }
+@keyframes ncard { 0% { transform: scaleY(0); opacity: 0; } 10% { transform: scaleY(1.15); opacity: 1; } 16% { transform: scaleY(1); } 82% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(-40px); } }
+.vl-dawn { position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 110%, rgba(255,226,140,.95), rgba(255,180,80,.5) 45%, rgba(255,160,60,0) 75%); }
+.vl-dawn.on { animation: dawnF 1.6s ease forwards; } @keyframes dawnF { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }

@@ -134,6 +134,11 @@ CZ.audio = (function () {
   // Art arda kaldırdıkça nota yükselir: oyuncuyu hızlanmaya çeker.
   const PENTA = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
   const SFX = {
+    // (22 Kas) gece baskını sesleri
+    drum: (t, step = 0) => { tone(70, t, 0.35, { gain: 0.32, to: 42 }); noise(t, 0.12, { gain: 0.12, freq: 180, q: 0.7, type: 'lowpass' }); if (step) tone(95, t + 0.18, 0.25, { gain: 0.2, to: 55 }); },
+    poof: t => { noise(t, 0.22, { gain: 0.12, freq: 2400, to: 500, q: 0.6 }); tone(300, t, 0.12, { type: 'triangle', gain: 0.06, to: 160 }); },
+    combo: (t, step = 0) => { const n = midi(76 + PENTA[Math.min(step, PENTA.length - 1)] ); tone(n, t, 0.12, { type: 'square', gain: 0.05 }); tone(n * 1.5, t + 0.06, 0.16, { type: 'triangle', gain: 0.07 }); },
+    stinger: t => { [0, 0.18, 0.36].forEach((d, i) => tone([110, 104, 82][i], t + d, 0.5, { type: 'sawtooth', gain: 0.07, to: [100, 98, 60][i] })); for (let i = 0; i < 4; i++) SFX.drum(t + 0.6 + i * 0.32, i % 2); },
     lift: (t, step = 0) => {
       const note = 72 + PENTA[Math.min(step, PENTA.length - 1)];
       noise(t, 0.16, { gain: 0.1, freq: 900, to: 3800, q: 0.8 });
