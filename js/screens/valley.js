@@ -2877,10 +2877,7 @@ CZ.screens.valley = (function () {
     function chTick(dt) {
       if ((V.chT = (V.chT || 0) - dt) <= 0) { V.chT = 0.8; chUi(); }
       if ((V.mvT = (V.mvT || 0) - dt) <= 0) { V.mvT = 0.25; markVis(); }
-      // (22 Kas) DAİREDE DUR = KART AÇILIR (Kingshot gibi): kurulmamış/yükseltilebilir yerde 0.5 sn durunca kart bir kez açılır; çıkıp girince tekrar
-      { const still = Math.hypot(P.vx || 0, P.vz || 0) < 0.6, pp = pads.find(q => q.mark && q.mark.visible && Math.hypot(q.x - P.x, q.z - P.z) < 1.4 && padVisible(q));
-        if (!pp) V.standPad = null; else if (V.standPad !== pp) { V.standPad = pp; V.standT = 0; V.standDone = false; }
-        else if (still && !V.standDone && !V.paused && !V.cine && !goblins.some(o => !o.dead && Math.hypot(o.x - P.x, o.z - P.z) < 9)) { V.standT += dt; if (V.standT > 0.5) { V.standDone = true; openPad(pp); } } }
+      // (dairede durunca açılan kart kaldırıldı: alttaki yakın-daire paneli zaten var, kart yürürken araya giriyordu)
       if (chGuide) { chGuide.t -= dt; const dx = chGuide.x - P.x, dz = chGuide.z - P.z, dd = Math.hypot(dx, dz);
         if (chGuide.t <= 0 || dd < 2.2) { chGuide = null; gPil.visible = gArr.visible = false; return; }
         gPil.visible = gArr.visible = true; gPil.position.x = chGuide.x; gPil.position.z = chGuide.z; gPil.material.opacity = 0.22 + Math.sin(performance.now() / 180) * 0.1;

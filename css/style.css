@@ -2086,7 +2086,7 @@ body.wide #rotate-note { display: none !important; }
 .vl-nightcd.pop b { animation: cdpop .5s cubic-bezier(.2,1.6,.4,1); }
 @keyframes cdpop { 0% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .vl-nightvig { display: none; }
-.vl-nightvig.on { display: block; position: absolute; inset: 0; pointer-events: none; z-index: 0; box-shadow: inset 0 0 150px 60px rgba(200,20,40,.7); animation: nightpulse 1.6s ease-in-out infinite; }
+.vl-nightvig.on { display: block; position: absolute; inset: 0; pointer-events: none; z-index: 0; box-shadow: inset 0 0 22vmin 2vmin rgba(150,10,40,.42);   /* (22 Kas) küçük ekranda tüm ekranı kırmızıya boyuyordu */ animation: nightpulse 1.6s ease-in-out infinite; }
 @keyframes nightpulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
 
 .opt-panel { display: flex; flex-direction: column; gap: 6px; width: 100%; }
@@ -2337,3 +2337,4 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 @media (max-width: 430px) { .vl-time { font-size: 18px; padding: 4px 10px; } }
 @media (max-width: 380px) { .vl-top .res-plus { display: none; } .vl-top .res-bar { gap: 2px; } .vl-top .res { padding: 2px 4px 2px 2px; } .vl-top .mini-ico { width: 14px; height: 14px; } }
 @media (max-width: 380px) { .vl-time { font-size: 14px !important; padding: 3px 6px !important; } .vl-top { right: 54px !important; } }
+.kb-hint { display: none; } .vl-ui.kbd .kb-hint { display: block; }

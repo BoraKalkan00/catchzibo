@@ -52,7 +52,8 @@ Kurallar:
   - Yapıldı: gece sonu paylaşım kartı artık o gecenin gerçek ekran görüntüsünü ve en yüksek komboyu kullanıyor (eskiden 2D eski çizim).
 - [x] E22 Üst kaynak çubuğu 'Geceyi başlat' düğmesi görünürken 412 px'te iki satıra kırılıyor: küçült/taşı
 - [x] E23 Bin düğmesinin 'E' tuş etiketi düğme yazısı yenilenince kayboluyor
-- [ ] E21 Mağaza ekran görüntülerini yeni dünyayla yeniden çek (store/ tr_/en_ 1080×1920, 8'er adet) — Playwright ile
+- [x] E21 Mağaza ekran görüntülerini yeni dünyayla yeniden çek (store/ tr_/en_ 1080×1920, 8'er adet) — Playwright ile
+  - Yapıldı: yeni dünyayla 5'er görüntü (köy, gece sürüsü, yemekhane içi, Zibo gecesi, orman) tr/en 1080×1920 (tools/qa yerine qa/store.py). HATA: gece kırmızı çerçevesi küçük ekranda tüm ekranı kırmızıya boyuyordu → hafifletildi. Tuş ipuçları dokunmatikte gizli.
 
 ## F) Çıkış sonrası (şimdilik dokunma)
 - Kış Festivali etkinliği, Meshy karakterleri, sunuculu baskın/sıralama
