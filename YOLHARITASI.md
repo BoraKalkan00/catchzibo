@@ -38,7 +38,8 @@ Kurallar:
 ## D) PC/Steam sürümü (hesap Bora'da, sen sadece oyunu hazırla)
 - [x] D15 Klavye/fare: e.code ile WASD/oklar (Türkçe klavye, CapsLock), Shift=atılma, Q=yetenek, R=kükreme, M=harita, Esc=duraklat, 1-3 silah; fareyle tıklanan yöne ateş zaten var; ekranda tuş ipuçları (yalnız fare/klavye varsa)
   - Yapıldı: e.code ile WASD/oklar, Boşluk saldırı, Shift atılma, Q yetenek, R binek gücü, E bin/in, M harita, Esc duraklat/kapat; pencere odağı kaybolunca tuşlar sıfırlanır; fare/klavye varsa düğmelerde tuş etiketi. (Bin düğmesi yazısını yenilediği için E etiketi kayboluyor — küçük, sonra.)
-- [ ] D16 Electron masaüstü sarmalayıcısı (desktop/ klasörü) + GitHub Actions ile Windows x64 zip; ads.show PC'de reklamsız doğrudan ödül, gerçek para mağazası PC'de gizli
+- [x] D16 Electron masaüstü sarmalayıcısı (desktop/ klasörü) + GitHub Actions ile Windows x64 zip; ads.show PC'de reklamsız doğrudan ödül, gerçek para mağazası PC'de gizli
+  - Yapıldı: desktop/ (Electron 31, tek pencere 1280×720, F11/Alt+Enter tam ekran, menü yok), .github/workflows/desktop.yml → Windows x64 zip 'pc-build' sürümüne (ZibosRaid-win64.zip). CZ.PC: reklam yerine ödül direkt, gerçek para mağazası kapalı, ▶ simgeleri gizli. İlk CI sonucunu kontrol et.
 - [ ] D17 steamworks.js entegrasyonu (App ID gelince açılacak şekilde bayrakla): başarımlar (ilk gece, Zibo yakalandı, 10 gece, belediye sv5 ...) ve bulut kayıt
 
 ## E) Tutma (retention)

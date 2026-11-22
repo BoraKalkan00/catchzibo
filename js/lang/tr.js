@@ -1716,5 +1716,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   "ad.privNA": "Bu seçenek telefondaki uygulamada çalışır.",
   "photo.busy": "Fotoğraf için sakin bir an bekle (gündüz, düşman yokken).",
   "photo.shoot": "Çek",
-  "photo.label": "Köyüm · {n}. gece"
+  "photo.label": "Köyüm · {n}. gece",
+  "pc.noShop": "PC sürümünde gerçek parayla satış yok: her şey oyun içinde kazanılır!"
 });

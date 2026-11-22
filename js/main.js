@@ -64,6 +64,7 @@
   if (CZ.charArt) CZ.charArt.warm();
   // Arkadaşın meydan okuma linkiyle geldiysen: ligine eklenir, merkezde haber verilir
   if (CZ.challenge) { const ch = CZ.challenge.read(); if (ch) { CZ.state.data.pendingChal = ch; CZ.state.save(); } }
+  if (CZ.PC) document.body.classList.add('pc');
   CZ.ui.go('valley');   // (22 Kas) başlık ekranı atlandı: açılış = ikon → yükleme (yeni sahneler) → oyun
   CZ.notify.schedule();
 

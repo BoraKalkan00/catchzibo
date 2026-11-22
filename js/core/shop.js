@@ -126,6 +126,7 @@ CZ.shopUi = (function () {
   // Günlük bedava: reklam izle → 300 altın (günde 3)
   function freeLeft() { const d = CZ.state.data; const today = CZ.state.today(); if (d.freeAdDay !== today) { d.freeAdDay = today; d.freeAds = 0; } return 3 - (d.freeAds || 0); }
   function open(onClose, tab) {
+    if (CZ.PC) { CZ.ui.toast(CZ.t('pc.noShop')); if (onClose) onClose(); return; }
     const d = CZ.state.data;
     const body = h('div', { class: 'shop-body' });
     const tabs = h('div', { class: 'shop-tabs' });

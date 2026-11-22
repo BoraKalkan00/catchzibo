@@ -9,6 +9,8 @@ CZ.ADS = {
   interGapMs: 180000,                                       // iki geçiş reklamı arası en az 3 dk
   exitAds: false
 };
+// (22 Kas) PC/Steam sürümü: ücretli oyun → reklam yok (ödüller direkt verilir), gerçek para mağazası yok
+CZ.PC = !!window.CZ_DESKTOP || /[?&]platform=pc\b/.test(location.search);
 CZ.ads = (function () {
   const plugin = () => window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
   let ready = null;
@@ -31,6 +33,7 @@ CZ.ads = (function () {
   function privacy() { const A = plugin(); if (!A || !A.showConsentForm) return CZ.ui.toast(CZ.t('ad.privNA')); A.requestConsentInfo().then(() => A.showConsentForm()).catch(() => CZ.ui.toast(CZ.t('ad.privNA'))); }
   // Gerçek reklam: izlenip ödül hak edilince done() çağrılır. Kapatılırsa ödül yok.
   function show(done) {
+    if (CZ.PC) { done(); return null; }
     const A = plugin();
     if (!A) return fake(done);
     let busy = true;
@@ -97,6 +100,7 @@ CZ.ads = (function () {
   }
   function gameOver(done) {
     done = done || (() => {});
+    if (CZ.PC) return done();
     const d = CZ.state.data;
     if (d.noAds) return done();   // Reklamsız paketi alındı: zorunlu reklam yok
     d.overs = (d.overs || 0) + 1;

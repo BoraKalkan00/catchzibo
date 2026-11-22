@@ -1716,5 +1716,6 @@ CZ.i18n.register('en', 'English', {
   "ad.privNA": "This option works in the phone app.",
   "photo.busy": "Wait for a calm moment to take a photo (daytime, no enemies).",
   "photo.shoot": "Snap",
-  "photo.label": "My village · night {n}"
+  "photo.label": "My village · night {n}",
+  "pc.noShop": "No real-money store on PC: everything is earned in the game!"
 });
