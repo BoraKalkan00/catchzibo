@@ -24,7 +24,8 @@ Kurallar:
   - Yapıldı: ipuçları pencere/kart/bina içi/sinema açıkken bekler (popBusy); hoş geldin ve günlük hediye zaten sırayla geliyordu.
 - [x] B9 İlk gece ayarı: kesin kazanılır ama oyuncunun canı en az %30 düşer (goblin hasarı/sayısı wave 1-2 için ayarla), sonunda büyük ödül patlaması
   - Yapıldı: her sürünün lideri nişancı (gece 1'den itibaren uzaktan hasar); ≤2 goblin 12 sn'den uzun kalırsa kaçar, gece uzamaz (önceden son goblin geceyi 60+ sn uzatıyordu). Test botu kusursuz nişan aldığı için can kaybı ölçülemedi; Bora'nın oyununa göre ayarlanacak.
-- [ ] B10 tools/qa/ftue.py ile yeni oyuncu akışını uçtan uca oyna; dokunuş sayısı, kontrol alma süresi, takılma noktalarını DEVAM.md'ye yaz ve düzelt
+- [x] B10 tools/qa/ftue.py ile yeni oyuncu akışını uçtan uca oyna; dokunuş sayısı, kontrol alma süresi, takılma noktalarını DEVAM.md'ye yaz ve düzelt
+  - Yapıldı: botla öğretici uçtan uca (≈35 sn oyun zamanı). HATA: 'Sarı daireye gir' görevi daireye girince hiçbir şey yapmıyordu (sadece kısa dokunuş açıyordu; ayıdayken de) → dairede 0.5 sn durunca kart açılır. Kurulmamış kulede 'Yükselt' yerine 'İnşa et', İngilizcede '2 dk' yerine '2 min'.
 
 ## C) Sağlamlık
 - [ ] C11 tools/qa/soak.py 10 dakika: sıfır konsol hatası; bulunan her hatayı düzelt

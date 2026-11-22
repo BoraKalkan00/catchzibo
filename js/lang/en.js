@@ -1717,5 +1717,7 @@ CZ.i18n.register('en', 'English', {
   "photo.busy": "Wait for a calm moment to take a photo (daytime, no enemies).",
   "photo.shoot": "Snap",
   "photo.label": "My village · night {n}",
-  "pc.noShop": "No real-money store on PC: everything is earned in the game!"
+  "pc.noShop": "No real-money store on PC: everything is earned in the game!",
+  "upg.build": "Build",
+  "upg.min": "{n} min"
 });

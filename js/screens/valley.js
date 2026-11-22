@@ -2053,7 +2053,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
-    V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.solidsNear = (x, z) => solids.filter(q => Math.hypot(q.x - x, q.z - z) < q.r + 2).map(q => [+q.x.toFixed(1), +q.z.toFixed(1), q.r, q.vil || q.kind || '']); V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -2877,6 +2877,10 @@ CZ.screens.valley = (function () {
     function chTick(dt) {
       if ((V.chT = (V.chT || 0) - dt) <= 0) { V.chT = 0.8; chUi(); }
       if ((V.mvT = (V.mvT || 0) - dt) <= 0) { V.mvT = 0.25; markVis(); }
+      // (22 Kas) DAİREDE DUR = KART AÇILIR (Kingshot gibi): kurulmamış/yükseltilebilir yerde 0.5 sn durunca kart bir kez açılır; çıkıp girince tekrar
+      { const still = Math.hypot(P.vx || 0, P.vz || 0) < 0.6, pp = pads.find(q => q.mark && q.mark.visible && Math.hypot(q.x - P.x, q.z - P.z) < 1.4 && padVisible(q));
+        if (!pp) V.standPad = null; else if (V.standPad !== pp) { V.standPad = pp; V.standT = 0; V.standDone = false; }
+        else if (still && !V.standDone && !V.paused && !V.cine && !goblins.some(o => !o.dead && Math.hypot(o.x - P.x, o.z - P.z) < 9)) { V.standT += dt; if (V.standT > 0.5) { V.standDone = true; openPad(pp); } } }
       if (chGuide) { chGuide.t -= dt; const dx = chGuide.x - P.x, dz = chGuide.z - P.z, dd = Math.hypot(dx, dz);
         if (chGuide.t <= 0 || dd < 2.2) { chGuide = null; gPil.visible = gArr.visible = false; return; }
         gPil.visible = gArr.visible = true; gPil.position.x = chGuide.x; gPil.position.z = chGuide.z; gPil.material.opacity = 0.22 + Math.sin(performance.now() / 180) * 0.1;
@@ -2926,7 +2930,7 @@ CZ.screens.valley = (function () {
       const cost = L2.map(x => ({ icon: resIcon(x.r), n: x.n, have: d[x.r] || 0 }));
       const can = L2.length && L2.every(x => (d[x.r] || 0) >= x.n);
       let o, close;
-      const payBtn = () => btn(t('upg.pay'), () => {
+      const payBtn = () => btn(slot(p) ? t('upg.pay') : t('upg.build'), () => {
         if (!left(p).every(x => (d[x.r] || 0) >= x.n)) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('def.lacking')); }
         const pd = pd0(p); left(p).forEach(x => { d[x.r] -= x.n; pd[x.r] += x.n; }); resUi(); complete(p); close();
       }, 'primary wide', 'ic:up');
@@ -2958,7 +2962,7 @@ CZ.screens.valley = (function () {
         else if (nx) acts.push(can ? payBtn() : shortBtn());
         const ra = defRows(type, L), rb = nx ? defRows(type, nx) : [];
         o = { title: t('def.' + type), desc: t('def.d.' + type), from: L, to: nx, emoji: DEF_EMO[type], imgFrom: tSnap(type, L), imgTo: nx && tSnap(type, nx),
-          rows: ra.map(([k, v], i) => [k, L ? v : '—', rb[i] ? rb[i][1] : null]), cost: busy ? [] : cost, time: nx && !busy ? D2.min[L] + ' dk' : '', actions: acts };
+          rows: ra.map(([k, v], i) => [k, L ? v : '—', rb[i] ? rb[i][1] : null]), cost: busy ? [] : cost, time: nx && !busy ? t('upg.min', { n: D2.min[L] }) : '', actions: acts };
       }
       const wasPaused = V.paused; V.paused = true;
       const inside = p.kind === 'v' && CZ.interior && CZ.interior.has(p.id) && CZ.village.lv(p.id) > 0;

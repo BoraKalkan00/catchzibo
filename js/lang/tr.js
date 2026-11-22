@@ -1717,5 +1717,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "photo.busy": "Fotoğraf için sakin bir an bekle (gündüz, düşman yokken).",
   "photo.shoot": "Çek",
   "photo.label": "Köyüm · {n}. gece",
-  "pc.noShop": "PC sürümünde gerçek parayla satış yok: her şey oyun içinde kazanılır!"
+  "pc.noShop": "PC sürümünde gerçek parayla satış yok: her şey oyun içinde kazanılır!",
+  "upg.build": "İnşa et",
+  "upg.min": "{n} dk"
 });
