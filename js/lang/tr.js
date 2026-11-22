@@ -1710,5 +1710,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   "zb.out": "🧯 Söndürüldü!",
   "zb.burnt": "🔥 {b} yandı: -{n} altın",
   "zb.caught": "ZİBO YAKALANDI!",
-  "zb.jail": "Hapishaneye attın. ({n}. kez)"
+  "zb.jail": "Hapishaneye attın. ({n}. kez)",
+  "opt.priv": "Gizlilik",
+  "opt.privAds": "Reklam izni",
+  "ad.privNA": "Bu seçenek telefondaki uygulamada çalışır."
 });

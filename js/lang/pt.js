@@ -1528,5 +1528,8 @@ CZ.i18n.register('pt', 'Português', {
   "zb.out": "🧯 Fire out!",
   "zb.burnt": "🔥 {b} burned: -{n} gold",
   "zb.caught": "ZIBO CAUGHT!",
-  "zb.jail": "Locked in jail. (time #{n})"
+  "zb.jail": "Locked in jail. (time #{n})",
+  "opt.priv": "Privacy",
+  "opt.privAds": "Ad consent",
+  "ad.privNA": "This option works in the phone app."
 });

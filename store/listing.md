@@ -2,7 +2,7 @@
 
 Ekran görüntüleri: bu klasördeki `tr_1.jpg … tr_8.jpg` (Türkçe) ve `en_1.jpg … en_8.jpg` (İngilizce), 1080×1920.
 Gizlilik politikası: https://borakalkan00.github.io/catchzibo/privacy.html
-Kategori: Oyun → Gündelik (Casual) · Hedef kitle: 6–12 ve tüm yaşlar (Families politikası) · Reklam içerir: Evet · Uygulama içi satın alma: Evet (altın/zümrüt paketleri, Kış Bileti, reklamsız)
+Kategori: Oyun → Gündelik (Casual) · Hedef kitle: 13 yaş ve üstü (13–15, 16–17, 18+; Families programına GİRMİYOR — çocuk reklamları çok az kazandırır) · İçerik derecesi beklenen: PEGI 7 / Everyone 10+ (çizgi film şiddeti) · Reklam içerir: Evet · Uygulama içi satın alma: Evet (altın/zümrüt paketleri, Kış Bileti, reklamsız)
 
 ---
 

@@ -2139,7 +2139,7 @@ CZ.screens.valley = (function () {
           h('span', {}, '⭐ ', h('b', { text: String(d.bestNight || V.wave) }), h('small', { text: t('night.best') }))),
         btn(t('night.x2'), function () { if (doubled) return; CZ.ads.show(() => { doubled = true; gain(earned + bonus, true); CZ.ui.fly && CZ.ui.fly(this, 'gold', earned + bonus); CZ.audio.sfx('star'); this.disabled = true; CZ.state.save(); }); }, 'primary wide', 'ic:play'),
         btn(t('share.btn'), () => { if (CZ.share && CZ.share.share) CZ.share.share({ big: t('night.shareBig', { n: V.wave }), label: t('night.shareLabel'), line: '👺 ' + kills, avatar: d.avatar }); }, 'ghost-dark wide'),
-        btn(t('night.go'), () => { box.remove(); V.paused = false; V.last = 0; if (V.wave >= 2 && Math.random() < 0.55) setTimeout(() => { if (V && V.phase === 'day') ziboHeist(); }, 1800); }, 'small ghost-dark')));
+        btn(t('night.go'), () => { box.remove(); V.paused = false; V.last = 0; if (V.wave >= 3 && V.wave % 2 === 1) { V.paused = true; CZ.ads.gameOver(() => { if (V) { V.paused = false; V.last = 0; } }); }  /* geçiş reklamı: 3. geceden sonra her 2 gecede, 3 dk ara, reklamsızda yok */ if (V.wave >= 2 && Math.random() < 0.55) setTimeout(() => { if (V && V.phase === 'day') ziboHeist(); }, 1800); }, 'small ghost-dark')));
       dawnEl.classList.remove("on"); void dawnEl.offsetWidth; dawnEl.classList.add("on");
       V.paused = true; setTimeout(() => { if (V) wrap.append(box); }, 1100);
     }

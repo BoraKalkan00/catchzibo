@@ -16,12 +16,19 @@ CZ.ads = (function () {
     const A = plugin();
     if (!A) return Promise.resolve(false);
     if (!ready) {
-      // Çocuklara uygun: kişiselleştirilmemiş, G derecelendirmeli reklam.
-      ready = A.initialize({ initializeForTesting: CZ.ADS.testing, tagForChildDirectedTreatment: true, tagForUnderAgeOfConsent: true, maxAdContentRating: 'General' })
-        .then(() => true).catch(() => false);
+      // (22 Kas) Hedef kitle 13+: çocuk etiketi yok (çocuk reklamları ~3-5 kat az kazandırır). AB/İngiltere'de önce Google'ın izin formu (UMP) sorulur,
+      // kişiselleştirme kararını SDK izne göre kendisi verir. Reklam içeriği en fazla PG (aile dostu kalsın).
+      ready = A.initialize({ initializeForTesting: CZ.ADS.testing, tagForChildDirectedTreatment: false, tagForUnderAgeOfConsent: false, maxAdContentRating: 'ParentalGuidance' })
+        .then(() => consent(A)).then(() => true).catch(() => false);
     }
     return ready;
   }
+  function consent(A) {
+    if (!A.requestConsentInfo) return Promise.resolve();
+    return A.requestConsentInfo().then(info => (info && info.status === 'REQUIRED' && info.isConsentFormAvailable && A.showConsentForm) ? A.showConsentForm() : null).catch(() => null);
+  }
+  // Ayarlardan izin formunu yeniden açmak için (GDPR: oyuncu kararını değiştirebilmeli)
+  function privacy() { const A = plugin(); if (!A || !A.showConsentForm) return CZ.ui.toast(CZ.t('ad.privNA')); A.requestConsentInfo().then(() => A.showConsentForm()).catch(() => CZ.ui.toast(CZ.t('ad.privNA'))); }
   // Gerçek reklam: izlenip ödül hak edilince done() çağrılır. Kapatılırsa ödül yok.
   function show(done) {
     const A = plugin();
@@ -31,7 +38,7 @@ CZ.ads = (function () {
     (document.querySelector('.screen') || document.body).append(veil);
     init().then(ok => {
       if (!ok) throw new Error('init');
-      return A.prepareRewardVideoAd({ adId: CZ.ADS.rewarded, isTesting: CZ.ADS.testing, npa: true });
+      return A.prepareRewardVideoAd({ adId: CZ.ADS.rewarded, isTesting: CZ.ADS.testing, npa: false });
     }).then(() => A.showRewardVideoAd()).then(reward => {
       veil.remove(); busy = false;
       if (reward) done();
@@ -85,7 +92,7 @@ CZ.ads = (function () {
   function showInter(done) {
     const A = plugin();
     if (!A) return fakeInter(done);
-    init().then(ok => { if (!ok) throw 0; return A.prepareInterstitial({ adId: CZ.ADS.interstitial, isTesting: CZ.ADS.testing, npa: true }); })
+    init().then(ok => { if (!ok) throw 0; return A.prepareInterstitial({ adId: CZ.ADS.interstitial, isTesting: CZ.ADS.testing, npa: false }); })
       .then(() => A.showInterstitial()).then(() => done(), () => done());
   }
   function gameOver(done) {
@@ -114,5 +121,5 @@ CZ.ads = (function () {
       clearInterval(timer); box.remove(); done();
     }, 1000);
   }
-  return { show, init, gameOver, onExit, playing };
+  return { show, init, gameOver, onExit, playing, privacy };
 })();
