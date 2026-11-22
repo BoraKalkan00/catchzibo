@@ -2419,7 +2419,7 @@ CZ.screens.valley = (function () {
         M.speed += (msp - M.speed) * Math.min(1, dt * 6);
       }
       if (ice.alive && P.riding === false && Math.hypot(ice.x - P.x, ice.z - P.z) < 3 && !V.iceHint) { V.iceHint = true; floatAt(ice, t('valley.needPolar')); }
-      rideBtn.textContent = P.riding ? t('valley.dismount') : (Math.hypot(M.x - P.x, M.z - P.z) < 3.2 ? t('valley.ride') : t('valley.call'));
+      { const rt = P.riding ? t('valley.dismount') : (Math.hypot(M.x - P.x, M.z - P.z) < 3.2 ? t('valley.ride') : t('valley.call')); if (rideBtn.dataset.t !== rt) { rideBtn.dataset.t = rt; const kh = rideBtn.querySelector('.kb-hint'); rideBtn.textContent = rt; if (kh) rideBtn.append(kh); } }
       rideBtn.classList.toggle('near', !P.riding && Math.hypot(M.x - P.x, M.z - P.z) < 3.2);
 
       // GOBLİNLER: yakındaysan sana mızrakla saldırır; değilse köye yürür, çiti döver ya da altın çalıp kaçar
@@ -3071,8 +3071,9 @@ CZ.screens.valley = (function () {
     }
     // dört para birimi: odun, taş, altın, zümrüt
     function resUi() {
-      woodEl.textContent = Math.floor(d.wood || 0); stoneEl.textContent = Math.floor(d.stone || 0);
-      goldEl.textContent = Math.floor(d.gold || 0); gemEl.textContent = Math.floor(d.emeralds || 0);
+      const kf = v => { v = Math.floor(v || 0); return v >= 1e6 ? (v / 1e6).toFixed(v < 1e7 ? 1 : 0) + 'M' : v >= 1e4 ? (v / 1e3).toFixed(v < 1e5 ? 1 : 0) + 'K' : String(v); };   // (22 Kas) 12345 → 12.3K: üst çubuk taşmasın
+      woodEl.textContent = kf(d.wood); stoneEl.textContent = kf(d.stone);
+      goldEl.textContent = kf(d.gold); gemEl.textContent = kf(d.emeralds);
       if (V && (V.ordT = (V.ordT || 0) + 1) % 20 === 1) ordUi();   // sipariş hazır mı (seyrek kontrol)
     }
     function gain(n, quiet) {

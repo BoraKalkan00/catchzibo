@@ -2069,7 +2069,7 @@ body.wide #rotate-note { display: none !important; }
 
 /* Gece-gündüz */
 .vl-time.night { background: linear-gradient(#2a2f7a, #141a4a); box-shadow: 0 0 12px rgba(120,140,255,.6); }
-.vl-nightbtn { margin-left: 6px; padding: 5px 12px; border: 0; border-radius: 12px; background: linear-gradient(#4b4fc4, #2b2f8a); color: #fff; font: 900 14px/1 inherit; box-shadow: 0 3px 0 #1a1d5c; white-space: nowrap; pointer-events: auto; }
+.vl-nightbtn { position: absolute; right: 0; top: 40px; margin-left: 6px; padding: 5px 12px; border: 0; border-radius: 12px; background: linear-gradient(#4b4fc4, #2b2f8a); color: #fff; font: 900 14px/1 inherit; box-shadow: 0 3px 0 #1a1d5c; white-space: nowrap; pointer-events: auto; }
 .vl-nightbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #1a1d5c; }
 .night-rep .lg-title { font-size: 26px; }
 /* (21 Kas) Küçük harita: dikey ekranda dünyayı kapatmasın */
@@ -2331,3 +2331,9 @@ body.wide #rotate-note { display: none !important; }
 .vl-photobar { position: absolute; left: 50%; bottom: calc(40px + var(--safe-bottom, 0px)); transform: translateX(-50%); display: flex; gap: 10px; z-index: 9; }
 .vl-flash { position: absolute; inset: 0; background: #fff; z-index: 10; pointer-events: none; animation: dawnF .4s ease-out forwards; }
 body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi gizli */
+/* (22 Kas) dar ekranda 'Geceyi başlat' görünürken üst çubuk iki satıra kırılmasın */
+@media (max-width: 430px) { .vl-nightbtn { padding: 4px 6px; font-size: 11px; margin-left: 3px; } .vl-top { right: 62px; } .vl-top .res-bar { flex-wrap: nowrap; } .vl-top .res-bar .res { padding-left: 4px; padding-right: 6px; font-size: 12px; } }
+@media (max-width: 380px) { .vl-top .res-bar .res { font-size: 11px; padding-right: 4px; } .vl-top .res-bar .res i { font-size: 13px; } .vl-top { right: 58px; } .vl-time { font-size: 16px !important; padding: 3px 8px !important; } }
+@media (max-width: 430px) { .vl-time { font-size: 18px; padding: 4px 10px; } }
+@media (max-width: 380px) { .vl-top .res-plus { display: none; } .vl-top .res-bar { gap: 2px; } .vl-top .res { padding: 2px 4px 2px 2px; } .vl-top .mini-ico { width: 14px; height: 14px; } }
+@media (max-width: 380px) { .vl-time { font-size: 14px !important; padding: 3px 6px !important; } .vl-top { right: 54px !important; } }
