@@ -1976,15 +1976,15 @@ CZ.screens.valley = (function () {
     const flameGeo = new THREE.ConeGeometry(0.13, 0.34, 7), flameMat = new THREE.MeshBasicMaterial({ color: 0xffa030 }),
       glowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,200,90,1)'); g.addColorStop(0.4, 'rgba(255,140,40,.5)'); g.addColorStop(1, 'rgba(255,120,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })(),
       glowMat = new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
-    function torchUp(gb) { const sp = gb.spear; if (!sp) return; const f = new THREE.Mesh(flameGeo, flameMat); f.position.y = 1.08; sp.add(f); const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(1.6); gl.position.y = 1.1; sp.add(gl); gb.flame = f; }
+    function torchUp(gb) { const sp = gb.spear; if (!sp) return; const f = new THREE.Mesh(flameGeo, flameMat); f.position.y = 1.08; sp.add(f); const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(2.4); gl.position.y = 1.1; sp.add(gl); gb.flame = f; }
     const DIRS8 = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
     function hordeTick(dt) {
       const H = V.hd || (V.hd = { t: 3, dir: null }); if (H.dir) H.dir.t -= dt;
       if ((H.t -= dt) > 0 || V.nSp >= V.nTot) return;
       const left = V.nTot - V.nSp, size = Math.min(left, 3 + Math.floor(V.wave / 2), 8);
       let cx = 0, cz = 0, a = 0;
-      for (let k = 0; k < 30; k++) { a = rand(0, Math.PI * 2); const rr = rand(27, 34); cx = P.x + Math.cos(a) * rr; cz = P.z + Math.sin(a) * rr; if (Math.hypot(cx, cz) > FENCE_R + 6 && Math.hypot(cx, cz) < WORLD_R - 3 && !water(cx, cz)) break; }
-      for (let i = 0; i < size; i++) { const gb = spawnGoblin(false, [cx + rand(-2.6, 2.6), cz + rand(-2.6, 2.6)]); if (gb) { gb.night = true; if (i < 2 || Math.random() < 0.5) torchUp(gb); } }
+      for (let k = 0; k < 30; k++) { a = rand(0, Math.PI * 2); const rr = rand(22, 27); cx = P.x + Math.cos(a) * rr; cz = P.z + Math.sin(a) * rr; if (Math.hypot(cx, cz) > FENCE_R + 6 && Math.hypot(cx, cz) < WORLD_R - 3 && !water(cx, cz)) break; }
+      for (let i = 0; i < size; i++) { const gb = spawnGoblin(false, [cx + rand(-2.6, 2.6), cz + rand(-2.6, 2.6)]); if (gb) { gb.night = true; gb.horde = true; gb.flank = (i - (size - 1) / 2) * 0.55 + rand(-0.15, 0.15); torchUp(gb); } }
       V.nSp += size; H.t = Math.max(7, 13 - V.wave * 0.5);
       H.dir = { x: cx, z: cz, t: 4.5, n: size };
       const dn = DIRS8[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8];
@@ -2300,6 +2300,16 @@ CZ.screens.valley = (function () {
           const fp = pads.find(p => p.kind === 'f' && p.i === seg), fit = fp && slot(fp);
           if (fit && fit.lv >= 1 && fp.hp > 0 && rc < FENCE_R + 1.1 && rc > FENCE_R - 0.5) attackFence = fp;
           else { tx = 0; tz = 0; }
+        }
+        // (22 Kas) DAHA AKILLI GOBLİN: sürü seni çevreler (yanlardan/arkadan), yaralı goblin kaçıp toparlanır, yaklaşınca bağırıp hücum eder
+        if (o.horde && !o.flee && !o.boss && tx === P.x && tz === P.z) {
+          if (o.hp < o.maxHp * 0.3 && !o.scaredOnce && o.maxHp > 1) { o.scaredOnce = true; o.scared = 2.2; floatAt(o, '😱', 'auto'); }
+          if (o.scared > 0) { o.scared -= dt; tx = o.x - dxp / (dp || 1) * 8; tz = o.z - dzp / (dp || 1) * 8; sp = o.speed * 1.1; }
+          else {
+            if (!o.charged && dp < 9) { o.charged = true; o.chg = 1.6; if (Math.random() < 0.5) floatAt(o, ['Grak!', 'Nyek!', 'ZIBO!'][Math.floor(Math.random() * 3)], 'auto'); }
+            if (o.chg > 0) { o.chg -= dt; sp = o.speed * 1.35; }
+            if (dp < 7 && dp > 1.6) { const a0 = Math.atan2(o.z - P.z, o.x - P.x) + o.flank * Math.min(1, (dp - 1.6) / 3); tx = P.x + Math.cos(a0) * 1.2; tz = P.z + Math.sin(a0) * 1.2; }
+          }
         }
         // (21 Kas) sana koşarken düz çizgide gelmez: zikzak + yan adım (Zor'da daha çok)
         if (!o.flee && !o.boss && tx === P.x && tz === P.z && dp > 2.2 && dp < 12) { const zz = Math.sin(performance.now() / 1000 * (2.2 + (o.seed || 0)) + (o.seed || 0) * 9) * DIFF().zig * Math.min(1, (dp - 2.2) / 3); tx += -dzp / dp * zz; tz += dxp / dp * zz; }
