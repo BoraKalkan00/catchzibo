@@ -5,7 +5,7 @@ Kurallar:
 - "Bitti" demek için: `node --check` temiz, `tools/qa/` içindeki ilgili Playwright testi hatasız (çıktılar /tmp/qa/), ekran görüntüsüne bakılmış, sw.js sürümü +1, commit + push.
 - Bir maddeyi bir daha dönüp yapmaya gerek kalmayacak kadar iyi yap. Emin değilsen küçük ve sağlam yap.
 - Test ortamı: `mkdir -p /tmp/qa && pip install playwright --break-system-packages && python3 -m playwright install chromium` (gerekirse). Testler sayfayı kendisi sunar (port 8765).
-- Oyuncu 18 yaşından küçük değil varsayma; mağaza/hesap işleri Bora'nındır, sen OYUNA odaklan.
+- Mağaza/hesap işleri Bora'nındır; sen OYUNA odaklan.
 
 ## A) Görünüş
 - [x] A1 Kilitli bölge sisi + kilit tabelaları
