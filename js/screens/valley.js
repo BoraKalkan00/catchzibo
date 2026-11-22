@@ -455,7 +455,7 @@ CZ.screens.valley = (function () {
           [-1, 1].forEach(sd => { const bn = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, 1.4), toon(0x7a4a22)); bn.position.set(tx + sd * 0.62, 0.36, cz); vilGroup.add(bn);
             for (let k = 0; k < 2; k++) PATIO.seats.push([tx + sd * 0.62, cz - 0.4 + k * 0.8, sd]); }); } }
     }
-    const bedsCapX = () => 2 + CZ.village.lv('house') * 2;
+    const bedsCapX = () => 2 + CZ.village.lv('house') * 2 + (CZ.village.furn ? CZ.village.furn('house')[0] : 0);
     function placeVillage() {
       vilGroup.clear();
       if (!CZ.villageModel || !CZ.village) return;
@@ -1017,7 +1017,7 @@ CZ.screens.valley = (function () {
         d.dq = { day: dayKey(), wk, wkS, list: pool.map(([k, a, b, r]) => { const need = a + Math.floor(Math.random() * (b - a + 1)); return { k, need, have: 0, rew: r === 'e' ? { emeralds: 3 + need } : { gold: 60 + need * 12 }, claimed: false }; }) };
         if (dayKey() - wkS >= 7) { d.dq.wk = 0; d.dq.wkS = dayKey(); } }
       return d.dq; }
-    function dq(k, n) { const D = dqEnsure(); let up = false; D.list.forEach(q => { if (q.k === k && q.have < q.need) { q.have = Math.min(q.need, q.have + (n || 1)); up = true; if (q.have >= q.need) { floatAt(P, '🎯 ' + t('dq.done'), 'wave'); CZ.audio.sfx('star'); } } }); if (up) dqUi(); }
+    function dq(k, n) { if (!d.chc) d.chc = {}; d.chc[k] = (d.chc[k] || 0) + (n || 1); try { chUi(); } catch (e) { /* */ } const D = dqEnsure(); let up = false; D.list.forEach(q => { if (q.k === k && q.have < q.need) { q.have = Math.min(q.need, q.have + (n || 1)); up = true; if (q.have >= q.need) { floatAt(P, '🎯 ' + t('dq.done'), 'wave'); CZ.audio.sfx('star'); } } }); if (up) dqUi(); }
     function dqUi() { const D = dqEnsure(), n = D.list.filter(q => q.have >= q.need && !q.claimed).length; try { qBtn.lastChild.textContent = n ? String(n) : ''; qBtn.classList.toggle('has', n > 0); } catch (e) { /* düğme henüz yok */ } }
     function openQuests() {
       if (V.paused) return; V.paused = true; CZ.audio.sfx('button'); const D = dqEnsure();
@@ -1392,6 +1392,8 @@ CZ.screens.valley = (function () {
     const mailBtn = h('button', { type: 'button', class: 'vl-mail' }, h('i', { text: '📬' }), h('b'));
     const qBtn = h('button', { type: 'button', class: 'vl-mail vl-q' }, h('i', { text: '🎯' }), h('b'));
     qBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openQuests(); });
+    const chEl = h('button', { type: 'button', class: 'vl-chap' });
+    chEl.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); chTap(); });
     mailBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openMail(); });
     const svBtn = h('button', { type: 'button', class: 'vl-trade vl-sv', style: 'display:none' }, h('i', { text: '🗨️' }), h('b', { text: t('sv.talk') }));
     svBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openSurvivor(); });
@@ -1533,7 +1535,7 @@ CZ.screens.valley = (function () {
     const pauseB = h('button', { class: 'pause-btn vl-pause', type: 'button' }, h('i'), h('i'));
     const ui = h('div', { class: 'vl-ui' },
       h('div', { class: 'vl-top' }, h('div', { class: 'res-bar' }, h('span', { class: 'res wood' }, h('i', { text: '🪵' }), woodEl), h('span', { class: 'res stone' }, h('i', { text: '🪨' }), stoneEl), h('span', { class: 'res gold' }, img('ui.gold', 'mini-ico'), goldEl), h('span', { class: 'res gem', onClick: () => openMarket() }, img('ui.emerald', 'mini-ico'), gemEl, h('i', { class: 'res-plus', text: '⇄' }))), timeEl, nightBtn),
-      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, tipEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
+      vigEl, hpBarEl, raidEl, cdEl, rushEl, rushArrow, wpnBtn, tradeBtn, skBtn, dsBtn, vilBtn, svBtn, mailBtn, qBtn, chEl, tipEl, heroBtn, ordBtn, giftBtn, powBtn, boostBtn, mpBtn, pauseB, floats, mapC, ...edgeArrows, stick, panel, rideBtn, fireBtn);
     const wrap = h('div', { class: 'valley-wrap' }, stage, ui);
     el.append(wrap);
     function resize() {
@@ -1713,8 +1715,8 @@ CZ.screens.valley = (function () {
     if (!d.surv) d.surv = { list: [], n: 0 }; if (d.food == null) d.food = 6;
     const SV = d.surv, npcs = [];
     const spotW = id => { const [sx, sz] = CZ.VILLAGE_SPOTS[id]; return [sx * VS, sz * VS + 1.8]; };
-    const bedsCap = () => 2 + CZ.village.lv('house') * 2;
-    const seats = () => 2 + CZ.village.lv('canteen') * 2;
+    const bedsCap = () => 2 + CZ.village.lv('house') * 2 + CZ.village.furn('house')[0];
+    const seats = () => 2 + CZ.village.lv('canteen') * 2 + CZ.village.furn('canteen')[1];
     // (22 Kas) KÖYLÜ TİPLERİ: 6 meslek × 2 cinsiyet × 2 tip = 24 farklı görünüş (+ saç rengi); kendi KayKit gövdeleri — oyuncunun modelini/sarı şövalyeyi kopyalamaz
     const HAIR = [0x2a1a10, 0x5a3418, 0x8a5228, 0xc0502a, 0xe0b04a, 0x1d1d26, 0xd8d0c8];
     const PCOL = { wood: [[0x8a3a2a, 0x3a5a2a, 0x4a3a2a], [0x2e6a3a, 0x8a5228, 0x3a2a1a]], miner: [[0x5d6d7e, 0xf2c230, 0x3a3a44], [0x8d6e63, 0x5d6d7e, 0x2a2a30]], cook: [[0xf4f4f8, 0xd8282a, 0x3a3a44], [0xf0e0c0, 0xe67e22, 0x4a3a2a]],
@@ -1778,7 +1780,7 @@ CZ.screens.valley = (function () {
       const st2 = Math.min(L, spd * dt); const [nx, nz] = collide(n.x + dx / L * st2, n.z + dz / L * st2, 0.35); n.x = nx; n.z = nz; n.dir = Math.atan2(-dx, -dz); n.moving = true; return false; }
     function nearResAt(list, x0, z0, maxR) { let best = null, bd = maxR; list.forEach(it => { if (!it.alive || it.npc) return; const dd = Math.hypot(it.x - x0, it.z - z0); if (dd < bd) { bd = dd; best = it; } }); return best; }
     const zoneFlags = {};
-    function setZone(S0, x, z) { S0.zone = { x, z }; S0.follow = false; CZ.state.save(); if (zoneFlags[S0.id]) scene.remove(zoneFlags[S0.id]);
+    function setZone(S0, x, z) { S0.zone = { x, z }; S0.follow = false; S0.bld = null; CZ.state.save(); if (zoneFlags[S0.id]) scene.remove(zoneFlags[S0.id]);
       const g = new THREE.Group(); const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2, 5), toon(0x6a4022)); pole.position.y = 1; g.add(pole);
       const fl = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.5), new THREE.MeshBasicMaterial({ color: S0.job === 'wood' ? 0x2e9a4a : 0x7d8796, side: THREE.DoubleSide })); fl.position.set(0.4, 1.7, 0); g.add(fl);
       g.position.set(x, 0, z); scene.add(g); zoneFlags[S0.id] = g; const n = npcs.find(q => q.s === S0); if (n) { if (n.task) { n.task.npc = false; n.task = null; } n.st = 'idle'; }
@@ -1788,7 +1790,8 @@ CZ.screens.valley = (function () {
     function nearRes(list, n, maxR) { let best = null, bd = maxR; list.forEach(it => { if (!it.alive || it.npc || Math.hypot(it.x, it.z) > FENCE_R + 26) return; const dd = Math.hypot(it.x - n.x, it.z - n.z); if (dd < bd) { bd = dd; best = it; } }); return best; }
     const stv = (S0, k) => (S0.st && S0.st[k]) || 5;
     function eff(n) { const S0 = n.s, k = { wood: 'str', miner: 'str', cook: 'int', hunter: 'spd', builder: 'int', healer: 'int' }[S0.job] || 'str';
-      return (0.5 + (S0.happy || 50) / 100) * (S0.job === S0.prof ? 2 : 1) * (1 + (S0.rar || 0) * 0.2) * (0.7 + stv(S0, k) * 0.06); }
+      const HF = CZ.village.furn('house');
+      return (1 + 0.03 * (HF[1] + HF[2])) * (0.5 + (S0.happy || 50) / 100) * (S0.job === S0.prof ? 2 : 1) * (1 + (S0.rar || 0) * 0.2) * (0.7 + stv(S0, k) * 0.06); }
     const nspd = (n, b) => b * (0.8 + stv(n.s, 'spd') * 0.04);
     function npcTick(dt) {
       // geliş: her şafakta %70, ilk seferde 40 sn sonra
@@ -1821,7 +1824,8 @@ CZ.screens.valley = (function () {
             n.x = n.tx; n.z = n.tz; S0.ateToday = true; if (d.food >= 1) { d.food -= 1; S0.ate = true; S0.happy = Math.min(100, (S0.happy || 50) + 8); n.bubble = 2.5; n.bubT = '😋'; } else { S0.ate = false; S0.happy = Math.max(0, (S0.happy || 50) - 20); n.bubble = 3; n.bubT = '😠'; floatAt(n, t('sv.hungry', { n: S0.name }), 'dmg'); } resUi(); n.st = 'eating'; n.t = 6; } }
         else { n.hm.root.visible = true; n.hm.root.rotation.x = 0; if (n.st === 'sleep' || n.st === 'home') { n.st = 'idle'; S0.ateToday = false; n.hm.root.position.y = 0; }
           const job = S0.job;
-          if (job === 'wood' || job === 'miner') {
+          if (S0.bld && S0.bld !== 'canteen' && CZ.VILLAGE_SPOTS[S0.bld]) { const [wx2, wz2] = spotW(S0.bld); n.tx = wx2 + Math.sin(performance.now() / 2800 + (SV.list.indexOf(S0) + 1)) * 1.8; n.tz = wz2 + 2.4; npcMove(n, dt, 1.3); n.t -= dt; if (n.t <= 0) { n.t = 14; floatAt(n, '⚒️', 'auto'); } }
+          else if (job === 'wood' || job === 'miner') {
             if (n.st === 'idle') { const it = S0.zone ? nearResAt(job === 'wood' ? trees : rocks, S0.zone.x, S0.zone.z, 16) : nearRes(job === 'wood' ? trees : rocks, n, 40); if (it) { it.npc = true; n.task = it; n.st = 'go'; n.tx = it.x + (n.x > it.x ? 1 : -1); n.tz = it.z + 0.6; } else { n.tx = hx + rand(-3, 3); n.tz = hz + rand(-3, 3); npcMove(n, dt, 1.5); } }
             else if (n.st === 'go') { if (!n.task.alive) { n.task.npc = false; n.task = null; n.st = 'idle'; } else if (npcMove(n, dt, nspd(n, 3.4))) { n.st = 'work'; n.t = 4.5 / Math.min(2, eff(n)); n.hit = 0; } }
             else if (n.st === 'work') { n.t -= dt; n.hit -= dt; n.dir = Math.atan2(-(n.task.x - n.x), -(n.task.z - n.z)); if (n.hit <= 0) { n.hit = 0.8; if (n.hm.throwNow) n.hm.throwNow(); n.task.tilt = 0.12; n.task.punch = 1; wob.add(n.task); setInst(n.task); }
@@ -1923,7 +1927,7 @@ CZ.screens.valley = (function () {
             h('div', { class: 'wpn-txt' }, h('b', { style: 'color:' + ((S0.rar || 0) ? RARC[S0.rar] : 'inherit'), text: S0.name + ' ' + mood + ((S0.rar || 0) ? ' · ' + t('sv.r' + S0.rar) : '') }), h('small', { text: t('sv.was', { p: t('sv.p.' + S0.prof) }) + (S0.job === S0.prof ? ' · ×2' : '') }),
               h('small', { class: 'sv-st', text: STATK.map(k => STATI[k] + stv(S0, k)).join(' ') + ' · 🛏️' + (S0.room || 1) }), c.length ? h('small', { class: 'sv-comp', text: '“' + c[0] + '”' }) : null),
             h('div', { class: 'sv-btns' },
-            btn('🔁 ' + t('sv.jobIs', { j: PROF[S0.job] + ' ' + t('sv.p.' + S0.job) }), () => { S0.job = PROFS[(PROFS.indexOf(S0.job) + 1) % PROFS.length]; S0.follow = false; if (S0.zone) { S0.zone = null; if (zoneFlags[S0.id]) { scene.remove(zoneFlags[S0.id]); delete zoneFlags[S0.id]; } } CZ.state.save(); const n = npcs.find(q => q.s === S0); if (n) { if (n.task) { n.task.npc = false; n.task = null; } n.st = 'idle'; n.carry = null; } CZ.audio.sfx('button'); draw(); }, 'small'),
+            btn('🔁 ' + t('sv.jobIs', { j: PROF[S0.job] + ' ' + t('sv.p.' + S0.job) }), () => { S0.job = PROFS[(PROFS.indexOf(S0.job) + 1) % PROFS.length]; S0.follow = false; S0.bld = null; if (S0.zone) { S0.zone = null; if (zoneFlags[S0.id]) { scene.remove(zoneFlags[S0.id]); delete zoneFlags[S0.id]; } } CZ.state.save(); const n = npcs.find(q => q.s === S0); if (n) { if (n.task) { n.task.npc = false; n.task = null; } n.st = 'idle'; n.carry = null; } CZ.audio.sfx('button'); draw(); }, 'small'),
             jobAct(S0, close, draw),
             btn('🛏️+', () => { if (upRoom(S0)) draw(); }, 'small ghost-dark'))); }),
         h('div', { class: 'def-row' }, btn('🛏️ ' + t('vil.b.house'), () => { close(); openPad(pads.find(q => q.kind === 'v' && q.id === 'house')); }, 'small'), btn('🍽️ ' + t('vil.b.canteen'), () => { close(); openPad(pads.find(q => q.kind === 'v' && q.id === 'canteen')); }, 'small')),
@@ -1944,7 +1948,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
-    V.pause = pause; V.debug.vLook = vLook; V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -2334,9 +2338,9 @@ CZ.screens.valley = (function () {
       if (V_wind) V_wind.value += dt;
       if (V.atkT > 0) V.atkT -= dt; wpnPose();
       { const tt = performance.now() / 90; FLAMES.forEach((g, i) => { const [f1, f2] = g.userData.flame; f1.scale.y = 1 + Math.sin(tt + i) * 0.15; f2.scale.y = 1 + Math.cos(tt * 1.3 + i) * 0.2; f1.rotation.y = tt * 0.1; }); }
-      if ((V.brT = (V.brT || 0) - dt) <= 0) { V.brT = 30; const b = CZ.village.lv('canteen'); if (b) { d.food = (d.food || 0) + b; resUi(); } }   // yemekhane: her 30 sn seviye kadar ekmek
+      if ((V.brT = (V.brT || 0) - dt) <= 0) { V.brT = 30; const b = CZ.village.lv('canteen'); if (b) { const F = CZ.village.furn('canteen'); d.food = (d.food || 0) + b + F[0] + F[2] + SV.list.filter(s => s.bld === 'canteen').length; resUi(); } }   // yemekhane: her 30 sn seviye kadar ekmek
       if ((V.mkT = (V.mkT || 0) - dt) <= 0) { V.mkT = 0.2; pads.forEach(p => { if (p.mark) { const dd = Math.hypot(p.x - P.x, p.z - P.z); p.mark.visible = dd < 11; } }); }   // daireler yalnız yakındayken görünür
-      skillTick(dt); lootTick(dt); npcTick(dt);
+      skillTick(dt); lootTick(dt); npcTick(dt); chTick(dt);
       { const near = Math.hypot(P.x - TRADER.x, P.z - TRADER.z) < 4.2; if (near !== V.trNear) { V.trNear = near; tradeBtn.style.display = near ? '' : 'none'; if (near) CZ.audio.sfx('star'); } }
       if (handW.staff.visible) { const gm = handW.staff.userData.gem; gm.rotation.y += dt * 3; gm.scale.setScalar(1 + Math.sin(performance.now() / 200) * 0.12); }
       { const a = flakeGeo.attributes.position; for (let i = 0; i < flakeN; i++) { let y = a.array[i * 3 + 1] - dt * 2.2; if (y < 0) y += 18; a.array[i * 3 + 1] = y; a.array[i * 3] += Math.sin(y + i) * dt * 0.4; } a.needsUpdate = true; flakes.position.set(P.x, 0, P.z); }
@@ -2522,6 +2526,145 @@ CZ.screens.valley = (function () {
     const tSnap = (type, L) => L > 0 && CZ.KH && CZ.KH.has('flag_blue') ? snap3d('t' + type + L, () => type === 'fence' ? fenceModel(0, L) : CZ.KH.tower(THREE, type, L, false)) : null;
     // eksik kaynakların altın karşılığı (tüccar fiyatı, biraz pahalı)
     const missGold = L2 => Math.ceil(L2.reduce((a, x) => x.r === 'gold' ? a : a + Math.max(0, x.n - (d[x.r] || 0)) * (TVAL[x.r] || 1) * 1.3, 0));
+
+    // ===== (22 Kas) KAYNAK UÇUŞU: kazanılan kaynak simgeleri üst bara uçar =====
+    function resFly(from, res, n) {
+      if (!n || !wrap.isConnected) return;
+      const el = { wood: woodEl, stone: stoneEl, gold: goldEl, emeralds: gemEl }[res]; if (!el) return;
+      let x0, y0; if (from && from.getBoundingClientRect) { const r = from.getBoundingClientRect(); x0 = r.left + r.width / 2; y0 = r.top + r.height / 2; }
+      else { v3.set(from.x, 1.5, from.z).project(camera); const r = renderer.domElement.getBoundingClientRect(); x0 = r.left + (v3.x + 1) / 2 * r.width; y0 = r.top + (1 - v3.y) / 2 * r.height; }
+      const r1 = el.parentNode.getBoundingClientRect(), x1 = r1.left + 14, y1 = r1.top + r1.height / 2, ic = { wood: '🪵', stone: '🪨', gold: '🪙', emeralds: '💎' }[res];
+      const cnt = Math.max(2, Math.min(7, Math.ceil(n / 8)));
+      for (let i = 0; i < cnt; i++) { const f = h('i', { class: 'res-fly', text: ic }); document.body.append(f);
+        const sx = x0 + (Math.random() - 0.5) * 70, sy = y0 + (Math.random() - 0.5) * 40;
+        const a = f.animate([{ transform: `translate(${x0}px,${y0}px) scale(.4)`, opacity: 0 }, { transform: `translate(${sx}px,${sy}px) scale(1.25)`, opacity: 1, offset: 0.22 },
+          { transform: `translate(${x1}px,${y1}px) scale(.6)`, opacity: 0.9 }], { duration: 700 + i * 60, delay: i * 50, easing: 'cubic-bezier(.5,0,.7,1)' });
+        a.onfinish = () => { f.remove(); const b = el.parentNode; b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); if (i === 0) CZ.audio.sfx('coin', 2); }; }
+    }
+    // ===== (22 Kas) BİNA EŞYALARI (3 eşya × 5 sv) + SAKİNLER (köylüyü binaya ata) =====
+    const FURN = { mine: ['prod', 'prod', 'prod'], bakery: ['prod', 'prod', 'prod'], goldmine: ['prod', 'prod', 'prod'], canteen: ['bread', 'seat', 'bread'], house: ['bed', 'work', 'work'] };
+    const FEMO = { mine: ['⛏️', '🛒', '🪣'], bakery: ['🪚', '🪵', '🪓'], goldmine: ['🪣', '📦', '💰'], canteen: ['🍲', '🍽️', '🥖'], house: ['🛏️', '⛺', '🧺'] };
+    const FVAL = { prod: 4, bread: 1, seat: 1, bed: 1, work: 3 };
+    const BJOB = { mine: 'miner', goldmine: 'miner', bakery: 'wood', canteen: 'cook' };
+    const fLv = id => (CZ.village.furn ? CZ.village.furn(id) : [0, 0, 0]);
+    const fSum = () => Object.keys(FURN).reduce((a, id) => a + fLv(id).reduce((x, y) => x + y, 0), 0);
+    const r5 = v => Math.max(5, Math.round(v / 5) * 5);
+    function furnCost(i, L) { const a = Math.pow(L, 1.7), b = Math.pow(L, 1.8);
+      return i === 0 ? { wood: r5(30 * a), stone: r5(12 * a) } : i === 1 ? { stone: r5(28 * a), gold: r5(35 * b) } : { wood: r5(22 * a), gold: r5(40 * b) }; }
+    const resIdents = id => SV.list.filter(s => s.bld === id);
+    const resCap = L => Math.min(3, 1 + Math.floor(L / 3));
+    CZ.vilResB = id => resIdents(id).reduce((a, s) => a + (s.prof === BJOB[id] ? 0.12 : 0.06) * (1 + (s.rar || 0) * 0.2), 0);
+    function holdBtn(el, fn) {   // dokun = 1 kez; basılı tut = art arda
+      let tm = null; const stop = () => { clearTimeout(tm); tm = null; };
+      el.addEventListener('pointerdown', e => { e.preventDefault(); if (!fn()) return; let gap = 380; const rep = () => { tm = setTimeout(() => { if (fn()) { gap = Math.max(110, gap * 0.8); rep(); } }, gap); }; rep(); });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(k => el.addEventListener(k, stop)); return el; }
+    function vilExtra(p, L) {
+      const id = p.id; if (!L || (!FURN[id] && !BJOB[id])) return null;
+      const box = h('div', { class: 'fu-box' }); let tab = FURN[id] ? 'f' : 'r';
+      const draw = () => {
+        const tabs = h('div', { class: 'seg fu-tabs' },
+          FURN[id] ? h('button', { type: 'button', class: tab === 'f' ? 'active' : '', text: '🪑 ' + t('fu.tab'), onClick: () => { tab = 'f'; draw(); } }) : null,
+          BJOB[id] ? h('button', { type: 'button', class: tab === 'r' ? 'active' : '', text: '👥 ' + t('fu.res') + ' ' + resIdents(id).length + '/' + resCap(L), onClick: () => { tab = 'r'; draw(); } }) : null);
+        let body;
+        if (tab === 'f') body = h('div', { class: 'fu-list' }, ...FURN[id].map((ef, i) => {
+          const lv = fLv(id)[i], nx = lv + 1, maxed = lv >= 5, capped = !maxed && nx > L, c = maxed ? null : furnCost(i, nx);
+          const ok = c && Object.entries(c).every(([k, v]) => (d[k] || 0) >= v);
+          const b = h('button', { type: 'button', class: 'btn small ' + (ok && !capped ? 'primary' : 'ghost-dark'), text: maxed ? 'MAX' : capped ? '🔒 ' + t('fu.needB', { n: nx }) : '⬆️ ' + Object.entries(c).map(([k, v]) => ({ wood: '🪵', stone: '🪨', gold: '🪙' }[k]) + v).join(' ') });
+          if (!maxed && !capped) holdBtn(b, () => { const L0 = fLv(id)[i], c2 = furnCost(i, L0 + 1);
+            if (L0 >= 5 || L0 + 1 > L || !Object.entries(c2).every(([k, v]) => (d[k] || 0) >= v)) { CZ.audio.sfx('wrong'); draw(); return false; }
+            Object.entries(c2).forEach(([k, v]) => { d[k] -= v; }); fLv(id)[i] = L0 + 1; CZ.state.save(); resUi(); CZ.audio.sfx('star', L0); CZ.audio.vibrate(12);
+            placeVillage(); chUi(); setTimeout(draw, 0); return true; });
+          return h('div', { class: 'fu-row' }, h('i', { class: 'fu-ic', text: FEMO[id][i] }),
+            h('div', { class: 'wpn-txt' }, h('b', { text: t('fu.' + id + '.' + i) + ' · ' + t('vil.lv', { n: lv }) + '/5' }), h('small', { text: t('fu.e.' + ef, { n: FVAL[ef] * Math.max(1, lv) }) + (lv ? '' : ' (' + t('fu.perLv') + ')') }),
+              h('div', { class: 'dq-bar' }, h('i', { style: 'width:' + lv * 20 + '%' }))), b);
+        }), h('small', { class: 'small-note', text: '👆 ' + t('fu.hold') }));
+        else { const R = resIdents(id), cap = resCap(L);
+          body = h('div', { class: 'fu-list' }, ...R.map(S0 => h('div', { class: 'fu-row' }, h('i', { class: 'fu-ic', text: PROF[S0.prof] }),
+            h('div', { class: 'wpn-txt' }, h('b', { style: (S0.rar || 0) ? 'color:' + RARC[S0.rar] : '', text: S0.name }), h('small', { text: (S0.prof === BJOB[id] ? '✅ ' : '') + t('fu.resB', { n: Math.round((S0.prof === BJOB[id] ? 12 : 6) * (1 + (S0.rar || 0) * 0.2)) }) })),
+            h('button', { type: 'button', class: 'btn small ghost-dark', text: '−', onClick: () => { S0.bld = null; CZ.state.save(); CZ.audio.sfx('button'); chUi(); draw(); } }))),
+            ...(R.length < cap ? [h('button', { type: 'button', class: 'btn small primary wide', text: '＋ ' + t('fu.add'), onClick: () => {
+              const free = SV.list.filter(s => !s.bld).sort((a, b) => (b.prof === BJOB[id]) - (a.prof === BJOB[id]) || (b.rar || 0) - (a.rar || 0));
+              if (!free.length) { CZ.ui.toast(t('fu.none')); return; }
+              body.replaceChildren(...free.map(S0 => h('button', { type: 'button', class: 'fu-pick', onClick: () => { S0.bld = id; S0.job = BJOB[id]; S0.follow = false; if (zoneFlags[S0.id]) { scene.remove(zoneFlags[S0.id]); delete zoneFlags[S0.id]; } S0.zone = null; CZ.state.save(); CZ.audio.sfx('star'); chUi(); draw(); } },
+                h('i', { text: PROF[S0.prof] }), h('b', { style: (S0.rar || 0) ? 'color:' + RARC[S0.rar] : '', text: S0.name }), h('small', { text: t('sv.p.' + S0.prof) + (S0.prof === BJOB[id] ? ' ✅' : '') }))));
+            } })] : []),
+            h('small', { class: 'small-note', text: t('fu.resHint', { n: cap }) }));
+        }
+        box.replaceChildren(tabs, body);
+      };
+      draw(); return box;
+    }
+    // ===== (22 Kas) BÖLÜMLER + GÖREV ŞERİDİ (sol alt): sıradaki tek görev, dokun = yol göster / ödülü al =====
+    const CHAP = [
+      [['tree', 5], ['rock', 3], ['def', 1, 1], ['fen', 2, 1], ['night', 1]],
+      [['kill', 20], ['sv', 1], ['vlv', 1, 'canteen'], ['furn', 1], ['def', 3, 1]],
+      [['res', 1], ['vlv', 2, 'house'], ['night', 3], ['loot', 2], ['def', 2, 2]],
+      [['kill', 80], ['sv', 4], ['vlv', 3, 'hall'], ['furn', 6], ['fen', 4, 2]]
+    ];
+    const CNT = ['tree', 'rock', 'kill', 'night', 'loot'];
+    function chTasks(n) { if (n < CHAP.length) return CHAP[n]; const N = n + 1;
+      return [['kill', 40 * N], ['night', N], ['furn', Math.min(75, 3 * N)], ['def', Math.min(16, 2 * N), Math.min(5, N - 2)], ['vlv', Math.min(10, N - 1), 'hall']]; }
+    const chS = () => { if (!d.ch) d.ch = { n: 0, i: 0, b: 0 }; if (!d.chc) d.chc = {}; return d.ch; };
+    function chProg(q) { const [k, n, x] = q, C = chS();
+      if (CNT.includes(k)) return Math.min(n, (d.chc[k] || 0) - (C.b || 0));
+      const cntPads = (kind, L) => pads.filter(p => p.kind === kind && slot(p) && slot(p).lv >= L).length;
+      if (k === 'def') return Math.min(n, cntPads('t', x));
+      if (k === 'fen') return Math.min(n, cntPads('f', x));
+      if (k === 'vlv') return Math.min(n, CZ.village.lv(x));
+      if (k === 'sv') return Math.min(n, SV.list.length);
+      if (k === 'furn') return Math.min(n, fSum());
+      if (k === 'res') return Math.min(n, SV.list.filter(s => s.bld).length);
+      return 0; }
+    const chCur = () => { const C = chS(), L = chTasks(C.n); return C.i < L.length ? L[C.i] : null; };
+    const chTxt = q => { const [k, n, x] = q; return k === 'vlv' ? t('ch.t.vlv', { b: t('vil.b.' + x), l: n }) : t('ch.t.' + k, { n, l: x }); };
+    const chName = n => n < 4 ? t('ch.n' + (n + 1)) : t('ch.nX');
+    function chUi() { try { const C = chS(), q = chCur(); if (!q) return; const v = chProg(q), done = v >= q[1];
+      chEl.style.display = (d.tutV || 0) >= 5 && !V.story ? '' : 'none';
+      const key = C.n + '|' + C.i + '|' + v; if (chEl.dataset.k === key) return; chEl.dataset.k = key;
+      chEl.classList.toggle('done', done);
+      chEl.replaceChildren(h('i', { text: done ? '🎁' : '📜' }), h('div', {}, h('small', { text: t('ch.lbl', { n: C.n + 1 }) + ' · ' + chName(C.n) }),
+        h('b', { text: chTxt(q) + ' ' + (done ? '✓' : v + '/' + q[1]) }), h('span', { class: 'dq-bar' }, h('i', { style: 'width:' + Math.round(v / q[1] * 100) + '%' })))); } catch (e) { /* hazır değil */ } }
+    function chTarget(q) { const [k, n, x] = q;
+      const near = list => { let b = null, bd = 1e9; list.forEach(o => { const dd = Math.hypot(o.x - P.x, o.z - P.z); if (dd < bd) { bd = dd; b = o; } }); return b; };
+      if (k === 'tree' || k === 'rock') return near((k === 'tree' ? trees : rocks).filter(o => o.alive));
+      if (k === 'def' || k === 'fen') return near(pads.filter(p => p.kind === (k === 'def' ? 't' : 'f') && !(slot(p) && slot(p).lv >= x) && padVisible(p)));
+      if (k === 'vlv') return pads.find(p => p.kind === 'v' && p.id === x);
+      if (k === 'furn' || k === 'res') { const ok = Object.keys(k === 'res' ? BJOB : FURN).filter(id => CZ.village.lv(id) > 0); return pads.find(p => p.kind === 'v' && p.id === (ok[0] || 'hall')); }
+      return null; }
+    let chGuide = null;
+    const gPil = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 16, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+    gPil.position.y = 8; gPil.visible = false; scene.add(gPil);
+    const gArr = (() => { const s = new THREE.Shape(); s.moveTo(0, 0.75); s.lineTo(0.5, 0); s.lineTo(0.2, 0); s.lineTo(0.2, -0.55); s.lineTo(-0.2, -0.55); s.lineTo(-0.2, 0); s.lineTo(-0.5, 0); s.lineTo(0, 0.75);
+      const g = new THREE.ShapeGeometry(s); g.rotateX(-Math.PI / 2); const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.9, depthWrite: false })); m.visible = false; scene.add(m); return m; })();
+    function chTap() {
+      const C = chS(), q = chCur(); if (!q) return; CZ.audio.sfx('button');
+      if (chProg(q) >= q[1]) {
+        const g = 40 + C.n * 30 + C.i * 10; gain(g, true); resFly(chEl, 'gold', g); CZ.audio.sfx('star'); C.i++;
+        const L = chTasks(C.n);
+        if (C.i >= L.length) { chDone(C.n); C.n++; C.i = 0; }
+        const nq = chCur(); C.b = nq && CNT.includes(nq[0]) ? d.chc[nq[0]] || 0 : 0; CZ.state.save(); chEl.dataset.k = ''; chUi(); return;
+      }
+      const tg = chTarget(q);
+      if (tg) { chGuide = { x: tg.x, z: tg.z, t: 9 }; floatAt(P, '👉 ' + chTxt(q), 'wave'); }
+      else CZ.ui.toast(t('ch.h.' + q[0]));
+    }
+    function chDone(n) {
+      const g = 300 + n * 250, em = 10 + n * 5; gain(g, true); d.emeralds = (d.emeralds || 0) + em; resUi(); CZ.audio.sfx('win'); CZ.audio.vibrate([30, 30, 80]);
+      const wasP = V.paused; V.paused = true; const box = h('div', { class: 'modal-wrap' });
+      const close = () => { box.remove(); if (V && !wasP) { V.paused = false; V.last = 0; } floatAt(P, '📜 ' + t('ch.lbl', { n: n + 2 }) + ' · ' + chName(n + 1), 'wave'); };
+      box.append(h('div', { class: 'modal ch-done' }, h('i', { class: 'ch-big', text: '🏆' }), h('b', { class: 'lg-title', text: t('ch.done', { n: n + 1 }) }), h('p', { text: chName(n) }),
+        h('div', { class: 'ch-rew' }, h('span', { text: '🪙 ' + g }), h('span', { text: '💎 ' + em })),
+        h('small', { text: t('ch.next') + ': ' + t('ch.lbl', { n: n + 2 }) + ' · ' + chName(n + 1) }),
+        btn(t('ch.go'), close, 'primary wide')));
+      wrap.append(box); setTimeout(() => { const r = box.querySelector('.ch-rew'); if (r) { resFly(r, 'gold', g); resFly(r, 'emeralds', em); } }, 250);
+    }
+    function chTick(dt) {
+      if ((V.chT = (V.chT || 0) - dt) <= 0) { V.chT = 0.8; chUi(); }
+      if (chGuide) { chGuide.t -= dt; const dx = chGuide.x - P.x, dz = chGuide.z - P.z, dd = Math.hypot(dx, dz);
+        if (chGuide.t <= 0 || dd < 2.2) { chGuide = null; gPil.visible = gArr.visible = false; return; }
+        gPil.visible = gArr.visible = true; gPil.position.x = chGuide.x; gPil.position.z = chGuide.z; gPil.material.opacity = 0.22 + Math.sin(performance.now() / 180) * 0.1;
+        const a = Math.atan2(dx, dz), k = 1.7 + Math.sin(performance.now() / 160) * 0.15; gArr.position.set(P.x + dx / dd * k, 0.12, P.z + dz / dd * k); gArr.rotation.y = a + Math.PI; }
+    }
     function openPad(p) {
       CZ.audio.sfx('button');
       const n = need(p), L2 = n ? left(p) : [], it = slot(p);
@@ -2546,7 +2689,7 @@ CZ.screens.valley = (function () {
         else if (nx && (V2.job || L >= CZ.village.cap(id))) acts.push(h('p', { class: 'small-note', text: V2.job ? t('vil.busy') : t('vil.needHall', { n: Math.max(1, Math.ceil(11 * (L + 1) / max) - 1) }) }));
         else if (nx) acts.push(can ? payBtn() : shortBtn());
         o = { title: t('vil.b.' + id), desc: t('vil.d.' + id), from: L, to: nx, imgFrom: vSnap(id, L), imgTo: nx && vSnap(id, nx),
-          rows: sa.map(([k, v], i) => [t(k), L ? v : '—', sb[i] ? sb[i][1] : null]), cost, time: nx ? CZ.village.fmt(CZ.village.minutes(id, L) * 60000) : '', actions: acts };
+          rows: sa.map(([k, v], i) => [t(k), L ? v : '—', sb[i] ? sb[i][1] : null]), cost, time: nx ? CZ.village.fmt(CZ.village.minutes(id, L) * 60000) : '', actions: acts, extra: vilExtra(p, L) };
       } else if (p.kind === 'x') {
         const L = expLv(), nx = L < EXP_MAX ? L + 1 : null;
         o = { title: t('exp.title'), from: L, to: nx, emoji: '🗺️', rows: [], cost, actions: nx ? [can ? payBtn() : shortBtn()] : [] };
@@ -2666,7 +2809,7 @@ CZ.screens.valley = (function () {
         setTimeout(() => { if (!V) return; if (Math.hypot(it.x - P.x, it.z - P.z) < 3.5 || goblins.some(o => !o.dead && Math.hypot(o.x - it.x, o.z - it.z) < 2)) return; it.alive = true; it.hp = it.maxHp; it.solid.off = false; setInst(it); }, rand(70000, 110000));
       }
       d[res] = (d[res] || 0) + n; resUi();
-      floatAt(best, '+' + n + (res === 'wood' ? ' 🪵' : ' 🪨'), 'res');
+      floatAt(best, '+' + n + (res === 'wood' ? ' 🪵' : ' 🪨'), 'res'); if (best.hp <= 0 || Math.random() < 0.35) resFly(best, res, n);
       if (V.tut) V.tut.on(res);
     }
     // dört para birimi: odun, taş, altın, zümrüt

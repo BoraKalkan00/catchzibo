@@ -22,6 +22,9 @@ CZ.VB = [
 ];
 CZ.village = (function () {
   const PRODS = ['goldmine', 'elf', 'mine', 'bakery'];   // sen yokken üreten binalar
+  // (22 Kas) bina içi EŞYALAR (3 eşya × 5 seviye) + atanmış SAKİNLER üretimi artırır
+  const furn = id => { const V = ensure(); if (!V.furn) V.furn = {}; return V.furn[id] || (V.furn[id] = [0, 0, 0]); };
+  const fmul = id => 1 + 0.04 * (PRODS.includes(id) ? furn(id).reduce((a, b) => a + b, 0) : 0) + (CZ.vilResB ? CZ.vilResB(id) : 0);
   const d = () => CZ.state.data;
   const def = id => CZ.VB.find(b => b.id === id);
   function ensure() {
@@ -46,7 +49,7 @@ CZ.village = (function () {
   const price = (id, L) => { const b = def(id); return Math.round(b.base * Math.pow(b.mul, L) / 10) * 10; };
   const minutes = (id, L) => Math.min(720, Math.round(def(id).tbase * Math.pow(1.55, L)));
   // Üretim (saatte) ve depo
-  const rate = id => { const L = lv(id); if (!L) return 0; const r = 240 * L * (1 + L * 0.15); return Math.round(id === 'goldmine' ? r * 0.35 : id === 'elf' ? Math.max(1, r * 0.006) : r); };
+  const rate = id => { const L = lv(id); if (!L) return 0; const r = 240 * L * (1 + L * 0.15) * fmul(id); return Math.round(id === 'goldmine' ? r * 0.35 : id === 'elf' ? Math.max(1, r * 0.006) : r); };
   const storeCap = () => Math.round(400 * Math.pow(lv('vault') + 1, 1.55));
   const protect = () => lv('vault') ? Math.round(300 * Math.pow(lv('vault'), 1.5)) : 0;
   const defense = () => lv('tower') * 3;
@@ -143,7 +146,7 @@ CZ.village = (function () {
   const power = () => CZ.VB.reduce((n, b) => n + lv(b.id) * (b.id === 'hall' ? 5 : 1), 0);
   const ready = () => { tick(); const V = ensure(); return Math.floor(V.store.mine + V.store.bakery + V.store.goldmine) >= 50 || V.store.elf >= 5 || (!V.job && CZ.VB.some(b => lv(b.id) < cap(b.id) && price(b.id, lv(b.id)) <= (d().gold || 0))); };
   // Bir binanın L seviyesindeki gerçek sayıları (oyunda kullanılan formüllerin aynısı)
-  const rateAt = (id, L) => { if (!L) return 0; const r = 240 * L * (1 + L * 0.15); return Math.round(id === 'goldmine' ? r * 0.35 : id === 'elf' ? Math.max(1, r * 0.006) : r); };
+  const rateAt = (id, L) => { if (!L) return 0; const r = 240 * L * (1 + L * 0.15) * fmul(id); return Math.round(id === 'goldmine' ? r * 0.35 : id === 'elf' ? Math.max(1, r * 0.006) : r); };
   function stats(id, L) {
     const R = [];
     switch (id) {
@@ -166,5 +169,5 @@ CZ.village = (function () {
     }
     return R;
   }
-  return { PRODS, stats, rateAt, ensure, startJob, lv, cap, price, minutes, rate, storeCap, protect, defense, bonus, tick, collect, upgrade, left, gemCost, rush, adRush, fmt, power, ready, def };
+  return { PRODS, furn, fmul, stats, rateAt, ensure, startJob, lv, cap, price, minutes, rate, storeCap, protect, defense, bonus, tick, collect, upgrade, left, gemCost, rush, adRush, fmt, power, ready, def };
 })();

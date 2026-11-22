@@ -34,6 +34,7 @@
       !isMax && o.time ? h('p', { class: 'upg-time', text: '⏱ ' + o.time }) : null,
       o.note ? h('p', { class: 'small-note', text: o.note }) : null,
       ...(o.actions || []),
+      o.extra || null,
       CZ.ui.btn(t('common.close'), close, 'small ghost-dark')));
     (o.parent || document.body).append(wrap);
     return close;

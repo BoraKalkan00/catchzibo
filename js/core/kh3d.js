@@ -58,7 +58,11 @@ CZ.KH = (function () {
   const TMAP = { snow: [[1, B('tower_A')], [4, B('tower_B')]], cannon: [[1, B('tower_base')], [2, B('tower_catapult')]] };
   const STAGES = ['building_stage_A', 'building_stage_B', 'building_stage_C', 'building_scaffolding'];
   const pick = (arr, L) => { let n = arr[0][1]; arr.forEach(([lv, nm]) => { if (L >= lv) n = nm; }); return n; };
-  function all() { const s = new Set(['flag_blue', 'barrel', 'crate_A_small', 'wall_straight', 'fence_wood_straight', 'fence_stone_straight', ...STAGES]); Object.values(VMAP).concat(Object.values(TMAP)).forEach(a => a.forEach(([, n]) => s.add(n))); return [...s]; }
+  const FP = { mine: ['weaponrack', 'wheelbarrow', 'bucket_water'], bakery: ['pallet', 'resource_lumber', 'weaponrack'], goldmine: ['bucket_water', 'crate_open', 'sack'], canteen: ['barrel', 'crate_long_A', 'crate_B_big'], house: ['tent', 'resource_stone', 'crate_A_small'] };
+  const FPOS = [[0.52, 0.42], [-0.52, 0.42], [0.6, -0.12]];
+  function furnDress(g, id, w) { const F = FP[id]; if (!F || !CZ.village || !CZ.village.furn) return; const L = CZ.village.furn(id);
+    F.forEach((n, i) => { if (!L[i] || !has(n)) return; const m = get(n, w * 0.16 * (1 + L[i] * 0.07)); m.position.set(w * FPOS[i][0], 0, w * FPOS[i][1]); m.rotation.y = i * 1.3 + 0.4; g.add(m); }); }
+  function all() { const s = new Set(['flag_blue', 'barrel', 'crate_A_small', ...[].concat(...Object.values(FP)), 'wall_straight', 'fence_wood_straight', 'fence_stone_straight', ...STAGES]); Object.values(VMAP).concat(Object.values(TMAP)).forEach(a => a.forEach(([, n]) => s.add(n))); return [...s]; }
   // seviyeye göre süs: 3+ bayrak, 5+ ikinci bayrak, 7+ fıçı/sandık
   function dress(g, L, w) {
     const h = g.userData.h || 1;
@@ -75,7 +79,7 @@ CZ.KH = (function () {
     if (busy && L <= 1) { const s = stage(w, 0); if (s) { const g = new THREE.Group(); g.add(s); const sc = stage(w * 0.9, 3); if (sc) g.add(sc); g.userData.kh = true; return g; } }
     const nm = pick(arr, L); if (!has(nm)) return null;
     const g = new THREE.Group(), m = get(nm, w); g.add(m); g.userData.kh = true;
-    dress(g, L, w);
+    dress(g, L, w); furnDress(g, id, w);
     if (busy) { const sc = stage(w * 1.05, 3); if (sc) g.add(sc); }   // yükseltme sürerken iskele
     return g;
   }

@@ -2245,3 +2245,24 @@ body.wide #rotate-note { display: none !important; }
 @keyframes ldoutA { to { filter: brightness(.6) blur(2px); } }
 @keyframes ldkbB { from { transform: scale(1.18) translate(3%, 0); } to { transform: scale(1.04) translate(0, 0); } }
 @keyframes ldsweep { 0% { left: 105%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { left: -45%; opacity: 0; } }
+
+/* (22 Kas) görev şeridi, kaynak uçuşu, eşya/sakin paneli */
+.vl-chap { position: absolute; left: 8px; bottom: 150px; z-index: 6; display: flex; align-items: center; gap: 8px; max-width: min(64vw, 300px); padding: 7px 12px 7px 8px; border-radius: 14px; border: 2px solid rgba(255,255,255,.75);
+  background: linear-gradient(180deg, rgba(40,52,96,.92), rgba(24,32,66,.92)); color: #fff; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,.35); pointer-events: auto; }
+.vl-chap > i { font-style: normal; font-size: 22px; }
+.vl-chap small { display: block; font-size: 10px; opacity: .8; font-weight: 800; letter-spacing: .3px; }
+.vl-chap b { display: block; font-size: 13px; line-height: 1.15; }
+.vl-chap .dq-bar { display: block; margin-top: 4px; height: 5px; }
+.vl-chap.done { background: linear-gradient(180deg, #3ec46d, #23944a); animation: chPulse 1s ease-in-out infinite; }
+@keyframes chPulse { 50% { transform: scale(1.05); box-shadow: 0 0 18px rgba(80,255,140,.7); } }
+.res-fly { position: fixed; left: 0; top: 0; z-index: 9999; font-style: normal; font-size: 22px; pointer-events: none; margin: -11px 0 0 -11px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+.fu-box { margin: 8px 0; text-align: left; }
+.fu-tabs { margin-bottom: 6px; }
+.fu-list { display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow: auto; }
+.fu-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 12px; background: rgba(0,0,0,.06); }
+.fu-row .wpn-txt { flex: 1; min-width: 0; } .fu-row .btn { white-space: nowrap; touch-action: none; user-select: none; }
+.fu-ic { font-style: normal; font-size: 26px; width: 34px; text-align: center; }
+.fu-pick { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; border: 2px solid rgba(0,0,0,.1); background: #fff; text-align: left; }
+.fu-pick i { font-style: normal; font-size: 22px; } .fu-pick small { margin-left: auto; opacity: .7; }
+.ch-done { text-align: center; } .ch-big { font-style: normal; font-size: 64px; display: block; animation: chPulse 1.2s ease-in-out infinite; }
+.ch-rew { display: flex; justify-content: center; gap: 16px; font-size: 22px; font-weight: 900; margin: 10px 0; }
