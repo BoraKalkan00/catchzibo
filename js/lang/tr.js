@@ -1720,5 +1720,6 @@ CZ.i18n.register('tr', 'Türkçe', {
   "pc.noShop": "PC sürümünde gerçek parayla satış yok: her şey oyun içinde kazanılır!",
   "upg.build": "İnşa et",
   "upg.min": "{n} dk",
-  "zb.escape": "Hihihi! Bir dahaki sefere!"
+  "zb.escape": "Hihihi! Bir dahaki sefere!",
+  "siege.fled": "Baskıncılar ganimetle kaçtı!"
 });

@@ -1538,5 +1538,6 @@ CZ.i18n.register('ko', '한국어', {
   "pc.noShop": "No real-money store on PC: everything is earned in the game!",
   "upg.build": "Build",
   "upg.min": "{n} min",
-  "zb.escape": "Hehehe! See you next time!"
+  "zb.escape": "Hehehe! See you next time!",
+  "siege.fled": "The raiders ran off with their loot!"
 });
