@@ -18,8 +18,10 @@ Kurallar:
 - [ ] A6 Oyuncu karakteri %10 büyük (rider/seat ve hitbox'la uyumlu), ad etiketi okunur
 
 ## B) İlk 10 dakika
-- [ ] B7 Görev şeridi ilk 5 görev metnini netleştir (Zibo'yu yakala → İlk kuleni kur → 5 ağaç kes → Geceyi atlat → Köylü kurtar) ve üstteki "Tiny Keep 0/1" quest göstergesini kaldır/birleştir
-- [ ] B8 İlk 5 dakikada aynı anda en fazla 1 pencere/ipucu (kuyruk sistemi): ipucu, kart, rapor, hoş geldin, günlük hediye çakışmasın
+- [x] B7 Görev şeridi ilk 5 görev metnini netleştir (Zibo'yu yakala → İlk kuleni kur → 5 ağaç kes → Geceyi atlat → Köylü kurtar) ve üstteki "Tiny Keep 0/1" quest göstergesini kaldır/birleştir
+  - Yapıldı: üstteki öğretici etiketi 'Tiny Keep' yerine 'Catch Zibo!'; Bölüm 1-3 görevleri öğreticiyi tekrar etmiyor (kule/çit/gece/köylü/goblin).
+- [x] B8 İlk 5 dakikada aynı anda en fazla 1 pencere/ipucu (kuyruk sistemi): ipucu, kart, rapor, hoş geldin, günlük hediye çakışmasın
+  - Yapıldı: ipuçları pencere/kart/bina içi/sinema açıkken bekler (popBusy); hoş geldin ve günlük hediye zaten sırayla geliyordu.
 - [ ] B9 İlk gece ayarı: kesin kazanılır ama oyuncunun canı en az %30 düşer (goblin hasarı/sayısı wave 1-2 için ayarla), sonunda büyük ödül patlaması
 - [ ] B10 tools/qa/ftue.py ile yeni oyuncu akışını uçtan uca oyna; dokunuş sayısı, kontrol alma süresi, takılma noktalarını DEVAM.md'ye yaz ve düzelt
 

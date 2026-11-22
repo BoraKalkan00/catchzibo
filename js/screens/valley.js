@@ -2228,7 +2228,8 @@ CZ.screens.valley = (function () {
     if (!d.tips) d.tips = {};
     const tipQ = []; let tipOn = false;
     function tip(k) { if (d.tipsOff || d.tips[k] || (d.tutV || 0) < 5 || V.story) return; d.tips[k] = 1; CZ.state.save(); tipQ.push(k); if (!tipOn) tipNext(); }
-    function tipNext() { const k = tipQ.shift(); if (!k) { tipOn = false; tipEl.classList.remove('on'); return; } tipOn = true;
+    const popBusy = () => !!(wrap.querySelector('.modal-wrap, .upg-wrap') || V.cine || V.ins);   // (22 Kas) aynı anda tek pencere
+    function tipNext() { if (V && popBusy()) { tipOn = true; tipEl.classList.remove('on'); setTimeout(() => { if (V) tipNext(); }, 1500); return; } const k = tipQ.shift(); if (!k) { tipOn = false; tipEl.classList.remove('on'); return; } tipOn = true;
       tipEl.replaceChildren(h('b', { text: '💡 ' + t('tip.' + k) }), h('div', { class: 'vl-coach-btns' }, btn(t('tip.ok'), () => { CZ.audio.sfx('button'); tipNext(); }, 'small primary'), btn(t('tip.off'), () => { d.tipsOff = true; CZ.state.save(); tipQ.length = 0; tipNext(); }, 'small ghost-dark')));
       tipEl.classList.add('on'); CZ.audio.sfx('star'); }
     function tipTick() { if (!V.tipT) V.tipT = performance.now();
@@ -2790,9 +2791,9 @@ CZ.screens.valley = (function () {
     }
     // ===== (22 Kas) BÖLÜMLER + GÖREV ŞERİDİ (sol alt): sıradaki tek görev, dokun = yol göster / ödülü al =====
     const CHAP = [
-      [['tree', 5], ['rock', 3], ['def', 1, 1], ['fen', 2, 1], ['night', 1]],
-      [['kill', 20], ['sv', 1], ['vlv', 1, 'canteen'], ['furn', 1], ['def', 3, 1]],
-      [['res', 1], ['vlv', 2, 'house'], ['night', 3], ['loot', 2], ['def', 2, 2]],
+      [['def', 2, 1], ['fen', 2, 1], ['night', 1], ['sv', 1], ['kill', 15]],   // (22 Kas) öğreticiyi tekrar etmez (odun/taş orada vardı)
+      [['vlv', 1, 'canteen'], ['furn', 1], ['kill', 25], ['def', 3, 1], ['night', 2]],
+      [['res', 1], ['vlv', 2, 'house'], ['loot', 2], ['def', 2, 2], ['night', 2]],
       [['kill', 80], ['sv', 4], ['vlv', 3, 'hall'], ['furn', 6], ['fen', 4, 2]]
     ];
     const CNT = ['tree', 'rock', 'kill', 'night', 'loot'];

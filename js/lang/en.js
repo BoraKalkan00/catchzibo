@@ -1350,7 +1350,7 @@ CZ.i18n.register('en', 'English', {
   "pro.taunt2": "Hehe! You can't catch me!",
   "pro.taunt3": "Is your bear asleep, chief?",
   "pro.ouch": "Ow! Snowballs hurt!",
-  "quest.chase": "Tiny Keep",
+  "quest.chase": "Catch Zibo!",
   "hub.menu": "Menu",
   "title.tag": "Zibo stole your village treasure! Ride your bear, chase him, build your village.",
   "zibo.hub.start": "Don't celebrate, chief. My gang is on the way!",
