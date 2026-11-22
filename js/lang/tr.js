@@ -1568,5 +1568,21 @@ CZ.i18n.register('tr', 'Türkçe', {
   "tip.surv": "Kapıda biri var! Yanına git, Konuş'a bas. Yemek ve yatak verirsen köyüne katılır.",
   "tip.mail": "📬 Köylülerin sana not bıraktı. Posta kutusuna bak, dertlerini çöz.",
   "tip.quest": "🎯 Günlük görevlerin var. Tamamla, ödülünü al; 15 görev = haftalık sandık.",
-  "tip.vills": "👥 Köylüler düğmesinden kime hangi işi vereceğini seç. Kendi mesleğinde çalışan 2 kat verir."
+  "tip.vills": "👥 Köylüler düğmesinden kime hangi işi vereceğini seç. Kendi mesleğinde çalışan 2 kat verir.",
+  "sv.zonePick": "Haritadan yer seç",
+  "sv.zoneChange": "Yerini değiştir",
+  "sv.zoneHint": "{n} nerede çalışsın? Haritaya dokun",
+  "sv.zoneSet": "{n} oraya çalışmaya gidiyor 🚶",
+  "sv.follow": "Yanına al",
+  "sv.unfollow": "Köye gönder",
+  "sv.max2": "En fazla 2 köylü yanında gezebilir",
+  "sv.joinsYou": "{n} artık yanında! 🤝",
+  "sv.backHome": "{n} köye döndü",
+  "sv.atCanteen": "Yemekhanede pişiriyor",
+  "sv.atBuilds": "İnşaatları hızlandırıyor",
+  "sv.jobIs": "İş: {j}",
+  "sv.r0": "Sıradan",
+  "sv.r1": "Ender",
+  "sv.r2": "Destansı",
+  "sv.r3": "Efsanevi"
 });

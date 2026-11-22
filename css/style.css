@@ -2224,3 +2224,7 @@ body.wide #rotate-note { display: none !important; }
 .vl-coach.on { display: flex; animation: ldtip .35s ease-out; }
 .vl-coach b { color: #3a2414; font-size: 14px; line-height: 1.3; }
 .vl-coach-btns { display: flex; gap: 6px; justify-content: flex-end; }
+.sv-auto { font-size: 11px; font-weight: 800; color: #1f7a4a; text-align: center; }
+.sv-btns { min-width: 118px; }
+.bigmap-pick { color: #fff; font-size: 16px; font-weight: 900; text-align: center; padding: 6px 12px; border-radius: 12px; background: rgba(20,30,60,.75); }
+.sv-rar { font-weight: 900; }

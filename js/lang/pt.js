@@ -1386,5 +1386,21 @@ CZ.i18n.register('pt', 'Português', {
   "tip.surv": "Someone is at the gate! Walk over and tap Talk. Give food and a bed and they'll join you.",
   "tip.mail": "📬 Your villagers left you notes. Check the mailbox and solve their problems.",
   "tip.quest": "🎯 You have daily quests. Finish them for rewards; 15 quests = weekly chest.",
-  "tip.vills": "👥 Use the Villagers button to give everyone a job. Working their old profession doubles output."
+  "tip.vills": "👥 Use the Villagers button to give everyone a job. Working their old profession doubles output.",
+  "sv.zonePick": "Pick a spot on map",
+  "sv.zoneChange": "Change spot",
+  "sv.zoneHint": "Where should {n} work? Tap the map",
+  "sv.zoneSet": "{n} is heading there to work 🚶",
+  "sv.follow": "Take along",
+  "sv.unfollow": "Send home",
+  "sv.max2": "At most 2 villagers can follow you",
+  "sv.joinsYou": "{n} is with you now! 🤝",
+  "sv.backHome": "{n} went back to the village",
+  "sv.atCanteen": "Cooking in the canteen",
+  "sv.atBuilds": "Speeding up builds",
+  "sv.jobIs": "Job: {j}",
+  "sv.r0": "Common",
+  "sv.r1": "Rare",
+  "sv.r2": "Epic",
+  "sv.r3": "Legendary"
 });
