@@ -4,7 +4,15 @@ window.CZ = window.CZ || {};
 CZ.KH = (function () {
   const DIR = 'assets/3d/kh/';
   const src = {}, waiting = {};
-  let tex = null, toonMat = null;
+  let tex = null, toonMat = null, snowMat = null;
+  // (22 Kas) DOĞA: KayKit ağaç/kaya/dağ/bulut — karlı atlas (çimen → kar, yaprak → çam yeşili)
+  const NAT = new Set(['tree_single_A', 'tree_single_B', 'trees_A_medium', 'trees_B_medium', 'trees_A_large', 'rock_single_A', 'rock_single_B', 'rock_single_C', 'rock_single_D', 'mountain_A_grass_trees', 'mountain_B_grass_trees', 'mountain_C_grass_trees', 'mountain_A', 'mountain_B', 'hills_A_trees', 'hills_B_trees', 'hill_single_A', 'cloud_big', 'cloud_small']);
+  function natMat(THREE) { if (snowMat) return snowMat; const t2 = new THREE.TextureLoader().load(DIR + 'hexagons_snow.png'); t2.flipY = false; t2.encoding = THREE.LinearEncoding; t2.magFilter = THREE.NearestFilter; snowMat = CZ.style.mat({ map: t2 }); snowMat.userData.tex = t2; return snowMat; }
+  // instancing için tek parça geometri: genişlik ya da yükseklik normalize, taban y=0
+  function geo(THREE, name, size, byH) { const s = src[name]; if (!s) return null; const c = s.clone(true); const k = byH ? size / s.userData.h : size; c.scale.setScalar(k); c.updateMatrixWorld(true);
+    const pos = [], nor = [], uv = []; c.traverse(o => { if (!o.isMesh) return; const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.applyMatrix4(o.matrixWorld);
+      const P = g.attributes.position, N = g.attributes.normal, U = g.attributes.uv; for (let i = 0; i < P.count; i++) { pos.push(P.getX(i), P.getY(i), P.getZ(i)); if (N) nor.push(N.getX(i), N.getY(i), N.getZ(i)); if (U) uv.push(U.getX(i), U.getY(i)); } });
+    const G = new THREE.BufferGeometry(); G.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); if (nor.length) G.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); else G.computeVertexNormals(); if (uv.length) G.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); return G; }
   function mat(THREE) {
     if (toonMat) return toonMat;
     tex = new THREE.TextureLoader().load(DIR + 'hexagons_medieval.png');
@@ -17,7 +25,7 @@ CZ.KH = (function () {
     if (waiting[name]) return waiting[name];
     waiting[name] = new Promise(res => {
       new THREE.GLTFLoader().load(DIR + name + '.gltf', g => {
-        const root = g.scene, m = mat(THREE);
+        const root = g.scene, m = NAT.has(name) ? natMat(THREE) : mat(THREE);
         root.traverse(o => { if (o.isMesh) { o.material = m; o.castShadow = true; o.receiveShadow = true; } });
         const box = new THREE.Box3().setFromObject(root), sz = box.getSize(new THREE.Vector3());
         const k = 1 / Math.max(sz.x, sz.z, 0.001);
@@ -62,7 +70,7 @@ CZ.KH = (function () {
   const FPOS = [[0.52, 0.42], [-0.52, 0.42], [0.6, -0.12]];
   function furnDress(g, id, w) { const F = FP[id]; if (!F || !CZ.village || !CZ.village.furn) return; const L = CZ.village.furn(id);
     F.forEach((n, i) => { if (!L[i] || !has(n)) return; const m = get(n, w * 0.16 * (1 + L[i] * 0.07)); m.position.set(w * FPOS[i][0], 0, w * FPOS[i][1]); m.rotation.y = i * 1.3 + 0.4; g.add(m); }); }
-  function all() { const s = new Set(['flag_blue', 'barrel', 'crate_A_small', ...[].concat(...Object.values(FP)), 'wall_straight', 'fence_wood_straight', 'fence_stone_straight', ...STAGES]); Object.values(VMAP).concat(Object.values(TMAP)).forEach(a => a.forEach(([, n]) => s.add(n))); return [...s]; }
+  function all() { const s = new Set([...NAT, 'flag_blue', 'barrel', 'crate_A_small', ...[].concat(...Object.values(FP)), 'wall_straight', 'fence_wood_straight', 'fence_stone_straight', ...STAGES]); Object.values(VMAP).concat(Object.values(TMAP)).forEach(a => a.forEach(([, n]) => s.add(n))); return [...s]; }
   // seviyeye göre süs: 3+ bayrak, 5+ ikinci bayrak, 7+ fıçı/sandık
   function dress(g, L, w) {
     const h = g.userData.h || 1;
@@ -92,5 +100,5 @@ CZ.KH = (function () {
     if (busy) { const sc = stage(w * 1.05, 3); if (sc) g.add(sc); }
     return g;
   }
-  return { load, loadAll, all, has, get, village, tower, VW };
+  return { load, loadAll, all, has, get, village, tower, VW, NAT, natMat, geo };
 })();

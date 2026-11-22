@@ -199,11 +199,11 @@ CZ.screens.valley = (function () {
     scene.background = new THREE.Color(SKY);
     scene.fog = new THREE.Fog(SKY, 70, 140);   // geniş ekranda köşeler sisli kalmasın (ortada ışık lekesi gibi görünüyordu)
     const camera = new THREE.PerspectiveCamera(32, 1, 0.5, 200);   // dar açı: izometrik his, 2D binalar dünyaya oturur
-    const hemi = new THREE.HemisphereLight(0xdfeaff, HI ? 0x6a6478 : 0x56648a, HI ? 0.62 : 0.55); scene.add(hemi);
-    const sun = new THREE.DirectionalLight(HI ? 0xffdcb0 : 0xffe0b0, HI ? 1.05 : 0.92); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
+    const hemi = new THREE.HemisphereLight(0xe4eeff, 0x8894a6, HI ? 0.66 : 0.6); scene.add(hemi);   // (22 Kas) alt ışık mor değil: kar beyaz kalsın
+    const sun = new THREE.DirectionalLight(0xfff0d8, HI ? 1.05 : 0.95); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     // GECE-GÜNDÜZ ışığı: k=0 gündüz, k=1 gece (oynanır kalsın diye tam karanlık değil)
     const SKY_D = { bg: null, hs: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sun.color.clone(), si: sun.intensity };
-    const SKY_N = { bg: new THREE.Color(0x1a2350), hs: new THREE.Color(0x7d8fd8), hg: new THREE.Color(0x1c2248), hi: 0.4, sc: new THREE.Color(0x98acf0), si: 0.45 };   // (22 Kas) gece biraz daha karanlık: meşaleler parlasın
+    const SKY_N = { bg: new THREE.Color(0x101c38), hs: new THREE.Color(0x6f8ad0), hg: new THREE.Color(0x1a2a40), hi: 0.4, sc: new THREE.Color(0x98acf0), si: 0.45 };   // (22 Kas) gece biraz daha karanlık: meşaleler parlasın
     const nightSky = k => { if (!SKY_D.bg) SKY_D.bg = scene.background && scene.background.isColor ? scene.background.clone() : new THREE.Color(SKY);
       if (scene.background && scene.background.isColor) { scene.background.copy(SKY_D.bg).lerp(SKY_N.bg, k); if (scene.fog) scene.fog.color.copy(scene.background); }
       hemi.color.copy(SKY_D.hs).lerp(SKY_N.hs, k); hemi.groundColor.copy(SKY_D.hg).lerp(SKY_N.hg, k); hemi.intensity = SKY_D.hi + (SKY_N.hi - SKY_D.hi) * k;
@@ -501,7 +501,7 @@ CZ.screens.valley = (function () {
     const chunks = {};
     const chunkOf = (kind, x, z, v) => { const k = kind + (v || 0) + '|' + Math.floor(x / CH) + ',' + Math.floor(z / CH); return chunks[k] || (chunks[k] = { kind, v: v || 0, items: [], cx: (Math.floor(x / CH) + 0.5) * CH, cz: (Math.floor(z / CH) + 0.5) * CH }); };
     const trees = [], rocks = []; let V_wind = null;
-    for (let k = 0; k < 6000 && trees.length < 620; k++) {
+    for (let k = 0; k < 14000 && trees.length < 1150; k++) {   // (22 Kas) daha dolu dünya
       const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R);
       const dens = noise(x * 1.3 + 40, z * 1.3 - 20);   // ormanlık bölgeler
       if (dens < 0.15 && Math.random() > 0.08) continue;
@@ -512,7 +512,7 @@ CZ.screens.valley = (function () {
       const tv = Math.random() < 0.58 ? 0 : Math.random() < 0.6 ? 1 : 2; tr.v = tv; if (tv === 2) sol.r = 0.9;
       solids.push(sol); trees.push(tr); chunkOf('t', x, z, tv).items.push(tr);
     }
-    for (let k = 0; k < 6000 && rocks.length < 260; k++) {
+    for (let k = 0; k < 9000 && rocks.length < 380; k++) {
       const x = rand(-WORLD_R, WORLD_R), z = rand(-WORLD_R, WORLD_R), sc = rand(0.7, 1.35);
       if (noise(x - 30, z + 60) > -0.2 && Math.random() > 0.12) continue;   // kayalık bölgeler
       if (Math.hypot(x, z) < FENCE_R + 7) continue;
@@ -594,6 +594,29 @@ CZ.screens.valley = (function () {
       scene.add(im);
     });
 
+
+    // ===== (22 Kas) DÜNYA YENİLEMESİ: KayKit ağaç/kaya (karlı atlas), dünyanın kenarında karlı dağ halkası, süzülen bulutlar =====
+    function natSwap() {
+      const K = CZ.KH; if (!K.has('tree_single_A') || !K.has('rock_single_A')) return;
+      const nm = K.natMat(THREE), tm = nm.clone(); const prevC = nm.onBeforeCompile;
+      tm.onBeforeCompile = sh => { if (prevC) prevC(sh); sh.uniforms.uWind = windU; sh.vertexShader = 'uniform float uWind;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+        #ifdef USE_INSTANCING
+          float ph = instanceMatrix[3].x * 0.37 + instanceMatrix[3].z * 0.23;
+          float k = max(0.0, position.y - 0.6); transformed.x += sin(uWind * 1.6 + ph) * 0.018 * k * k; transformed.z += cos(uWind * 1.3 + ph) * 0.012 * k * k;
+        #endif`); };
+      tm.customProgramCacheKey = () => 'natwind';
+      const TG = [K.geo(THREE, 'tree_single_A', 3.0, true), K.geo(THREE, 'tree_single_B', 2.3, true), K.geo(THREE, 'trees_A_medium', 3.0, true)];
+      const RG = [K.geo(THREE, 'rock_single_A', 1.5), K.has('rock_single_C') ? K.geo(THREE, 'rock_single_C', 1.4) : K.geo(THREE, 'rock_single_A', 1.2)];
+      const tmS = seeThrough(tm);
+      chunkList.forEach(c => { const g = c.kind === 't' ? TG[c.v] : RG[c.v]; if (!g) return; c.mesh.geometry = g; c.mesh.material = c.kind === 't' ? tmS : nm; });
+      // kenar dağları: oynanmaz alanı kapatır, vadide olma hissi verir
+      const MT = ['mountain_A_grass_trees', 'mountain_B_grass_trees', 'mountain_C_grass_trees', 'mountain_A', 'hills_A_trees', 'mountain_B'].filter(n => K.has(n));
+      if (MT.length) for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2 + rand(-0.04, 0.04), r = WORLD_R + rand(7, 15), m = K.get(MT[i % MT.length], rand(16, 24)); if (!m) continue;
+        m.position.set(Math.cos(a) * r, -0.3, Math.sin(a) * r); m.rotation.y = rand(0, 6.28); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); scene.add(m); }
+      // (iç tepeler kaldırıldı: oyuncuyu ve goblinleri örtüyordu)
+      // bulutlar
+      if (K.has('cloud_big')) { V.clouds = []; for (let i = 0; i < 9; i++) { const m = K.get(i % 2 ? 'cloud_big' : 'cloud_small', rand(5, 9)); m.position.set(rand(-WORLD_R, WORLD_R), rand(14, 20), rand(-WORLD_R, WORLD_R)); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } }); scene.add(m); V.clouds.push(m); } }
+    }
     // Yağan kar: oyuncunun etrafında dönen nokta bulutu
     const flakeN = 420, flakePos = new Float32Array(flakeN * 3);
     for (let i = 0; i < flakeN; i++) { flakePos[i * 3] = rand(-22, 22); flakePos[i * 3 + 1] = rand(0, 18); flakePos[i * 3 + 2] = rand(-22, 22); }
@@ -1954,7 +1977,7 @@ CZ.screens.valley = (function () {
       [[34.5, 31], [35.5, 37.5], [41.5, 31.5], [-7.6, -6.8]].forEach(([x, z], k) => put('fici', 1.1, x, z, 0.5, k));
     }
     pads.forEach(drawPad);
-    if (CZ.KH) CZ.KH.loadAll(THREE, CZ.KH.all().concat(['building_well_blue'])).then(() => { if (!V) return; placeVillage(); pads.forEach(drawPad); placeDecor(); placeTrader(); });
+    if (CZ.KH) CZ.KH.loadAll(THREE, CZ.KH.all().concat(['building_well_blue'])).then(() => { if (!V) return; try { natSwap(); } catch (e) { console.warn('natSwap', e); } placeVillage(); pads.forEach(drawPad); placeDecor(); placeTrader(); });
     spawnBuddy(); heroUi(); ordUi(); giftUi();
     try {
       const warm = new THREE.Group();
@@ -3010,7 +3033,7 @@ CZ.screens.valley = (function () {
       fpMesh.count = fp.n; fpMesh.instanceMatrix.needsUpdate = true;
     }
     function draw(dt) {
-      footTick(dt); fxTick(dt);
+      footTick(dt); fxTick(dt); if (V.clouds) V.clouds.forEach((c, i) => { c.position.x += dt * (0.6 + i % 3 * 0.25); if (c.position.x > WORLD_R + 20) c.position.x = -WORLD_R - 20; });
       // oyuncu ve binek görünümü
       mount.root.position.set(M.x, P.riding ? (P.hopY || 0) : 0, M.z);
       mount.root.rotation.y = M.dir;
