@@ -203,7 +203,7 @@ CZ.screens.valley = (function () {
     const sun = new THREE.DirectionalLight(0xfff0d8, HI ? 1.05 : 0.95); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     // GECE-GÜNDÜZ ışığı: k=0 gündüz, k=1 gece (oynanır kalsın diye tam karanlık değil)
     const SKY_D = { bg: null, hs: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sun.color.clone(), si: sun.intensity };
-    const SKY_N = { bg: new THREE.Color(0x101c38), hs: new THREE.Color(0x6f8ad0), hg: new THREE.Color(0x1a2a40), hi: 0.4, sc: new THREE.Color(0x98acf0), si: 0.45 };   // (22 Kas) gece biraz daha karanlık: meşaleler parlasın
+    const SKY_N = { bg: new THREE.Color(0x101c38), hs: new THREE.Color(0x6f8ad0), hg: new THREE.Color(0x2a3a58), hi: 0.58, sc: new THREE.Color(0xa8bcf8), si: 0.55 };   // (22 Kas) gece biraz daha karanlık: meşaleler parlasın
     const nightSky = k => { if (!SKY_D.bg) SKY_D.bg = scene.background && scene.background.isColor ? scene.background.clone() : new THREE.Color(SKY);
       if (scene.background && scene.background.isColor) { scene.background.copy(SKY_D.bg).lerp(SKY_N.bg, k); if (scene.fog) scene.fog.color.copy(scene.background); }
       hemi.color.copy(SKY_D.hs).lerp(SKY_N.hs, k); hemi.groundColor.copy(SKY_D.hg).lerp(SKY_N.hg, k); hemi.intensity = SKY_D.hi + (SKY_N.hi - SKY_D.hi) * k;
@@ -1393,6 +1393,7 @@ CZ.screens.valley = (function () {
         const bg = new THREE.Mesh(barGeo, barBg); bg.scale.set(1.7, 1.25, 1); g.add(bg);
         const fg = new THREE.Mesh(barGeo, barFg.clone()); fg.scale.set(1.62, 0.85, 1); fg.position.z = 0.01; g.add(fg);
         g.renderOrder = 6; bg.renderOrder = 6; fg.renderOrder = 7;
+        if (!o.boss && o.type === 'goblin') g.scale.setScalar(0.62);   // (22 Kas) sürüde çubuklar ekranı kaplıyordu
         scene.add(g); o.bar = { g, fg };
       }
       const k = Math.max(0, o.hp / o.maxHp);
@@ -2170,7 +2171,8 @@ CZ.screens.valley = (function () {
       ncardEl.classList.remove('on'); void ncardEl.offsetWidth; ncardEl.classList.add('on'); setTimeout(() => ncardEl.classList.remove('on'), 2600);
       V.hd = { t: 3.2, dir: null }; V.shake = Math.max(V.shake || 0, 0.5);
       CZ.audio.sfx('stinger'); CZ.audio.vibrate([80, 40, 80, 40, 120]);
-      if (V.wave % 5 === 0) { ziboBoss();
+      if (V.wave % 5 === 0) ziboBoss();   // (22 Kas) Zibo gecesi tek başına büyük olay; köy kuşatması artık 3., 8., 13. gecede
+      if (V.wave % 5 === 3) {
         if (!V.raid) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); } }
     }
     function snap() { try { post.render(scene, camera); return renderer.domElement.toDataURL('image/jpeg', 0.86); } catch (e) { return null; } }
@@ -2284,8 +2286,8 @@ CZ.screens.valley = (function () {
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
       const cyc = !V.story && (d.tutV || 0) >= 5;
       if (cyc) { cycleTick(dt); rushTick(dt); } else V.waveT += dt;
-      if (!cyc && V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); if (V.wave % 5 === 0) spawnGoblin(true);
-        if (V.wave % 5 === 0 && !V.raid && !V.story) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
+      if (!cyc && V.waveT > 60) { V.waveT = 0; V.wave++; floatAt(P, t('def.wave', { n: V.wave }), 'wave'); CZ.audio.sfx('horn'); /* öğreticide patron/kuşatma yok */
+        if (false) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
       if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); menuUi(); const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
         timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' · 👺 ' + nightLeft() : '☀️ ' + mm(Math.max(0, V.phT))) : t('def.wave', { n: V.wave })) + ' · 🏰' + vilLevel();
