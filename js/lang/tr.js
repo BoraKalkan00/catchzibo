@@ -1615,7 +1615,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "fu.canteen.1": "Uzun Masa",
   "fu.canteen.2": "Erzak Rafı",
   "fu.house.0": "Ranza",
-  "fu.house.1": "Çadır",
+  "fu.house.1": "Şömine",
   "fu.house.2": "Sandık",
   "ch.lbl": "Bölüm {n}",
   "ch.n1": "Kasabayı Onar",

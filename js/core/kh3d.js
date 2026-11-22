@@ -58,7 +58,7 @@ CZ.KH = (function () {
   const TMAP = { snow: [[1, B('tower_A')], [4, B('tower_B')]], cannon: [[1, B('tower_base')], [2, B('tower_catapult')]] };
   const STAGES = ['building_stage_A', 'building_stage_B', 'building_stage_C', 'building_scaffolding'];
   const pick = (arr, L) => { let n = arr[0][1]; arr.forEach(([lv, nm]) => { if (L >= lv) n = nm; }); return n; };
-  const FP = { mine: ['weaponrack', 'wheelbarrow', 'bucket_water'], bakery: ['pallet', 'resource_lumber', 'weaponrack'], goldmine: ['bucket_water', 'crate_open', 'sack'], canteen: ['barrel', 'crate_long_A', 'crate_B_big'], house: ['tent', 'resource_stone', 'crate_A_small'] };
+  const FP = { mine: ['weaponrack', 'wheelbarrow', 'bucket_water'], bakery: ['pallet', 'resource_lumber', 'weaponrack'], goldmine: ['bucket_water', 'crate_open', 'sack'], canteen: ['barrel', 'crate_long_A', 'crate_B_big'], house: ['pallet', 'barrel', 'crate_A_small'] };
   const FPOS = [[0.52, 0.42], [-0.52, 0.42], [0.6, -0.12]];
   function furnDress(g, id, w) { const F = FP[id]; if (!F || !CZ.village || !CZ.village.furn) return; const L = CZ.village.furn(id);
     F.forEach((n, i) => { if (!L[i] || !has(n)) return; const m = get(n, w * 0.16 * (1 + L[i] * 0.07)); m.position.set(w * FPOS[i][0], 0, w * FPOS[i][1]); m.rotation.y = i * 1.3 + 0.4; g.add(m); }); }
@@ -92,5 +92,5 @@ CZ.KH = (function () {
     if (busy) { const sc = stage(w * 1.05, 3); if (sc) g.add(sc); }
     return g;
   }
-  return { load, loadAll, all, has, get, village, tower };
+  return { load, loadAll, all, has, get, village, tower, VW };
 })();

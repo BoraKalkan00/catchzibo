@@ -471,6 +471,7 @@ CZ.screens.valley = (function () {
         g.scale.setScalar(VS); g.position.set(sx * VS, 0, sz * VS);
         if (g.userData.sprite) { const sp = g.children[0], W = sp.scale.x; sp.center.set(0.5, 0.02); sp.position.z = W * 0.4; sp.material.depthTest = true; sp.renderOrder = 0; sp.material.alphaTest = 0.4; }
         g.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && !o.material.isMeshBasicMaterial) o.material = seeThrough(o.material.clone()); } });
+        g.userData.vid = b.id; if (V && V.ins && V.ins.id === b.id) { g.visible = false; V.ins.ext = g; }
         vilGroup.add(g); outlineWorld(g, 0.035);
         const sp0 = g.userData.sprite ? g.children[0] : null, zOff = sp0 ? sp0.position.z * VS * 0.75 : 0;   // 2D binalar kameraya doğru kaydırılıp çiziliyor: çarpışma da oraya
         const so = solids.find(q => q.vil === b.id); if (so) { so.z = sz * VS + zOff; } else solids.push({ x: sx * VS, z: sz * VS + zOff, r: (b.id === 'hall' ? 2.0 : 1.4), vil: b.id });
@@ -1949,7 +1950,7 @@ CZ.screens.valley = (function () {
       [towerModel('snow', 1), towerModel('cannon', 1), fenceModel(0, 1), fenceModel(1, 2)].forEach(g => { g.traverse(o => { if (o.isMesh) { const c = o.clone(); c.material = o.material.clone(); c.material.transparent = true; c.material.opacity = 0.45; warm.add(c); } }); warm.add(g); });
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
-    V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -2544,7 +2545,7 @@ CZ.screens.valley = (function () {
     }
     // ===== (22 Kas) BİNA EŞYALARI (3 eşya × 5 sv) + SAKİNLER (köylüyü binaya ata) =====
     const FURN = { mine: ['prod', 'prod', 'prod'], bakery: ['prod', 'prod', 'prod'], goldmine: ['prod', 'prod', 'prod'], canteen: ['bread', 'seat', 'bread'], house: ['bed', 'work', 'work'] };
-    const FEMO = { mine: ['⛏️', '🛒', '🪣'], bakery: ['🪚', '🪵', '🪓'], goldmine: ['🪣', '📦', '💰'], canteen: ['🍲', '🍽️', '🥖'], house: ['🛏️', '⛺', '🧺'] };
+    const FEMO = { mine: ['⛏️', '🛒', '🪣'], bakery: ['🪚', '🪵', '🪓'], goldmine: ['🪣', '📦', '💰'], canteen: ['🍲', '🍽️', '🥖'], house: ['🛏️', '🔥', '🧺'] };
     const FVAL = { prod: 4, bread: 1, seat: 1, bed: 1, work: 3 };
     const BJOB = { mine: 'miner', goldmine: 'miner', bakery: 'wood', canteen: 'cook' };
     const fLv = id => (CZ.village.furn ? CZ.village.furn(id) : [0, 0, 0]);
@@ -2574,7 +2575,7 @@ CZ.screens.valley = (function () {
           if (!maxed && !capped) holdBtn(b, () => { const L0 = fLv(id)[i], c2 = furnCost(i, L0 + 1);
             if (L0 >= 5 || L0 + 1 > L || !Object.entries(c2).every(([k, v]) => (d[k] || 0) >= v)) { CZ.audio.sfx('wrong'); draw(); return false; }
             Object.entries(c2).forEach(([k, v]) => { d[k] -= v; }); fLv(id)[i] = L0 + 1; CZ.state.save(); resUi(); CZ.audio.sfx('star', L0); CZ.audio.vibrate(12);
-            placeVillage(); chUi(); setTimeout(draw, 0); return true; });
+            placeVillage(); insRefresh(i); chUi(); setTimeout(draw, 0); return true; });
           return h('div', { class: 'fu-row' }, h('i', { class: 'fu-ic', text: FEMO[id][i] }),
             h('div', { class: 'wpn-txt' }, h('b', { text: t('fu.' + id + '.' + i) + ' · ' + t('vil.lv', { n: lv }) + '/5' }), h('small', { text: t('fu.e.' + ef, { n: FVAL[ef] * Math.max(1, lv) }) + (lv ? '' : ' (' + t('fu.perLv') + ')') }),
               h('div', { class: 'dq-bar' }, h('i', { style: 'width:' + lv * 20 + '%' }))), b);
@@ -2666,6 +2667,41 @@ CZ.screens.valley = (function () {
         gPil.visible = gArr.visible = true; gPil.position.x = chGuide.x; gPil.position.z = chGuide.z; gPil.material.opacity = 0.22 + Math.sin(performance.now() / 180) * 0.1;
         const a = Math.atan2(dx, dz), k = 1.7 + Math.sin(performance.now() / 160) * 0.15; gArr.position.set(P.x + dx / dd * k, 0.12, P.z + dz / dd * k); gArr.rotation.y = a + Math.PI; }
     }
+
+    // ===== (22 Kas) BİNA İÇİ (Kingshot gibi): çatı kalkar, oda + eşyalar + sakinler görünür, kamera yaklaşır =====
+    const insV = new THREE.Vector3(), insL = new THREE.Vector3();
+    function insWorld(id) { const [sx, sz] = CZ.VILLAGE_SPOTS[id]; return [sx * VS, sz * VS]; }
+    function insBuild(id) { const I = V.ins; if (I.g) scene.remove(I.g);
+      const W = Math.max(4.4, ((CZ.KH && CZ.KH.VW && CZ.KH.VW[id]) || 4.5) * VS * 1.2);
+      I.g = CZ.interior.build(THREE, id, CZ.village.furn(id), W); I.W = W; I.g.position.set(I.x, 0, I.z); scene.add(I.g); insApply(); }
+    function insEnter(id) {
+      if (V.ins) insDone();
+      const [x, z] = insWorld(id), ext = vilGroup.children.find(c => c.userData.vid === id);
+      V.ins = { id, x, z, t: 0, dir: 1, ext, look: new THREE.Vector3(P.x, 0, P.z), pop: null };
+      insBuild(id); const bb = new THREE.Box3(), cc = new THREE.Vector3();
+      V.ins.hid = vilGroup.children.filter(c => c !== ext && c.visible && (bb.setFromObject(c).getCenter(cc), Math.hypot(cc.x - x, cc.z - z) < V.ins.W * 1.1)); V.ins.hid.forEach(c => { c.visible = false; });
+      wrap.classList.add('vl-inside'); CZ.audio.sfx('star');
+    }
+    function insExit() { if (V && V.ins) V.ins.dir = -1; }
+    function insDone() { const I = V.ins; if (!I) return; if (I.g) scene.remove(I.g); (I.hid || []).forEach(c => { c.visible = true; }); wrap.classList.remove('vl-inside'); if (I.ext) { I.ext.visible = true; I.ext.position.y = 0; I.ext.scale.setScalar(VS); } V.ins = null; }
+    function insRefresh(i) { if (!V || !V.ins) return; insBuild(V.ins.id); V.ins.pop = { i, t: 0 };
+      const s = V.ins.g.userData.items[i]; if (s) ringFx(V.ins.x + s.position.x, V.ins.z + s.position.z, 1.2, 0xffd84a); }
+    function insApply() { const I = V.ins; if (!I) return; const e = I.t * I.t * (3 - 2 * I.t);
+      if (I.ext) { I.ext.visible = e < 0.55; I.ext.position.y = e * 3; I.ext.scale.set(VS * (1 - e * 0.2), VS * (1 - e * 0.6), VS * (1 - e * 0.2)); }
+      if (I.g) { I.g.userData.walls.forEach(w => { w.scale.y = Math.max(0.01, e); }); I.g.userData.items.forEach((s, k) => { const ek = Math.max(0, Math.min(1, e * 1.6 - k * 0.2)); s.scale.setScalar(Math.max(0.01, ek)); }); I.g.visible = e > 0.02; }
+    }
+    function insTick(dt) { const I = V.ins; if (!I) return;
+      I.t = Math.max(0, Math.min(1, I.t + I.dir * dt * 2.6)); insApply();
+      if (I.dir < 0 && I.t <= 0) { insDone(); return; }
+      if (I.pop) { I.pop.t += dt * 3; const s = I.g.userData.items[I.pop.i]; if (s) s.scale.setScalar(1 + Math.sin(Math.min(1, I.pop.t) * Math.PI) * 0.35); if (I.pop.t >= 1) I.pop = null; }
+      // sakinler içeride çalışır (aşçılar yemekhanede)
+      let k = 0; npcs.forEach(n => { const S0 = n.s; if (!(S0.bld === I.id || (I.id === 'canteen' && S0.job === 'cook'))) return; const sl = CZ.interior.slotsOf(I.id)[k % 3];
+        n.hm.root.visible = true; n.hm.root.rotation.set(0, Math.PI + 0.3 * (k % 2 ? 1 : -1), 0); n.hm.root.position.set(I.x + sl[0] * I.W + 0.2, 0.14, I.z + sl[1] * I.W * 0.8 + 0.75); n.hm.update(dt, { idle: true }); k++; });
+      // kamera: binaya yaklaş, bina ekranın üst yarısında (alt yarıda kart)
+      const e = I.t * I.t * (3 - 2 * I.t), q = Math.min(1, dt * 4);
+      const fr = camera.aspect < 1 ? 1.25 : 0.9; insV.set(I.x, (12 + I.W * 0.9) * fr, I.z + (9 + I.W * 0.9) * fr); insL.set(I.x, 0, I.z + I.W * 0.95);
+      if (I.dir > 0) { camera.position.lerp(insV, q * (0.4 + e)); I.look.lerp(insL, q * (0.4 + e)); camera.lookAt(I.look); }
+    }
     function openPad(p) {
       CZ.audio.sfx('button');
       const n = need(p), L2 = n ? left(p) : [], it = slot(p);
@@ -2707,7 +2743,9 @@ CZ.screens.valley = (function () {
           rows: ra.map(([k, v], i) => [k, L ? v : '—', rb[i] ? rb[i][1] : null]), cost: busy ? [] : cost, time: nx && !busy ? D2.min[L] + ' dk' : '', actions: acts };
       }
       const wasPaused = V.paused; V.paused = true;
-      close = CZ.upgradeCard(Object.assign(o, { parent: wrap, onClose: () => { if (V && !wasPaused) V.paused = false; } }));
+      const inside = p.kind === 'v' && CZ.interior && CZ.interior.has(p.id) && CZ.village.lv(p.id) > 0;
+      if (inside) { o.sheet = true; insEnter(p.id); }
+      close = CZ.upgradeCard(Object.assign(o, { parent: wrap, onClose: () => { if (inside) insExit(); if (V && !wasPaused) V.paused = false; } }));
     }
     function padAt(cx, cy) {
       const r = renderer.domElement.getBoundingClientRect(); tapN.set((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
@@ -2918,6 +2956,7 @@ CZ.screens.valley = (function () {
       if (V.running && !V.paused) step(dt);
       if (!V) return;
       draw(V.paused ? 0 : dt);
+      if (V.ins) insTick(dt);
       post.render(scene, camera);
       // zayıf telefonda çözünürlüğü düşür (30 FPS altına inmesin)
       perf.acc += dt; perf.n++;

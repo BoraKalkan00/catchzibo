@@ -5,7 +5,7 @@
   function card(o) {
     const t = CZ.t;
     const old = (o.parent || document.body).querySelector('.upg-wrap'); if (old) old.remove();
-    const wrap = h('div', { class: 'modal-wrap upg-wrap', onClick: e => { if (e.target === wrap) close(); } });
+    const wrap = h('div', { class: 'modal-wrap upg-wrap' + (o.sheet ? ' upg-sheet' : ''), onClick: e => { if (e.target === wrap) close(); } });
     const close = () => { wrap.remove(); if (o.onClose) o.onClose(); };
     const pic = (src, lv, cls) => h('div', { class: 'upg-pic ' + (cls || '') },
       src ? h('img', { src, alt: '', onError: e => { e.target.style.visibility = 'hidden'; } }) : h('i', { class: 'upg-emoji', text: o.emoji || '🏠' }),
@@ -27,14 +27,15 @@
     wrap.append(h('div', { class: 'modal upg-card' },
       h('b', { class: 'lg-title', text: o.title }),
       o.desc ? h('p', { class: 'upg-desc', text: o.desc }) : null,
-      top,
+      o.sheet ? o.extra || null : null,
+      o.sheet ? null : top,
       isMax ? h('p', { class: 'upg-max', text: t('upg.max') }) : null,
       rows.length ? h('div', { class: 'upg-table' }, h('div', { class: 'upg-row upg-head' }, h('span', {}), h('small', { text: t('upg.now') }), isMax ? null : h('small', { text: t('upg.next') })), ...rows) : null,
       cost.length ? h('div', { class: 'upg-costs' }, h('small', { text: t('upg.cost') }), ...cost) : null,
       !isMax && o.time ? h('p', { class: 'upg-time', text: '⏱ ' + o.time }) : null,
       o.note ? h('p', { class: 'small-note', text: o.note }) : null,
       ...(o.actions || []),
-      o.extra || null,
+      o.sheet ? null : o.extra || null,
       CZ.ui.btn(t('common.close'), close, 'small ghost-dark')));
     (o.parent || document.body).append(wrap);
     return close;

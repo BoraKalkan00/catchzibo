@@ -1,6 +1,7 @@
 self.CZ_FILES = [
  "index.html",
  "js/core/kh3d.js",
+ "js/core/interior.js",
  "assets/3d/kh/barrel.bin",
  "assets/3d/kh/barrel.gltf",
  "assets/3d/kh/resource_lumber.gltf",

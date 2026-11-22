@@ -2280,3 +2280,11 @@ body.wide #rotate-note { display: none !important; }
 .wb-it { width: 74px; height: 74px; border-radius: 14px; background: linear-gradient(#8c96a8, #5d6676); border: 3px solid #fff; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 0 rgba(0,0,0,.2); }
 .wb-it i { font-style: normal; font-size: 36px; }
 .wb-it b { position: absolute; right: 5px; bottom: 2px; color: #fff; font-size: 14px; text-shadow: 0 1px 2px #000, 0 0 3px #000; }
+
+/* (22 Kas) bina içi: kart alttan çekmece, üstte 3D oda görünür */
+.upg-sheet { background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.25)); align-items: flex-end; padding: 0; }
+.upg-sheet .upg-card { width: 100%; max-width: 520px; max-height: 54vh; overflow-y: auto; border-radius: 22px 22px 0 0; margin: 0 auto; animation: sheetUp .35s cubic-bezier(.2,.8,.3,1); }
+.upg-sheet .upg-desc { display: none; }
+.upg-sheet .fu-list { max-height: none; }
+@keyframes sheetUp { from { transform: translateY(100%); } }
+.vl-inside .vl-ui > :not(.vl-top) { opacity: 0; pointer-events: none; transition: opacity .25s; }

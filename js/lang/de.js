@@ -1433,7 +1433,7 @@ CZ.i18n.register('de', 'Deutsch', {
   "fu.canteen.1": "Long Table",
   "fu.canteen.2": "Pantry Shelf",
   "fu.house.0": "Bunk Bed",
-  "fu.house.1": "Tent",
+  "fu.house.1": "Fireplace",
   "fu.house.2": "Chest",
   "ch.lbl": "Chapter {n}",
   "ch.n1": "Rebuild the Town",
