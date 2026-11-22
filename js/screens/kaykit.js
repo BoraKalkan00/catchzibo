@@ -691,7 +691,7 @@
       st.yaw = st.yaw == null ? Math.PI : st.yaw + (yawT - st.yaw) * Math.min(1, dt * (want === 'throw' ? 16 : 9));
       holder.rotation.y = st.yaw;
       st.look += ((info.look ? 1 : 0) - st.look) * Math.min(1, dt * 8);
-      if (head && st.look > 0.01 && want !== 'throw') head.rotation.y += st.look * 2.4;
+      if (head && st.look > 0.01 && want !== 'throw') head.rotation.y += st.look * Math.sin(performance.now() / 700) * 0.45;   // (22 Kas) eskiden 2.4 rad: boyun tersine dönüyordu
     }
     function setCrown(on) {
       if (!on || crown || !head) return;
@@ -766,7 +766,7 @@
       holder.rotation.y = st.yaw;
       // geriye bakıp gülme: kafa döner (animasyonun üstüne)
       st.look += ((info.look ? 1 : 0) - st.look) * Math.min(1, dt * 8);
-      if (st.look > 0.01 && want !== 'throw') head.rotation.y += st.look * 2.4;
+      if (st.look > 0.01 && want !== 'throw') head.rotation.y += st.look * Math.sin(performance.now() / 700) * 0.45;
     }
     function setCrown(on) {
       if (!on || crown) return;

@@ -1590,12 +1590,14 @@ CZ.screens.valley = (function () {
     }
     ui.addEventListener('pointerdown', e => {
       if (e.target.closest('button') || e.target.closest('.vl-panel, .pause-card, .def-down')) return;
-      if (!V.cine && !V.paused) { const pp = padAt(e.clientX, e.clientY); if (pp) { openPad(pp); return; } }
+      if (!V.cine && !V.paused) { const pp = padAt(e.clientX, e.clientY); V.tapPad = pp ? { pp, id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() } : null; if (pp && e.pointerType === 'mouse') { V.tapPad = null; openPad(pp); return; } }
       if (e.pointerType === 'mouse' || e.clientX > window.innerWidth * 0.55) { tapAim.id = e.pointerId; tapAim.x = e.clientX; tapAim.y = e.clientY; fireAt(e.clientX, e.clientY); return; }   // sağ taraf / fare: oraya at (basılı tutunca atmaya devam)
       if (joy.id !== null) return;
       joy.id = e.pointerId; joy.x0 = e.clientX; joy.y0 = e.clientY; joy.dx = joy.dy = 0;
       stick.style.left = e.clientX + 'px'; stick.style.top = e.clientY + 'px'; stick.classList.add('on');
     });
+    window.addEventListener('pointerup', e => { const T0 = V && V.tapPad; if (!T0 || T0.id !== e.pointerId) return; V.tapPad = null;
+      if (Math.hypot(e.clientX - T0.x, e.clientY - T0.y) < 14 && performance.now() - T0.t < 320 && !V.paused && !V.cine) { if (joy.id === e.pointerId) { joy.id = null; joy.dx = joy.dy = 0; stick.classList.remove('on'); } openPad(T0.pp); } });
     window.addEventListener('pointermove', V_move = e => {
       if (e.pointerId === joy.id) {
         let dx = e.clientX - joy.x0, dy = e.clientY - joy.y0; const L2 = Math.hypot(dx, dy), R = 56;
