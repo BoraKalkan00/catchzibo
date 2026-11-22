@@ -353,7 +353,7 @@ CZ.screens.valley = (function () {
       c = mix(c, [0.74 + n, 0.82 + n, 0.92], sm(0.66, 0.9, nz));   // (22 Kas) yeşil-sarı lekeler kaldırıldı: sıkışmış kar                   // karı erimiş çimen
       c = mix(c, [0.66 + n, 0.72 + n, 0.86], sm(-0.95, -1.25, nz));                 // kayalık
       const rd = Math.min(...roads.map(s2 => distSeg(x, z, s2)));
-      c = mix(c, [0.86 + n, 0.8 + n, 0.74], 1 - sm(1.9, 3.1, rd));               // karlı patika (kenarı yumuşak)
+      c = mix(c, [0.76 + n, 0.72 + n, 0.68], 1 - sm(1.9, 3.1, rd));   // patika görünür olsun (çiğnenmiş kar)               // karlı patika (kenarı yumuşak)
       const dr = Math.min(Math.abs(z - riverZ(x)), z < riverZ(x) ? Math.abs(x - creekX(z)) : 99);
       c = mix(c, [0.6 + n, 0.62 + n, 0.66], 1 - sm(RIVER_W + 0.6, RIVER_W + 2.2, dr));   // nehir kıyısı: çamur
       { const dR = Math.min(Math.abs(z - riverZ(x)) - RIVER_W, z < riverZ(x) ? Math.abs(x - creekX(z)) - CREEK_W : 99), k = 1 - sm(-0.9, 0.5, dR);   // nehir yatağı: kıyıya doğru yumuşak iner
@@ -614,6 +614,15 @@ CZ.screens.valley = (function () {
       if (MT.length) for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2 + rand(-0.04, 0.04), r = WORLD_R + rand(7, 15), m = K.get(MT[i % MT.length], rand(16, 24)); if (!m) continue;
         m.position.set(Math.cos(a) * r, -0.3, Math.sin(a) * r); m.rotation.y = rand(0, 6.28); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); scene.add(m); }
       // (iç tepeler kaldırıldı: oyuncuyu ve goblinleri örtüyordu)
+      // (22 Kas) YOL KENARI: çit parçaları, fıçı/sandık kümeleri, el arabası, kütük yığını, çuval — dünya yaşanmış görünsün
+      const SETS = [[['fence_wood_straight', 2.2, 0, 0]], [['barrel', 0.7, 0, 0], ['barrel', 0.7, 0.75, 0.2], ['crate_A_small', 0.75, 0.3, -0.7]], [['wheelbarrow', 1.3, 0, 0], ['sack', 0.6, 1.0, 0.3]],
+        [['resource_lumber', 1.6, 0, 0]], [['crate_B_big', 1.0, 0, 0], ['crate_open', 0.8, 1.0, 0.1], ['sack', 0.6, 0.4, 0.9]], [['pallet', 1.1, 0, 0], ['barrel', 0.7, 0.2, 0.1]]];
+      let pk = 0; roads.forEach(([x1, z1, x2, z2]) => { const L2 = Math.hypot(x2 - x1, z2 - z1), ux = (x2 - x1) / L2, uz = (z2 - z1) / L2;
+        for (let u = FENCE_R + 9; u < L2 - 4; u += rand(5, 8)) { const sd = (pk % 2 ? 1 : -1), off = rand(3.8, 4.8), cx = x1 + ux * u - uz * off * sd, cz = z1 + uz * u + ux * off * sd;
+          if (water(cx, cz) || !free(cx, cz, 0.5) || solids.some(q => Math.hypot(q.x - cx, q.z - cz) < q.r + 1.2)) { pk++; continue; }
+          const set = SETS[pk++ % SETS.length], rot = Math.atan2(ux, uz) + (set[0][0].startsWith('fence') ? Math.PI / 2 : rand(-0.6, 0.6));
+          set.forEach(([n, w, ox, oz]) => { if (!K.has(n)) return; const m = K.get(n, w); const ca = Math.cos(rot), sa = Math.sin(rot); m.position.set(cx + ox * ca + oz * sa, 0, cz - ox * sa + oz * ca); m.rotation.y = rot; m.traverse(o => { if (o.isMesh) o.castShadow = true; }); scene.add(m); });
+          solids.push({ x: cx, z: cz, r: 0.8 }); V.nProps = (V.nProps || 0) + 1; } });
       // bulutlar
       if (K.has('cloud_big')) { V.clouds = []; for (let i = 0; i < 9; i++) { const m = K.get(i % 2 ? 'cloud_big' : 'cloud_small', rand(5, 9)); m.position.set(rand(-WORLD_R, WORLD_R), rand(14, 20), rand(-WORLD_R, WORLD_R)); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } }); scene.add(m); V.clouds.push(m); } }
     }
