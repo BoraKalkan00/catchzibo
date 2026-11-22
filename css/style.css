@@ -2216,7 +2216,7 @@ body.wide #rotate-note { display: none !important; }
 .vl-heroes b, .vl-orders b, .vl-heroes small, .vl-orders small { font-size: 9px !important; }
 @media (orientation: landscape) {
   .vl-heroes, .vl-orders, .vl-vills, .vl-mail, .vl-q { top: calc(238px + var(--safe-top, 0px)) !important; width: 52px !important; height: 52px !important; }
-  .vl-skill { bottom: calc(118px + var(--safe-bottom, 0px)) !important; right: 120px !important; } .vl-dash { right: 196px !important; bottom: calc(40px + var(--safe-bottom, 0px)) !important; } .vl-wpn { right: 120px !important; bottom: calc(200px + var(--safe-bottom, 0px)) !important; }
+  .vl-skill { bottom: calc(118px + var(--safe-bottom, 0px)) !important; right: 120px !important; } .vl-dash { right: 196px !important; bottom: calc(122px + var(--safe-bottom, 0px)) !important; } .vl-wpn { right: 120px !important; bottom: calc(200px + var(--safe-bottom, 0px)) !important; }
   .vl-orders { left: 68px !important; } .vl-vills { left: 126px !important; } .vl-mail { left: 184px !important; } .vl-q { left: 242px !important; }
 }
 
@@ -2320,3 +2320,4 @@ body.wide #rotate-note { display: none !important; }
 @media (orientation: landscape) { .vl-menu { display: none !important; } }
 .vl-ncard.zb { background: linear-gradient(90deg, rgba(30,0,40,0), rgba(70,10,90,.9) 20%, rgba(70,10,90,.9) 80%, rgba(30,0,40,0)); border-color: #c77dff; }
 .vl-ncard.win { background: linear-gradient(90deg, rgba(60,40,0,0), rgba(150,100,10,.92) 20%, rgba(150,100,10,.92) 80%, rgba(60,40,0,0)); border-color: #ffd23a; }
+@media (max-width: 400px) { .vl-chap { max-width: 52vw; } .vl-chap b { font-size: 12px; } }   /* (22 Kas) küçük ekranda yetenek düğmeleriyle çakışmasın */

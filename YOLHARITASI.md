@@ -30,7 +30,8 @@ Kurallar:
 - [ ] C11 tools/qa/soak.py 10 dakika: sıfır konsol hatası; bulunan her hatayı düzelt
 - [x] C12 Eski kayıt göçü: eksik alanlarla (d.surv yok, d.vil yok, eski sürüm alanları) açılış çökmesin
   - Yapıldı: KRİTİK HATA bulundu: eski kayıttaki köylülerde tip/cinsiyet yoktu → vLook çöküyor, köy hiç açılmıyordu. Göç kodu eksik alanları tamamlıyor (SV.list/n/mail, g, ty, hair, rar, st). Eski kayıtla test temiz.
-- [ ] C13 Yatay ekran (1280×720) ve küçük ekran (360×640) düzeni: HUD çakışmaları düzelt
+- [x] C13 Yatay ekran (1280×720) ve küçük ekran (360×640) düzeni: HUD çakışmaları düzelt
+  - Yapıldı: yatayda atılma düğmesi Bin düğmesinin üstüne biniyordu → yeteneğin soluna taşındı; 360 px genişlikte görev şeridi atılma düğmesine taşıyordu → 52vw.
 - [x] C14 tr/en dil dosyalarında eksik anahtar taraması (kodda t('x') geçen ama dilde olmayan); eksikleri ekle
   - Yapıldı: 711 anahtar tarandı, tr/en'de eksik yok (yalnız dinamik önekler).
 
