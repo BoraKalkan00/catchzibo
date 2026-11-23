@@ -2348,7 +2348,9 @@ CZ.screens.valley = (function () {
       }
       V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
     }
-    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); pads.forEach(q => { if (markKey(q) !== q.mk) drawMark(q); }); if ((V.cmbMax || 0) > (d.cmbBest || 0)) d.cmbBest = V.cmbMax; if (CZ.achv && (d.tutV || 0) >= 5 && !V.cine) CZ.achv.check(); }
+    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); pads.forEach(q => { if (markKey(q) !== q.mk) drawMark(q); }); if ((V.cmbMax || 0) > (d.cmbBest || 0)) d.cmbBest = V.cmbMax; if (CZ.achv && (d.tutV || 0) >= 5 && !V.cine) CZ.achv.check();
+        /* (23 Kas) biten bölüm görevinin ödülü kendiliğinden alınır (oyuncular yeşil şeride dokunmuyordu, sonraki görev hiç başlamıyordu) */
+        try { const q = chCur(); if (q && (d.tutV || 0) >= 5 && chProg(q) >= q[1]) { V.chDT = (V.chDT || 0) + 2; if (V.chDT >= 4 && V.phase === 'day' && !V.paused && !popBusy() && !V.story) { V.chDT = 0; chTap(); } } else V.chDT = 0; } catch (e) { /* */ } }
       if (V.cine) return;
       V.cool -= dt;
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
