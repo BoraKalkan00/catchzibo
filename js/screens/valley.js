@@ -2889,6 +2889,7 @@ CZ.screens.valley = (function () {
       box.append(h('div', { class: 'modal ch-done' }, h('i', { class: 'ch-big', text: '🏆' }), h('b', { class: 'lg-title', text: t('ch.done', { n: n + 1 }) }), h('p', { text: chName(n) }),
         h('div', { class: 'ch-rew' }, h('span', { text: '🪙 ' + g }), h('span', { text: '💎 ' + em })),
         h('small', { text: t('ch.next') + ': ' + t('ch.lbl', { n: n + 2 }) + ' · ' + chName(n + 1) }),
+        CZ.PC ? null : btn(t('ch.x2', { g, e: em }), ev => { const b = ev.currentTarget; CZ.ads.show(() => { gain(g, true); d.emeralds = (d.emeralds || 0) + em; resUi(); CZ.state.save(); CZ.audio.sfx('buy'); resFly(b, 'gold', g); resFly(b, 'emeralds', em); b.remove(); }); }, 'ghost-dark wide', 'ic:play'),   // (23 Kas) en değerli an: bölüm ödülünü reklamla 2 kat
         btn(t('ch.go'), close, 'primary wide')));
       wrap.append(box); setTimeout(() => { const r = box.querySelector('.ch-rew'); if (r) { resFly(r, 'gold', g); resFly(r, 'emeralds', em); } }, 250);
     }

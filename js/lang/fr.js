@@ -1549,5 +1549,6 @@ CZ.i18n.register('fr', 'Français', {
   "notif.v4": "I escaped from jail! Can you catch me? 😈",
   "notif.v5": "Your daily gift is ready. Grab it before I do! 🎁",
   "notif.full": "Your storage is full! Production is going to waste, come collect 💰",
-  "pause.exit": "Quit game"
+  "pause.exit": "Quit game",
+  "ch.x2": "Watch ad: +{g} 🪙 +{e} 💎 more"
 });
