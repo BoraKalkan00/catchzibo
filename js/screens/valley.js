@@ -660,6 +660,7 @@ CZ.screens.valley = (function () {
           float k = max(0.0, position.y - 0.6); transformed.x += sin(uWind * 1.6 + ph) * 0.018 * k * k; transformed.z += cos(uWind * 1.3 + ph) * 0.012 * k * k;
         #endif`); };
       tm.customProgramCacheKey = () => 'natwind';
+      seeThrough(tm);   /* (23 Kas) alçak kamera: önündeki ağaçlar oyuncuyu saklamasın */
       const TG = [K.geo(THREE, 'tree_single_A', 3.0, true), K.geo(THREE, 'tree_single_B', 2.3, true), K.geo(THREE, 'trees_A_medium', 3.0, true)];
       const RG = [K.geo(THREE, 'rock_single_A', 1.5), K.has('rock_single_C') ? K.geo(THREE, 'rock_single_C', 1.4) : K.geo(THREE, 'rock_single_A', 1.2)];
       const tmS = seeThrough(tm);
@@ -836,6 +837,14 @@ CZ.screens.valley = (function () {
     const dartGeo = new THREE.ConeGeometry(0.07, 0.45, 5); dartGeo.rotateX(-Math.PI / 2);
     const dartMat = new THREE.MeshBasicMaterial({ color: 0xff4a3a });
     const darts = [];
+    const strails = [], torchPools = [];
+    const mkGlow = (c0) => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.3, c0); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+      return new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }); };
+    const shotGlowS = mkGlow('rgba(140,210,255,0.9)'), shotGlowC = mkGlow('rgba(255,170,60,0.9)');
+    const torchPoolMat = new THREE.MeshBasicMaterial({ map: (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,170,70,0.85)'); g.addColorStop(1, 'rgba(255,120,30,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.55, fog: false });
+    const torchPoolGeo = new THREE.PlaneGeometry(1, 1); torchPoolGeo.rotateX(-Math.PI / 2);
+    function poolTick(now) { for (let i = torchPools.length - 1; i >= 0; i--) { const g = torchPools[i]; if (g.dead || !goblins.includes(g)) { scene.remove(g.tpool); torchPools.splice(i, 1); continue; } g.tpool.position.set(g.x, 0.08, g.z); const k = 4 + Math.sin(now / 90 + i) * 0.35; g.tpool.scale.set(k, 1, k); } }
+    function shotTrailTick(dt) { for (let i = strails.length - 1; i >= 0; i--) { const T2 = strails[i]; T2.t += dt; const k = 1 - T2.t / 0.32; if (k <= 0) { scene.remove(T2.s); strails.splice(i, 1); continue; } T2.s.scale.setScalar(0.7 * k); T2.s.material.opacity = 1; } }
     function shootDart(o) {
       const dx = P.x - o.x, dz = P.z - o.z, L = Math.hypot(dx, dz) || 1;
       const m = new THREE.Mesh(dartGeo, dartMat); m.position.set(o.x + dx / L * 0.6, 1.0, o.z + dz / L * 0.6); m.rotation.y = Math.atan2(-dx, -dz); scene.add(m);
@@ -1330,6 +1339,7 @@ CZ.screens.valley = (function () {
     const tipGeo = new THREE.ConeGeometry(0.1, 0.25, 6); tipGeo.rotateX(-Math.PI / 2);
     const ballMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(W.ball || '#f4fbff') });
     const trails = [], trailMat = new THREE.MeshBasicMaterial({ color: 0xdff4ff, transparent: true, opacity: 0.5, depthWrite: false });
+    function poolTick(now) { for (let i = torchPools.length - 1; i >= 0; i--) { const g = torchPools[i]; if (g.dead || !goblins.includes(g)) { scene.remove(g.tpool); torchPools.splice(i, 1); continue; } g.tpool.position.set(g.x, 0.08, g.z); const k = 4 + Math.sin(now / 90 + i) * 0.35; g.tpool.scale.set(k, 1, k); } }
     function trailTick(dt) { for (let i = trails.length - 1; i >= 0; i--) { const q = trails[i]; q.t += dt; q.m.scale.setScalar(Math.max(0.01, 0.6 - q.t * 2.6)); if (q.t > 0.22) { scene.remove(q.m); trails.splice(i, 1); } } }
     // ===== SİLAHLAR (21 Kas): yay (ok), kılıç (yakın dövüş, geniş savurma), buz asası (dondurur) — elde gerçek 3D =====
     const VWPN = {
@@ -2193,7 +2203,7 @@ CZ.screens.valley = (function () {
     const flameGeo = new THREE.ConeGeometry(0.13, 0.34, 7), flameMat = new THREE.MeshBasicMaterial({ color: 0xffa030 }),
       glowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,200,90,1)'); g.addColorStop(0.4, 'rgba(255,140,40,.5)'); g.addColorStop(1, 'rgba(255,120,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })(),
       glowMat = new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
-    function torchUp(gb) { const sp = gb.spear; if (!sp) return; const f = new THREE.Mesh(flameGeo, flameMat); f.position.y = 1.08; sp.add(f); const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(2.4); gl.position.y = 1.1; sp.add(gl); gb.flame = f; }
+    function torchUp(gb) { const sp = gb.spear; if (!sp) return; const f = new THREE.Mesh(flameGeo, flameMat); f.position.y = 1.08; sp.add(f); const gl = new THREE.Sprite(glowMat); gl.scale.setScalar(2.4); gl.position.y = 1.1; sp.add(gl); gb.flame = f; const pl = new THREE.Mesh(torchPoolGeo, torchPoolMat); pl.renderOrder = 1; pl.scale.set(4.2, 1, 4.2); scene.add(pl); gb.tpool = pl; torchPools.push(gb); }   /* meşale yere ışık düşürür */
     const DIRS8 = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
     const NEWK = { 2: 'jumper', 3: 'bomber', 4: 'shield' };   // 2., 3., 4. gecede her sürüde bir yeni tür (ilk görüşte tanıtım)
     function newKindIntro() { const k = NEWK[V.wave]; if (!k) return; if (!d.seenK) d.seenK = {}; if (d.seenK[k]) return; d.seenK[k] = 1; CZ.state.save();
@@ -2406,7 +2416,7 @@ CZ.screens.valley = (function () {
         if (V.phT < -25) goblins.forEach(o => { if (o.boss && !o.dead) { o.dead = true; o.hp = 0; const i9 = targets.indexOf(o); if (i9 >= 0) targets.splice(i9, 1); if (o.bar) { scene.remove(o.bar.g); o.bar = null; } corpseAdd(o); floatAt(o, o.zibo ? t('zb.escape') : '💨', 'zibo'); if (o.zibo) { V.zibo = null; fires.forEach(F => scene.remove(F.g)); fires.length = 0; } } });   // (22 Kas) patron sonsuza dek kalmasın: gece bitince kaçar
         if ((left === 0 || V.phT <= 0) && !V.raid && !goblins.some(o => o.boss && !o.dead)) endNight();
       }
-      V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK); if (V.moodDirty !== false || (V.moodT = (V.moodT || 0) + dt) > 5) { V.moodT = 0; buildMood(); } moodTick(V.skyK, performance.now());
+      V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK); shotTrailTick(dt); poolTick(performance.now()); if (V.moodDirty !== false || (V.moodT = (V.moodT || 0) + dt) > 5) { V.moodT = 0; buildMood(); } moodTick(V.skyK, performance.now());
     }
     /* (23 Kas) performans: küçük parçaların (vida, tabela, sepet...) gölgesi görünmüyor ama gölge çizimi pahalı → kapat */
     const _sv = new THREE.Vector3();
@@ -2447,12 +2457,14 @@ CZ.screens.valley = (function () {
         const m = new THREE.Mesh(it.type === 'cannon' ? cannonGeo : ballGeo, it.type === 'cannon' ? cannonMat : ballMat);
         const top = it.type === 'cannon' ? 2.2 + it.lv * 0.2 : 2.6 + it.lv * 0.55;
         m.position.set(p.x, top, p.z); scene.add(m);
-        tshots.push({ m, o: best, type: it.type, dmg: D2.dmg + D2.dmgUp * (it.lv - 1), sp: it.type === 'cannon' ? 14 : 20, t: 0 });
+        { const gl = new THREE.Sprite(it.type === 'cannon' ? shotGlowC : shotGlowS); gl.scale.setScalar(it.type === 'cannon' ? 1.5 : 1.3); m.add(gl); }   /* (23 Kas) parlayan mermi + iz */
+        tshots.push({ trail: true, m, o: best, type: it.type, dmg: D2.dmg + D2.dmgUp * (it.lv - 1), sp: it.type === 'cannon' ? 14 : 20, t: 0 });
         if (it.type === 'cannon' && p.g.userData.top) p.g.userData.top.rotation.y = Math.atan2(-(best.x - p.x), -(best.z - p.z));
         if (bd < 14) CZ.audio.sfx(it.type === 'cannon' ? 'hit' : 'throw');
       });
       for (let i = tshots.length - 1; i >= 0; i--) {
         const q = tshots[i]; q.t += dt;
+        if (q.trail && (q.tt = (q.tt || 0) + dt) > 0.035) { q.tt = 0; const tr = new THREE.Sprite(q.type === 'cannon' ? shotGlowC : shotGlowS); tr.position.copy(q.m.position); tr.scale.setScalar(0.7); scene.add(tr); strails.push({ s: tr, t: 0 }); }
         const tx = q.o.x, tz = q.o.z, ty = 0.9;
         const dx = tx - q.m.position.x, dy = ty - q.m.position.y, dz = tz - q.m.position.z, L2 = Math.hypot(dx, dy, dz);
         if (L2 < 0.5 || q.t > 2) {
