@@ -1014,21 +1014,25 @@ CZ.screens.valley = (function () {
     const signTex = (lines, title, ok) => { const c = document.createElement('canvas'); c.width = 320; c.height = 256; const x = c.getContext('2d');
       const bh = 58 + lines.length * 40;
       x.fillStyle = '#5a3418'; x.fillRect(148, bh - 4, 24, 256 - bh + 4);
-      x.fillStyle = '#8a5a2c'; x.strokeStyle = ok ? '#62e07e' : '#3a2010'; x.lineWidth = 8; x.beginPath(); if (x.roundRect) x.roundRect(8, 6, 304, bh, 20); else x.rect(8, 6, 304, bh); x.fill(); x.stroke();
+      x.fillStyle = '#8a5a2c'; x.strokeStyle = ok === 1 ? '#62e07e' : ok === 2 ? '#ffc928' : '#3a2010'; x.lineWidth = 8; x.beginPath(); if (x.roundRect) x.roundRect(8, 6, 304, bh, 20); else x.rect(8, 6, 304, bh); x.fill(); x.stroke();
       x.fillStyle = 'rgba(255,255,255,.12)'; x.fillRect(22, 16, 276, 6);
       x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#fff3d6'; x.font = 'bold 30px sans-serif'; x.fillText(title, 160, 38, 288);
       lines.forEach((ln, k) => { const y = 80 + k * 40; x.fillStyle = RES_COL[ln.r]; x.beginPath(); x.arc(118, y, 13, 0, 7); x.fill(); x.strokeStyle = '#3a2010'; x.lineWidth = 3; x.stroke();
         x.fillStyle = (d[ln.r] || 0) >= ln.n ? '#ffffff' : '#ffb0a0'; x.font = 'bold 32px sans-serif'; x.textAlign = 'left'; x.fillText(String(ln.n), 140, y + 2); x.textAlign = 'center'; });
       const tx = new THREE.CanvasTexture(c); tx.anisotropy = 4; return tx; };
-    let upTexC = null;
-    const upTex = () => upTexC || (upTexC = (() => { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const x = c.getContext('2d');
+    let upTexC = null, upTexG = null;
+    const upTex = gold => gold ? (upTexG || (upTexG = mkUp('#ffc928', '#8a5a00'))) : (upTexC || (upTexC = mkUp('#3fd060', '#1a6a2a')));
+    const mkUp = (fill, edge) => ((() => { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const x = c.getContext('2d');
       x.lineJoin = 'round'; x.beginPath(); x.moveTo(64, 10); x.lineTo(114, 64); x.lineTo(84, 64); x.lineTo(84, 116); x.lineTo(44, 116); x.lineTo(44, 64); x.lineTo(14, 64); x.closePath();
-      x.fillStyle = '#3fd060'; x.strokeStyle = '#ffffff'; x.lineWidth = 10; x.stroke(); x.fill(); x.strokeStyle = '#1a6a2a'; x.lineWidth = 3; x.stroke();
+      x.fillStyle = fill; x.strokeStyle = '#ffffff'; x.lineWidth = 10; x.stroke(); x.fill(); x.strokeStyle = edge; x.lineWidth = 3; x.stroke();
+      if (fill === '#ffc928') { x.fillStyle = '#8a5a00'; x.font = 'bold 34px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('$', 64, 88); }
       return new THREE.CanvasTexture(c); })());
-    const markKey = p => { if (!padVisible(p)) return '0'; const it = slot(p), L2 = left(p); return [it && it.job ? 'j' : '', p.kind === 'v' ? CZ.village.lv(p.id) + (CZ.village.ensure().job ? 'J' : '') : '', JSON.stringify(L2), L2 && L2.every(x => (d[x.r] || 0) >= x.n) ? 1 : 0].join('|'); };
+    /* eksikleri altınla tamamlayabiliyor mu (kartta 'Eksikleri altınla tamamla' düğmesi çıkar) */
+    const canFill = L2 => { if (!L2 || !L2.length) return false; const gN = (L2.find(x => x.r === 'gold') || {}).n || 0; const mg = Math.ceil(L2.reduce((a, x) => x.r === 'gold' ? a : a + Math.max(0, x.n - (d[x.r] || 0)) * (TVAL[x.r] || 1) * 1.3, 0)); return mg > 0 && (d.gold || 0) >= mg + gN; };
+    const markKey = p => { if (!padVisible(p)) return '0'; const it = slot(p), L2 = left(p); return [it && it.job ? 'j' : '', p.kind === 'v' ? CZ.village.lv(p.id) + (CZ.village.ensure().job ? 'J' : '') : '', JSON.stringify(L2), L2 && L2.every(x => (d[x.r] || 0) >= x.n) ? 1 : canFill(L2) ? 2 : 0].join('|'); };
     const objPos = p => p.kind === 'v' ? (([sx, sz]) => [sx * VS, sz * VS + 1.8])(CZ.VILLAGE_SPOTS[p.id]) : p.kind === 'f' ? [Math.cos(p.a) * FENCE_R, Math.sin(p.a) * FENCE_R] : [p.x, p.z];
     function drawMark(p) {
-      if (p.mark) { scene.remove(p.mark); if (p.mark.material.map !== upTexC) p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
+      if (p.mark) { scene.remove(p.mark); if (p.mark.material.map !== upTexC && p.mark.material.map !== upTexG) p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
       p.mk = markKey(p);
       if (!padVisible(p)) return;
       if (p.kind === 'v' && CZ.village.ensure().job) return;   // inşaat sürerken köy işaretleri kalkar
@@ -1037,20 +1041,21 @@ CZ.screens.valley = (function () {
       if (!L2 || !L2.length) return;
       const built = p.kind === 'v' ? CZ.village.lv(p.id) > 0 : p.kind === 'x' ? false : !!slot(p);
       const ok = L2.every(x => (d[x.r] || 0) >= x.n);
+      const fill = !ok && canFill(L2);
       let [mx, mz] = objPos(p);
       if (built) {
-        if (!ok || (p.kind === 'v' && CZ.village.lv(p.id) >= CZ.village.cap(p.id))) return;   // parası yetmiyorsa ekranda bir şey yok; binaya dokununca kart yine açılır
+        if ((!ok && !fill) || (p.kind === 'v' && CZ.village.lv(p.id) >= CZ.village.cap(p.id))) return;   /* altın ok = eksikleri altınla tamamlayıp hemen yükseltebilirsin */   // parası yetmiyorsa ekranda bir şey yok; binaya dokununca kart yine açılır
         let hy = p.kind === 'f' ? 2.2 : 2.4;
         if (p.kind === 'v') { const ext = vilGroup.children.find(c => c.userData.vid === p.id); if (ext) { const bb = new THREE.Box3().setFromObject(ext); if (isFinite(bb.max.y)) { hy = Math.min(bb.max.y * 0.6, 3); mx = (bb.min.x + bb.max.x) / 2; mz = bb.max.z; } } }
         else if (p.g) { const bb = new THREE.Box3().setFromObject(p.g); if (isFinite(bb.max.y)) { hy = Math.min(bb.max.y * 0.55, 2.6); mz = Math.max(mz, bb.max.z - 0.4); } }   /* çok yüksekte olursa yakındayken ekran dışında kalıyordu */
-        p.mark = new THREE.Sprite(new THREE.SpriteMaterial({ map: upTex(), transparent: true, depthWrite: false, depthTest: false }));
+        p.mark = new THREE.Sprite(new THREE.SpriteMaterial({ map: upTex(!ok), transparent: true, depthWrite: false, depthTest: false }));
         p.mark.center.set(0.5, 0); p.mark.scale.set(1.15, 1.15, 1); p.mark.position.set(mx, hy, mz); p.mark.renderOrder = 7; p.mark.userData.up = hy; p.mark.userData.pad = p; scene.add(p.mark); return;
       }
       let title = '🔨 ';
       if (p.kind === 'x') title = '🗺️ ' + t('exp.title');
       else if (p.kind === 'v') title += t('vil.b.' + p.id);
       else title += p.kind === 'f' ? t('def.fence') : t('def.' + p.type);
-      p.mark = new THREE.Sprite(new THREE.SpriteMaterial({ map: signTex(L2, title, ok), transparent: true, depthWrite: false }));
+      p.mark = new THREE.Sprite(new THREE.SpriteMaterial({ map: signTex(L2, title, ok ? 1 : fill ? 2 : 0), transparent: true, depthWrite: false }));
       p.mark.center.set(0.5, 0); const sc = p.kind === 'v' ? 1.6 : 1.4; p.mark.scale.set(sc * 1.25, sc, 1); p.mark.position.set(mx, 0, mz); p.mark.renderOrder = 3; p.mark.userData.pad = p; scene.add(p.mark);
     }
     function drawPad(p) {

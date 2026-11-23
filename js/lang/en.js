@@ -1622,7 +1622,7 @@ CZ.i18n.register('en', 'English', {
   "tip.ok": "OK",
   "tip.off": "Turn off tips",
   "tip.move": "Press and drag on the left side to walk. Get close to trees and rocks to chop and mine them.",
-  "tip.build": "Tap a building or a 🔨 sign to open its card. A green ⬆ arrow means you can upgrade it right now.",
+  "tip.build": "Tap a building or a 🔨 sign to open its card. Green ⬆ arrow = upgrade now. Gold arrow = buy the missing wood/stone with gold and upgrade.",
   "tip.night": "Night is coming! Goblins will attack the village. Head home and stop them yourself.",
   "tip.skill": "The orange button is your weapon's special skill, the blue one is a dash. Switch weapons with the purple button.",
   "tip.rush": "Gold Rush! Reach the golden light before time runs out and clear the goblins around you.",

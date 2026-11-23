@@ -1622,7 +1622,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "tip.ok": "Tamam",
   "tip.off": "İpuçlarını kapat",
   "tip.move": "Ekranın soluna basıp sürükle: yürü. Ağaç ve kayaya yaklaşınca kendin keser, kırarsın.",
-  "tip.build": "Bir binaya ya da 🔨 tabelaya dokun: kart açılır. Yeşil ok ⬆ olan binayı hemen yükseltebilirsin.",
+  "tip.build": "Bir binaya ya da 🔨 tabelaya dokun: kart açılır. Yeşil ok ⬆ = hemen yükseltebilirsin. Altın ok = eksik odun/taşı altınla tamamlayıp yükseltebilirsin.",
   "tip.night": "Gece geliyor! Goblinler köye saldıracak. Köyüne dön ve onları sen durdur.",
   "tip.skill": "Turuncu düğme silahının özel yeteneği, mavi düğme atılma. Mor düğmeden silah değiştir.",
   "tip.rush": "Altın Akını! Altın ışığa süre bitmeden yetiş, etrafını saran goblinleri temizle.",
