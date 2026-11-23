@@ -213,7 +213,7 @@ CZ.screens.valley = (function () {
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = HI ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
     // gölge alanı tüm ekranı kapsasın: dar kalınca ortada parlak bir daire, dışında karanlık halka oluşuyordu
-    Object.assign(sun.shadow.camera, { left: -52, right: 52, top: 52, bottom: -52, near: 1, far: 160 }); sun.shadow.bias = -0.002; if (HI) { sun.shadow.normalBias = 0.03; sun.shadow.radius = 3; }
+    const SHW = innerWidth > innerHeight ? 44 : 34; Object.assign(sun.shadow.camera, { left: -SHW, right: SHW, top: SHW, bottom: -SHW, near: 1, far: 160 });   /* (23 Kas) 52 → ekran yönüne göre 34/44: gölge çizimi ~%40 azaldı */ sun.shadow.bias = -0.002; if (HI) { sun.shadow.normalBias = 0.03; sun.shadow.radius = 3; }
     const toon = c => CZ.style.mat(c);
     const at = (m, x, y, z) => { m.position.set(x, y, z); return m; };
     const seeU = { uSee: { value: new THREE.Vector3(-999, -999, 0) }, uSeeR: { value: 90 } };
@@ -279,6 +279,29 @@ CZ.screens.valley = (function () {
     const M3H = { g_tent: 3.2, g_totem: 3.0, g_fire: 1.1, g_tower: 5.8, lamp: 2.9, chest: 1.0 };
     const pMesh = (id, hh, see) => { if (M3[id]) { const g = M3[id](), k = hh / M3H[id]; g.scale.setScalar(k); const w = new THREE.Group(); w.add(g); return w; }
       const m = new THREE.Mesh(pGeo(id, hh), pMat(id, see)); m.userData.ol = true; return m; };
+    /* (23 Kas) performans: bir kule ~60 ayrı parçadan oluşuyordu (8 kule = 940 çizim). Aynı malzemeli sabit parçaları tek parçada birleştir. */
+    function mergeStatic(root) {
+      root.updateMatrixWorld(true);
+      const inv = new THREE.Matrix4().copy(root.matrixWorld).invert(), B = new Map();
+      root.traverse(o => { if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh || o.userData.ol || Array.isArray(o.material) || !o.visible) return;
+        if (o.children.some(c => !c.isMesh)) return; const g = o.geometry; if (!g || !g.attributes.position || !g.attributes.normal || g.morphAttributes.position) return;
+        const k = o.material.uuid + '|' + (g.attributes.uv ? 1 : 0) + (g.attributes.color ? 1 : 0) + (o.castShadow ? 's' : '') + (o.receiveShadow ? 'r' : '') + o.renderOrder;
+        if (!B.has(k)) B.set(k, { mat: o.material, cast: o.castShadow, recv: o.receiveShadow, ro: o.renderOrder, list: [] }); B.get(k).list.push(o); });
+      const m = new THREE.Matrix4(), nm = new THREE.Matrix3(), v = new THREE.Vector3();
+      B.forEach(b => { if (b.list.length < 2) return;
+        let vc = 0, ic = 0; b.list.forEach(o => { const g = o.geometry; vc += g.attributes.position.count; ic += g.index ? g.index.count : g.attributes.position.count; });
+        const g0 = b.list[0].geometry, hu = !!g0.attributes.uv, hc = !!g0.attributes.color;
+        const Pa = new Float32Array(vc * 3), Na = new Float32Array(vc * 3), Ua = hu ? new Float32Array(vc * 2) : null, Ca = hc ? new Float32Array(vc * 3) : null, Ia = vc > 65535 ? new Uint32Array(ic) : new Uint16Array(ic);
+        let vo = 0, io = 0;
+        b.list.forEach(o => { m.multiplyMatrices(inv, o.matrixWorld); nm.getNormalMatrix(m); const g = o.geometry, pa = g.attributes.position, na = g.attributes.normal, ua = g.attributes.uv, ca = g.attributes.color;
+          for (let i = 0; i < pa.count; i++) { const j = vo + i; v.fromBufferAttribute(pa, i).applyMatrix4(m); Pa[j * 3] = v.x; Pa[j * 3 + 1] = v.y; Pa[j * 3 + 2] = v.z; v.fromBufferAttribute(na, i).applyMatrix3(nm).normalize(); Na[j * 3] = v.x; Na[j * 3 + 1] = v.y; Na[j * 3 + 2] = v.z;
+            if (Ua) { Ua[j * 2] = ua ? ua.getX(i) : 0; Ua[j * 2 + 1] = ua ? ua.getY(i) : 0; } if (Ca) { Ca[j * 3] = ca ? ca.getX(i) : 1; Ca[j * 3 + 1] = ca ? ca.getY(i) : 1; Ca[j * 3 + 2] = ca ? ca.getZ(i) : 1; } }
+          const n = g.index ? g.index.count : pa.count, st = io; if (g.index) for (let k = 0; k < n; k++) Ia[io + k] = g.index.getX(k) + vo; else for (let k = 0; k < n; k++) Ia[io + k] = k + vo;
+          io += n; vo += pa.count; if (m.determinant() < 0) for (let k = st; k + 2 < io; k += 3) { const tt = Ia[k + 1]; Ia[k + 1] = Ia[k + 2]; Ia[k + 2] = tt; } });
+        const G = new THREE.BufferGeometry(); G.setAttribute('position', new THREE.BufferAttribute(Pa, 3)); G.setAttribute('normal', new THREE.BufferAttribute(Na, 3)); if (Ua) G.setAttribute('uv', new THREE.BufferAttribute(Ua, 2)); if (Ca) G.setAttribute('color', new THREE.BufferAttribute(Ca, 3)); G.setIndex(new THREE.BufferAttribute(Ia, 1)); G.computeBoundingSphere(); G.computeBoundingBox();
+        const M = new THREE.Mesh(G, b.mat); M.castShadow = b.cast; M.receiveShadow = b.recv; M.renderOrder = b.ro; M.userData.merged = true; root.add(M);
+        b.list.forEach(o => { if (o.parent) o.parent.remove(o); }); });
+      return root; }
     function outlineWorld(root, w) { root.updateWorldMatrix(true, true); const v = new THREE.Vector3(), list = [];
       root.traverse(o => { if (o.isMesh && !o.userData.ol && !o.userData.olDone && o.geometry && o.geometry.attributes.normal && !(o.material && (o.material.transparent || o.material.isMeshBasicMaterial))) list.push(o); });
       list.forEach(o => { o.getWorldScale(v); o.userData.olDone = true; olMesh(o, Math.max(0.002, Math.round(w / Math.max(0.05, v.x) * 1000) / 1000)); }); }
@@ -470,6 +493,7 @@ CZ.screens.valley = (function () {
           [[-1.1, -1.1], [1.1, -1.1], [-1.1, 1.1], [1.1, 1.1]].forEach(([x, z]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.6, 0.1), CZ.style.mat({ color: 0xf2c230 })); m.position.set(x, 1.3, z); g.add(m); }); }
         g.scale.setScalar(VS); g.position.set(sx * VS, 0, sz * VS);
         if (g.userData.sprite) { const sp = g.children[0], W = sp.scale.x; sp.center.set(0.5, 0.02); sp.position.z = W * 0.4; sp.material.depthTest = true; sp.renderOrder = 0; sp.material.alphaTest = 0.4; }
+        if (b.id !== 'tree' && !g.userData.sprite) mergeStatic(g);   /* (23 Kas) performans: bina parçalarını birleştir (malzeme kopyalanmadan önce) */
         g.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material && !o.material.isMeshBasicMaterial) o.material = seeThrough(o.material.clone()); } });
         g.userData.vid = b.id; if (V && V.ins && V.ins.id === b.id) { g.visible = false; V.ins.ext = g; }
         vilGroup.add(g); outlineWorld(g, 0.035);
@@ -614,6 +638,7 @@ CZ.screens.valley = (function () {
       if (MT.length) for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2 + rand(-0.04, 0.04), r = WORLD_R + rand(7, 15), m = K.get(MT[i % MT.length], rand(16, 24)); if (!m) continue;
         m.position.set(Math.cos(a) * r, -0.3, Math.sin(a) * r); m.rotation.y = rand(0, 6.28); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); scene.add(m); }
       // (iç tepeler kaldırıldı: oyuncuyu ve goblinleri örtüyordu)
+      const decoN0 = scene.children.length;   /* (23 Kas) bu bloktaki sabit süsler sonunda birleştirilir */
       // (22 Kas) YOL KENARI: çit parçaları, fıçı/sandık kümeleri, el arabası, kütük yığını, çuval — dünya yaşanmış görünsün
       const SETS = [[['fence_wood_straight', 2.2, 0, 0]], [['barrel', 0.7, 0, 0], ['barrel', 0.7, 0.75, 0.2], ['crate_A_small', 0.75, 0.3, -0.7]], [['wheelbarrow', 1.3, 0, 0], ['sack', 0.6, 1.0, 0.3]],
         [['resource_lumber', 1.6, 0, 0]], [['crate_B_big', 1.0, 0, 0], ['crate_open', 0.8, 1.0, 0.1], ['sack', 0.6, 0.4, 0.9]], [['pallet', 1.1, 0, 0], ['barrel', 0.7, 0.2, 0.1]]];
@@ -648,6 +673,7 @@ CZ.screens.valley = (function () {
           const lb = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.4, 0.34), glowL); lb.position.set(lx, 2.5, lz); scene.add(lb); solids.push({ x: lx, z: lz, r: 0.3 }); });
         const sx2 = ex - uz * 3.6, sz2 = ez + ux * 3.6; const sp2 = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.8, 6), postM); sp2.position.set(sx2, 0.9, sz2); scene.add(sp2);
         const bd = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.75, 0.08), [postM, postM, postM, postM, CZ.style.mat({ map: signTex }), CZ.style.mat({ map: signTex })]); bd.position.set(sx2, 1.75, sz2); bd.rotation.y = Math.atan2(ux, uz) + Math.PI; bd.castShadow = true; scene.add(bd); });
+      { const decoG = new THREE.Group(); scene.children.slice(decoN0).forEach(o => { if (o.isLight || o.isSprite || o.isPoints) return; decoG.attach(o); }); scene.add(decoG); mergeStatic(decoG); decoG.traverse(o => { if (o.isMesh && o.userData.merged) o.castShadow = true; }); }
       // bulutlar
       if (K.has('cloud_big')) { V.clouds = []; for (let i = 0; i < 9; i++) { const m = K.get(i % 2 ? 'cloud_big' : 'cloud_small', rand(5, 9)); m.position.set(rand(-WORLD_R, WORLD_R), rand(14, 20), rand(-WORLD_R, WORLD_R)); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } }); scene.add(m); V.clouds.push(m); } }
     }
@@ -1078,6 +1104,7 @@ CZ.screens.valley = (function () {
       const lv = building && it.lv === 0 ? 1 : it.lv;
       p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(p.type, lv, !!building);
       if (p.kind === 't') p.g.position.set(p.x, 0, p.z);
+      if (!p.g.userData.top) mergeStatic(p.g);
       outlineWorld(p.g, 0.03);
       if (building) {
         const cx = p.kind === 'f' ? Math.cos(p.a) * FENCE_R : p.x, cz = p.kind === 'f' ? Math.sin(p.a) * FENCE_R : p.z;
@@ -2116,7 +2143,7 @@ CZ.screens.valley = (function () {
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
     ui.querySelectorAll('.res-bar .res.gold, .res-bar .res.gem').forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openShop(); }));
-    V.pause = pause; V.debug.vLook = vLook; V.debug.padAt = (x, y) => { const q = padAt(x, y); return q && (q.kind + (q.i != null ? q.i : q.id)); }; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.trees = trees; V.debug.rocks = rocks; V.debug.info = () => { let n = 0; scene.traverse(() => n++); return { top: scene.children.length, all: n, geo: renderer.info.memory.geometries, tex: renderer.info.memory.textures, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1e6) : 0 }; }; V.debug.solidsNear = (x, z) => solids.filter(q => Math.hypot(q.x - x, q.z - z) < q.r + 2).map(q => [+q.x.toFixed(1), +q.z.toFixed(1), q.r, q.vil || q.kind || '']); V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.vLook = vLook; V.debug.padAt = (x, y) => { const q = padAt(x, y); return q && (q.kind + (q.i != null ? q.i : q.id)); }; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.trees = trees; V.debug.rocks = rocks; V.debug.info = () => { let n = 0; scene.traverse(() => n++); return { top: scene.children.length, all: n, geo: renderer.info.memory.geometries, tex: renderer.info.memory.textures, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1e6) : 0, ...(() => { const I = renderer.info; I.autoReset = false; I.reset(); post.render(scene, camera); const r = { calls: I.render.calls, tris: I.render.triangles }; I.autoReset = true; return r; })() }; }; V.debug.solidsNear = (x, z) => solids.filter(q => Math.hypot(q.x - x, q.z - z) < q.r + 2).map(q => [+q.x.toFixed(1), +q.z.toFixed(1), q.r, q.vil || q.kind || '']); V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -2349,7 +2376,10 @@ CZ.screens.valley = (function () {
       }
       V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
     }
-    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); pads.forEach(q => { if (markKey(q) !== q.mk) drawMark(q); }); if ((V.cmbMax || 0) > (d.cmbBest || 0)) d.cmbBest = V.cmbMax; if (CZ.achv && (d.tutV || 0) >= 5 && !V.cine) CZ.achv.check();
+    /* (23 Kas) performans: küçük parçaların (vida, tabela, sepet...) gölgesi görünmüyor ama gölge çizimi pahalı → kapat */
+    const _sv = new THREE.Vector3();
+    function shadowTrim() { scene.traverse(o => { if (!o.isMesh || !o.castShadow || o.userData.stc || o.isSkinnedMesh) return; o.userData.stc = 1; const g = o.geometry; if (!g) return; if (!g.boundingSphere) g.computeBoundingSphere(); if (!g.boundingSphere) return; o.getWorldScale(_sv); if (g.boundingSphere.radius * Math.max(_sv.x, _sv.y, _sv.z) < 0.35) o.castShadow = false; }); }
+    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); shadowTrim(); pads.forEach(q => { if (markKey(q) !== q.mk) drawMark(q); }); if ((V.cmbMax || 0) > (d.cmbBest || 0)) d.cmbBest = V.cmbMax; if (CZ.achv && (d.tutV || 0) >= 5 && !V.cine) CZ.achv.check();
         /* (23 Kas) biten bölüm görevinin ödülü kendiliğinden alınır (oyuncular yeşil şeride dokunmuyordu, sonraki görev hiç başlamıyordu) */
         try { const q = chCur(); if (q && (d.tutV || 0) >= 5 && chProg(q) >= q[1]) { V.chDT = (V.chDT || 0) + 2; if (V.chDT >= 4 && V.phase === 'day' && !V.paused && !popBusy() && !V.story) { V.chDT = 0; chTap(); } } else V.chDT = 0; } catch (e) { /* */ } }
       if (V.cine) return;
