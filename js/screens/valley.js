@@ -2128,11 +2128,11 @@ CZ.screens.valley = (function () {
     function hordeTick(dt) {
       const H = V.hd || (V.hd = { t: 3, dir: null }); if (H.dir) H.dir.t -= dt;
       if ((H.t -= dt) > 0 || V.nSp >= V.nTot) return;
-      const left = V.nTot - V.nSp, size = Math.min(left, 3 + Math.floor(V.wave * 0.7), 8);
+      const left = V.nTot - V.nSp, size = Math.min(left, V.wave % 5 === 0 ? 3 + Math.floor(V.wave / 10) : 3 + Math.floor(V.wave * 0.7), 8);   /* Zibo gecesinde küçük sürüler: asıl hedef Zibo */
       let cx = 0, cz = 0, a = 0;
       for (let k = 0; k < 30; k++) { a = rand(0, Math.PI * 2); const rr = rand(22, 27); cx = P.x + Math.cos(a) * rr; cz = P.z + Math.sin(a) * rr; if (Math.hypot(cx, cz) > FENCE_R + 6 && Math.hypot(cx, cz) < WORLD_R - 3 && !water(cx, cz)) break; }
       for (let i = 0; i < size; i++) { const gb = spawnGoblin(false, [cx + rand(-2.6, 2.6), cz + rand(-2.6, 2.6), i === 0 ? 'ranged' : i === 1 ? NEWK[V.wave] || null : null]); if (gb) { gb.night = true; gb.horde = true; gb.flank = (i - (size - 1) / 2) * 0.55 + rand(-0.15, 0.15); torchUp(gb); } }
-      V.nSp += size; H.t = V.wave <= 4 ? 8 + V.wave * 0.4 : Math.max(6, 11.5 - V.wave * 0.5);   /* (23 Kas) sürüler arası boş bekleme kısaldı: ilk gecelerde 13 sn kimse gelmiyordu */
+      V.nSp += size; H.t = (V.wave <= 4 ? 8 + V.wave * 0.4 : Math.max(6, 11.5 - V.wave * 0.5)) + (V.wave % 5 === 0 ? 3 : 0);   /* (23 Kas) sürüler arası boş bekleme kısaldı: ilk gecelerde 13 sn kimse gelmiyordu */
       H.dir = { x: cx, z: cz, t: 4.5, n: size };
       const dn = DIRS8[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8];
       floatAt(P, t('night.horde', { n: size, d: t('dir.' + dn) }), 'wave');
@@ -2213,7 +2213,7 @@ CZ.screens.valley = (function () {
     function startNight() {
       if (V.rush && V.rush.state === 'go') rushEnd(30);
       V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 2.5;
-      V.nTot = Math.min(50, Math.round((5 + V.wave * 3 + Math.floor(vilPower() / 2)) * DIFF().n)); V.nSp = 0;
+      V.nTot = Math.min(50, Math.round((5 + V.wave * 3 + Math.floor(vilPower() / 2)) * DIFF().n * (V.wave % 5 === 0 ? 0.6 : 1))); V.nSp = 0;   /* Zibo gecesi: Zibo kendi yardımcılarını çağırır, sürü azalır (yoksa 20+ goblin birden) */
       vigEl.classList.add('on'); cdEl.classList.remove('on');
       V.nS = { kills: V.kills, earned: V.earned, lost: V.lost || 0 };
       d.bestNight = Math.max(d.bestNight || 0, V.wave);
