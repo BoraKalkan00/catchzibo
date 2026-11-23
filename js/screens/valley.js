@@ -3465,7 +3465,7 @@ CZ.screens.valley = (function () {
       const faces = { zibo: (() => { try { return CZ.kk.hasMX && CZ.kk.hasMX('zibo') ? CZ.kk.portrait('zibo', 'front') : 'assets/zibo/png/laugh.webp'; } catch (e) { return 'assets/zibo/png/laugh.webp'; } })(), /* 3D Zibo yüzü */ mila: (() => { try { return CZ.kk.portrait(d.avatar === 'elf' ? 'girl' : 'elf', 'wave'); } catch (e) { return ''; } })(), you: (() => { try { return CZ.kk.portrait(d.avatar || 'boy', 'front'); } catch (e) { return ''; } })() };
       ui.classList.add('cine-on'); wrap.append(bars, cap, skip);
       let skipping = false, typing = null, waitTap = null;
-      const wait = ms => new Promise(ok => { if (skipping) return ok(); const id = setTimeout(ok, ms); V.story.cancel = () => { clearTimeout(id); ok(); }; });
+      const wait = ms => new Promise(ok => { if (skipping) return ok(); const id = setTimeout(ok, ms); if (V && V.story) V.story.cancel = () => { clearTimeout(id); ok(); }; });
       function say(who, key, prm) {
         if (skipping) return Promise.resolve();
         return new Promise(ok => {
