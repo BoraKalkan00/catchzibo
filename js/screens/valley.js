@@ -1029,7 +1029,15 @@ CZ.screens.valley = (function () {
       return new THREE.CanvasTexture(c); })());
     /* eksikleri altınla tamamlayabiliyor mu (kartta 'Eksikleri altınla tamamla' düğmesi çıkar) */
     const canFill = L2 => { if (!L2 || !L2.length) return false; const gN = (L2.find(x => x.r === 'gold') || {}).n || 0; const mg = Math.ceil(L2.reduce((a, x) => x.r === 'gold' ? a : a + Math.max(0, x.n - (d[x.r] || 0)) * (TVAL[x.r] || 1) * 1.3, 0)); return mg > 0 && (d.gold || 0) >= mg + gN; };
-    const markKey = p => { if (!padVisible(p)) return '0'; const it = slot(p), L2 = left(p); return [it && it.job ? 'j' : '', p.kind === 'v' ? CZ.village.lv(p.id) + (CZ.village.ensure().job ? 'J' : '') : '', JSON.stringify(L2), L2 && L2.every(x => (d[x.r] || 0) >= x.n) ? 1 : canFill(L2) ? 2 : 0].join('|'); };
+    let nvT = 0, nvL = [];
+    const nextV = () => { if (performance.now() - nvT < 500) return nvL; nvT = performance.now();
+      nvL = pads.filter(q => q.kind === 'v' && !CZ.village.lv(q.id) && padVisible(q)).map(q => [q, (left(q) || []).reduce((a, x) => a + x.n * (TVAL[x.r] || 1), 0)]).sort((a, b) => a[1] - b[1]).slice(0, 2).map(x => x[0]);
+      try { const cq = chCur(); if (cq && cq[0] === 'vlv') { const cp = pads.find(q => q.kind === 'v' && q.id === cq[2]); if (cp && !nvL.includes(cp)) nvL.push(cp); } } catch (e) { /* */ } return nvL; };
+    let bfT = 0, bfP = null;
+    const bestFill = () => { if (performance.now() - bfT < 500) return bfP; bfT = performance.now(); bfP = null; let bc = 1e9;
+      pads.forEach(q => { if (!padVisible(q)) return; const it = slot(q); if (it && it.job) return; if (q.kind === 'v' && (CZ.village.ensure().job || CZ.village.lv(q.id) >= CZ.village.cap(q.id))) return; const L2 = left(q); if (!L2 || !L2.length || L2.every(x => (d[x.r] || 0) >= x.n) || !canFill(L2)) return;
+        const c = L2.reduce((a, x) => a + x.n * (TVAL[x.r] || 1), 0); if (c < bc) { bc = c; bfP = q; } }); return bfP; };
+    const markKey = p => { if (!padVisible(p)) return '0'; if (p.kind === 'v' && !CZ.village.lv(p.id) && !nextV().includes(p)) return 'h'; const it = slot(p), L2 = left(p); return [it && it.job ? 'j' : '', p.kind === 'v' ? CZ.village.lv(p.id) + (CZ.village.ensure().job ? 'J' : '') : '', JSON.stringify(L2), L2 && L2.every(x => (d[x.r] || 0) >= x.n) ? 1 : canFill(L2) && bestFill() === p ? 2 : 0].join('|'); };
     const objPos = p => p.kind === 'v' ? (([sx, sz]) => [sx * VS, sz * VS + 1.8])(CZ.VILLAGE_SPOTS[p.id]) : p.kind === 'f' ? [Math.cos(p.a) * FENCE_R, Math.sin(p.a) * FENCE_R] : [p.x, p.z];
     function drawMark(p) {
       if (p.mark) { scene.remove(p.mark); if (p.mark.material.map !== upTexC && p.mark.material.map !== upTexG) p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
@@ -1041,16 +1049,17 @@ CZ.screens.valley = (function () {
       if (!L2 || !L2.length) return;
       const built = p.kind === 'v' ? CZ.village.lv(p.id) > 0 : p.kind === 'x' ? false : !!slot(p);
       const ok = L2.every(x => (d[x.r] || 0) >= x.n);
-      const fill = !ok && canFill(L2);
+      const fill = !ok && canFill(L2) && bestFill() === p;   /* altın ok tek bir yerde: en ucuz tamamlanabilir iş (her yer ok dolmasın) */
       let [mx, mz] = objPos(p);
       if (built) {
         if ((!ok && !fill) || (p.kind === 'v' && CZ.village.lv(p.id) >= CZ.village.cap(p.id))) return;   /* altın ok = eksikleri altınla tamamlayıp hemen yükseltebilirsin */   // parası yetmiyorsa ekranda bir şey yok; binaya dokununca kart yine açılır
         let hy = p.kind === 'f' ? 2.2 : 2.4;
-        if (p.kind === 'v') { const ext = vilGroup.children.find(c => c.userData.vid === p.id); if (ext) { const bb = new THREE.Box3().setFromObject(ext); if (isFinite(bb.max.y)) { hy = Math.min(bb.max.y * 0.6, 3); mx = (bb.min.x + bb.max.x) / 2; mz = bb.max.z; } } }
+        if (p.kind === 'v') { const ext = vilGroup.children.find(c => c.userData.vid === p.id); if (ext) { const bb = new THREE.Box3().setFromObject(ext); if (isFinite(bb.max.y)) { hy = Math.min(bb.max.y * 0.6, 3); } } }
         else if (p.g) { const bb = new THREE.Box3().setFromObject(p.g); if (isFinite(bb.max.y)) { hy = Math.min(bb.max.y * 0.55, 2.6); mz = Math.max(mz, bb.max.z - 0.4); } }   /* çok yüksekte olursa yakındayken ekran dışında kalıyordu */
         p.mark = new THREE.Sprite(new THREE.SpriteMaterial({ map: upTex(!ok), transparent: true, depthWrite: false, depthTest: false }));
         p.mark.center.set(0.5, 0); p.mark.scale.set(1.15, 1.15, 1); p.mark.position.set(mx, hy, mz); p.mark.renderOrder = 7; p.mark.userData.up = hy; p.mark.userData.pad = p; scene.add(p.mark); return;
       }
+      if (p.kind === 'v' && !nextV().includes(p)) return;   /* (23 Kas) kurulmamış köy binalarından yalnız en ucuz 2'sinin tabelası: alan tabelayla dolmasın */
       let title = '🔨 ';
       if (p.kind === 'x') title = '🗺️ ' + t('exp.title');
       else if (p.kind === 'v') title += t('vil.b.' + p.id);
