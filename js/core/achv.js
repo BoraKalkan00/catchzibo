@@ -9,7 +9,7 @@ CZ.achv = (function () {
   const vills = () => (((d().surv || {}).list) || []).length;
   // [kimlik, ikon, ilerleme(), hedef, zümrüt]
   const L = [
-    ['NIGHT_1', '🌙', () => d().bestNight || 0, 1, 2],
+    ['NIGHT_1', '🌙', () => c('night'), 1, 2],
     ['NIGHT_5', '🌘', () => d().bestNight || 0, 5, 3],
     ['NIGHT_10', '🌑', () => d().bestNight || 0, 10, 5],
     ['NIGHT_25', '🔥', () => d().bestNight || 0, 25, 10],
