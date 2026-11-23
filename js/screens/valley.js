@@ -996,8 +996,7 @@ CZ.screens.valley = (function () {
     const markPos = p => { if (p.kind === 't' && slot(p)) return [Math.cos(p.a) * (PAD_R + 2.8), Math.sin(p.a) * (PAD_R + 2.8)]; return [p.x, p.z]; };
     // daireler yavaş yavaş açılır (Kingshot gibi): önce 2 kule yeri, kule kurdukça yenisi, sonra çit, görevler bitince köy binaları
     // (22 Kas) yer daireleri: kurulmamış yerler 18 m içinde, yükseltme daireleri sadece yakındayken (8 m) görünür
-    function markVis() { pads.forEach(p => { if (!p.mark) return; const [mx, mz] = markPos(p), dd = Math.hypot(mx - P.x, mz - P.z), unbuilt = p.kind === 't' || p.kind === 'f' ? !slot(p) : p.kind === 'v' ? !CZ.village.lv(p.id) : true;
-      p.mark.visible = dd < (unbuilt ? 18 : 8) || (chGuide && Math.hypot(chGuide.x - mx, chGuide.z - mz) < 3); }); }
+    function markVis() { /* (23 Kas) mesafeye göre aç/kapa kaldırıldı: yanıp sönme yapıyordu */ }
     function padVisible(p) {
       if ((d.tutV || 0) < 1) return false;   // Zibo kovalamacası bitene kadar daire yok
       const built = DS.t.filter(Boolean).length;
@@ -1009,20 +1008,50 @@ CZ.screens.valley = (function () {
       const VV = CZ.village.ensure();   // köy binası: işçi boşsa ve meydan izin veriyorsa
       return !VV.job && CZ.village.lv(p.id) < CZ.village.cap(p.id) && CZ.village.lv(p.id) < CZ.village.def(p.id).max;
     }
+    // (23 Kas) yerdeki yuvarlak daireler kaldırıldı (Bora: "yanıp sönüyor, olmasın"). Artık:
+    //  - kurulmamış yer: küçük ahşap inşaat tabelası (dokun → kart)
+    //  - kurulmuş ve parası yeten: binanın üstünde zıplayan yeşil ok (binaya dokun → kart)
+    const signTex = (lines, title, ok) => { const c = document.createElement('canvas'); c.width = 320; c.height = 256; const x = c.getContext('2d');
+      const bh = 58 + lines.length * 40;
+      x.fillStyle = '#5a3418'; x.fillRect(148, bh - 4, 24, 256 - bh + 4);
+      x.fillStyle = '#8a5a2c'; x.strokeStyle = ok ? '#62e07e' : '#3a2010'; x.lineWidth = 8; x.beginPath(); if (x.roundRect) x.roundRect(8, 6, 304, bh, 20); else x.rect(8, 6, 304, bh); x.fill(); x.stroke();
+      x.fillStyle = 'rgba(255,255,255,.12)'; x.fillRect(22, 16, 276, 6);
+      x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#fff3d6'; x.font = 'bold 30px sans-serif'; x.fillText(title, 160, 38, 288);
+      lines.forEach((ln, k) => { const y = 80 + k * 40; x.fillStyle = RES_COL[ln.r]; x.beginPath(); x.arc(118, y, 13, 0, 7); x.fill(); x.strokeStyle = '#3a2010'; x.lineWidth = 3; x.stroke();
+        x.fillStyle = (d[ln.r] || 0) >= ln.n ? '#ffffff' : '#ffb0a0'; x.font = 'bold 32px sans-serif'; x.textAlign = 'left'; x.fillText(String(ln.n), 140, y + 2); x.textAlign = 'center'; });
+      const tx = new THREE.CanvasTexture(c); tx.anisotropy = 4; return tx; };
+    let upTexC = null;
+    const upTex = () => upTexC || (upTexC = (() => { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const x = c.getContext('2d');
+      x.lineJoin = 'round'; x.beginPath(); x.moveTo(64, 10); x.lineTo(114, 64); x.lineTo(84, 64); x.lineTo(84, 116); x.lineTo(44, 116); x.lineTo(44, 64); x.lineTo(14, 64); x.closePath();
+      x.fillStyle = '#3fd060'; x.strokeStyle = '#ffffff'; x.lineWidth = 10; x.stroke(); x.fill(); x.strokeStyle = '#1a6a2a'; x.lineWidth = 3; x.stroke();
+      return new THREE.CanvasTexture(c); })());
+    const markKey = p => { if (!padVisible(p)) return '0'; const it = slot(p), L2 = left(p); return [it && it.job ? 'j' : '', p.kind === 'v' ? CZ.village.lv(p.id) + (CZ.village.ensure().job ? 'J' : '') : '', JSON.stringify(L2), L2 && L2.every(x => (d[x.r] || 0) >= x.n) ? 1 : 0].join('|'); };
+    const objPos = p => p.kind === 'v' ? (([sx, sz]) => [sx * VS, sz * VS + 1.8])(CZ.VILLAGE_SPOTS[p.id]) : p.kind === 'f' ? [Math.cos(p.a) * FENCE_R, Math.sin(p.a) * FENCE_R] : [p.x, p.z];
     function drawMark(p) {
-      if (p.mark) { scene.remove(p.mark); p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
+      if (p.mark) { scene.remove(p.mark); if (p.mark.material.map !== upTexC) p.mark.material.map.dispose(); p.mark.material.dispose(); p.mark = null; }
+      p.mk = markKey(p);
       if (!padVisible(p)) return;
-      if (p.kind === 'v' && CZ.village.ensure().job) return;   // (21 Kas) inşaat sürerken köy daireleri kalkar
+      if (p.kind === 'v' && CZ.village.ensure().job) return;   // inşaat sürerken köy işaretleri kalkar
       if ((p.kind === 't' || p.kind === 'f') && slot(p) && slot(p).job) return;
       const L2 = left(p);
       if (!L2 || !L2.length) return;
-      let title = '';
-      if (p.kind === 'x') title = t('exp.title');
-      else if (p.kind === 'v') { const lv = CZ.village.lv(p.id); title = (lv ? t('vil.lv', { n: lv + 1 }) : t('vil.build')); if (CZ.village.ensure().job || lv >= CZ.village.cap(p.id)) title = '🔒'; }
-      else { const it = slot(p); title = it ? t('vil.lv', { n: it.lv + 1 }) : (p.kind === 'f' ? t('def.fence') : t('def.' + p.type)); }
-      p.mark = new THREE.Mesh(padGeo, new THREE.MeshBasicMaterial({ map: padTex(L2, title), transparent: true, depthWrite: false }));
-      const [mx, mz] = markPos(p);
-      p.mark.rotation.x = -Math.PI / 2; p.mark.position.set(mx, 0.06, mz); p.mark.renderOrder = 2; if (p.kind === 'v') p.mark.scale.setScalar(0.8); scene.add(p.mark);
+      const built = p.kind === 'v' ? CZ.village.lv(p.id) > 0 : p.kind === 'x' ? false : !!slot(p);
+      const ok = L2.every(x => (d[x.r] || 0) >= x.n);
+      let [mx, mz] = objPos(p);
+      if (built) {
+        if (!ok || (p.kind === 'v' && CZ.village.lv(p.id) >= CZ.village.cap(p.id))) return;   // parası yetmiyorsa ekranda bir şey yok; binaya dokununca kart yine açılır
+        let hy = p.kind === 'f' ? 2.2 : 2.4;
+        if (p.kind === 'v') { const ext = vilGroup.children.find(c => c.userData.vid === p.id); if (ext) { const bb = new THREE.Box3().setFromObject(ext); if (isFinite(bb.max.y)) { hy = Math.min(bb.max.y * 0.6, 3); mx = (bb.min.x + bb.max.x) / 2; mz = bb.max.z; } } }
+        else if (p.g) { const bb = new THREE.Box3().setFromObject(p.g); if (isFinite(bb.max.y)) { hy = Math.min(bb.max.y * 0.55, 2.6); mz = Math.max(mz, bb.max.z - 0.4); } }   /* çok yüksekte olursa yakındayken ekran dışında kalıyordu */
+        p.mark = new THREE.Sprite(new THREE.SpriteMaterial({ map: upTex(), transparent: true, depthWrite: false, depthTest: false }));
+        p.mark.center.set(0.5, 0); p.mark.scale.set(1.15, 1.15, 1); p.mark.position.set(mx, hy, mz); p.mark.renderOrder = 7; p.mark.userData.up = hy; p.mark.userData.pad = p; scene.add(p.mark); return;
+      }
+      let title = '🔨 ';
+      if (p.kind === 'x') title = '🗺️ ' + t('exp.title');
+      else if (p.kind === 'v') title += t('vil.b.' + p.id);
+      else title += p.kind === 'f' ? t('def.fence') : t('def.' + p.type);
+      p.mark = new THREE.Sprite(new THREE.SpriteMaterial({ map: signTex(L2, title, ok), transparent: true, depthWrite: false }));
+      p.mark.center.set(0.5, 0); const sc = p.kind === 'v' ? 1.6 : 1.4; p.mark.scale.set(sc * 1.25, sc, 1); p.mark.position.set(mx, 0, mz); p.mark.renderOrder = 3; p.mark.userData.pad = p; scene.add(p.mark);
     }
     function drawPad(p) {
       drawMark(p);
@@ -1053,6 +1082,7 @@ CZ.screens.valley = (function () {
       scene.add(p.g);
       if (p.kind === 'f') p.hp = p.hpMax = DEF.fence.hp + DEF.fence.hpUp * (it.lv - 1);
       p.pop = 0.35;
+      drawMark(p);   /* ok işareti kulenin boyuna göre yerleşsin */
     }
     // KAYNAK AKIŞI: oyuncu dairenin üstündeyken her an biraz kaynak daireye akar
     const flyGeo = new THREE.BoxGeometry(0.22, 0.22, 0.22);
@@ -1697,7 +1727,7 @@ CZ.screens.valley = (function () {
       stick.style.left = e.clientX + 'px'; stick.style.top = e.clientY + 'px'; stick.classList.add('on');
     });
     window.addEventListener('pointerup', e => { const T0 = V && V.tapPad; if (!T0 || T0.id !== e.pointerId) return; V.tapPad = null;
-      if (Math.hypot(e.clientX - T0.x, e.clientY - T0.y) < 14 && performance.now() - T0.t < 320 && !V.paused && !V.cine) { if (joy.id === e.pointerId) { joy.id = null; joy.dx = joy.dy = 0; stick.classList.remove('on'); } openPad(T0.pp); } });
+      if (Math.hypot(e.clientX - T0.x, e.clientY - T0.y) < 14 && performance.now() - T0.t < 450 && !V.paused && !V.cine) { if (joy.id === e.pointerId) { joy.id = null; joy.dx = joy.dy = 0; stick.classList.remove('on'); } openPad(T0.pp); } });
     window.addEventListener('pointermove', V_move = e => {
       if (e.pointerId === joy.id) {
         let dx = e.clientX - joy.x0, dy = e.clientY - joy.y0; const L2 = Math.hypot(dx, dy), R = 56;
@@ -2072,7 +2102,7 @@ CZ.screens.valley = (function () {
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
     ui.querySelectorAll('.res-bar .res.gold, .res-bar .res.gem').forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openShop(); }));
-    V.pause = pause; V.debug.vLook = vLook; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.trees = trees; V.debug.rocks = rocks; V.debug.info = () => { let n = 0; scene.traverse(() => n++); return { top: scene.children.length, all: n, geo: renderer.info.memory.geometries, tex: renderer.info.memory.textures, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1e6) : 0 }; }; V.debug.solidsNear = (x, z) => solids.filter(q => Math.hypot(q.x - x, q.z - z) < q.r + 2).map(q => [+q.x.toFixed(1), +q.z.toFixed(1), q.r, q.vil || q.kind || '']); V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.vLook = vLook; V.debug.padAt = (x, y) => { const q = padAt(x, y); return q && (q.kind + (q.i != null ? q.i : q.id)); }; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.trees = trees; V.debug.rocks = rocks; V.debug.info = () => { let n = 0; scene.traverse(() => n++); return { top: scene.children.length, all: n, geo: renderer.info.memory.geometries, tex: renderer.info.memory.textures, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1e6) : 0 }; }; V.debug.solidsNear = (x, z) => solids.filter(q => Math.hypot(q.x - x, q.z - z) < q.r + 2).map(q => [+q.x.toFixed(1), +q.z.toFixed(1), q.r, q.vil || q.kind || '']); V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -2302,7 +2332,7 @@ CZ.screens.valley = (function () {
       }
       V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
     }
-    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); if ((V.cmbMax || 0) > (d.cmbBest || 0)) d.cmbBest = V.cmbMax; if (CZ.achv && (d.tutV || 0) >= 5 && !V.cine) CZ.achv.check(); }
+    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); pads.forEach(q => { if (markKey(q) !== q.mk) drawMark(q); }); if ((V.cmbMax || 0) > (d.cmbBest || 0)) d.cmbBest = V.cmbMax; if (CZ.achv && (d.tutV || 0) >= 5 && !V.cine) CZ.achv.check(); }
       if (V.cine) return;
       V.cool -= dt;
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
@@ -2728,13 +2758,14 @@ CZ.screens.valley = (function () {
       pads.forEach(p => { if (!padVisible(p)) return; const [mx, mz] = markPos(p); const dd = Math.hypot(mx - P.x, mz - P.z); if (dd < bd) { bd = dd; best = p; } if (dd < 1.5) onPad = p; });
       // (21 Kas) daireye basınca para KENDİLİĞİNDEN gitmez: önce "Yükselt" düğmesine basılır
       if (armedPad && onPad !== armedPad && nearPad !== armedPad) { armedPad = null; panelKey = ''; }
-      if (onPad && P.down <= 0 && onPad === armedPad) flowTick(onPad, dt);
+
       prodTick(dt);
-      // köy daireleri uzaktayken küçülür (kalabalık görünmesin), yaklaşınca büyür
-      pads.forEach(p => { if (p.mark && p.kind !== 'v') { const [ax, az] = markPos(p); const op = Math.hypot(ax - P.x, az - P.z) < 4.2 ? 1 : 0.3; p.mark.material.opacity += (op - p.mark.material.opacity) * Math.min(1, dt * 6); }
-        if (p.kind !== 'v' || !p.mark) return; const [mx, mz] = markPos(p); const tg = Math.hypot(mx - P.x, mz - P.z) < 5.5 ? 0.8 : 0.42; const sc = p.mark.scale.x + (tg - p.mark.scale.x) * Math.min(1, dt * 8); p.mark.scale.setScalar(sc); p.mark.material.opacity = 0.35 + (sc - 0.42) / 0.38 * 0.65; });
+      pads.forEach(p => { if (p.mark && p.mark.userData.up) p.mark.position.y = p.mark.userData.up + Math.abs(Math.sin(performance.now() / 260)) * 0.35; });
       if (!best) { const rr = Math.hypot(P.x, P.z); if (Math.abs(rr - FENCE_R) < 1.4) { const seg = ((Math.floor(((Math.atan2(P.z, P.x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8); const fp = pads.find(p => p.kind === 'f' && p.i === seg); if (fp && slot(fp) && slot(fp).lv >= 1) { best = fp; onPad = fp; } } }   // çitin üstündeyken canını ve yükseltmesini göster
       if (best && !onPad && Math.hypot(P.vx, P.vz) > 2.2) best = null;   // koşarken panel ekranı kapatmasın
+      /* eğitim: kule yerine gelen yeni oyuncuya kart bir kez kendiliğinden açılır (dokunmayı bilmeyen takılmasın) */
+      if ((TUT[d.tutV || 0] || {}).id === 'build' && !V.paused && !V.cine) { const tp = pads.find(q => q.kind === 't' && !slot(q) && padVisible(q)); if (tp && Math.hypot(tp.x - P.x, tp.z - P.z) < 2.2 && performance.now() - (V.tutOpen || 0) > 8000) { V.tutOpen = performance.now(); openPad(tp); } }
+      if (best && !(jobLeft(slot(best)) > 0 || (best.kind === 'v' && CZ.village.ensure().job && CZ.village.ensure().job.id === best.id))) best = null;   /* (23 Kas) yaklaşınca kart/panel yok: binaya dokun. Panel sadece süren inşaatı hızlandırmak için */
       if (best !== nearPad) { nearPad = best; padUi(true); }
       else if (nearPad) padUi(false);
       pads.forEach(p => { if (p.dirty) { p.redraw = (p.redraw || 0) - dt; if (p.redraw <= 0) { p.redraw = 0.15; p.dirty = false; drawMark(p); } } });
@@ -2993,7 +3024,13 @@ CZ.screens.valley = (function () {
     }
     function padAt(cx, cy) {
       const r = renderer.domElement.getBoundingClientRect(); tapN.set((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
-      tapRay.setFromCamera(tapN, camera); if (!tapRay.ray.intersectPlane(tapPlane, tapV)) return null;
+      tapRay.setFromCamera(tapN, camera);
+      /* (23 Kas) önce dokunulan nesneye bak: tabela, ok, kule, çit, köy binası */
+      { const objs = []; pads.forEach(q => { if (q.mark) objs.push(q.mark); if (q.g) { q.g.userData.padRef = q; objs.push(q.g); } });
+        vilGroup.children.forEach(c => { const q = c.userData.vid && pads.find(q2 => q2.kind === 'v' && q2.id === c.userData.vid); if (q) { c.userData.padRef = q; objs.push(c); } });
+        const hit = tapRay.intersectObjects(objs, true).find(x => x.object.visible);
+        if (hit) { let o = hit.object; while (o && !(o.userData.pad || o.userData.padRef)) o = o.parent; const q = o && (o.userData.pad || o.userData.padRef); if (q && (q.kind !== 'v' || CZ.village.lv(q.id) > 0 || padVisible(q))) return q; } }
+      if (!tapRay.ray.intersectPlane(tapPlane, tapV)) return null;
       let best = null, bd = 2.4;
       pads.forEach(q => { const [mx, mz] = markPos(q); let dd = Math.hypot(mx - tapV.x, mz - tapV.z);
         if (q.kind === 'v' && CZ.VILLAGE_SPOTS) { const [sx, sz] = CZ.VILLAGE_SPOTS[q.id]; dd = Math.min(dd, Math.hypot(sx * VS - tapV.x, sz * VS + 0.6 - tapV.z) * 0.8); }

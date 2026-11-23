@@ -142,3 +142,7 @@ Gift popup'ı kapatmak için `CZ.state.data.login={last:bugünYYYYMMDD,n:1}`.
 - (23 Kas) KRİTİK GELİR HATASI: Mağaza ve Kış Bileti yalnız eski menüden açılıyordu → köyde hiç satış yapılamıyordu. Sağ sütuna 🛒 Mağaza ve ⭐ Bilet (ödül hazırsa kırmızı nokta) düğmeleri, altın/zümrüt sayısına dokununca da mağaza açılır; açıkken oyun durur. PC'de gizli. Kısa ekranlarda (≤720 px) sağ sütun sıkıştırıldı.
 - (23 Kas) Reklam noktaları sayıldı: inşaat hızlandır, sipariş atla, 5 dk 2x altın, gece 2x, dirilme, köy hızlandır (3/gün), hoş geldin 2x, mağaza bedava altın (3/gün) — 8 nokta, hepsi isteğe bağlı. Eklendi: bölüm sonu ödülü reklamla bir kez daha (en değerli an).
 - (23 Kas) EKONOMİ ölçümü (bot, köy geliştirmeden): gün+gece başına ≈ +110 odun, +110 taş, +60-135 altın (Zibo gecesinde yangın kaybıyla ~0). İlk binalar: Kereste 40/30/130, Yemekhane 75/55/240, Belediye 285/220/950 (odun/taş/altın). Sonuç: ilk binalar 1-2 gecede, Belediye ~6-8 gecede; altın darboğaz ama Sipariş Panosu fazla odun/taşı altına çeviriyor. Değişiklik gerekmedi.
+
+## 23 Kas - yer daireleri kaldırıldı
+- Bora: yuvarlaklar yanıp sönüyor, olmasın; binaya dokununca açılsın. Artık: kurulmamış yer = ahşap 🔨 tabela (sprite), kurulu+parası yeten = yeşil ⬆ ok. Binaya/tabelaya dokun → openPad kartı. Daireye basıp kaynak akıtma kapalı; yakın paneli sadece süren inşaatı hızlandırmak için. Eğitimde kule yerine gelince kart 1 kez kendiliğinden açılır.
+- Başarımlar js/core/achv.js (28), Steam köprüsü desktop/main.js (steam_appid.txt gerekli), PC kayıt save.json (Steam Auto-Cloud).
