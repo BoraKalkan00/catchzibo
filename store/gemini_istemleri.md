@@ -21,3 +21,7 @@ Tall portrait key art for a PC game called "Zibo's Raid: Tiny Keep", aspect rati
 ## 5) Steam — Kütüphane arka planı (3840x1240)
 
 Ultra-wide panoramic background art, aspect ratio about 3:1, for a PC game called "Zibo's Raid: Tiny Keep". Stylized 3D cartoon art like Clash Royale and Kingshot, vibrant colors, soft dusk lighting. A wide snowy valley with a cozy fantasy village in the center: stone defense towers with blue conical roofs, a wooden palisade fence, a market stall with a blue-and-white striped awning, a big decorated Christmas tree, warm glowing windows and chimney smoke. Snowy pine forests and mountains on both sides, a frozen river, falling snow. Keep the center of the image free of characters and keep the bottom-left area calm and simple. No characters in the center, no text, no logo, no watermark.
+
+## 6) Steam — Kütüphane logosu (şeffaf, 1280x720) — yeşil zeminde çizdir, Claude zemini siler
+
+The game title logo "Zibo's Raid" in large chunky wooden-and-gold fantasy lettering with snow on top of the letters, and the smaller words "Tiny Keep" on a red ribbon banner under it. Stylized 3D cartoon style like Clash Royale logos, thick dark outline around the whole logo. The logo is centered and alone on a completely flat, solid, pure bright green background (#00FF00) with no gradient, no shadow on the background, no snow particles, no sparkles, no other objects. Nothing green inside the logo itself.
