@@ -12,12 +12,12 @@ async def main():
     await pg.goto('http://localhost:8765/index.html'); await pg.wait_for_timeout(2500)
     await pg.evaluate(SETUP, LANG); await pg.wait_for_timeout(16000)
     V="CZ.screens.valley.debug"
-    async def shot(n): await pg.evaluate("()=>document.querySelectorAll('.vl-coach,.toast,.def-panel').forEach(e=>e.style.display='none'); document.querySelectorAll('.kbd').forEach(e=>e.classList.remove('kbd'))"); await pg.screenshot(path=f'/home/claude/qa/st_{LANG}_{n}.png')
+    async def shot(n): await pg.evaluate("()=>document.querySelectorAll('.vl-coach,.toast,.def-panel,.achv-pop').forEach(e=>e.style.display='none'); document.querySelectorAll('.kbd').forEach(e=>e.classList.remove('kbd'))"); await pg.screenshot(path=f'/home/claude/qa/st_{LANG}_{n}.png')
     # 1 köy gündüz
-    await pg.evaluate(f"()=>{{const v={V}; v.P.x=2; v.P.z=9; v.P.riding=false; v.debug.sim(4);}}"); await pg.wait_for_timeout(600); await shot(1)
+    await pg.evaluate(f"()=>{{const v={V}; CZ.state.data.camZ='far'; v.P.x=3; v.P.z=11; v.P.riding=false; v.debug.sim(4);}}"); await pg.wait_for_timeout(600); await shot(1); await pg.evaluate("()=>{CZ.state.data.camZ='normal';}")
     # 2 gece sürüsü + kombo
     await pg.evaluate(f"()=>{{const v={V}; v.wave=2; v.phase='day'; v.phT=0.05; v.P.x=0; v.P.z=-24; v.debug.sim(9);}}")
-    await pg.evaluate(f"()=>{{const v={V}; v.goblins.filter(o=>!o.dead).forEach((o,k)=>{{o.x=v.P.x+Math.cos(k)*4; o.z=v.P.z+Math.sin(k)*4;}}); v.debug.sim(1.2, ()=>v.debug.autoFire());}}"); await pg.wait_for_timeout(500); await shot(2)
+    await pg.evaluate(f"()=>{{const v={V}; v.goblins.filter(o=>!o.dead).forEach((o,k)=>{{o.x=v.P.x+Math.cos(k)*4; o.z=v.P.z+Math.sin(k)*4;}}); v.debug.sim(1.2, ()=>v.debug.autoFire());}}"); await pg.wait_for_timeout(500); await shot(2); print(await pg.evaluate("()=>[...document.querySelectorAll('.valley-wrap *')].filter(x=>{const r=x.getBoundingClientRect(); return r.width>20 && r.left<225 && r.right>215 && r.top<460 && r.bottom>450 && getComputedStyle(x).display!=='none';}).map(x=>x.className+':'+x.textContent.slice(0,15)).join(' ; ')"))
     # 3 bina içi
     await pg.evaluate("()=>document.querySelectorAll('.modal-wrap').forEach(e=>e.remove())")
     await pg.evaluate(f"()=>{{const v={V}; v.phase='day'; v.phT=100; v.goblins.forEach(o=>{{o.hp=0;}}); v.debug.sim(1); v.debug.openPadV('canteen');}}"); await pg.wait_for_timeout(7000); await shot(3)
@@ -26,6 +26,6 @@ async def main():
     await pg.evaluate(f"()=>{{const v={V}; v.debug.zibo(); v.debug.sim(4); if(v.zibo){{v.zibo.x=v.P.x+4; v.zibo.z=v.P.z-2;}} v.debug.sim(0.4, ()=>v.debug.autoFire());}}"); await pg.wait_for_timeout(600); await shot(4)
     # 5 orman binek
     await pg.evaluate("()=>document.querySelectorAll('.modal-wrap').forEach(e=>e.remove())")
-    await pg.evaluate(f"()=>{{const v={V}; v.phase='day'; v.phT=100; v.goblins.forEach(o=>{{o.hp=0;}}); v.P.x=22; v.P.z=-22; v.P.riding=true; v.debug.sim(6);}}"); await pg.wait_for_timeout(600); await shot(5)
+    await pg.evaluate(f"()=>{{const v={V}; v.phase='day'; v.phT=100; v.goblins.forEach(o=>{{o.hp=0;}}); v.P.x=22; v.P.z=-22; v.P.riding=true; v.P.down=0; document.querySelectorAll('.def-down').forEach(e=>e.remove()); v.debug.sim(6,()=>{{v.P.hp=v.P.maxHp;}});}}"); await pg.wait_for_timeout(600); await shot(5)
     print(LANG, errs[:3]); await b.close()
 asyncio.run(main()); srv.kill()
