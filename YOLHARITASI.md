@@ -28,7 +28,8 @@ Kurallar:
   - Yapıldı: botla öğretici uçtan uca (≈35 sn oyun zamanı). HATA: 'Sarı daireye gir' görevi daireye girince hiçbir şey yapmıyordu (sadece kısa dokunuş açıyordu; ayıdayken de) → dairede 0.5 sn durunca kart açılır. Kurulmamış kulede 'Yükselt' yerine 'İnşa et', İngilizcede '2 dk' yerine '2 min'.
 
 ## C) Sağlamlık
-- [ ] C11 tools/qa/soak.py 10 dakika: sıfır konsol hatası; bulunan her hatayı düzelt
+- [x] C11 tools/qa/soak.py 10 dakika: sıfır konsol hatası; bulunan her hatayı düzelt
+  - Yapıldı (23 Kas): 15 dk oyun zamanı, 7 gece, kart/başarım açma dahil: sıfır hata. HATA: bina kartı geri tuşu vb. ile kapanınca oyuncu binanın içinde mahsur kalıyordu (arayüz gizli) → kart yoksa içeriden otomatik çıkılır.
 - [x] C12 Eski kayıt göçü: eksik alanlarla (d.surv yok, d.vil yok, eski sürüm alanları) açılış çökmesin
   - Yapıldı: KRİTİK HATA bulundu: eski kayıttaki köylülerde tip/cinsiyet yoktu → vLook çöküyor, köy hiç açılmıyordu. Göç kodu eksik alanları tamamlıyor (SV.list/n/mail, g, ty, hair, rar, st). Eski kayıtla test temiz.
 - [x] C13 Yatay ekran (1280×720) ve küçük ekran (360×640) düzeni: HUD çakışmaları düzelt
@@ -41,7 +42,8 @@ Kurallar:
   - Yapıldı: e.code ile WASD/oklar, Boşluk saldırı, Shift atılma, Q yetenek, R binek gücü, E bin/in, M harita, Esc duraklat/kapat; pencere odağı kaybolunca tuşlar sıfırlanır; fare/klavye varsa düğmelerde tuş etiketi. (Bin düğmesi yazısını yenilediği için E etiketi kayboluyor — küçük, sonra.)
 - [x] D16 Electron masaüstü sarmalayıcısı (desktop/ klasörü) + GitHub Actions ile Windows x64 zip; ads.show PC'de reklamsız doğrudan ödül, gerçek para mağazası PC'de gizli
   - Yapıldı: desktop/ (Electron 31, tek pencere 1280×720, F11/Alt+Enter tam ekran, menü yok), .github/workflows/desktop.yml → Windows x64 zip 'pc-build' sürümüne (ZibosRaid-win64.zip). CZ.PC: reklam yerine ödül direkt, gerçek para mağazası kapalı, ▶ simgeleri gizli. İlk CI sonucunu kontrol et.
-- [ ] D17 steamworks.js entegrasyonu (App ID gelince açılacak şekilde bayrakla): başarımlar (ilk gece, Zibo yakalandı, 10 gece, belediye sv5 ...) ve bulut kayıt
+- [x] D17 steamworks.js entegrasyonu (App ID gelince açılacak şekilde bayrakla): başarımlar (ilk gece, Zibo yakalandı, 10 gece, belediye sv5 ...) ve bulut kayıt
+  - Yapıldı: js/core/achv.js 28 başarım (zümrüt ödüllü, oyun içi liste), desktop/main.js steamworks.js (steam_appid.txt varsa), save.json + Steam Auto-Cloud, ikonlar store/achv, liste store/steam_achievements.md.
 
 ## E) Tutma (retention)
 - [x] E18 "Bak" düğmesi (fotoğraf modu): savaş yokken kamera karakter etrafında döner + ekran görüntüsü paylaş

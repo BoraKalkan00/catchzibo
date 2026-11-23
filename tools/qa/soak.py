@@ -11,12 +11,15 @@ async def main():
     await pg.evaluate("""()=>{const d=CZ.state.data; const n=new Date(); d.login={last:n.getFullYear()*10000+(n.getMonth()+1)*100+n.getDate(),n:1}; d.introDone=true; d.tutV=5; d.tutVer=2; d.tutorialDone=true; d.tipsOff=true; d.gfx='lo'; d.seenAt=Date.now(); d.wood=3000; d.stone=3000; d.gold=5000; CZ.state.save(); location.reload();}""")
     await pg.wait_for_timeout(11000)
     # 6 dakikalık oyun: rastgele yürü, sürekli ateş, binaya dokun, gündüz/gece geç
-    for i in range(16):
+    for i in range(30):
       r=await pg.evaluate("""(i)=>{const V=CZ.screens.valley.debug; if(!V) return 'noV';
         const rb=document.querySelector('.raid-rep .btn.small'); if(rb) rb.click(); document.querySelectorAll('.modal-wrap .btn').forEach(b=>{ if(/Devam|Continue|Topla|Collect|Close|Kapat/i.test(b.textContent)) b.click(); }); if(V.phase==='day' && V.phT>20) V.phT=20;
-        const a=i*1.3; V.debug.sim(30, ()=>{ const J=V.debug.joy; J.id=1; J.dx=Math.cos(a)*40; J.dy=Math.sin(a)*40; V.debug.autoFire(); });
+        try{ if(i%5===1){ V.debug.openPadV&&V.debug.openPadV(['hall','canteen','bakery','mine','forge'][i%5]); } if(i%7===3) CZ.achv.open(); if(i%6===2){ V.P.x=0; V.P.z=0; } }catch(e){ return 'ERR '+e.message; }
+        document.querySelectorAll('.upg-wrap,.modal-wrap').forEach(e=>e.remove()); V.paused=false;
+        const a=i*1.3; V.debug.sim(30, ()=>{ const J=V.debug.joy; J.id=1; J.dx=Math.cos(a); J.dy=Math.sin(a); V.debug.autoFire(); });
         return JSON.stringify({ph:V.phase,w:V.wave,g:V.goblins.length,hp:Math.round(V.P.hp),k:V.kills,paused:V.paused});}""", i)
       print(i, r)
+    print(await pg.evaluate("()=>{const V=CZ.screens.valley.debug; return JSON.stringify({ins:V.ins&&{id:V.ins.id,t:V.ins.t,dir:V.ins.dir}, ui:document.querySelector('.vl-ui').className, wrapc:document.querySelector('.valley-wrap').className, photo:!!V.photo, P:[V.P.x|0,V.P.z|0], cine:!!V.cine, upg:!!document.querySelector('.upg-wrap')})}"))
     await pg.screenshot(path='/tmp/qa/s1.png')
     print('\n'.join(sorted(set(errs))[:15])); await b.close()
 asyncio.run(main()); srv.kill()

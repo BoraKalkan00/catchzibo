@@ -2964,6 +2964,7 @@ CZ.screens.valley = (function () {
     }
     function insTick(dt) { const I = V.ins; if (!I) return;
       I.t = Math.max(0, Math.min(1, I.t + I.dir * dt * 2.6)); insApply();
+      if (I.dir > 0 && !wrap.querySelector('.upg-wrap')) insExit();   /* kart başka yoldan kapandıysa (geri tuşu vb.) binada mahsur kalma */
       if (I.dir < 0 && I.t <= 0) { insDone(); return; }
       if (I.pop) { I.pop.t += dt * 3; const s = I.g.userData.items[I.pop.i]; if (s) s.scale.setScalar(1 + Math.sin(Math.min(1, I.pop.t) * Math.PI) * 0.35); if (I.pop.t >= 1) I.pop = null; }
       // oda içinde/önünde duran oyuncu, binek ve başka köylüler gizlenir (görünüşü bozmasın)
