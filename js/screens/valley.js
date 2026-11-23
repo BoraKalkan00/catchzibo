@@ -2319,10 +2319,11 @@ CZ.screens.valley = (function () {
     function tip(k) { if (d.tipsOff || d.tips[k] || (d.tutV || 0) < 5 || V.story) return; d.tips[k] = 1; CZ.state.save(); tipQ.push(k); if (!tipOn) tipNext(); }
     const popBusy = () => !!(wrap.querySelector('.modal-wrap, .upg-wrap') || V.cine || V.ins || (typeof bubble !== 'undefined' && bubble.isConnected));   /* Mila konuşurken ipucu kartı üstüne binmesin */   // (22 Kas) aynı anda tek pencere
     function tipNext() { if (V && popBusy()) { tipOn = true; tipEl.classList.remove('on'); setTimeout(() => { if (V) tipNext(); }, 1500); return; } const k = tipQ.shift(); if (!k) { tipOn = false; tipEl.classList.remove('on'); return; } tipOn = true;
-      tipEl.replaceChildren(h('b', { text: '💡 ' + t('tip.' + k) }), h('div', { class: 'vl-coach-btns' }, btn(t('tip.ok'), () => { CZ.audio.sfx('button'); tipNext(); }, 'small primary'), btn(t('tip.off'), () => { d.tipsOff = true; CZ.state.save(); tipQ.length = 0; tipNext(); }, 'small ghost-dark')));
-      tipEl.classList.add('on'); CZ.audio.sfx('star'); }
+      tipEl.replaceChildren(h('b', { text: '💡 ' + t('tip.' + k) }), h('div', { class: 'vl-coach-btns' }, btn(t('tip.ok'), () => { CZ.audio.sfx('button'); tipGap(); }, 'small primary'), btn(t('tip.off'), () => { d.tipsOff = true; CZ.state.save(); tipQ.length = 0; tipNext(); }, 'small ghost-dark')));
+      tipEl.classList.add('on'); CZ.audio.sfx('star'); tipEl.dataset.k = k; clearTimeout(MILA.tipHide); MILA.tipHide = setTimeout(() => { if (V && tipEl.dataset.k === k && tipEl.classList.contains('on')) tipGap(); }, 9000); }
+    /* (23 Kas) ipuçları art arda dokunmak gerektirmesin: 9 sn sonra kendisi kapanır, sıradaki 15 sn sonra gelir */
+    function tipGap() { tipEl.classList.remove('on'); tipEl.dataset.k = ''; clearTimeout(MILA.tipHide); setTimeout(() => { if (V) tipNext(); }, 15000); }
     function tipTick() { if (!V.tipT) V.tipT = performance.now();
-      if (performance.now() - V.tipT > 2500) tip('move');
       if ((d.wood || 0) >= 10 || (d.stone || 0) >= 10) tip('build');
       if (V.phase === 'day' && V.phT <= 10) tip('night');
       if (V.kills >= 1) tip('skill');
