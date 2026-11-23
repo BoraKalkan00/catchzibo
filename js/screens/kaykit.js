@@ -652,7 +652,7 @@
     model.traverse(o => {
       if (!o.isMesh) return;
       const mp = o.material.map; if (mp) mp.encoding = T.LinearEncoding;
-      o.material = KTM({ map: mp, gradientMap: grad() });
+      o.material = KTM({ map: mp, gradientMap: grad(), rim: 0.6 });   /* (23 Kas) karakterler kardan ayrışsın: güçlü sıcak kenar ışığı */
       o.frustumCulled = false;
     });
     if (!KK_H) { const b = new T.Box3().setFromObject(base.barbarian); KK_H = b.max.y - b.min.y; }

@@ -26,15 +26,15 @@ CZ.style = (function () {
     if (v !== 'hi' && v !== 'lo') { const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4; v = (mem <= 3 || cores <= 4) ? 'lo' : 'hi'; }
     return (gfx.v = v); }
   const RIM = { value: null };
-  function soft(o) { const T = window.THREE; o = Object.assign({}, o); delete o.gradientMap;
+  function soft(o) { const T = window.THREE; o = Object.assign({}, o); delete o.gradientMap; const rk = o.rim || 0.22; delete o.rim;   /* rim: kenar ışığı gücü (karakterlerde daha güçlü) */
     const m = new T.MeshStandardMaterial(Object.assign({ roughness: 0.82, metalness: 0 }, o));
     if (!RIM.value) RIM.value = new T.Color(0xfff2dd);
     m.onBeforeCompile = sh => { sh.uniforms.uRim = RIM;
       sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec3 uRim;').replace('#include <output_fragment>',
-        'float rimF = 1.0 - clamp(dot(normalize(vViewPosition), normal), 0.0, 1.0); rimF = 1.0 - rimF; rimF = pow(clamp(1.0 - abs(dot(normalize(-vViewPosition), normal)), 0.0, 1.0), 2.6);\n outgoingLight += uRim * rimF * 0.22 * (0.4 + 0.6 * diffuseColor.rgb);\n#include <output_fragment>'); };
-    m.customProgramCacheKey = () => 'czsoft';
+        'float rimF = 1.0 - clamp(dot(normalize(vViewPosition), normal), 0.0, 1.0); rimF = 1.0 - rimF; rimF = pow(clamp(1.0 - abs(dot(normalize(-vViewPosition), normal)), 0.0, 1.0), 2.6);\n outgoingLight += uRim * rimF * ' + rk.toFixed(2) + ' * (0.4 + 0.6 * diffuseColor.rgb);\n#include <output_fragment>'); };
+    m.customProgramCacheKey = () => 'czsoft' + rk;
     return m; }
-  const mat = o => { o = typeof o === 'number' ? { color: o } : o; return gfx() === 'hi' ? soft(o) : new window.THREE.MeshToonMaterial(Object.assign({ gradientMap: grad() }, o)); };
+  const mat = o => { o = typeof o === 'number' ? { color: o } : o; if (gfx() === 'hi') return soft(o); o = Object.assign({}, o); delete o.rim; return new window.THREE.MeshToonMaterial(Object.assign({ gradientMap: grad() }, o)); };
   // yapay zekâ modellerinin renklerini ortak paletle uyumlu yap: aşırı soluk/aşırı koyu tonları topla, doygunluğu dengele
   function harmonize(geo) {
     const c = geo.attributes.color; if (!c || c.userData && c.userData.hz) return; const T = window.THREE, col = new T.Color(), hsl = {};

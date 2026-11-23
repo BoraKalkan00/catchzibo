@@ -1227,7 +1227,7 @@ CZ.screens.valley = (function () {
     const hero = CZ.kk.hero(THREE, d.avatar || 'girl');
     if (hero.setWeapon) hero.setWeapon(W.id);
     hero.root.traverse(o => { o.castShadow = true; }); scene.add(hero.root); addOutline(hero.root, 0.02);
-    const HS = 1.48; hero.root.scale.setScalar(HS);   // (22 Kas) karakter %10 büyük: dünyada kaybolmasın
+    const HS = 1.62; hero.root.scale.setScalar(HS);   /* (23 Kas) alçak kamerada kahraman büyük ve okunaklı */   // (22 Kas) karakter %10 büyük: dünyada kaybolmasın
     const heroShadow = new THREE.Mesh(new THREE.CircleGeometry(0.45, 16), new THREE.MeshBasicMaterial({ color: 0x0a1030, transparent: true, opacity: 0.25, depthWrite: false }));
     heroShadow.rotation.x = -Math.PI / 2; heroShadow.position.y = 0.02; scene.add(heroShadow);
     const mountDef = CZ.MOUNTS.find(m => m.id === (d.mount || 'brown')) || CZ.MOUNTS[0];
