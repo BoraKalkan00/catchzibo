@@ -193,17 +193,17 @@ CZ.screens.valley = (function () {
     renderer.setPixelRatio(RATIOS[0]);
     stage.append(renderer.domElement);
     const HI = CZ.style.gfx() === 'hi';
-    const post = CZ.post.create(renderer, HI ? { bloom: 0.3, thr: 0.93, sat: 1.14, con: 1.08, vig: 0.2, warm: 0.06 } : { bloom: 0.3, thr: 0.93, sat: 1.08, vig: 0.14 });
+    const post = CZ.post.create(renderer, HI ? { bloom: 0.42, thr: 0.86, sat: 1.24, con: 1.1, vig: 0.3, warm: 0.12 } : { bloom: 0.36, thr: 0.88, sat: 1.18, con: 1.06, vig: 0.24, warm: 0.1 });
     const scene = new THREE.Scene();
-    const SKY = 0xbcd4f2;
+    const SKY = 0xc9c3ec;
     scene.background = new THREE.Color(SKY);
-    scene.fog = new THREE.Fog(SKY, 70, 140);   // geniş ekranda köşeler sisli kalmasın (ortada ışık lekesi gibi görünüyordu)
+    scene.fog = new THREE.Fog(SKY, 42, 120);   /* (23 Kas) uzak lavanta pus: derinlik hissi */   // geniş ekranda köşeler sisli kalmasın (ortada ışık lekesi gibi görünüyordu)
     const camera = new THREE.PerspectiveCamera(32, 1, 0.5, 200);   // dar açı: izometrik his, 2D binalar dünyaya oturur
-    const hemi = new THREE.HemisphereLight(0xe4eeff, 0x8894a6, HI ? 0.66 : 0.6); scene.add(hemi);   // (22 Kas) alt ışık mor değil: kar beyaz kalsın
-    const sun = new THREE.DirectionalLight(0xfff0d8, HI ? 1.05 : 0.95); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
+    const hemi = new THREE.HemisphereLight(0x9fb8f4, 0x8678b4, HI ? 0.74 : 0.7); scene.add(hemi);   /* (23 Kas) altın saat: gölgeler mavi-lavanta */   // (22 Kas) alt ışık mor değil: kar beyaz kalsın
+    const sun = new THREE.DirectionalLight(0xffc98f, HI ? 1.12 : 1.02); sun.position.set(20, 40, 10); scene.add(sun); scene.add(sun.target);
     // GECE-GÜNDÜZ ışığı: k=0 gündüz, k=1 gece (oynanır kalsın diye tam karanlık değil)
     const SKY_D = { bg: null, hs: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sun.color.clone(), si: sun.intensity };
-    const SKY_N = { bg: new THREE.Color(0x101c38), hs: new THREE.Color(0x6f8ad0), hg: new THREE.Color(0x2a3a58), hi: 0.58, sc: new THREE.Color(0xa8bcf8), si: 0.55 };   // (22 Kas) gece biraz daha karanlık: meşaleler parlasın
+    const SKY_N = { bg: new THREE.Color(0x141a3a), hs: new THREE.Color(0x7a84d8), hg: new THREE.Color(0x3a2e58), hi: 0.6, sc: new THREE.Color(0xb6b8f2), si: 0.5 };   /* (23 Kas) gece biraz mor: sıcak ışıklar öne çıksın */   // (22 Kas) gece biraz daha karanlık: meşaleler parlasın
     const nightSky = k => { if (!SKY_D.bg) SKY_D.bg = scene.background && scene.background.isColor ? scene.background.clone() : new THREE.Color(SKY);
       if (scene.background && scene.background.isColor) { scene.background.copy(SKY_D.bg).lerp(SKY_N.bg, k); if (scene.fog) scene.fog.color.copy(scene.background); }
       hemi.color.copy(SKY_D.hs).lerp(SKY_N.hs, k); hemi.groundColor.copy(SKY_D.hg).lerp(SKY_N.hg, k); hemi.intensity = SKY_D.hi + (SKY_N.hi - SKY_D.hi) * k;
@@ -502,6 +502,24 @@ CZ.screens.valley = (function () {
       });
     }
     placeVillage();
+    /* (23 Kas) ATMOSFER: binaların önünde sıcak ışık havuzları, pencere parıltıları, havada altın pırıltılar (gece güçlenir) */
+    const moodG = new THREE.Group(); scene.add(moodG);
+    const radTex = (c0, c1) => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, c0); g.addColorStop(0.45, c1); g.addColorStop(1, 'rgba(255,170,70,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); };
+    const poolMat = new THREE.MeshBasicMaterial({ map: radTex('rgba(255,190,100,0.9)', 'rgba(255,150,60,0.35)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.2, fog: false });
+    const winMat = new THREE.SpriteMaterial({ map: radTex('rgba(255,230,160,1)', 'rgba(255,170,70,0.45)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.3 });
+    const poolGeo = new THREE.PlaneGeometry(1, 1); poolGeo.rotateX(-Math.PI / 2);
+    function buildMood() { moodG.clear(); const bb = new THREE.Box3();
+      const add = (obj, big) => { bb.setFromObject(obj); if (!isFinite(bb.min.x)) return; const w = bb.max.x - bb.min.x, dd = bb.max.z - bb.min.z, hh = bb.max.y - bb.min.y, cx = (bb.min.x + bb.max.x) / 2;
+        const pm = new THREE.Mesh(poolGeo, poolMat); const ps = Math.max(w, dd) * (big ? 1.7 : 2.2); pm.scale.set(ps, 1, ps * 0.85); pm.position.set(cx, 0.12, bb.max.z - dd * 0.1); pm.renderOrder = 1; moodG.add(pm);
+        (big ? [[-0.24, 0.3], [0.24, 0.3], [0, 0.58]] : [[0, 0.45], [0, 0.98]]).forEach(([fx, fy], i) => { const sp = new THREE.Sprite(winMat); sp.scale.setScalar(big ? Math.min(2.2, w * 0.42) : (i ? 2.6 : 1.6)); sp.position.set(cx + fx * w, bb.min.y + hh * fy, bb.max.z + 0.15); moodG.add(sp); }); };
+      vilGroup.children.forEach(g => { if (g.userData.vid && g.userData.vid !== 'tree' && g.visible) add(g, true); });
+      pads.forEach(p => { if (p.kind === 't' && p.g) add(p.g, false); }); V.moodDirty = false; }
+    const spkN = 90, spkPos = new Float32Array(spkN * 3); for (let i = 0; i < spkN; i++) { spkPos[i * 3] = rand(-16, 16); spkPos[i * 3 + 1] = rand(0.5, 7); spkPos[i * 3 + 2] = rand(-16, 16); }
+    const spkGeo = new THREE.BufferGeometry(); spkGeo.setAttribute('position', new THREE.BufferAttribute(spkPos, 3));
+    const spkMat = new THREE.PointsMaterial({ color: 0xffd36a, size: 0.32, map: radTex('rgba(255,255,220,1)', 'rgba(255,200,80,0.5)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.6 });
+    const sparks = new THREE.Points(spkGeo, spkMat); scene.add(sparks);
+    function moodTick(k, now) { poolMat.opacity = 0.18 + 0.82 * k; winMat.opacity = (0.2 + 0.8 * k) * (0.92 + 0.08 * Math.sin(now / 180)); spkMat.opacity = (0.35 + 0.45 * k) * (0.75 + 0.25 * Math.sin(now / 420));
+      sparks.position.set(P.x, 0, P.z); sparks.rotation.y = now / 26000; const a = spkGeo.attributes.position; for (let i = 0; i < spkN; i += 3) { let y = a.getY(i) + 0.004; if (y > 7) y = 0.5; a.setY(i, y); } a.needsUpdate = true; }
     // Zibo'nun kampı: çadır + ateş
     const tent = new THREE.Mesh(new THREE.ConeGeometry(3.2, 3.6, 6), toon(0x4a8a3a)); tent.position.set(38, 1.8, 34); tent.visible = false; scene.add(tent); { const zt = pMesh('g_tent', 6); zt.position.set(38, 0, 34); scene.add(zt); const zf = pMesh('g_fire', 2.2); zf.position.set(34, 0, 30); scene.add(zf); } solids.push({ x: 38, z: 34, r: 3.1 });
     const campLight = new THREE.PointLight(0xff8a3a, 1.4, 14); campLight.position.set(34, 1.5, 30); scene.add(campLight);
@@ -1105,6 +1123,7 @@ CZ.screens.valley = (function () {
       p.g = p.kind === 'f' ? fenceModel(p.i, lv) : towerModel(p.type, lv, !!building);
       if (p.kind === 't') p.g.position.set(p.x, 0, p.z);
       if (!p.g.userData.top) mergeStatic(p.g);
+      p.g.traverse(o => { if (o.isMesh && o.material && !o.material.isMeshBasicMaterial && !o.material.userData.see && !Array.isArray(o.material)) o.material = seeThrough(o.material.clone()); });   /* kule oyuncunun önündeyse içini göster (alçak kamera) */
       outlineWorld(p.g, 0.03);
       if (building) {
         const cx = p.kind === 'f' ? Math.cos(p.a) * FENCE_R : p.x, cz = p.kind === 'f' ? Math.sin(p.a) * FENCE_R : p.z;
@@ -2374,7 +2393,7 @@ CZ.screens.valley = (function () {
         if (V.phT < -25) goblins.forEach(o => { if (o.boss && !o.dead) { o.dead = true; o.hp = 0; const i9 = targets.indexOf(o); if (i9 >= 0) targets.splice(i9, 1); if (o.bar) { scene.remove(o.bar.g); o.bar = null; } corpseAdd(o); floatAt(o, o.zibo ? t('zb.escape') : '💨', 'zibo'); if (o.zibo) { V.zibo = null; fires.forEach(F => scene.remove(F.g)); fires.length = 0; } } });   // (22 Kas) patron sonsuza dek kalmasın: gece bitince kaçar
         if ((left === 0 || V.phT <= 0) && !V.raid && !goblins.some(o => o.boss && !o.dead)) endNight();
       }
-      V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
+      V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK); if (V.moodDirty !== false || (V.moodT = (V.moodT || 0) + dt) > 5) { V.moodT = 0; buildMood(); } moodTick(V.skyK, performance.now());
     }
     /* (23 Kas) performans: küçük parçaların (vida, tabela, sepet...) gölgesi görünmüyor ama gölge çizimi pahalı → kapat */
     const _sv = new THREE.Vector3();
@@ -3263,12 +3282,12 @@ CZ.screens.valley = (function () {
       const far = (camera.aspect < 1 ? 1 / Math.max(0.42, camera.aspect) * 0.62 : 1) * (P.riding ? 1.12 : 1) * ({ near: 0.78, far: 1.3 }[d.camZ] || 1);
       // (22 Kas) GÜNDÜZ GEZİNTİ KAMERASI: gündüz ve 18 m'de düşman yokken kamera yavaşça biraz alçalır/yaklaşır (ormanda olma hissi); tehlike gelince geri çıkar
       if (dt > 0) { const calm = V.phase !== 'night' && !V.rush && !goblins.some(o => !o.dead && Math.hypot(o.x - P.x, o.z - P.z) < 18) && d.camZ !== 'far' && !d.camFix; V.calmK = (V.calmK || 0) + ((calm ? 1 : 0) - (V.calmK || 0)) * Math.min(1, dt * (calm ? 0.35 : 2.5)); }
-      const ck = V.calmK || 0, ch = 17.4 * far * (1 - ck * 0.24), cd = 12.1 * far * (1 - ck * 0.08);   // yakın kamera: karakterler büyük, ekran boş kar değil
+      const ck = V.calmK || 0, ch = 14.2 * far * (1 - ck * 0.16), cd = 15.6 * far * (1 - ck * 0.04);   /* (23 Kas) GÖRSEL SIÇRAMA: daha alçak kamera (~43°): derinlik, ufuk, sis — afişteki his */   // yakın kamera: karakterler büyük, ekran boş kar değil
       const cx = P.x, cz = P.z + cd;
       camera.position.x += (cx - camera.position.x) * Math.min(1, dt * 5);
       camera.position.z += (cz - camera.position.z) * Math.min(1, dt * 5);
       camera.position.y += (ch - camera.position.y) * Math.min(1, dt * 3);
-      camera.lookAt(camera.position.x, 0, camera.position.z - cd);
+      camera.lookAt(camera.position.x, 0.6, camera.position.z - cd - 1.2);
       if (V.cam) { const c2 = V.cam; c2.t = Math.min(1, (c2.t || 0) + dt / (c2.dur || 1.5)); const e = c2.t * c2.t * (3 - 2 * c2.t);
         if (!c2.from) c2.from = { p: camera.position.clone(), l: c2.lastLook || new THREE.Vector3(P.x, 0, P.z) };
         camera.position.lerpVectors(c2.from.p, c2.p, e); const lk = c2.from.l.clone().lerp(c2.l, e); camera.lookAt(lk); c2.lastLook = lk; }
@@ -3278,7 +3297,7 @@ CZ.screens.valley = (function () {
       const pz = -v3.z; v3.set(P.x, 1, P.z).project(camera);
       const pr = renderer.getPixelRatio(), cw = renderer.domElement.width, chh = renderer.domElement.height;
       seeU.uSee.value.set((v3.x + 1) / 2 * cw, (v3.y + 1) / 2 * chh, pz); seeU.uSeeR.value = 70 * pr;
-      sun.position.set(P.x + 14, 32, P.z + 8); sun.target.position.set(P.x, 0, P.z);
+      sun.position.set(P.x + 22, 21, P.z + 6); sun.target.position.set(P.x, 0, P.z);   /* (23 Kas) alçak güneş: uzun gölgeler, derinlik */
     }
     camera.position.set(P.x, 20, P.z + 14);
     function loop(now) {
@@ -3294,7 +3313,7 @@ CZ.screens.valley = (function () {
       post.render(scene, camera);
       // zayıf telefonda çözünürlüğü düşür (30 FPS altına inmesin)
       perf.acc += dt; perf.n++;
-      if (perf.acc > 2) { const fps = perf.n / perf.acc; perf.acc = 0; perf.n = 0; V.fps = Math.round(fps); if (fps < 40 && post.level > 0) { post.level--; } else if (fps < 40 && ratioIdx < RATIOS.length - 1) { ratioIdx++; renderer.setPixelRatio(RATIOS[ratioIdx]); resize(); if (ratioIdx >= 2 && sun.castShadow) { sun.castShadow = false; } } }
+      if (perf.acc > 2 && !window.CZ_NOADAPT) { const fps = perf.n / perf.acc; perf.acc = 0; perf.n = 0; V.fps = Math.round(fps); if (fps < 40 && post.level > 0) { post.level--; } else if (fps < 40 && ratioIdx < RATIOS.length - 1) { ratioIdx++; renderer.setPixelRatio(RATIOS[ratioIdx]); resize(); if (ratioIdx >= 2 && sun.castShadow) { sun.castShadow = false; } } }
     }
     V.raf = requestAnimationFrame(loop);
     V.keys = {};
