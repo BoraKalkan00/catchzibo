@@ -2377,3 +2377,8 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .achv-it.on em { color: #2f9a4a; font-size: 18px; }
 .achv-bar { display: block; height: 6px; border-radius: 3px; background: #d9c69c; margin-top: 4px; overflow: hidden; }
 .achv-bar span { display: block; height: 100%; background: linear-gradient(90deg, #ffd54a, #ff9a3a); }
+/* altın serisi: sayacın altında birikip büyüyen +N */
+.gold-plus { position: absolute; left: 50%; top: 100%; transform: translate(-50%, 2px); font-style: normal; font-weight: 900; color: #ffe066; text-shadow: 0 2px 0 #7a4a00, 0 0 6px rgba(0,0,0,.6); pointer-events: none; opacity: 0; transition: opacity .25s; white-space: nowrap; z-index: 5; }
+.gold-plus.on { opacity: 1; }
+.gold-plus.pop { animation: gpPop .22s ease-out; }
+@keyframes gpPop { 40% { transform: translate(-50%, 2px) scale(1.35); } }

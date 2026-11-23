@@ -1786,6 +1786,11 @@ CZ.screens.valley = (function () {
       f.style.left = ((v3.x + 1) / 2 * 100) + '%'; f.style.top = ((1 - v3.y) / 2 * 100) + '%';
       floats.append(f); setTimeout(() => f.remove(), 1100);
     }
+    /* (23 Kas) altın toplarken sayacın yanında birikip büyüyen '+N' (seri hissi) */
+    let gpEl = null, gpN = 0, gpT = 0;
+    function gainPop(n) { const par = goldEl.parentNode; if (!par) return; if (!gpEl || !gpEl.isConnected) { gpEl = h('i', { class: 'gold-plus' }); par.style.position = 'relative'; par.append(gpEl); }
+      gpN += n; gpEl.textContent = '+' + gpN; gpEl.classList.remove('pop'); void gpEl.offsetWidth; gpEl.classList.add('pop', 'on'); gpEl.style.fontSize = Math.min(22, 13 + Math.log2(gpN + 1) * 1.6) + 'px';
+      clearTimeout(gpT); gpT = setTimeout(() => { if (gpEl) gpEl.classList.remove('on'); gpN = 0; }, 1100); }
     function bump() { goldEl.parentNode.classList.remove('bump'); void goldEl.offsetWidth; goldEl.parentNode.classList.add('bump'); }
     // PAZAR: zümrüt ⇄ altın, altın → odun / taş (odun ve taş geri dönmez)
     function openMarket() {
@@ -2196,7 +2201,7 @@ CZ.screens.valley = (function () {
       warm.position.set(P.x, -50, P.z); scene.add(warm); renderer.compile(scene, camera); scene.remove(warm);
     } catch (e) { /* ısınma olmazsa yine çalışır */ }
     ui.querySelectorAll('.res-bar .res.gold, .res-bar .res.gem').forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openShop(); }));
-    V.pause = pause; V.debug.vLook = vLook; V.debug.lvfx = levelUpFx; V.debug.padAt = (x, y) => { const q = padAt(x, y); return q && (q.kind + (q.i != null ? q.i : q.id)); }; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.trees = trees; V.debug.rocks = rocks; V.debug.info = () => { let n = 0; scene.traverse(() => n++); return { top: scene.children.length, all: n, geo: renderer.info.memory.geometries, tex: renderer.info.memory.textures, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1e6) : 0, ...(() => { const I = renderer.info; I.autoReset = false; I.reset(); post.render(scene, camera); const r = { calls: I.render.calls, tris: I.render.triangles }; I.autoReset = true; return r; })() }; }; V.debug.solidsNear = (x, z) => solids.filter(q => Math.hypot(q.x - x, q.z - z) < q.r + 2).map(q => [+q.x.toFixed(1), +q.z.toFixed(1), q.r, q.vil || q.kind || '']); V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
+    V.pause = pause; V.debug.vLook = vLook; V.debug.lvfx = levelUpFx; V.debug.gain = gain; V.debug.padAt = (x, y) => { const q = padAt(x, y); return q && (q.kind + (q.i != null ? q.i : q.id)); }; V.debug.ch = () => ({ C: chS(), q: chCur(), v: chCur() && chProg(chCur()) }); V.debug.chTap = chTap; V.debug.zibo = () => { V.wave = 4; V.phase = 'day'; V.phT = 0.05; }; V.debug.fires = () => fires.length; V.debug.trees = trees; V.debug.rocks = rocks; V.debug.info = () => { let n = 0; scene.traverse(() => n++); return { top: scene.children.length, all: n, geo: renderer.info.memory.geometries, tex: renderer.info.memory.textures, heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1e6) : 0, ...(() => { const I = renderer.info; I.autoReset = false; I.reset(); post.render(scene, camera); const r = { calls: I.render.calls, tris: I.render.triangles }; I.autoReset = true; return r; })() }; }; V.debug.solidsNear = (x, z) => solids.filter(q => Math.hypot(q.x - x, q.z - z) < q.r + 2).map(q => [+q.x.toFixed(1), +q.z.toFixed(1), q.r, q.vil || q.kind || '']); V.debug.ins = () => V.ins && { t: V.ins.t, id: V.ins.id }; V.debug.openPadV = id => openPad(pads.find(q => q.kind === 'v' && q.id === id)); V.debug.openVillagers = openVillagers; V.debug.ziboHeist = ziboHeist; V.debug.arrival = () => arrival; V.debug.openSurvivor = openSurvivor; V.debug.dawnTick = dawnTick; V.debug.openMail = openMail; V.debug.npcs = npcs; V.debug.dropLoot = dropLoot; V.debug.loots = loots; V.debug.openPad = openPad;
     V.onHide = () => { if (document.hidden) pause(); };
     document.addEventListener('visibilitychange', V.onHide);
 
@@ -3249,7 +3254,7 @@ CZ.screens.valley = (function () {
       V.earned += n;
       d.gold = (d.gold || 0) + n;
       resUi();
-      if (!quiet) { V.streak = performance.now() - (V.lastGain || 0) < 450 ? (V.streak || 0) + 1 : 0; V.lastGain = performance.now(); CZ.audio.sfx('coin', V.streak); bump(); }
+      if (!quiet) { V.streak = performance.now() - (V.lastGain || 0) < 450 ? (V.streak || 0) + 1 : 0; V.lastGain = performance.now(); CZ.audio.sfx('coin', V.streak); bump(); gainPop(n); }
     }
     function sitBones(H0) {
       const HH = H0 || hero; if (HH._sb !== undefined) return HH._sb;
