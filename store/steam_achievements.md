@@ -1,6 +1,6 @@
 # Steam başarımları (Steamworks → Stats & Achievements)
 
-Kimlikler (API Name) AYNEN böyle girilmeli. İkonlar: store/achv/ klasörü (açık + gri).
+Kimlikler (API Name) AYNEN böyle girilmeli. İkonlar: store/achv/<API Name>.jpg (Achieved) ve <API Name>_gray.jpg (Unachieved), 256x256. Yeniden üretmek: python3 tools/achv_icons.py (Noto emoji, OFL lisans: ticari kullanım serbest).
 
 Steam Bulut: Steamworks → Cloud → Auto-Cloud: Root = WinAppDataRoaming, Subdirectory = "Zibo's Raid", Pattern = save.json
 
