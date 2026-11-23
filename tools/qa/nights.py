@@ -16,16 +16,19 @@ async def main():
         if(Math.random()<skill) V.debug.autoFire(); return; }
       const near=(arr)=>{let b=null,bd=1e9; arr.forEach(o=>{ if(!o.alive) return; const dd=Math.hypot(o.x-P.x,o.z-P.z); if(dd<bd){bd=dd;b=o;} }); return b;};
       const tg=near(mode?V.debug.trees:V.debug.rocks); if(tg){ const dx=tg.x-P.x, dz=tg.z-P.z, L=Math.hypot(dx,dz)||1; if(L>1.8){J.id=1;J.dx=dx/L;J.dy=dz/L;} else {J.id=null;J.dx=J.dy=0;} } V.debug.autoFire(); };}""")
-    for night in range(1,5):
+    for night in range(1,9):
       # gündüz: 60 sn topla, sonra parası yeten en ucuz şeyi kur (oyuncu gibi kartla)
       r=await pg.evaluate("""(sk)=>{const V=CZ.screens.valley.debug, d=CZ.state.data; document.querySelectorAll('.modal-wrap').forEach(e=>{const b=[...e.querySelectorAll('.btn')].find(b=>/Gündüze|Devam/.test(b.textContent)); if(b) b.click(); else e.remove();}); V.paused=false;
         for(let k=0;k<60;k++) V.debug.sim(1,()=>__bot(V,sk,k%20<10));
-        const built=[]; for(let rep=0;rep<4;rep++){ const pads=V.pads.filter(q=>q.mark); for(const q of pads){ const L=V.left(q)||[]; if(L.length && L.every(x=>(d[x.r]||0)>=x.n)){ L.forEach(x=>{d[x.r]-=x.n;}); const pd=(d.vil.def.pp=d.vil.def.pp||{}); V.debug.complete(q); built.push(q.kind+(q.i!=null?q.i:q.id)); break; } } }
-        return JSON.stringify({res:[d.wood|0,d.stone|0,d.gold|0],built});}""", SKILL)
+        /* gerçek zaman: bir gün+gece ≈ 3.5 dk; testte Date.now ilerlemiyor → işleri o kadar öne al */
+        ['t','f'].forEach(k=>(d.vil.def[k]||[]).forEach(it=>{ if(it&&it.job) it.job.end-=210000; })); try{ const VV=CZ.village.ensure(); if(VV.job) VV.job.end-=210000; }catch(e){}
+        for(let k=0;k<3;k++) V.debug.sim(1,()=>__bot(V,sk,1));
+        const built=[]; for(let rep=0;rep<6;rep++){ const pads=V.pads.filter(q=>q.mark); for(const q of pads){ const L=V.left(q)||[]; const TV={wood:0.4,stone:0.67,plank:2.5,brick:4,iron:9}; const mg=Math.ceil(L.reduce((a,x)=>x.r==='gold'?a:a+Math.max(0,x.n-(d[x.r]||0))*(TV[x.r]||1)*1.3,0)); const gN=(L.find(x=>x.r==='gold')||{}).n||0; if(L.length && (d.gold||0)>=mg+gN+150){ d.gold-=mg; L.forEach(x=>{ if(x.r!=='gold') d[x.r]=Math.max(d[x.r]||0,x.n); }); L.forEach(x=>{d[x.r]-=x.n;}); const pd=(d.vil.def.pp=d.vil.def.pp||{}); V.debug.complete(q); built.push(q.kind+(q.i!=null?q.i:q.id)); break; } } }
+        const opts=V.pads.filter(q=>q.mark).map(q=>{const L=V.left(q)||[]; return q.kind+(q.i!=null?q.i:q.id)+':'+L.map(x=>x.n).join('/');}); return JSON.stringify({res:[d.wood|0,d.stone|0,d.gold|0],built,opts:opts.slice(0,8),hall:CZ.village.lv('hall'),tl:(d.vil.def.t||[]).map(x=>x?x.lv+(x.job?'*':''):0).join('')});}""", SKILL)
       print('DAY',night,r)
-      r=await pg.evaluate("""(sk)=>{const V=CZ.screens.valley.debug, d=CZ.state.data; V.phT=0.05; let n=0, hpMin=99, maxG=0, k0=V.kills; const g0=d.gold;
-        while(n<300){ V.debug.sim(1,()=>{ __bot(V,sk,0); hpMin=Math.min(hpMin,V.P.hp); maxG=Math.max(maxG,V.goblins.filter(g=>!g.dead).length); }); n++; if(n>5&&V.phase==='day') break; }
-        return JSON.stringify({wave:V.wave,secs:n,hpMin:Math.round(hpMin),hpMax:V.P.maxHp,maxAlive:maxG,kills:V.kills-k0,goldGain:(d.gold-g0)|0,fence:(d.vil.def.f||[]).filter(Boolean).length,tow:(d.vil.def.t||[]).filter(Boolean).length});}""", SKILL)
+      r=await pg.evaluate("""(sk)=>{const V=CZ.screens.valley.debug, d=CZ.state.data; V.phT=0.05; let zb=0,fmax=0,n=0, hpMin=99, maxG=0, k0=V.kills; const g0=d.gold;
+        while(n<300){ V.debug.sim(1,()=>{ __bot(V,sk,0); hpMin=Math.min(hpMin,V.P.hp); if(V.zibo) zb=1; fmax=Math.max(fmax,V.debug.fires?V.debug.fires():0); if(n%6===0&&V.wave===5) window.__shots=(window.__shots||0)+1; maxG=Math.max(maxG,V.goblins.filter(g=>!g.dead).length); }); n++; if(n>5&&V.phase==='day') break; }
+        return JSON.stringify({wave:V.wave,secs:n,hpMin:Math.round(hpMin),hpMax:V.P.maxHp,maxAlive:maxG,kills:V.kills-k0,goldGain:(d.gold-g0)|0,fence:(d.vil.def.f||[]).filter(Boolean).length,tow:(d.vil.def.t||[]).filter(Boolean).length,zibo:zb,fires:fmax,jail:d.ziboJail||0,downs:V.lastDowns,ease:d.ease});}""", SKILL)
       print('NIGHT',night,r); await pg.screenshot(path='/tmp/n2/e%d.png'%night)
     print(errs[:4]); await b.close()
 asyncio.run(main()); srv.kill()

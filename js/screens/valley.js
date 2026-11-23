@@ -2213,7 +2213,7 @@ CZ.screens.valley = (function () {
     function startNight() {
       if (V.rush && V.rush.state === 'go') rushEnd(30);
       V.phase = 'night'; V.phT = NIGHT_LEN; V.wave++; V.spawnT = 2.5;
-      V.nTot = Math.min(50, Math.round((5 + V.wave * 3 + Math.floor(vilPower() / 2)) * DIFF().n * (V.wave % 5 === 0 ? 0.6 : 1))); V.nSp = 0;   /* Zibo gecesi: Zibo kendi yardımcılarını çağırır, sürü azalır (yoksa 20+ goblin birden) */
+      V.nTot = Math.min(50, Math.round((5 + V.wave * 3 + Math.floor(vilPower() / 2)) * DIFF().n * (V.wave % 5 === 0 ? 0.6 : 1) * (1 - (d.ease || 0)))); V.nSp = 0; V.downs = 0;   /* Zibo gecesi: Zibo kendi yardımcılarını çağırır, sürü azalır (yoksa 20+ goblin birden) */
       vigEl.classList.add('on'); cdEl.classList.remove('on');
       V.nS = { kills: V.kills, earned: V.earned, lost: V.lost || 0 };
       d.bestNight = Math.max(d.bestNight || 0, V.wave);
@@ -2233,6 +2233,8 @@ CZ.screens.valley = (function () {
       goblins.forEach(o => { if (!o.dead && !o.boss && !o.stolen) o.flee = true; });
       if (!d.diffTip && V.wave >= 1) { d.diffTip = 1; setTimeout(() => { if (V) CZ.ui.toast(t('opt.tip')); }, 2500); }
       const S = V.nS || { kills: 0, earned: 0, lost: 0 }, kills = V.kills - S.kills, earned = Math.max(0, V.earned - S.earned), lost = Math.max(0, (V.lost || 0) - S.lost);
+      /* (23 Kas) görünmez yardım: gece 2+ kez bayılan oyuncunun sonraki gecesi biraz hafifler (en çok %30), rahat geçen gecede yavaşça geri döner */
+      d.ease = Math.max(0, Math.min(0.3, (d.ease || 0) + ((V.downs || 0) >= 2 ? 0.1 : (V.downs || 0) === 0 ? -0.05 : 0))); V.lastDowns = V.downs || 0; V.downs = 0;
       const bonus = 20 + V.wave * 10; gain(bonus, true); dq('night');
       CZ.state.save(); CZ.audio.sfx('win'); CZ.audio.vibrate([60, 30, 120]);
       let doubled = false;
@@ -2728,7 +2730,7 @@ CZ.screens.valley = (function () {
       CZ.audio.sfx('hit'); CZ.audio.sfx('wrong'); CZ.audio.vibrate([70, 30, 40]);
       V.shake = Math.max(V.shake || 0, 0.35); floatAt(P, '-' + n, 'dmg me'); hurtTint = 0.3; hpPunch('hit');
       wrap.classList.remove('hurt'); void wrap.offsetWidth; wrap.classList.add('hurt');
-      if (P.hp <= 0) { P.hp = 0; P.down = 3; P.riding = false; wrap.append(downEl); CZ.audio.sfx('lose'); }
+      if (P.hp <= 0) { P.hp = 0; P.down = 3; if (V.phase === 'night') V.downs = (V.downs || 0) + 1; P.riding = false; wrap.append(downEl); CZ.audio.sfx('lose'); }
     }
     // Maden (taş) ve oduncu (odun) kendi kendine üretir: üstlerinde balon çıkar, yanına gelince toplanır
     const PROD = [{ id: 'goldmine', res: 'gold' }, { id: 'elf', res: 'emeralds' }, { id: 'mine', res: 'stone' }, { id: 'bakery', res: 'wood' }];
