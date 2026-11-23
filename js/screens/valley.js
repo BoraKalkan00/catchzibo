@@ -1558,7 +1558,7 @@ CZ.screens.valley = (function () {
     function photoStart() { if (!V || V.paused || V.cine || V.phase === 'night' || goblins.some(o => !o.dead && Math.hypot(o.x - P.x, o.z - P.z) < 14)) { CZ.ui.toast(t('photo.busy')); return; }
       V.photo = { a: Math.atan2(camera.position.x - P.x, camera.position.z - P.z), look: new THREE.Vector3(P.x, 1, P.z) }; V.paused = true; wrap.classList.add('vl-photo-on'); CZ.audio.sfx('button'); pads.forEach(q => { if (q.mark) q.mark.visible = false; if (q.ring) q.ring.visible = false; });
       photoBar.replaceChildren(btn('📸 ' + t('photo.shoot'), () => { const img = snap(); CZ.audio.sfx('star'); const fl = h('div', { class: 'vl-flash' }); wrap.append(fl); setTimeout(() => fl.remove(), 400);
-          if (CZ.share && CZ.share.share) CZ.share.share({ big: d.vname || t('title.name'), label: t('photo.label', { n: V.wave || 0 }), line: '🏰 ' + t('vil.lv', { n: CZ.village.lv('hall') }), avatar: d.avatar, photo: img }); }, 'primary'),
+          dq('photo'); if (CZ.share && CZ.share.share) CZ.share.share({ big: d.vname || t('title.name'), label: t('photo.label', { n: V.wave || 0 }), line: '🏰 ' + t('vil.lv', { n: CZ.village.lv('hall') }), avatar: d.avatar, photo: img }); }, 'primary'),
         btn('✕', () => photoEnd(), 'ghost-dark')); wrap.append(photoBar); }
     function photoEnd() { pads.forEach(q => { if (q.ring) q.ring.visible = true; }); V.photo = null; wrap.classList.remove('vl-photo-on'); photoBar.remove(); V.paused = false; V.last = 0; }
     function photoTick(dt) { const F = V.photo; if (!F) return; F.a += dt * 0.35; const r = 7.5, q = Math.min(1, dt * 3);
@@ -1779,6 +1779,7 @@ CZ.screens.valley = (function () {
       const box = h('div', { class: 'pause-menu' }, h('div', { class: 'pause-card' },
         h('b', { class: 'lg-title', text: t('pause.title') }),
         btn(t('pause.resume'), () => { box.remove(); resumeCount(); }, 'primary wide', 'ic:play'),
+        CZ.achv ? btn('🏆 ' + t('achv.title') + ' (' + CZ.achv.count() + '/' + CZ.achv.IDS.length + ')', () => CZ.achv.open(wrap), 'ghost-dark wide') : null,
         CZ.audioPanel(),
         CZ.optsPanel(),
         btn(t('w.stable'), () => { box.remove(); V.paused = false; CZ.ui.go('gold'); }, 'ghost-dark wide'),
@@ -2301,7 +2302,7 @@ CZ.screens.valley = (function () {
       }
       V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
     }
-    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); }
+    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); if ((V.cmbMax || 0) > (d.cmbBest || 0)) d.cmbBest = V.cmbMax; if (CZ.achv && (d.tutV || 0) >= 5 && !V.cine) CZ.achv.check(); }
       if (V.cine) return;
       V.cool -= dt;
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.

@@ -35,7 +35,9 @@ CZ.state = (function () {
 
   function load() {
     try {
-      const raw = localStorage.getItem(KEY);
+      let raw = localStorage.getItem(KEY);
+      // PC (Steam): kayıt dosyası daha yeniyse onu kullan (Steam Bulut başka bilgisayardan getirmiş olabilir)
+      try { const D = window.CZ_DESKTOP; const f = D && D.saveRead && D.saveRead(); if (f) { const a = raw ? JSON.parse(raw).savedAt || 0 : -1, b = JSON.parse(f).savedAt || 0; if (b > a) raw = f; } } catch (e2) { /* */ }
       if (raw) data = Object.assign(fresh(), JSON.parse(raw));
     } catch (e) {
       console.warn('Kayıt okunamadı, yeni oyun başlıyor.', e);
@@ -45,7 +47,9 @@ CZ.state = (function () {
 
   function save() {
     try {
-      localStorage.setItem(KEY, JSON.stringify(data));
+      data.savedAt = Date.now(); const txt = JSON.stringify(data);
+      localStorage.setItem(KEY, txt);
+      if (window.CZ_DESKTOP && window.CZ_DESKTOP.saveWrite) { clearTimeout(save.tm); save.tm = setTimeout(() => window.CZ_DESKTOP.saveWrite(JSON.stringify(data)), 1500); }
     } catch (e) {
       console.warn('Kayıt yazılamadı.', e);
     }

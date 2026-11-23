@@ -77,3 +77,6 @@
 
 // Açılış (yükleme) ekranı: oyun hazır olunca yumuşakça kaybolur.
 (function () { const sp = document.getElementById('splash'); if (sp) setTimeout(() => { sp.classList.add('out'); setTimeout(() => sp.remove(), 450); }, 700); })();
+
+// PC: daha önce açılmış başarımları Steam'e de bildir (Steam sonradan bağlandıysa)
+setTimeout(() => { try { if (window.CZ_DESKTOP && CZ.achv) CZ.achv.sync(); } catch (e) { /* */ } }, 4000);
