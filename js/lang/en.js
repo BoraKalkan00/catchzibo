@@ -1224,6 +1224,7 @@ CZ.i18n.register('en', 'English', {
   "dir.NW": "from the northwest",
   "dir.SE": "from the southeast",
   "dir.SW": "from the southwest",
+  "ord.readyT": "📜 An order is ready! Menu → Orders, deliver it for gold",
   "ord.btn": "Orders",
   "ord.title": "Order Board",
   "ord.rep": "Village reputation: Lv. {n} ({k}/{m})",

@@ -1224,6 +1224,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "dir.NW": "kuzeybatıdan",
   "dir.SE": "güneydoğudan",
   "dir.SW": "güneybatıdan",
+  "ord.readyT": "📜 Bir sipariş hazır! Menü → Sipariş, teslim et ve altın kazan",
   "ord.btn": "Sipariş",
   "ord.title": "Sipariş Panosu",
   "ord.rep": "Köy itibarı: Sv. {n} ({k}/{m})",

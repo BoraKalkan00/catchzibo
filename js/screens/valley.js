@@ -1482,7 +1482,9 @@ CZ.screens.valley = (function () {
     mailBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openMail(); });
     const svBtn = h('button', { type: 'button', class: 'vl-trade vl-sv', style: 'display:none' }, h('i', { text: '🗨️' }), h('b', { text: t('sv.talk') }));
     svBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openSurvivor(); });
-    function ordUi() { if (!CZ.orders) return; ordBtn.replaceChildren(h('i', { text: '📜' }), h('b', { text: t('ord.btn') }), ...(CZ.orders.ready() ? [h('em', { text: '!' })] : [])); ordBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none'; }
+    function ordUi() { if (!CZ.orders) return; ordBtn.replaceChildren(h('i', { text: '📜' }), h('b', { text: t('ord.btn') }), ...(CZ.orders.ready() ? [h('em', { text: '!' })] : [])); ordBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none';
+      /* sipariş yeni hazır olduysa oyuncuya söyle (en fazla 4 dakikada bir) */
+      if (!V) return; const rd = CZ.orders.ready(); if (!rd) V.ordWas = false; else if (!V.ordWas && V.running && (d.tutV || 0) >= 5 && V.phase === 'day' && !V.ins && Date.now() - (V.ordTo || 0) > 240000) { V.ordWas = true; V.ordTo = Date.now(); CZ.ui.toast(t('ord.readyT')); CZ.audio.sfx('star'); } }
     ordBtn.addEventListener('click', () => openOrders());
     const MAT_IMG = { plank: 'plank', brick: 'brick', iron: 'iron', wood: 'log', stone: 'stone' };
     const matIco = k => h('img', { class: 'mat-ico', src: 'assets/ui/mat/' + MAT_IMG[k] + '.webp', alt: t('mat.' + k) });
@@ -1895,7 +1897,10 @@ CZ.screens.valley = (function () {
       arrival = n; floatAt(P, t('sv.arrive'), 'wave'); CZ.audio.sfx('star'); CZ.audio.vibrate([40, 30, 40]);
     }
     function npcMove(n, dt, spd) { const dx = n.tx - n.x, dz = n.tz - n.z, L = Math.hypot(dx, dz); if (L < 0.5) return true;
-      const st2 = Math.min(L, spd * dt); const [nx, nz] = collide(n.x + dx / L * st2, n.z + dz / L * st2, 0.35); n.x = nx; n.z = nz; n.dir = Math.atan2(-dx, -dz); n.moving = true; return false; }
+      let ux = dx / L, uz = dz / L; if (n.det > 0) { n.det -= dt; const sd = n.detS || 1; const px = -uz * sd, pz = ux * sd; ux = px * 0.85 + ux * 0.15; uz = pz * 0.85 + uz * 0.15; } /* engel etrafından dolaş */
+      const st2 = Math.min(L, spd * dt); const [nx, nz] = collide(n.x + ux * st2, n.z + uz * st2, 0.35); const mv = Math.hypot(nx - n.x, nz - n.z); n.x = nx; n.z = nz; n.dir = Math.atan2(-dx, -dz); n.moving = true;
+      /* hedef bir binanın/ağacın içindeyse takılmasın: yakındayken ilerleyemiyorsa vardı say */
+      n.blk = mv < st2 * 0.25 ? (n.blk || 0) + dt : 0; if (n.blk > 0.8) { n.blk = 0; if (L < 3.5) return true; n.detS = -(n.detS || 1); n.det = 1.4; } return false; }
     function nearResAt(list, x0, z0, maxR) { let best = null, bd = maxR; list.forEach(it => { if (!it.alive || it.npc) return; const dd = Math.hypot(it.x - x0, it.z - z0); if (dd < bd) { bd = dd; best = it; } }); return best; }
     const zoneFlags = {};
     function setZone(S0, x, z) { S0.zone = { x, z }; S0.follow = false; S0.bld = null; CZ.state.save(); if (zoneFlags[S0.id]) scene.remove(zoneFlags[S0.id]);
@@ -1947,7 +1952,7 @@ CZ.screens.valley = (function () {
             else if (n.st === 'go') { if (!n.task.alive) { n.task.npc = false; n.task = null; n.st = 'idle'; } else if (npcMove(n, dt, nspd(n, 3.4))) { n.st = 'work'; n.t = 4.5 / Math.min(2, eff(n)); n.hit = 0; } }
             else if (n.st === 'work') { n.t -= dt; n.hit -= dt; n.dir = Math.atan2(-(n.task.x - n.x), -(n.task.z - n.z)); if (n.hit <= 0) { n.hit = 0.8; if (n.hm.throwNow) n.hm.throwNow(); n.task.tilt = 0.12; n.task.punch = 1; wob.add(n.task); setInst(n.task); }
               if (n.t <= 0) { const it = n.task; it.hp -= 2; if (it.hp <= 0) { it.alive = false; it.solid.off = true; if (it.kind === 'tree') { const fx = it.x - n.x, fz = it.z - n.z, L5 = Math.hypot(fx, fz) || 1; it.fall = { t: 0, a: 0, sink: 0, fx: fx / L5, fz: fz / L5 }; falling.push(it); } setInst(it); }
-                it.npc = false; n.task = null; n.carry = { r: job === 'wood' ? 'wood' : 'stone', n: Math.round(3 * eff(n)) }; n.st = 'back'; n.tx = hx + rand(-1.2, 1.2); n.tz = hz + rand(-1.2, 1.2); } }
+                it.npc = false; n.task = null; n.carry = { r: job === 'wood' ? 'wood' : 'stone', n: Math.round(3 * eff(n)) }; n.st = 'back'; n.tx = hx + rand(-1.6, 1.6); n.tz = hz + 3.2 + rand(0, 0.8); } }
             else if (n.st === 'back') { if (npcMove(n, dt, nspd(n, 2.6))) { d[n.carry.r] = (d[n.carry.r] || 0) + n.carry.n; if (n.carry.r === 'stone' && Math.random() < 0.15 * eff(n)) d.iron = (d.iron || 0) + 1; floatAt(n, '+' + n.carry.n + (n.carry.r === 'wood' ? ' 🪵' : ' 🪨'), 'auto'); resUi(); n.carry = null; n.st = 'idle'; } }
             n.log.visible = !!(n.carry && n.carry.r === 'wood'); n.rock.visible = !!(n.carry && n.carry.r === 'stone');
           } else if (job === 'cook') { n.tx = cx + Math.sin(performance.now() / 3000 + (SV.list.indexOf(S0) + 1)) * 1.6; n.tz = cz + 1.2; npcMove(n, dt, 1.2); n.t -= dt; if (n.t <= 0) { n.t = 20; const b = Math.round(2 * eff(n)); d.food += b; floatAt(n, '+' + b + ' 🍞', 'auto'); resUi(); } }
@@ -2296,7 +2301,7 @@ CZ.screens.valley = (function () {
       }
       V.skyK += ((V.phase === 'night' ? 1 : 0) - V.skyK) * Math.min(1, dt * 0.7); nightSky(V.skyK);
     }
-    function step(dt) {
+    function step(dt) { if ((V.ordC = (V.ordC || 0) + dt) > 2) { V.ordC = 0; ordUi(); }
       if (V.cine) return;
       V.cool -= dt;
       // DALGALAR: her 45 sn'de goblinler çoğalır ve güçlenir. Süre sınırı yok.
