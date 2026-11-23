@@ -1219,7 +1219,7 @@ CZ.screens.valley = (function () {
       // hareket: görev varsa ona, yoksa oyuncunun arkasına
       let tx, tz, stopAt;
       if (BUD.task) { tx = BUD.task.x; tz = BUD.task.z; stopAt = (BUD.task.solid ? BUD.task.solid.r : 0.5) + 0.9; }
-      else { const a = P.dir + 0.6; tx = P.x + Math.sin(a) * 2.2; tz = P.z + Math.cos(a) * 2.2; stopAt = 0.6; }
+      else { const a = P.dir + 0.6, fr = P.riding ? 3.4 : 2.2; tx = P.x + Math.sin(a) * fr; tz = P.z + Math.cos(a) * fr; stopAt = 0.6; }   /* binekteyken bineğin içine girmesin */
       const dx = tx - BUD.x, dz = tz - BUD.z, dd = Math.hypot(dx, dz);
       let moving = false;
       if (dd > stopAt) { const sp = Math.min(dd * 3, P.riding ? 13 : 9) * dt; let [nx, nz] = collide(BUD.x + dx / dd * sp, BUD.z + dz / dd * sp, 0.4); if (water(nx, nz)) { nx = BUD.x; nz = BUD.z; } const mv = Math.hypot(nx - BUD.x, nz - BUD.z); BUD.stk = mv < sp * 0.2 ? (BUD.stk || 0) + dt : 0; if (BUD.stk > 1.2 && dP > 5) { const a2 = P.dir + 0.6; nx = P.x + Math.sin(a2) * 2; nz = P.z + Math.cos(a2) * 2; BUD.task = null; BUD.stk = 0; } BUD.x = nx; BUD.z = nz; BUD.dir = Math.atan2(-dx, -dz); moving = mv > 0.005; }
@@ -1514,7 +1514,7 @@ CZ.screens.valley = (function () {
     svBtn.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); openSurvivor(); });
     function ordUi() { if (!CZ.orders) return; ordBtn.replaceChildren(h('i', { text: '📜' }), h('b', { text: t('ord.btn') }), ...(CZ.orders.ready() ? [h('em', { text: '!' })] : [])); ordBtn.style.display = (d.tutV || 0) >= 5 ? '' : 'none';
       /* sipariş yeni hazır olduysa oyuncuya söyle (en fazla 4 dakikada bir) */
-      if (!V) return; const rd = CZ.orders.ready(); if (!rd) V.ordWas = false; else if (!V.ordWas && V.running && (d.tutV || 0) >= 5 && V.phase === 'day' && !V.ins && Date.now() - (V.ordTo || 0) > 240000) { V.ordWas = true; V.ordTo = Date.now(); CZ.ui.toast(t('ord.readyT')); CZ.audio.sfx('star'); } }
+      if (!V) return; const rd = CZ.orders.ready(); if (!rd) V.ordWas = false; else if (!V.ordWas && V.running && (d.tutV || 0) >= 5 && (d.bestNight || 0) >= 1 && V.phase === 'day' && !V.ins && Date.now() - (V.ordTo || 0) > 240000) { V.ordWas = true; V.ordTo = Date.now(); CZ.ui.toast(t('ord.readyT')); CZ.audio.sfx('star'); } }
     ordBtn.addEventListener('click', () => openOrders());
     const MAT_IMG = { plank: 'plank', brick: 'brick', iron: 'iron', wood: 'log', stone: 'stone' };
     const matIco = k => h('img', { class: 'mat-ico', src: 'assets/ui/mat/' + MAT_IMG[k] + '.webp', alt: t('mat.' + k) });
@@ -2261,7 +2261,7 @@ CZ.screens.valley = (function () {
     function rushTick(dt) {
       const R = V.rush;
       if (!R) {
-        if (V.phase !== 'day' || V.story) return;
+        if (V.phase !== 'day' || V.story || (d.bestNight || 0) < 1) return;   /* (23 Kas) ilk geceden önce altın akını yok: öğretici biter bitmez ekran doluyordu */
         V.rushCd = (V.rushCd == null ? 25 : V.rushCd) - dt; if (V.rushCd > 0) return;
         for (let k = 0; k < 40; k++) { const a = rand(0, Math.PI * 2), rr = rand(22, 40), x = P.x + Math.cos(a) * rr, z = P.z + Math.sin(a) * rr, rc = Math.hypot(x, z);
           if (water(x, z) || rc < FENCE_R + 8 || rc > Math.min(WORLD_R - 6, zoneLim() - 4) || solids.some(q => !q.off && Math.hypot(q.x - x, q.z - z) < q.r + 2.5)) continue;
@@ -2301,7 +2301,7 @@ CZ.screens.valley = (function () {
     if (!d.tips) d.tips = {};
     const tipQ = []; let tipOn = false;
     function tip(k) { if (d.tipsOff || d.tips[k] || (d.tutV || 0) < 5 || V.story) return; d.tips[k] = 1; CZ.state.save(); tipQ.push(k); if (!tipOn) tipNext(); }
-    const popBusy = () => !!(wrap.querySelector('.modal-wrap, .upg-wrap') || V.cine || V.ins);   // (22 Kas) aynı anda tek pencere
+    const popBusy = () => !!(wrap.querySelector('.modal-wrap, .upg-wrap') || V.cine || V.ins || (typeof bubble !== 'undefined' && bubble.isConnected));   /* Mila konuşurken ipucu kartı üstüne binmesin */   // (22 Kas) aynı anda tek pencere
     function tipNext() { if (V && popBusy()) { tipOn = true; tipEl.classList.remove('on'); setTimeout(() => { if (V) tipNext(); }, 1500); return; } const k = tipQ.shift(); if (!k) { tipOn = false; tipEl.classList.remove('on'); return; } tipOn = true;
       tipEl.replaceChildren(h('b', { text: '💡 ' + t('tip.' + k) }), h('div', { class: 'vl-coach-btns' }, btn(t('tip.ok'), () => { CZ.audio.sfx('button'); tipNext(); }, 'small primary'), btn(t('tip.off'), () => { d.tipsOff = true; CZ.state.save(); tipQ.length = 0; tipNext(); }, 'small ghost-dark')));
       tipEl.classList.add('on'); CZ.audio.sfx('star'); }
@@ -2343,7 +2343,7 @@ CZ.screens.valley = (function () {
       raidTick(dt); campTick();
       if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); menuUi(); try { passBtn.classList.toggle('dot', !!(CZ.pass && CZ.pass.ready && CZ.pass.ready())); } catch (e) { /* */ } const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
         timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' · 👺 ' + nightLeft() : '☀️ ' + mm(Math.max(0, V.phT))) : t('def.wave', { n: V.wave })) + ' · 🏰' + vilLevel();
-        if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 ? '' : 'none'; } }
+        if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 && !V.rush ? '' : 'none'; } }
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
       if (cyc && V.phase === 'night' && !V.story) { hordeTick(dt); ziboTick(dt); }
@@ -3266,7 +3266,9 @@ CZ.screens.valley = (function () {
     if (CZ.ads.playing) CZ.ads.playing();
     // ilk girişte kısa ipucu
     // Mila karşılar: sen yokken ne yaptığını anlatır
-    function milaSay(text, ms) { bubble.lastChild.textContent = text; if (!bubble.isConnected) wrap.append(bubble); clearTimeout(MILA.say); MILA.say = setTimeout(() => bubble.remove(), ms || 6500); }
+    function milaSay(text, ms) { bubble.lastChild.textContent = text; if (!bubble.isConnected) wrap.append(bubble); clearTimeout(MILA.say);
+      try { if (tipEl.classList.contains('on')) { tipEl.classList.remove('on'); MILA.tipBack = true; } } catch (e) { /* */ }   /* ipucu kartı Mila'nın altında kalmasın: Mila susunca geri gelir */
+      MILA.say = setTimeout(() => { bubble.remove(); try { if (MILA.tipBack && tipOn && V) { MILA.tipBack = false; tipEl.classList.add('on'); } } catch (e) { /* */ } }, ms || 6500); }
     {
       const VV = CZ.village.ensure(); const now = Date.now();
       if (!d.introDone) { /* prolog Mila'yı tanıtır */ }

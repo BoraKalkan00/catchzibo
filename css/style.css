@@ -2332,7 +2332,7 @@ body.wide #rotate-note { display: none !important; }
 .vl-flash { position: absolute; inset: 0; background: #fff; z-index: 10; pointer-events: none; animation: dawnF .4s ease-out forwards; }
 body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi gizli */
 /* (22 Kas) dar ekranda 'Geceyi başlat' görünürken üst çubuk iki satıra kırılmasın */
-@media (max-width: 430px) { .vl-nightbtn { padding: 4px 6px; font-size: 11px; margin-left: 3px; } .vl-top { right: 62px; } .vl-top .res-bar { flex-wrap: nowrap; } .vl-top .res-bar .res { padding-left: 4px; padding-right: 6px; font-size: 12px; } }
+@media (max-width: 430px) { .vl-nightbtn { padding: 4px 6px; font-size: 11px; margin-left: 3px; right: 16px; } .vl-top { right: 62px; } .vl-top .res-bar { flex-wrap: nowrap; } .vl-top .res-bar .res { padding-left: 4px; padding-right: 6px; font-size: 12px; } }
 @media (max-width: 380px) { .vl-top .res-bar .res { font-size: 11px; padding-right: 4px; } .vl-top .res-bar .res i { font-size: 13px; } .vl-top { right: 58px; } .vl-time { font-size: 16px !important; padding: 3px 8px !important; } }
 @media (max-width: 430px) { .vl-time { font-size: 18px; padding: 4px 10px; } }
 @media (max-width: 380px) { .vl-top .res-plus { display: none; } .vl-top .res-bar { gap: 2px; } .vl-top .res { padding: 2px 4px 2px 2px; } .vl-top .mini-ico { width: 14px; height: 14px; } }
