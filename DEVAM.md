@@ -146,3 +146,6 @@ Gift popup'ı kapatmak için `CZ.state.data.login={last:bugünYYYYMMDD,n:1}`.
 ## 23 Kas - yer daireleri kaldırıldı
 - Bora: yuvarlaklar yanıp sönüyor, olmasın; binaya dokununca açılsın. Artık: kurulmamış yer = ahşap 🔨 tabela (sprite), kurulu+parası yeten = yeşil ⬆ ok. Binaya/tabelaya dokun → openPad kartı. Daireye basıp kaynak akıtma kapalı; yakın paneli sadece süren inşaatı hızlandırmak için. Eğitimde kule yerine gelince kart 1 kez kendiliğinden açılır.
 - Başarımlar js/core/achv.js (28), Steam köprüsü desktop/main.js (steam_appid.txt gerekli), PC kayıt save.json (Steam Auto-Cloud).
+
+## 24 Kas - Meshy karakterleri
+- Kız (mx/girl.glb) ve Zibo (mx/zibo.glb) Meshy 6 Lite ile üretildi (ücretsiz indirme hakkı: ayda 10, 1 Ara'da yenilenir; 3 kullanıldı). İskelet: eski Mixamo iskeleti Blender'da (pip bpy) yeni ağa oturtuldu, kol eklemleri ağdan ölçüldü, otomatik ağırlık. Betik: tools/meshy_rig.py. Eski dosyalar store/gorseller/*_eski.glb.

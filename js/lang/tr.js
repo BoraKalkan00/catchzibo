@@ -1285,6 +1285,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "achv.d.PHOTO_1": "Fotoğraf modunda paylaş",
   "achv.n.RICH": "Altın Dağı",
   "achv.d.RICH": "Aynı anda {n} altının olsun",
+  "opt.credits": "Emeği geçenler: 3D modeller KayKit (CC0), Meshy AI (CC BY 4.0), Mixamo animasyonları.",
   "ord.btn": "Sipariş",
   "ord.title": "Sipariş Panosu",
   "ord.rep": "Köy itibarı: Sv. {n} ({k}/{m})",

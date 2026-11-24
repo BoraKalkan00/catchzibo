@@ -530,6 +530,7 @@ CZ.optsPanel = function (onChange) {
     row(t('opt.cam'), seg('camZ', [['near', t('opt.near')], ['normal', t('opt.camN')], ['far', t('opt.far')]], 'normal')),
     row(t('opt.gfx'), seg('gfx', [['hi', t('opt.gfxHi')], ['lo', t('opt.gfxLo')]], CZ.style ? CZ.style.gfx() : 'hi')),
     row(t('opt.priv'), h('div', { class: 'seg' }, h('button', { type: 'button', text: '🔒 ' + t('opt.privAds'), onClick: () => { CZ.audio.sfx('button'); CZ.ads.privacy(); } }),
-      h('button', { type: 'button', text: '📄', onClick: () => { window.open('https://borakalkan00.github.io/catchzibo/privacy.html', '_blank'); } }))));
+      h('button', { type: 'button', text: '📄', onClick: () => { window.open('https://borakalkan00.github.io/catchzibo/privacy.html', '_blank'); } }))),
+    h('small', { class: 'opt-credits', text: t('opt.credits') }));
 };
 

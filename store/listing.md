@@ -65,3 +65,7 @@ A new season every month: 30 tiers, Golden Bear, Ice Wolf and thousands of gold.
 • Weekly league, daily quests and an advent calendar
 • Find hidden items in rooms and complete your collection
 • 9 languages, plays offline
+
+## Lisanslar / Credits
+- 3D karakter modelleri (kız kahraman, Zibo): Meshy AI, ücretsiz plan, CC BY 4.0 — atıf: "3D models created with Meshy AI (meshy.ai)". Mağaza açıklamasının sonuna bu satır eklenmeli.
+- KayKit varlıkları CC0, animasyonlar Mixamo.
