@@ -1410,14 +1410,14 @@ CZ.screens.valley = (function () {
               gl_FragColor = vec4(mix(vec3(0.86,0.9,0.97), vec3(1.0), n), a); }` });
         const mesh = new THREE.Mesh(new THREE.RingGeometry(20, WORLD_R + 46, 120, 1), m); mesh.rotation.x = -Math.PI / 2; mesh.position.y = y; mesh.renderOrder = 3; g.add(mesh); layers.push(m); });
       const signs = []; g.userData = { layers, signs }; scene.add(g); return g; })();
-    function lockSignTex(txt) { const c = document.createElement('canvas'); c.width = 256; c.height = 96; const x = c.getContext('2d');
-      x.fillStyle = 'rgba(40,52,96,.92)'; x.beginPath(); x.roundRect ? x.roundRect(4, 4, 248, 88, 22) : x.rect(4, 4, 248, 88); x.fill(); x.lineWidth = 6; x.strokeStyle = '#fff'; x.stroke();
-      x.fillStyle = '#fff'; x.font = 'bold 34px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, 128, 50); return new THREE.CanvasTexture(c); }
+    function lockSignTex(txt) { const c = document.createElement('canvas'); c.width = 384; c.height = 96; const x = c.getContext('2d');
+      x.fillStyle = 'rgba(40,52,96,.92)'; x.beginPath(); x.roundRect ? x.roundRect(4, 4, 376, 88, 22) : x.rect(4, 4, 376, 88); x.fill(); x.lineWidth = 6; x.strokeStyle = '#fff'; x.stroke();
+      x.fillStyle = '#fff'; x.font = 'bold 36px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, 192, 50, 350); return new THREE.CanvasTexture(c); }
     function fogUpdate() { const L = zoneLim(); if (fogMesh.userData.L === L) return; fogMesh.userData.L = L; const on = L < WORLD_R; fogMesh.visible = on; if (!on) return;
       fogU.uL.value = L;
       fogMesh.userData.signs.forEach(s => fogMesh.remove(s)); fogMesh.userData.signs = [];
-      const tex = lockSignTex('🔒 ' + t('vil.b.hall') + ' ' + zoneNeed());
-      for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2 + 0.3, s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false })); s.scale.set(4.2, 1.6, 1); s.position.set(Math.cos(a) * (L + 1.5), 2.6, Math.sin(a) * (L + 1.5)); s.renderOrder = 4; fogMesh.add(s); fogMesh.userData.signs.push(s); } }
+      const tex = lockSignTex('🔒 ' + t('zone.short', { n: zoneNeed() }));
+      for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2 + 0.3, s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false })); s.scale.set(3.6, 0.9, 1); s.position.set(Math.cos(a) * (L + 3), 1.6, Math.sin(a) * (L + 3)); s.renderOrder = 4; fogMesh.add(s); fogMesh.userData.signs.push(s); } }
     fogUpdate();
     function fenceUp(x, z) { const seg = ((Math.floor(((Math.atan2(z, x) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4))) % 8); const fp = pads.find(q => q.kind === 'f' && q.i === seg), it = DS.f[seg]; return !!(fp && it && it.lv >= 1 && fp.hp > 0); }
     const orbMat = new THREE.MeshBasicMaterial({ color: 0x9fe6ff });
@@ -2449,7 +2449,7 @@ CZ.screens.valley = (function () {
         if (false) { const a = rand(0, Math.PI * 2); V.raid = { t: 6, a }; const dirs = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']; raidEl.textContent = t('siege.warn', { d: t('dir.' + dirs[Math.round(((a + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 4)) % 8]) }); raidEl.classList.add('on'); CZ.audio.sfx('horn'); CZ.audio.vibrate([100, 50, 100]); } }
       raidTick(dt); campTick();
       if ((V.lvT = (V.lvT || 0) - dt) <= 0) { V.lvT = 1; giftUi(); menuUi(); try { passBtn.classList.toggle('dot', !!(CZ.pass && CZ.pass.ready && CZ.pass.ready())); } catch (e) { /* */ } const mm = s2 => Math.floor(s2 / 60) + ':' + String(Math.floor(s2 % 60)).padStart(2, '0');
-        timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' · 👺 ' + nightLeft() : '☀️ ' + mm(Math.max(0, V.phT))) : t('def.wave', { n: V.wave })) + ' · 🏰' + vilLevel();
+        timeEl.textContent = (cyc ? (V.phase === 'night' ? '🌙 ' + t('night.lbl', { n: V.wave }) + ' · 👺 ' + nightLeft() : '☀️ ' + mm(Math.max(0, V.phT))) : '⚔️ ' + V.wave) + ' · 🏰' + vilLevel();
         if (cyc) { timeEl.classList.toggle('night', V.phase === 'night'); nightBtn.style.display = V.phase === 'day' && V.phT < DAY_LEN - 10 && !V.rush ? '' : 'none'; } }
       V.spawnT -= dt;
       const cap = Math.min(10, 2 + V.wave) + Math.min(6, Math.floor(vilPower() / 4));
@@ -2549,7 +2549,7 @@ CZ.screens.valley = (function () {
         // nehre giremezsin: köprüden geç (yan eksende kaymayı dene)
         if (water(nx, nz)) { if (!water(nx, P.z)) nz = P.z; else if (!water(P.x, nz)) nx = P.x; else { nx = P.x; nz = P.z; } if (!V.waterHint) { V.waterHint = true; floatAt(P, t('w.bridge'), 'wave'); setTimeout(() => { if (V) V.waterHint = false; }, 4000); } }
         // (21 Kas) SİSLİ BÖLGELER: Belediye seviyesi sınırı açar
-        { const rz = Math.hypot(nx, nz), lim = zoneLim(); if (rz > lim) { nx *= lim / rz; nz *= lim / rz; if (!V.fogHint) { V.fogHint = true; floatAt(P, t('zone.locked', { n: zoneNeed() }), 'wave'); CZ.audio.sfx('wrong'); setTimeout(() => { if (V) V.fogHint = false; }, 3500); } } }
+        { const rz = Math.hypot(nx, nz), lim = zoneLim(); if (rz > lim) { nx *= lim / rz; nz *= lim / rz; if (!V.fogHint) { V.fogHint = true; CZ.ui.toast(t('zone.locked', { n: zoneNeed() })); CZ.audio.sfx('wrong'); setTimeout(() => { if (V) V.fogHint = false; }, 6000); } } }
         // (21 Kas) ÇİT/SUR: içinden geçilmez, üstünden ZIPLANIR (otomatik, zıplama animasyonuyla)
         { const r0 = Math.hypot(P.x, P.z), r1 = Math.hypot(nx, nz);
           if (!P.hop && r1 > 0.1 && Math.abs(r1 - FENCE_R) < 0.75 && Math.sign(r1 - r0) === Math.sign(FENCE_R - r0) && fenceUp(nx, nz)) {
@@ -3280,7 +3280,7 @@ CZ.screens.valley = (function () {
       fpMesh.count = fp.n; fpMesh.instanceMatrix.needsUpdate = true;
     }
     function draw(dt) {
-      fogU.uT.value += dt; footTick(dt); fxTick(dt); if (V.clouds) V.clouds.forEach((c, i) => { c.position.x += dt * (0.6 + i % 3 * 0.25); if (c.position.x > WORLD_R + 20) c.position.x = -WORLD_R - 20; });
+      fogU.uT.value += dt; if (fogMesh.visible) fogMesh.userData.signs.forEach(sg => { const dd = Math.hypot(sg.position.x - P.x, sg.position.z - P.z); sg.material.opacity = Math.max(0, Math.min(1, (dd - 9) / 7)); sg.visible = dd > 9; });   /* (26 Kas) kameraya çok yakın tabela ekranı kaplıyordu */ footTick(dt); fxTick(dt); if (V.clouds) V.clouds.forEach((c, i) => { c.position.x += dt * (0.6 + i % 3 * 0.25); if (c.position.x > WORLD_R + 20) c.position.x = -WORLD_R - 20; });
       // oyuncu ve binek görünümü
       mount.root.position.set(M.x, P.riding ? (P.hopY || 0) : 0, M.z);
       mount.root.rotation.y = M.dir;
@@ -3495,7 +3495,10 @@ CZ.screens.valley = (function () {
       }
     };
     // ===================== PROLOG: Noel gecesi Zibo köyün hazinesini çalar =====================
+    /* (26 Kas) Zibo kovalamacası bitmeden çıkan oyuncuya prolog her açılışta yeniden oynuyor, eğitim sıfırlanıyordu (Bora videosu). İlerlemiş oyuncuda prolog bir daha açılmaz. */
+    if (!d.introDone && (d.introSeen || hallLv() > 1 || (d.bestNight || 0) > 0 || (d.tutV || 0) >= 5)) { d.introDone = true; d.milaMet = true; if (!(d.tutV > 0)) { d.tutV = 1; d.tutN = 0; } CZ.state.save(); }
     if (!d.introDone) {
+      d.introSeen = true; CZ.state.save();
       const NIGHT = { bg: new THREE.Color(0x101c38), hemiS: new THREE.Color(0x7a94d4), hemiG: new THREE.Color(0x2a3a52), hi: 0.62, sun: new THREE.Color(0xb0c4ff), si: 0.5 };   // (22 Kas) mor-pembe yerine soğuk mavi gece
       const DAY = { bg: new THREE.Color(SKY), hemiS: hemi.color.clone(), hemiG: hemi.groundColor.clone(), hi: hemi.intensity, sun: sun.color.clone(), si: sun.intensity };
       const setSky = k => { scene.background.copy(NIGHT.bg).lerp(DAY.bg, k); scene.fog.color.copy(scene.background); hemi.color.copy(NIGHT.hemiS).lerp(DAY.hemiS, k); hemi.groundColor.copy(NIGHT.hemiG).lerp(DAY.hemiG, k); hemi.intensity = NIGHT.hi + (DAY.hi - NIGHT.hi) * k; sun.color.copy(NIGHT.sun).lerp(DAY.sun, k); sun.intensity = NIGHT.si + (DAY.si - NIGHT.si) * k; lamps.forEach(l => { l.intensity = 1.6 * (1 - k); }); };
