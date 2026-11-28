@@ -219,7 +219,7 @@ CZ.screens.chase = (function () {
       c.tutCur = { o: R.tutSpawn(kind), key, ic, need };
       return;
     }
-    if (c.tutI >= TUT.length && !c.tutEnd) { c.tutEnd = true; c.tutAt = c.alive; tutTip('tut.throw', '●'); setTimeout(() => { if (c && c.running) tutTip('tut.done', '★'); }, 3800); }
+    if (c.tutI >= TUT.length && !c.tutEnd) { c.tutEnd = true; c.tutAt = c.alive; if (c.run) c.run.state.invT = 5;   /* (28 Kas) öğretici biter bitmez çarpıp ölmesin: 5 sn koruma */ tutTip('tut.throw', '●'); setTimeout(() => { if (c && c.running) tutTip('tut.done', '★'); }, 3800); }
     if (c.tutEnd && c.alive > (c.tutAt || 0) + 8) { c.tut = false; CZ.state.data.runTut = true; CZ.state.save(); }
   }
   function tutAct(k) { if (c && c.tutCur && c.tutCur.slow && (k === c.tutCur.need)) { c.tutCur.ok = true; } }
