@@ -51,6 +51,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'let.got': "Harf {ch}! ({n}/4)",
   'let.done': "ZİBO tamam! +500 altın + gizemli kutu",
   'let.title': "Günün harfleri:",
+  'home.hintPc': 'Ok tuşları: şerit, zıpla, kay · Boşluk: kartopu · Kol da olur',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

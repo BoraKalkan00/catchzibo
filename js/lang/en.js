@@ -51,6 +51,7 @@ CZ.i18n.register('en', 'English', {
   'let.got': "Letter {ch}! ({n}/4)",
   'let.done': "ZIBO complete! +500 gold + mystery box",
   'let.title': "Today's letters:",
+  'home.hintPc': 'Arrow keys: lanes, jump, slide · Space: throw · Gamepad works too',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',

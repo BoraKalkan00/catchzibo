@@ -2542,3 +2542,15 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .hm-letters small { font-weight: 800; font-size: 12px; margin-right: 2px; }
 .hm-letters b { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; background: rgba(255,255,255,.18); color: rgba(255,255,255,.5); }
 .hm-letters b.on { background: #7b3fc4; color: #ffe27a; border: 2px solid #fff; }
+/* (28 Kas) PC / yatay ekran düzeni */
+@media (orientation: landscape) and (max-height: 900px) {
+  .hm-logo { width: min(30vw, 340px); margin-top: 0; }
+  .hm-level, .hm-letters { transform: scale(.9); }
+  .hm-stage { min-height: 120px; }
+  .hm-bot { gap: 8px; padding-bottom: 14px; }
+  .hm-play { width: min(40vw, 340px); padding: 14px 0; font-size: 28px; }
+  .hm-left { top: 30%; }
+  .c3-show { height: 34vh; min-height: 160px; }
+  .c3-grid { grid-template-columns: repeat(8, 1fr); max-width: 1100px; margin: 0 auto; }
+  .c3-name { font-size: 22px; }
+}

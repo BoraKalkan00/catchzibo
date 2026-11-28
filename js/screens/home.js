@@ -80,7 +80,7 @@ CZ.screens.home = {
         CZ.mbox.count() > 0 ? sideBtn('box glow', '📦', t('box.short'), String(CZ.mbox.count()), () => CZ.mbox.open(refresh)) : null),
       h('div', { class: 'hm-bot' },
         h('button', { class: 'hm-play', type: 'button', onClick: e => { e.stopPropagation(); play(); } }, t('title.play')),
-        h('p', { class: 'hm-hint', text: t('home.hint') }),
+        h('p', { class: 'hm-hint', text: t(CZ.PC || matchMedia('(pointer: fine)').matches ? 'home.hintPc' : 'home.hint') }),
         h('div', { class: 'hm-row' },
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('chars', { returnTo: 'home' }); } }, t('chars.title')),
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('upg'); } }, t('home.upg')),
