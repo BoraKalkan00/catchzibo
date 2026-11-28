@@ -1,3 +1,11 @@
+# DEVAM (28 Kas 2026) — YÖN DEĞİŞTİ: oyun artık KOŞU OYUNU "Catch Zibo!"
+- Köy/savunma oyunu kapalı (ui.go: valley/hub/title → home). Açılış: js/screens/home.js (ana ekran) → chase (sonsuz koşu, runner3d.js motoru).
+- Yeni: 16 karakterli 3D karakter ekranı (chars3d.js, kostüm Normal/Buz/Altın), güç yükseltmeleri + kızak rengi (upg.js),
+  günlük hediye, görevler, gizemli kutu, günün harfleri Z-İ-B-O, 4 bölge (köy/orman/buz/kale), etkileşimli öğretici (ağır çekim),
+  tökezleme (1. çarpma uyarı, 8 sn içinde 2. çarpma biter), Zibo mesafe göstergesi, dokun = kartopu, rekor kemeri, skor paylaşma, oyun kolu.
+- Test: /home/claude/qa/bot.py (akıllı bot), full.py (yeni oyuncu baştan sona), shots.py (mağaza görüntüleri), vid.py (fragman).
+- Liste: store/100_madde.md (85 ✅, 5 🟡, 10 Bora'nın hesap işi). Mağaza: store/screens/*, store/listing_runner.md.
+
 # Catch Zibo! — devir notu (yeni sohbet buradan başlar)
 
 Sahibi: Bora Kalkan. Repo: BoraKalkan00/catchzibo. Web: borakalkan00.github.io/catchzibo
