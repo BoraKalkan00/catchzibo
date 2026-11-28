@@ -15,6 +15,14 @@ Object.assign(CZ.RUN_PERKS, {
   goblin: { type: 'gold', per: 0.09 }, chief: { type: 'power', per: 0.6 }, zibo: { type: 'catchBonus', per: 0.3 }
 });
 CZ.ROSTER.forEach(c => { if (!CZ.CHAR_PERKS[c.id] && CZ.RUN_PERKS[c.id]) CZ.CHAR_PERKS[c.id] = CZ.RUN_PERKS[c.id]; });
+// (28 Kas) KOSTÜMLER: her karakterin 3 görünümü: Normal, Buz (elmas 30), Altın (elmas 60)
+CZ.SKINS = [{ id: 'normal' }, { id: 'ice', gems: 30, col: 0x9fdcff, em: 0x123a5a, k: 0.7 }, { id: 'gold', gems: 60, col: 0xffcf40, em: 0x5a3a00, k: 0.8 }];
+CZ.skinOf = id => ((CZ.state.data.skin || {})[id]) || 'normal';
+CZ.applySkin = (root, skinId) => {
+  const S = CZ.SKINS.find(x => x.id === skinId); if (!S || !S.col || !root) return;
+  const T = window.THREE, col = new T.Color(S.col);
+  root.traverse(o => { if (!o.isMesh || !o.material) return; const one = m => { const c = m.clone(); if (c.color) c.color.lerp(col, S.k); if (c.emissive) c.emissive.setHex(S.em); return c; }; o.material = Array.isArray(o.material) ? o.material.map(one) : one(o.material); });
+};
 CZ.chars.state = c => (!c.gold || (CZ.state.data.boughtChars || []).includes(c.id)) ? 'open' : 'locked';
 CZ.chars.hasArt = () => true;
 
@@ -70,7 +78,21 @@ CZ.screens.chars = {
           }, 'ghost-dark', 'ui.gold'));
         }
       }
+      if (st === 'open') {
+        const own = (d.skinOwn || {})[c.id] || ['normal'];
+        actEl.append(h('div', { class: 'c3-skins' }, CZ.SKINS.map(k => {
+          const has = k.id === 'normal' || own.includes(k.id), on = CZ.skinOf(c.id) === k.id;
+          return h('button', { class: 'c3-skin sk-' + k.id + (on ? ' on' : ''), type: 'button', onClick: () => {
+            if (!has) {
+              if ((d.emeralds || 0) < k.gems) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.gemShort', { n: k.gems - (d.emeralds || 0) })); }
+              d.emeralds -= k.gems; d.skinOwn = d.skinOwn || {}; d.skinOwn[c.id] = own.concat(k.id); CZ.audio.sfx('win');
+            } else CZ.audio.sfx('button');
+            d.skin = d.skin || {}; d.skin[c.id] = k.id; CZ.state.save(); if (S.p3) S.p3.set(c.id); drawInfo();
+          } }, h('i'), h('small', { text: has ? t('skin.' + k.id) : '💎' + k.gems }));
+        })));
+      }
       goldEl.textContent = d.gold || 0; gemEl.textContent = d.emeralds || 0;
+      el.querySelectorAll('.emeralds:not(.gold-badge):not(.c3-col) .emerald-count').forEach(x => { x.textContent = d.emeralds || 0; });
     }
     function unlock(c) {
       d.boughtChars = (d.boughtChars || []).concat(c.id); d.avatar = c.id; CZ.state.save();
@@ -130,7 +152,7 @@ function preview3d(host, id, opt) {
   const disc = new T.Mesh(new T.CylinderGeometry(0.8, 0.8, 0.06, 40), new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18 }));
   disc.position.y = -0.04; sc.add(disc);
   let o = null, rot = Math.PI, drag = null, raf = 0, last = 0, cheerT = 0;
-  const set = k => { if (o) sc.remove(o.root); o = CZ.kk.hero(T, k); sc.add(o.root); cheerT = 1.6; };
+  const set = k => { if (o) sc.remove(o.root); o = CZ.kk.hero(T, k); CZ.applySkin(o.root, CZ.skinOf(k)); sc.add(o.root); cheerT = 1.6; };
   set(id);
   const size = () => { const w = host.clientWidth || 300, hh = host.clientHeight || 300; r.setSize(w, hh, false); cam.aspect = w / hh; cam.updateProjectionMatrix(); };
   size();

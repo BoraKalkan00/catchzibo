@@ -2554,3 +2554,10 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
   .c3-grid { grid-template-columns: repeat(8, 1fr); max-width: 1100px; margin: 0 auto; }
   .c3-name { font-size: 22px; }
 }
+
+.c3-act { flex-wrap: wrap; }
+.c3-skins { width: 100%; display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+.c3-skin { display: flex; align-items: center; gap: 5px; padding: 5px 10px 5px 5px; border-radius: 99px; border: 2px solid rgba(255,255,255,.35); background: rgba(0,0,0,.35); color: #fff; font-weight: 800; }
+.c3-skin i { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(#fff, #c8b8a8); }
+.c3-skin.sk-ice i { background: linear-gradient(#e0f6ff, #5fb8ff); } .c3-skin.sk-gold i { background: linear-gradient(#fff2a0, #e8a812); }
+.c3-skin.on { border-color: #ffe27a; box-shadow: 0 0 10px #ffe27a; }

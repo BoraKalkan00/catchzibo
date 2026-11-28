@@ -509,6 +509,7 @@ CZ.runner3d = (function () {
     // Çizimi olan karakter kendi Gemini çizimleriyle koşar; yoksa 3D parça karakter.
     // Kahraman artık GERÇEK 3D (toon). Eski kare-kare sprite yalnızca CZ.HERO_SPRITES açıksa.
     const hero = CZ.kk && CZ.kk.ready() && !CZ.HERO_SPRITES ? CZ.kk.hero(THREE, opts.avatar) : CZ.toonHero && !CZ.HERO_SPRITES ? CZ.toonHero(THREE, opts.avatar) : (CZ.chars && CZ.chars.hasArt(opts.avatar) ? CZ.heroSprite(THREE, opts.avatar) : CZ.hero3d(THREE, opts.avatar));
+    if (CZ.applySkin && CZ.skinOf) CZ.applySkin(hero.root, CZ.skinOf(opts.avatar));   // (28 Kas) kostüm
     scene.add(hero.root);
     const pShadow = mesh(GEO.circle, M.shadow, 1.1, 0.7, 1, 0, 0.02, 0);
     pShadow.rotation.x = -Math.PI / 2;

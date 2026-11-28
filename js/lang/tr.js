@@ -52,6 +52,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   'let.done': "ZİBO tamam! +500 altın + gizemli kutu",
   'let.title': "Günün harfleri:",
   'home.hintPc': 'Ok tuşları: şerit, zıpla, kay · Boşluk: kartopu · Kol da olur',
+  'skin.normal': "Normal",
+  'skin.ice': "Buz",
+  'skin.gold': "Altın",
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

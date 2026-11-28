@@ -86,6 +86,8 @@ CZ.screens.home = {
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('upg'); } }, t('home.upg')),
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('settings'); } }, t('settings.title')))));
     el.addEventListener('pointerdown', e => { if (!e.target.closest('button, .hm-stage, .modal-wrap')) play(); });
+    const onKey = e => { if ((e.key === 'Enter' || e.key === ' ') && !document.querySelector('.modal-wrap')) { e.preventDefault(); play(); } };   // (28 Kas) PC: Enter/Boşluk = oyna
+    window.addEventListener('keydown', onKey); this.offKey = () => window.removeEventListener('keydown', onKey);
     // günlük ödül / seviye atlama: girişte kendiliğinden açılır
     setTimeout(() => { if (el.isConnected && !document.querySelector('.modal-wrap')) CZ.progress.showOnHub(el, refresh); }, 600);
     // seçili karakter ana ekranda canlı 3D bekler (Subway gibi); dokununca sevinir
@@ -96,5 +98,5 @@ CZ.screens.home = {
       st.addEventListener('click', () => { if (this.p3) { this.p3.cheer(); CZ.audio.sfx('poke'); } });
     }).catch(() => {});
   },
-  leave() { if (this.p3) { this.p3.stop(); this.p3 = null; } }
+  leave() { if (this.p3) { this.p3.stop(); this.p3 = null; } if (this.offKey) this.offKey(); }
 };
