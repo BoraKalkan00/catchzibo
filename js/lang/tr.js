@@ -55,6 +55,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'skin.normal': "Normal",
   'skin.ice': "Buz",
   'skin.gold': "Altın",
+  'upg.sled': 'Kızak rengi (kızak atağında görünür)',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

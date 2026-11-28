@@ -33,7 +33,20 @@ CZ.screens.upg = {
     el.append(CZ.ui.header(t('home.upg'), () => CZ.ui.go('home')),
       h('div', { class: 'upg-gold' }, img('ui.gold', 'emerald-icon'), gold),
       h('p', { class: 'upg-note', text: t('upg.note') }),
-      h('div', { class: 'scroll' }, list));
+      h('div', { class: 'scroll' }, list, sledRow()));
+    function sledRow() {   // (28 Kas) kızak rengi
+      const SK = [['red', 0], ['blue', 800], ['gold', 2500], ['black', 5000]];
+      const box = h('div', { class: 'upg-row sled-row' });
+      const draw2 = () => box.replaceChildren(h('span', { class: 'upg-ic', text: '🛷' }), h('div', { class: 'upg-txt' }, h('strong', { text: t('upg.sled') }),
+        h('div', { class: 'sled-cols' }, SK.map(([id, price]) => {
+          const own = id === 'red' || (d.sledOwn || []).includes(id), on = (d.sledSkin || 'red') === id;
+          return h('button', { class: 'sled-col sc-' + id + (on ? ' on' : ''), type: 'button', onClick: () => {
+            if (!own) { if ((d.gold || 0) < price) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.goldShort', { n: price - (d.gold || 0) })); } d.gold -= price; d.sledOwn = (d.sledOwn || []).concat(id); CZ.audio.sfx('win'); }
+            d.sledSkin = id; CZ.state.save(); draw2(); gold.textContent = d.gold;
+          } }, h('i'), own ? null : h('small', { text: String(price) }));
+        }))));
+      draw2(); return box;
+    }
     draw();
   }
 };

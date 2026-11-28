@@ -55,6 +55,7 @@ CZ.i18n.register('en', 'English', {
   'skin.normal': "Normal",
   'skin.ice': "Ice",
   'skin.gold': "Gold",
+  'upg.sled': 'Sled color (shown when you dash)',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',

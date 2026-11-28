@@ -510,6 +510,14 @@ CZ.runner3d = (function () {
     // Kahraman artık GERÇEK 3D (toon). Eski kare-kare sprite yalnızca CZ.HERO_SPRITES açıksa.
     const hero = CZ.kk && CZ.kk.ready() && !CZ.HERO_SPRITES ? CZ.kk.hero(THREE, opts.avatar) : CZ.toonHero && !CZ.HERO_SPRITES ? CZ.toonHero(THREE, opts.avatar) : (CZ.chars && CZ.chars.hasArt(opts.avatar) ? CZ.heroSprite(THREE, opts.avatar) : CZ.hero3d(THREE, opts.avatar));
     if (CZ.applySkin && CZ.skinOf) CZ.applySkin(hero.root, CZ.skinOf(opts.avatar));   // (28 Kas) kostüm
+    // (28 Kas) KIZAK ATAĞI artık görünür: kahraman kızağa biner (renk Güçler ekranından seçilir)
+    const SLED_COL = { red: [0xc8242e, 0xffcf3a], blue: [0x2f6fd6, 0xffffff], gold: [0xf3c33c, 0x8a1a1a], black: [0x22222a, 0x7fe0ff] }[(CZ.state && CZ.state.data.sledSkin) || 'red'] || [0xc8242e, 0xffcf3a];
+    const sledRide = new THREE.Group();
+    { const a = CZ.style.mat({ color: SLED_COL[0] }), b2 = CZ.style.mat({ color: SLED_COL[1] });
+      sledRide.add(mesh(GEO.box, a, 0.8, 0.14, 1.5, 0, 0.26, 0));
+      sledRide.add(mesh(GEO.box, a, 0.8, 0.4, 0.14, 0, 0.42, -0.72));
+      [-0.34, 0.34].forEach(x => { sledRide.add(mesh(GEO.box, b2, 0.07, 0.07, 1.7, x, 0.06, 0.05)); sledRide.add(mesh(GEO.box, b2, 0.07, 0.22, 0.07, x, 0.15, -0.4)); sledRide.add(mesh(GEO.box, b2, 0.07, 0.22, 0.07, x, 0.15, 0.4)); });
+      sledRide.visible = false; scene.add(sledRide); }
     scene.add(hero.root);
     const pShadow = mesh(GEO.circle, M.shadow, 1.1, 0.7, 1, 0, 0.02, 0);
     pShadow.rotation.x = -Math.PI / 2;
@@ -1475,6 +1483,7 @@ CZ.runner3d = (function () {
       const sliding = s.slideT > 0 && !s.jumping;
       const lean = (tx - s.px) * 0.6;
       hero.root.position.set(s.px, s.py, 0);
+      sledRide.visible = s.dashT > 0; if (sledRide.visible) { sledRide.position.set(s.px, s.py, 0.1); hero.root.position.y += 0.3; }
       s.pointT = Math.max(0, (s.pointT || 0) - dt);
       const flying = s.flyT > 0;
       if (flying) hero.root.position.set(s.px, s.py, 0.25);
