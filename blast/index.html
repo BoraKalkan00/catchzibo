@@ -96,6 +96,7 @@ canvas#c { position: relative; z-index: 2; touch-action: none; }
 .cine .tt b { color: #ffe27a; font-size: 30px; display: block; }
 .cine .skip { position: absolute; z-index: 3; right: 12px; top: calc(env(safe-area-inset-top) + 12px); border: 0; border-radius: 99px; background: rgba(0,0,0,.5); color: #fff; font: 800 15px 'Baloo', sans-serif; padding: 8px 16px; }
 .cine.shake { animation: cshake .45s; } @keyframes cshake { 20% { transform: translate(-8px, 4px); } 40% { transform: translate(7px, -5px); } 60% { transform: translate(-5px, 3px); } 80% { transform: translate(3px, -2px); } }
+.cine video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; background: #000; }
 </style>
 </head>
 <body>
@@ -428,8 +429,25 @@ function cinema(then) {
   const tt = (i) => { const e = q('.tt'); e.classList.remove('on'); setTimeout(() => { e.innerHTML = L.cine[i]; e.classList.add('on'); }, 120); };
   const shake = () => { d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake'); buzz(40); };
   let ended = false;
-  const end = () => { if (ended) return; ended = true; T.forEach(clearTimeout); d.style.transition = 'opacity .5s'; d.style.opacity = 0; setTimeout(() => d.remove(), 500); store.set('story', 1); if (then) then(); else showHome(); };
+  const end = () => { if (ended) return; ended = true; if (music) music.g.gain.value = 0.32; T.forEach(clearTimeout); d.style.transition = 'opacity .5s'; d.style.opacity = 0; setTimeout(() => d.remove(), 500); store.set('story', 1); if (then) then(); else showHome(); };
   q('.skip').onclick = e => { e.stopPropagation(); end(); };
+  // (28 Kas) Bora'nın videosu varsa açılışın ilk 5 sn'si video: dans → Zibo fırlar → buz patlaması; sonra donmuş köy + kaçış + başlık
+  const vid = document.createElement('video'); vid.src = '../assets/video/intro.mp4'; vid.playsInline = true; vid.muted = muted; vid.preload = 'auto'; vid.setAttribute('playsinline', '');
+  let usedVideo = false;
+  const afterVideo = () => {
+    vid.remove(); q('.bg').classList.add('frz', 'go'); q('.flash').classList.add('on'); sfx('over', 1.4, 0.9); shake();
+    d.querySelectorAll('.kid').forEach((k, i) => { k.classList.add('on', 'ice'); setTimeout(() => { const r = k.getBoundingClientRect(); const c = document.createElement('div'); c.className = 'cube'; c.style.cssText = 'left:' + (r.left - 6) + 'px;top:' + (r.top - 6) + 'px;width:' + (r.width + 12) + 'px;height:' + (r.height + 12) + 'px'; d.append(c); requestAnimationFrame(() => c.classList.add('on')); sfx('place', 1.6, 0.6); }, 150 + i * 180); });
+    tt(2);
+    at(1600, () => { tt(3); const z = q('.zb'); z.src = '../assets/zibo/png/run_loot.webp'; z.style.opacity = 1; requestAnimationFrame(() => z.classList.add('run')); sfx('pick', 0.7, 0.6); });
+    at(3800, () => { shake(); q('.flash').classList.remove('on'); void q('.flash').offsetWidth; q('.flash').classList.add('on'); sfx('big', 1, 0.9); tt(4); });
+    at(6400, end);
+  };
+  vid.addEventListener('ended', afterVideo, { once: true });
+  vid.addEventListener('error', () => { if (usedVideo) afterVideo(); }, { once: true });
+  const p0 = vid.play();
+  if (p0 && p0.then) { usedVideo = true; d.insertBefore(vid, q('.flash')); if (music) music.g.gain.value = 0.12; p0.catch(() => { vid.muted = true; vid.play().catch(() => { usedVideo = false; vid.remove(); runAnim(); }); }); return; }
+  runAnim();
+  function runAnim() {
   requestAnimationFrame(() => q('.bg').classList.add('go'));
   at(150, () => { tt(0); d.querySelectorAll('.kid').forEach((k, i) => setTimeout(() => k.classList.add('on'), i * 140)); sfx('pick', 1.3, 0.4); });
   at(2300, () => { tt(1); const z = q('.zb'); z.classList.add('pop'); sfx('bad', 0.8, 0.8); shake(); });
@@ -440,6 +458,7 @@ function cinema(then) {
   at(8800, () => { shake(); for (let k = 0; k < 26; k++) { const sh = document.createElement('i'); sh.className = 'shard'; sh.style.left = '50%'; sh.style.top = '55%'; d.append(sh); const a = Math.random() * 6.28, r = 120 + Math.random() * 260; sh.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: 'translate(' + Math.cos(a) * r + 'px,' + Math.sin(a) * r + 'px) rotate(' + (Math.random() * 720) + 'deg)', opacity: 0 }], { duration: 900, easing: 'ease-out', fill: 'forwards' }); }
     q('.flash').classList.remove('on'); void q('.flash').offsetWidth; q('.flash').classList.add('on'); sfx('big', 1, 0.9); tt(4); });
   at(11500, end);
+  }
 }
 function story(then) { return cinema(then); }
 function storyOld(then) {
