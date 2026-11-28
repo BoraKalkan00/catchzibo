@@ -98,14 +98,15 @@ CZ.ads = (function () {
     init().then(ok => { if (!ok) throw 0; return A.prepareInterstitial({ adId: CZ.ADS.interstitial, isTesting: CZ.ADS.testing, npa: false }); })
       .then(() => A.showInterstitial()).then(() => done(), () => done());
   }
-  function gameOver(done) {
+  function gameOver(done, o) {
     done = done || (() => {});
+    if (o && o.record) return done();   // (28 Kas) rekor anında reklam yok (sevinç bozulmasın)
     if (CZ.PC) return done();
     const d = CZ.state.data;
     if (d.noAds) return done();   // Reklamsız paketi alındı: zorunlu reklam yok
     d.overs = (d.overs || 0) + 1;
     CZ.state.save();
-    if (d.noAds || d.overs <= 3 || Date.now() - lastInter < CZ.ADS.interGapMs || Date.now() - (d.lastInterAt || 0) < CZ.ADS.interGapMs) return done();
+    if (d.noAds || d.overs <= 5 || Date.now() - lastInter < CZ.ADS.interGapMs || Date.now() - (d.lastInterAt || 0) < CZ.ADS.interGapMs) return done();
     d.lastInterAt = Date.now();
     d.interShown = (d.interShown || 0) + 1;
     lastInter = Date.now();

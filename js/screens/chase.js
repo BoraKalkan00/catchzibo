@@ -122,6 +122,19 @@ CZ.screens.chase = (function () {
   }
 
   function intro() {
+    // (28 Kas) ilk koşudan önce 4 sn'lik hikâye: Zibo altını çaldı, peşinden koş (dokununca geçer)
+    if (c.endless && !CZ.state.data.storyRun) {
+      CZ.state.data.storyRun = true; CZ.state.save();
+      const box = h('div', { class: 'story-card' },
+        h('img', { src: 'assets/ld/zibo_soygun_v.webp', alt: '' }),
+        h('div', { class: 'story-txt' }, h('strong', { text: t('story.run1') }), h('p', { text: t('story.run2') }), h('small', { text: t('story.tap') })));
+      c.el.append(box); CZ.audio.sfx('intro');
+      let gone = false;
+      const go = () => { if (gone) return; gone = true; box.classList.add('out'); setTimeout(() => box.remove(), 350); start(); };
+      c.timers.push(setTimeout(go, 4200));
+      box.addEventListener('pointerdown', go, { once: true });
+      return;
+    }
     if (c.endless) return start();
     const box = h('div', { class: 'intro chase-intro' },
       h('small', { text: c.boss.id === 'zibo' ? t('chase.introTop') : t('boss.' + c.boss.id + '.tag') }),
@@ -628,7 +641,7 @@ CZ.screens.chase = (function () {
     c.el.append(sheet);
     if (setDone) { CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]); }
     // Subway Surfers gibi: skor görünür görünmez reklam kendiliğinden açılır (her 2 oyunda bir).
-    c.timers.push(setTimeout(() => { if (c && c.el.contains(sheet)) CZ.ads.gameOver(); }, 1200));
+    c.timers.push(setTimeout(() => { if (c && c.el.contains(sheet)) CZ.ads.gameOver(null, { record }); }, 1200));
   }
 
   function escaped(reason) {

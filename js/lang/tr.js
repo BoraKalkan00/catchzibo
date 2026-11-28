@@ -43,6 +43,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   'run.toBest': '🏆 Rekora {n}!',
   'run.almost': 'Rekoruna sadece {n} kaldı! Bir daha dene!',
   'tut.sled': "Kızak doldu! Sol alttaki kızağa bas, hızla Zibo'ya yaklaş",
+  'story.run1': "Zibo köyün bütün altınını çaldı!",
+  'story.run2': "Peşinden koş, kartopuyla vur ve yakala!",
+  'story.tap': "Başlamak için dokun",
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

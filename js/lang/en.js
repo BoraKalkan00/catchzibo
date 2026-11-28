@@ -43,6 +43,9 @@ CZ.i18n.register('en', 'English', {
   'run.toBest': '🏆 {n} to your best!',
   'run.almost': 'Only {n} away from your best! Try again!',
   'tut.sled': "Sled is full! Tap the sled button to dash toward Zibo",
+  'story.run1': "Zibo stole all the village's gold!",
+  'story.run2': "Chase him, hit him with snowballs and catch him!",
+  'story.tap': "Tap to start",
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',
