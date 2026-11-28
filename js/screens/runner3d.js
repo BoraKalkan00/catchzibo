@@ -306,7 +306,7 @@ CZ.runner3d = (function () {
     function bake(g) {
       const lists = { lambert: [], basic: [] };
       g.children.slice().forEach(ch => {
-        if (!ch.isMesh) return;
+        if (!ch.isMesh || ch.material.map) return;   // (28 Kas) dokulu parçalar (hediye kutusu, tahta) pişirilmez: yoksa bembeyaz kalıyordu
         ch.updateMatrix();
         let geo = ch.geometry.index ? ch.geometry.toNonIndexed() : ch.geometry.clone();
         geo.applyMatrix4(ch.matrix);
@@ -1050,6 +1050,7 @@ CZ.runner3d = (function () {
 
     /* ---------- Kontroller ---------- */
     function move(dir) {
+      if (opts.onAct) opts.onAct('move');
       if (!s.running) return;
       const n = Math.max(0, Math.min(LANES - 1, s.lane + dir));
       if (n === s.lane) { bump(); return; }
@@ -1156,6 +1157,7 @@ CZ.runner3d = (function () {
       const raw = now - (last || now);
       let dt = Math.min(0.05, raw / 1000);
       if (s.slowT > 0) { s.slowT -= dt; dt *= 0.32; }
+      if (s.tutSlow) dt *= s.tutSlow;   // (28 Kas) öğretici: doğru hareketi bekleyene kadar ağır çekim
       last = now;
       const t0 = performance.now();
       if (s.paused) { post.render(scene, camera); return; }
@@ -1274,6 +1276,15 @@ CZ.runner3d = (function () {
     function idle(dt) {
       s.frame += dt;
       hero.update(dt, { speed: 0, idle: !s.dead, dead: !!s.dead });
+      if (s.dieT > 0) {   // (28 Kas) ölüm anı: kamera kahramana yaklaşır, ekran kırmızı parlar
+        s.dieT = Math.max(0, s.dieT - dt);
+        const k = 1 - s.dieT / 1.2;
+        camera.position.x += (s.px - camera.position.x) * Math.min(1, dt * 3);
+        camera.position.y += (camBase.y - 0.9 - camera.position.y) * Math.min(1, dt * 3);
+        camera.position.z += (camBase.z - 1.6 - camera.position.z) * Math.min(1, dt * 3);
+        camera.lookAt(s.px, 0.8, -4);
+        if (s.shake > 0) { s.shake -= dt; camera.position.x += rand(-0.1, 0.1); }
+      }
       animateSnow(dt, 4);
     }
     function animateSnow(dt, v) {
@@ -1290,7 +1301,7 @@ CZ.runner3d = (function () {
     function step(dt) {
       s.t += dt;
       s.frame += dt;
-      s.speed = CHASE ? (opts.endless ? Math.min(34, 18.5 + s.t * 0.2) * (s.flyT > 0 ? 1.35 : 1) : (opts.speed || 16) * (s.speedMul || 1)) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 && !(s.dashT > 0) ? 0.55 : 1);
+      s.speed = CHASE ? (opts.endless ? Math.min(32, 15 + s.t * 0.14) * (s.flyT > 0 ? 1.35 : 1) : (opts.speed || 16) * (s.speedMul || 1)) * (s.stunT > 0 ? 0.5 : 1) : Math.min(R.maxSpeed, R.startSpeed + s.t * R.accel) * (s.invT > R.invulnSec - 0.6 && !(s.dashT > 0) ? 0.55 : 1);
       s.stunT = Math.max(0, (s.stunT || 0) - dt);
       if (s.dashT > 0) { s.dashT -= dt; s.speed *= 1.6; if (s.dashT <= 0) drawSled(); if (Math.random() < 0.5) sparks(new THREE.Vector3(s.px + rand(-0.4, 0.4), 0.15, 0.6), 1, '#bfe4ff', 0.25); }
       const fov = s.dashT > 0 || s.flyT > 0 ? 72 : 62;
@@ -1318,7 +1329,7 @@ CZ.runner3d = (function () {
       }
       if (s.nextRow <= 0 && !s.catching && !(s.flyT > 0)) {
         spawnRow();
-        s.nextRow = CHASE ? (opts.endless ? Math.max(13, 23 - s.t * 0.09) + rand(0, 5) : rand(22, 30)) : Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
+        s.nextRow = CHASE ? (opts.endless ? Math.max(14, 30 - s.t * 0.12) + rand(0, 5) : rand(22, 30)) : Math.max(R.rowGap[0], R.rowGap[1] - s.t * 0.06) + rand(0, 4);
       }
 
       // oyuncu
@@ -1820,6 +1831,17 @@ CZ.runner3d = (function () {
       go(intro) { s.running = true; last = 0; if (intro) { s.introT = 1; s.introLook = true; } },
       pause(on) { s.paused = !!on; last = 0; },
       move, jump, slide, shoot,
+      deathFx() { s.dead = true; s.dieT = 1.2; s.shake = 0.3; hero.setOpacity(1); },
+      reviveFx() { s.dead = false; s.dieT = 0; camera.position.copy(camBase); camera.lookAt(0, 0.9, -9); },
+      // (28 Kas) öğretici: oyuncunun şeridine belli bir engel koy (önündeki sıralar temizlenir)
+      tutSpawn(kind) {
+        const l = s.lane;
+        s.objs.filter(o => o.type !== 'deco' && o.mesh.position.z < -20).forEach(o => { drop(o); s.objs.splice(s.objs.indexOf(o), 1); });
+        s.nextRow = 34;
+        const o = kind === 'low' ? hurdle(l) : kind === 'high' ? banner(l) : sled(l);
+        o.mesh.position.z = -60; o.tut = true;
+        return o;
+      },
       stop() {
         s.running = false;
         s.bombs.forEach(b => scene.remove(b.sp, b.ring, b.fill));
@@ -1873,6 +1895,7 @@ CZ.runner3d = (function () {
       revive() {
         s.objs.slice().forEach(o => { if (o.mesh.position.z > -30) { drop(o); s.objs.splice(s.objs.indexOf(o), 1); } });
         s.hearts = 1; s.dead = false; s.invT = 2.5; s.laughT = 0; s.ziboForce = null;
+        s.dieT = 0; camera.position.copy(camBase); camera.lookAt(0, 0.9, -9);
         s.running = true; last = 0;
       },
       summary,

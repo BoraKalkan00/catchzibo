@@ -54,6 +54,7 @@
     up: `<path d="M50 8 L88 48 H66 V90 H34 V48 H12z" fill="#3ccf5e" ${W}/>${shine(40, 50, 8, 32, 4)}`,
     heart: `<path d="M50 88 L14 52 q-14-16 0-32 q16-14 36 6 q20-20 36-6 q14 16 0 32z" fill="#ff4d5e" ${W}/>${shine(22, 26, 14, 8, 4)}`,
     magnet: `<path d="M18 16 v38 a32 32 0 0 0 64 0 v-38 h-22 v38 a10 10 0 0 1 -20 0 v-38z" fill="#e8423a" ${W}/><path d="M18 16 h22 v14 h-22z M60 16 h22 v14 h-22z" fill="#d9dde6" ${W} stroke-width="4"/>`,
+    share: `<circle cx="72" cy="22" r="14" fill="#3ca0ff" ${W}/><circle cx="26" cy="50" r="14" fill="#3ca0ff" ${W}/><circle cx="72" cy="78" r="14" fill="#3ca0ff" ${W}/><path d="M38 44 L60 28 M38 56 L60 72" stroke="#fff" stroke-width="8" stroke-linecap="round"/>`,
     target: `<circle cx="50" cy="50" r="40" fill="#fff" ${W}/><circle cx="50" cy="50" r="28" fill="#e8423a" ${W} stroke-width="3"/><circle cx="50" cy="50" r="15" fill="#fff" ${W} stroke-width="3"/><circle cx="50" cy="50" r="6" fill="#e8423a"/>`,
     snowflake: `<g ${W} stroke-width="9"><path d="M50 8 V92 M14 29 L86 71 M14 71 L86 29"/></g><g stroke="#bfe8ff" stroke-width="4" stroke-linecap="round"><path d="M50 8 V92 M14 29 L86 71 M14 71 L86 29"/></g>`,
     list: `${G('gq1', '#fff4d6', '#e9d3a3')}<rect x="16" y="12" width="68" height="80" rx="8" fill="url(#gq1)" ${W}/><rect x="34" y="6" width="32" height="14" rx="5" fill="#a0522d" ${W} stroke-width="4"/><path d="M30 40 h40 M30 56 h40 M30 72 h26" stroke="${O}" stroke-width="5" stroke-linecap="round"/>`,

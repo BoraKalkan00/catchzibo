@@ -2413,3 +2413,23 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 
 /* (28 Kas) bitiş/kurtar ekranında oyun düğmeleri yukarı fırlayıp üst çubuğa biniyordu */
 .screen-chase:has(.endless-over, .save-me) .hook-btn, .screen-chase:has(.endless-over, .save-me) .sled-btn, .screen-chase:has(.endless-over, .save-me) .pause-btn { display: none !important; }
+
+/* (28 Kas) tökezleme: kenarlarda kırmızı nabız */
+.chase-field3d.stumble::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 5; box-shadow: inset 0 0 60px 10px rgba(255,40,40,.55); animation: stumblePulse 1s ease-in-out infinite; }
+@keyframes stumblePulse { 50% { opacity: .35 } }
+
+/* (28 Kas) sonsuz koşu HUD: üst şerit kalktı, oyun alanı tam ekran */
+.screen-chase.endless .chase-top { display: none; }
+.screen-chase.endless .run-hud { position: absolute; left: 14px; top: calc(10px + var(--safe-top)); z-index: 6; display: flex; flex-direction: column; align-items: flex-start; pointer-events: none; }
+.screen-chase.endless .run-hud .score-clock { all: unset; font-size: 40px; font-weight: 900; line-height: 1; color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.35), 0 0 12px rgba(0,0,0,.4); font-variant-numeric: tabular-nums; }
+.screen-chase.endless .hud-best { margin-top: 4px; font-size: 15px; font-weight: 800; color: #ffe27a; text-shadow: 0 2px 3px rgba(0,0,0,.6); }
+.screen-chase.endless .chase-gold { left: auto; right: 66px; top: calc(14px + var(--safe-top)); font-size: 20px; }
+.screen-chase.endless .pause-btn { top: calc(12px + var(--safe-top)); right: 12px; }
+.screen-chase.endless .mult-chip { top: calc(84px + var(--safe-top)); left: 14px; }
+.screen-chase.endless .power-hud { top: calc(120px + var(--safe-top)); }
+.tut-tip.stay { top: 22%; font-size: 22px; padding: 14px 20px; animation: rise .3s ease-out both, tutGlow 0.8s ease-in-out infinite; }
+@keyframes tutGlow { 50% { box-shadow: 0 6px 0 rgba(0,0,0,.3), 0 0 26px #ffe27a; } }
+.tut-tip .tut-ic { font-size: 1.6em; color: #ffe27a; }
+.chase-field3d.dying::after { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(ellipse at center, rgba(255,0,0,0) 40%, rgba(200,0,0,.55) 100%); animation: dieFlash 1.3s ease-out both; }
+@keyframes dieFlash { 0% { opacity: 0 } 15% { opacity: 1 } 100% { opacity: .6 } }
+.tut-tip { min-width: 72%; justify-content: center; }
