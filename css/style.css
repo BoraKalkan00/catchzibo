@@ -2588,3 +2588,5 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .screen-chase:has(.lvl-win) .sled-btn, .screen-chase:has(.lvl-win) .pause-btn { display: none !important; }
 .chase-field3d.gust::before { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(ellipse at center, rgba(255,255,255,.0) 20%, rgba(240,248,255,.85) 90%); animation: gustA 2.6s ease-in-out both; }
 @keyframes gustA { 0%,100% { opacity: 0 } 45%,55% { opacity: 1 } }
+.hm-event { position: relative; margin-top: 6px; display: flex; flex-direction: column; align-items: center; padding: 4px 14px; border-radius: 14px; background: linear-gradient(#c8242e, #8a1018); border: 2px solid #ffe27a; color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.3); }
+.hm-event b { font-size: 15px; } .hm-event small { font-size: 11px; font-weight: 700; opacity: .95; }

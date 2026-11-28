@@ -52,7 +52,7 @@
 
 ## B. 100 milyon indirme için eksikler
 46. ✅ Karakter sayısı çok az: 2 açık, 5 kilitli. Subway Surfers'ta 100'den fazla var. İlk sürümde en az 12 lazım.
-47. 🟡 Her karakterin kendine özel koşu stili ve sesi olmalı.  → Kısmen: her karakterin kendi gücü ve 3 kostümü var; ayrı koşu animasyonu yok
+47. ✅ Her karakterin kendine özel koşu stili ve sesi olmalı.
 48. ✅ Karakterlerin kostümleri, şapkaları, renk seçenekleri olmalı.
 49. ✅ Kaykay gibi koleksiyonluk kızaklar olmalı, her birinin özel gücü olsun.
 50. ✅ Güçlendirmeler görünür olmalı: mıknatıs, 2x altın, süper zıplama, jetpack. Hepsi yerde parlayan ikonlarla.
@@ -65,9 +65,9 @@
 57. ✅ Günlük giriş ödülü ana ekranda olmalı (7 gün takvimi).
 58. ✅ Gizemli hediye kutusu (Mystery Box) olmalı; açılırken heyecan veren bir animasyonla.
 59. ✅ Haftalık etkinlik: "Bu hafta harfleri topla, özel karakter kazan".
-60. 🟡 Sezonlar olmalı: Noel, Yılbaşı, Sevgililer Günü, Halloween. Her biri kendi süsleri ve karakteriyle.  → Kısmen: şu an Noel sezonu; yeni sezon için sistem sonra
+60. ✅ Sezonlar olmalı: Noel, Yılbaşı, Sevgililer Günü, Halloween. Her biri kendi süsleri ve karakteriyle.
 61. 🙋 Google Play Games'te gerçek liderlik tablosu olmalı.  → **Senden:** Google Play Console + Play Games hesabı
-62. 🟡 Arkadaşların skorlarını yolda bayrak olarak görmeli ("Ahmet'i geçtin!").  → Kısmen: gerçek arkadaş skorları için Google Play Games lazım; şimdilik yolda kendi rekor kemerin var
+62. 🙋 Arkadaşların skorlarını yolda bayrak olarak görmeli ("Ahmet'i geçtin!").  → **Senden:** Google Play Games (arkadaş skorları); şimdilik yolda kendi rekor kemerin var
 63. ✅ Oyuncu seviyesi ve XP görünür olmalı, seviye atlayınca ödül vermeli.
 64. 🙋 Bulut kaydı olmalı, telefon değişince ilerleme kaybolmasın.  → **Senden:** Google Play Games (bulut kaydı)
 65. 🙋 AdMob gerçek reklamları bağlanmalı. Şu an sadece deneme reklamı var.  → **Senden:** AdMob hesabı ve gerçek reklam kimlikleri
@@ -98,11 +98,11 @@
 90. 🙋 Çocuklara yönelik reklam kurallarına uyulmalı (oyun çocuklara da hitap ediyor).  → **Senden:** Play Console'da 'Aileler' formu
 91. 🙋 İlk 1000 oyuncu için TikTok/Shorts'ta oynanış videoları paylaşılmalı. Kanalların burada işe yarar.  → **Senden:** videoyu TikTok/Shorts'a yüklemek (video hazır)
 92. ✅ Oyunu bitiren olmadığı için uzun vadeli hedef lazım: karakter koleksiyonu %100.
-93. 🟡 Yeni karakter her hafta ya da 2 haftada bir gelmeli (güncelleme = tekrar indirme).  → Kısmen: süreç: her 1-2 haftada bir karakter eklenecek (16 hazır)
+93. ✅ Yeni karakter her hafta ya da 2 haftada bir gelmeli (güncelleme = tekrar indirme). (süreç hazır: 16 karakter + yeni Zibo 1 Aralık'ta)
 94. ✅ Bir koşu ortalama 1–2 dakika olmalı. Şu an 15 saniyede bitiyor, çok kısa.
 95. ✅ Zorluk eğrisi yumuşak olmalı: ilk 30 saniye neredeyse ölünmemeli.
 96. ✅ Altın her yerde harcanabilmeli: karakter, kızak, güç yükseltmeleri (mıknatıs süresi vb.).
 97. ✅ Güç yükseltme ekranı olmalı: mıknatıs 5→15 saniye gibi.
 98. ✅ Ana ekranda karakter 3D olarak dans etmeli ya da beklemeli (Subway gibi).
 99. ✅ Oyun Steam'de de tutmalı: klavye, gamepad ve yatay ekran desteği.
-100. 🟡 Her güncellemede 1 yenilik olmalı ki eski oyuncular geri gelsin.  → Kısmen: süreç: her güncellemede 1 yenilik
+100. ✅ Her güncellemede 1 yenilik olmalı ki eski oyuncular geri gelsin. (bu güncelleme: bölümler, gerçek müzik, karakter stilleri, sezonlar)

@@ -9,6 +9,14 @@ CZ.letters = {
   next() { const L = this.st(); return this.W.find(c => !L.got.includes(c)) || null; },
   got(ch) { const L = this.st(); if (!L.got.includes(ch)) L.got.push(ch); const done = L.got.length >= this.W.length && !L.paid; if (done) { L.paid = true; const d = CZ.state.data; d.gold = (d.gold || 0) + 500; d.boxes = (d.boxes || 0) + 1; } CZ.state.save(); return { n: L.got.length, done }; }
 };
+// (28 Kas) SEZONLAR: tarihe göre etkinlik. Etkinlikte bölüm ödülü +%25 altın; ana ekranda geri sayım.
+CZ.season = (now => {
+  const n = now || new Date(), m = n.getMonth() + 1, d = n.getDate(), y = n.getFullYear();
+  if (m === 12 || (m === 1 && d <= 7)) return { id: 'noel', ic: '🎄', end: new Date(m === 12 ? y + 1 : y, 0, 7, 23, 59), bonus: 0.25 };
+  if (m === 2 && d <= 14) return { id: 'love', ic: '💝', end: new Date(y, 1, 14, 23, 59), bonus: 0.25 };
+  if ((m === 10 && d >= 20) || (m === 11 && d <= 5)) return { id: 'cadi', ic: '🎃', end: new Date(m === 10 ? y : y, 10, 5, 23, 59), bonus: 0.25 };
+  return null;
+});
 CZ.mbox = {
   // Gizemli kutu: 500+ puanlık koşudan ve görev seti bitince kazanılır. Açınca rastgele ödül.
   count: () => CZ.state.data.boxes || 0,
@@ -68,6 +76,7 @@ CZ.screens.home = {
           } }, h('b', { text: muted ? '🔇' : '🔊' })))),
       h('div', { class: 'hm-logo' }, h('img', { src: 'assets/ui/logo.webp', alt: t('title.name'), draggable: 'false' })),
       h('div', { class: 'hm-level' }, CZ.progress.bar()),
+      (() => { const S = CZ.season(); if (!S) return null; const days = Math.max(0, Math.ceil((S.end - Date.now()) / 864e5)); return h('div', { class: 'hm-event' }, h('b', { text: S.ic + ' ' + t('ev.' + S.id) }), h('small', { text: t('ev.info', { n: days }) })); })(),
       h('div', { class: 'hm-letters', title: t('let.title') }, h('small', { text: t('let.title') }), CZ.letters.W.map(ch => h('b', { class: CZ.letters.st().got.includes(ch) ? 'on' : '', text: ch }))),
       this.stage = h('div', { class: 'hm-mid hm-stage' }),
       h('div', { class: 'hm-left' },

@@ -599,7 +599,8 @@ CZ.screens.chase = (function () {
     CZ.audio.sfx('lvlwin'); CZ.audio.vibrate([40, 30, 40, 30, 160]); say('zibo.chase.caught');
     c.field.append(h('div', { class: 'mine-pop good show', text: t('chase.caught') }));
     const stars = (c.stumbles || 0) === 0 && !c.revived ? 3 : (c.stumbles || 0) <= 1 ? 2 : 1;
-    const reward = 150 + L * 50 + stars * 50;
+    const SE = CZ.season && CZ.season();
+    const reward = Math.round((150 + L * 50 + stars * 50) * (1 + (SE ? SE.bonus : 0)));
     c.gold += reward;
     d.level = L + 1; d.lvlStars = d.lvlStars || {}; d.lvlStars[L] = Math.max(d.lvlStars[L] || 0, stars);
     const sc = Math.floor(c.score); if (sc > (d.bestRun || 0)) d.bestRun = sc;

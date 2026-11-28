@@ -64,6 +64,10 @@ CZ.i18n.register('tr', 'Türkçe', {
   'lvl.goal': "Zibo'yu yakala!",
   'lvl.fail': "Zibo kaçtı! Bölüm {n}",
   'lvl.retry': "Tekrar dene",
+  'ev.noel': "Noel Etkinliği",
+  'ev.love': "Sevgililer Etkinliği",
+  'ev.cadi': "Cadılar Bayramı",
+  'ev.info': "Bölüm ödülleri +%25 altın · {n} gün kaldı",
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

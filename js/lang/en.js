@@ -64,6 +64,10 @@ CZ.i18n.register('en', 'English', {
   'lvl.goal': "Catch Zibo!",
   'lvl.fail': "Zibo got away! Level {n}",
   'lvl.retry': "Try again",
+  'ev.noel': "Christmas Event",
+  'ev.love': "Valentine's Event",
+  'ev.cadi': "Halloween Event",
+  'ev.info': "Level rewards +25% gold · {n} days left",
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',
