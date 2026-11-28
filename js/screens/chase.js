@@ -48,7 +48,8 @@ CZ.screens.chase = (function () {
         pet: CZ.activePet(), perk: {}, goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
         onAct(k) { if (c && c.tut) tutAct(k); if (c && c.act && c.running && k !== 'move') c.act[k] = (c.act[k] || 0) + 1; },
         onDash(lvl) { if (!c || !c.running) return; if (c.act) c.act.sled += 1; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
-        onTap: () => { if (!E) hook(); },
+        onTap: () => hook(),   // (28 Kas) ekrana dokun = kartopu at (tek parmak)
+        onSledReady() { const d = CZ.state.data; if ((d.sledTips || 0) < 3) { d.sledTips = (d.sledTips || 0) + 1; CZ.state.save(); tutTip('tut.sled', '🛷'); } },
         onGold(n) { c.gold += n; if (c.gold >= (c.goldSay || 25)) { c.goldSay = c.gold + 40; if (!speaking()) say('zibo.chase.gold'); } c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
         onEmerald() {}, onCrate() {},
         onPower(kind) { floatText(t('run.power.' + kind), 'power', true); if (kind === 'sleigh') say('zibo.chase.sleigh'); },
@@ -196,8 +197,8 @@ CZ.screens.chase = (function () {
       c.tutCur = { o: R.tutSpawn(kind), key, ic, need };
       return;
     }
-    if (c.tutI >= TUT.length && !c.tutEnd) { c.tutEnd = true; tutTip('tut.done', '★'); }
-    if (c.tutEnd && c.alive > (c.tutAt || 0) + 4) { c.tut = false; CZ.state.data.runTut = true; CZ.state.save(); }
+    if (c.tutI >= TUT.length && !c.tutEnd) { c.tutEnd = true; c.tutAt = c.alive; tutTip('tut.throw', '●'); setTimeout(() => { if (c && c.running) tutTip('tut.done', '★'); }, 3800); }
+    if (c.tutEnd && c.alive > (c.tutAt || 0) + 8) { c.tut = false; CZ.state.data.runTut = true; CZ.state.save(); }
   }
   function tutAct(k) { if (c && c.tutCur && c.tutCur.slow && (k === c.tutCur.need)) { c.tutCur.ok = true; } }
   function endlessStep(dt) {

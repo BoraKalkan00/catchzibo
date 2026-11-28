@@ -2445,7 +2445,8 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 
 .vol-row, .vol-row span, .opt-row > span, .set-row > span { color: #3a2a1a; }
 .screen-chase.lefty .chase-field3d .hook-btn { right: auto; left: 14px; }
-.screen-chase.lefty .sled-btn { left: auto; right: 14px; }
+.screen-chase.endless .sled-btn { left: auto; right: 14px; }
+.screen-chase.endless.lefty .sled-btn { right: auto; left: 14px; }
 .settings .vol-panel { background: #fbecc9; border: 3px solid #e2c48f; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
 .settings .vol-row { color: #3a2a1a; font-size: 15px; }
 
@@ -2525,3 +2526,5 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
   animation: spdSpin .35s linear infinite; }
 @keyframes spdSpin { 50% { transform: scale(1.04); } }
 .hm-logo { width: min(72vw, 360px); margin-top: 2vh; }
+.screen-chase.endless .chase-field3d .hook-btn { display: none; }   /* (28 Kas) dokun = at; düğme yok */
+.hm-hint { font-size: 15px; font-weight: 700; }

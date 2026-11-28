@@ -7,7 +7,7 @@ CZ.i18n.register('tr', 'Türkçe', {
 
   'title.name': 'Catch Zibo!',
   'title.tag': 'Şımarık bir goblin kışı çaldı. Geri al!',
-  'home.hint': 'Kaydır: şerit değiştir · Yukarı: zıpla · Aşağı: kay',
+  'home.hint': 'Kaydır: şerit değiştir · Yukarı: zıpla · Aşağı: kay · Dokun: kartopu at',
   'run.stumble': 'Dikkat! Bir daha çarparsan yakalanırsın',
   'tut.done': "Harika! Şimdi Zibo'yu kovala, altınları topla!",
   'home.setDone': 'Görev seti bitti! Skor çarpanın arttı',
@@ -42,6 +42,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'run.newBest': 'YENİ REKOR!',
   'run.toBest': '🏆 Rekora {n}!',
   'run.almost': 'Rekoruna sadece {n} kaldı! Bir daha dene!',
+  'tut.sled': "Kızak doldu! Sol alttaki kızağa bas, hızla Zibo'ya yaklaş",
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',
@@ -1101,7 +1102,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   "tut.roll": "Aşağı kaydır: takla at, engelin altından geç",
   "tut.ramp": "Trenlere rampadan koşarak çık",
   "tut.power": "Güçleri topla: mıknatıs, x2, süper zıplama, Noel kızağı",
-  "tut.throw": "At düğmesiyle Zibo'yu vur, yakala!",
+  "tut.throw": "Ekrana dokun: Zibo'ya kartopu at, yakala!",
   "pause.title": "Durdu",
   "pause.resume": "Devam et",
   "pause.sound": "Ses",

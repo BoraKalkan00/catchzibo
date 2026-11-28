@@ -7,7 +7,7 @@ CZ.i18n.register('en', 'English', {
 
   'title.name': 'Catch Zibo!',
   'title.tag': 'A spoiled goblin stole winter. Get it back!',
-  'home.hint': 'Swipe to switch lanes · Up: jump · Down: slide',
+  'home.hint': 'Swipe: switch lanes · Up: jump · Down: slide · Tap: throw',
   'run.stumble': 'Careful! One more hit and you\'re caught',
   'tut.done': "Great! Now chase Zibo and grab the gold!",
   'home.setDone': 'Mission set done! Your multiplier went up',
@@ -42,6 +42,7 @@ CZ.i18n.register('en', 'English', {
   'run.newBest': 'NEW BEST!',
   'run.toBest': '🏆 {n} to your best!',
   'run.almost': 'Only {n} away from your best! Try again!',
+  'tut.sled': "Sled is full! Tap the sled button to dash toward Zibo",
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',
@@ -1101,7 +1102,7 @@ CZ.i18n.register('en', 'English', {
   "tut.roll": "Swipe down: roll under things",
   "tut.ramp": "Run up the ramps onto trains",
   "tut.power": "Grab power-ups: magnet, x2, super jump, Santa's sleigh",
-  "tut.throw": "Hit Zibo with the Throw button and catch him!",
+  "tut.throw": "Tap the screen: throw snowballs at Zibo and catch him!",
   "pause.title": "Paused",
   "pause.resume": "Resume",
   "pause.sound": "Sound",

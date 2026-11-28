@@ -1803,11 +1803,12 @@ CZ.runner3d = (function () {
     function drawSled() {
       sledBtn.style.setProperty('--fill', s.sled);
       sledBtn.classList.toggle('ready', s.sled >= 1 && s.dashT <= 0);
+      if (s.sled >= 1 && s.dashT <= 0 && !s.sledSaid) { s.sledSaid = true; if (opts.onSledReady) opts.onSledReady(); }   // (28 Kas) kızak dolunca bir kez haber ver
       sledBtn.classList.toggle('on', s.dashT > 0);
     }
     function dash() {
       if (!s.running || s.sled < 1 || s.dashT > 0) return;
-      s.sled = 0;
+      s.sled = 0; s.sledSaid = false;
       s.dashT = 1.1 + SLED_LVL * 0.3;
       s.invT = Math.max(s.invT, s.dashT + 0.3);
       s.magnetT = Math.max(s.magnetT, s.dashT);
