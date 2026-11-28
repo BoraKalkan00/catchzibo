@@ -70,6 +70,32 @@ canvas#c { position: relative; z-index: 2; touch-action: none; }
 .story .tx { position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 22px calc(env(safe-area-inset-bottom) + 30px); background: linear-gradient(transparent, rgba(0,0,0,.88) 30%); text-align: center; font-size: 21px; line-height: 1.3; }
 .story .tx small { display: block; margin-top: 10px; font-size: 14px; opacity: .7; }
 .fly { position: fixed; z-index: 15; width: 44px; height: 44px; border-radius: 10px; background: #bfe6ff; transition: all .8s cubic-bezier(.5,-0.3,.6,1); pointer-events: none; }
+
+.cine { position: fixed; inset: 0; z-index: 40; background: #000; overflow: hidden; }
+.cine .bg { position: absolute; inset: -4%; width: 108%; height: 108%; object-fit: cover; transition: filter 1.2s ease-in, transform 8s ease-out; transform: scale(1.12); }
+.cine .bg.go { transform: scale(1); }
+.cine .bg.frz { filter: grayscale(.85) brightness(.55) hue-rotate(185deg) saturate(2); }
+.cine .wave { position: absolute; left: 50%; top: 58%; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%,-50%); background: radial-gradient(circle, rgba(220,245,255,.95) 0%, rgba(120,200,255,.7) 40%, rgba(80,160,255,0) 70%); opacity: 0; }
+.cine .wave.on { animation: wave 1.3s ease-out forwards; }
+@keyframes wave { 0% { opacity: 1; width: 10px; height: 10px; } 100% { opacity: 0; width: 260vmax; height: 260vmax; } }
+.cine .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.cine .flash.on { animation: fls .6s ease-out; } @keyframes fls { 0% { opacity: .95; } 100% { opacity: 0; } }
+.cine .zb { position: absolute; width: 46vw; max-width: 260px; left: 27vw; bottom: 24%; opacity: 0; z-index: 2; filter: drop-shadow(0 10px 10px rgba(0,0,0,.6)); }
+.cine .zb.pop { animation: zpop .55s cubic-bezier(.2,1.6,.4,1) forwards; } @keyframes zpop { from { opacity: 0; transform: translateY(60%) scale(.3); } to { opacity: 1; transform: none; } }
+.cine .zb.cast { animation: zcast .5s ease-in-out 3 alternate; opacity: 1; } @keyframes zcast { to { transform: translateY(-14px) scale(1.06) rotate(-3deg); } }
+.cine .zb.run { opacity: 1; transition: transform 2.4s cubic-bezier(.45,0,.9,.6); transform: translate(80vw, -18vh) scale(.55); }
+.cine .kid { position: absolute; width: 19vw; max-width: 110px; bottom: 15%; opacity: 0; transition: all .4s; }
+.cine .kid.on { opacity: 1; animation: kdance .5s ease-in-out infinite alternate; } @keyframes kdance { to { transform: translateY(-10px) rotate(4deg); } }
+.cine .kid.ice { animation: none; filter: saturate(.3) brightness(1.1); }
+.cine .kid.ice::after { content: ''; }
+.cine .cube { position: absolute; border: 3px solid rgba(255,255,255,.9); border-radius: 12px; background: linear-gradient(135deg, rgba(230,248,255,.75), rgba(120,190,240,.45)); box-shadow: 0 0 20px rgba(150,220,255,.8); transform: scale(0); transition: transform .35s cubic-bezier(.2,1.6,.4,1); }
+.cine .cube.on { transform: scale(1); }
+.cine .shard { position: absolute; width: 10px; height: 18px; background: linear-gradient(#fff, #8fd4ff); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.cine .tt { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 20px calc(env(safe-area-inset-bottom) + 36px); text-align: center; font-size: 24px; line-height: 1.25; text-shadow: 0 3px 0 #000; background: linear-gradient(transparent, rgba(0,0,0,.85) 40%); opacity: 0; transition: opacity .4s; }
+.cine .tt.on { opacity: 1; }
+.cine .tt b { color: #ffe27a; font-size: 30px; display: block; }
+.cine .skip { position: absolute; z-index: 3; right: 12px; top: calc(env(safe-area-inset-top) + 12px); border: 0; border-radius: 99px; background: rgba(0,0,0,.5); color: #fff; font: 800 15px 'Baloo', sans-serif; padding: 8px 16px; }
+.cine.shake { animation: cshake .45s; } @keyframes cshake { 20% { transform: translate(-8px, 4px); } 40% { transform: translate(7px, -5px); } 60% { transform: translate(-5px, 3px); } 80% { transform: translate(3px, -2px); } }
 </style>
 </head>
 <body>
@@ -96,6 +122,7 @@ const L = TR ? {
   over: 'Yer kalmadı!', score: 'Puan', best: 'Rekor', newBest: 'YENİ REKOR!', again: 'Tekrar oyna', revive: '▶ Reklam izle, devam et', share: 'Skorunu paylaş',
   z: ['Hihihi, bunu sığdıramazsın!', 'Benim altınlarım güvende!', 'Yavaşsın!', 'Hayır! Altınlarım!', 'Dur dur, o kadar da değil!'],
   clear: 'Tahta temizlendi!', back: '‹ Ana sayfa', level: 'Seviye',
+  cine: ['Noel gecesi köy neşe içindeydi…', 'Ta ki Zibo gelene kadar!', 'Buz büyüsüyle her şeyi dondurdu!', 'Arkadaşlarını buza hapsedip altınlarla kaçtı!', 'Blokları patlat, buzları kır,<b>arkadaşlarını kurtar!</b>'], skip: 'Geç ›',
   story: ['Noel gecesi Zibo köye gizlice girdi…', 'Buz büyüsüyle bütün köyü dondurdu ve arkadaşlarını buz bloklarına hapsetti!', 'Blokları patlat, buzları kır, herkesi kurtar. Köyü yeniden süsle ve Noel\'i kurtar!'],
   tap: 'Devam etmek için dokun', play: 'Oyna', free: 'Kurtar', freed: 'kurtarıldı', win: 'SEVİYE TAMAM!', starGot: '+1 ⭐ Yıldız', next: 'Sonraki seviye', toVillage: 'Köye dön',
   lose: 'Buzlar kırılamadı!', retry: 'Tekrar dene', classic: 'Sonsuz mod', chapter: 'Bölüm', restore: 'Yap', need: '⭐ yetmiyor, seviye oyna!', saved: 'Noel kurtarıldı! Sonraki bölüm açıldı', story2: 'Hikâye',
@@ -107,6 +134,7 @@ const L = TR ? {
   over: 'No space left!', score: 'Score', best: 'Best', newBest: 'NEW BEST!', again: 'Play again', revive: '▶ Watch an ad to continue', share: 'Share score',
   z: ["Hehe, that won't fit!", 'My gold is safe!', "You're too slow!", 'No! My gold!', 'Hey, stop that!'],
   clear: 'Board cleared!', back: '‹ Home', level: 'Level',
+  cine: ['Christmas Eve, the village was full of joy…', 'Until Zibo showed up!', 'His ice spell froze everything!', 'He trapped your friends in ice and ran off with the gold!', 'Blast the blocks, break the ice,<b>save your friends!</b>'], skip: 'Skip ›',
   story: ['On Christmas Eve, Zibo sneaked into the village…', 'With an ice spell he froze the whole village and trapped your friends in ice blocks!', 'Blast the blocks, break the ice, save everyone. Decorate the village again and save Christmas!'],
   tap: 'Tap to continue', play: 'Play', free: 'Free', freed: 'freed', win: 'LEVEL COMPLETE!', starGot: '+1 ⭐ Star', next: 'Next level', toVillage: 'Back to village',
   lose: 'The ice held!', retry: 'Try again', classic: 'Endless mode', chapter: 'Chapter', restore: 'Build', need: 'Not enough ⭐, play a level!', saved: 'Christmas saved! Next chapter unlocked', story2: 'Story',
@@ -388,7 +416,33 @@ function showHome(justDid) {
     showHome(next);
   };
 }
-function story(then) {
+// (28 Kas) AÇILIŞ SİNEMASI (~11 sn): neşeli köy → Zibo fırlar → buz dalgası → arkadaşlar buzda → Zibo altınla kaçar → buz çatlar, oyun başlar
+function cinema(then) {
+  audio(); startMusic();
+  const d = document.createElement('div'); d.className = 'cine';
+  d.innerHTML = '<img class="bg" src="../assets/scenes/story_fest.webp" alt=""><div class="wave"></div>' +
+    ['girl', 'boy', 'elf', 'snowkid'].map((n, i) => '<img class="kid" data-i="' + i + '" src="../assets/chars/' + n + '_front.webp" style="left:' + (4 + i * 24) + 'vw" alt="">').join('') +
+    '<img class="zb" src="../assets/zibo/png/evil.webp" alt=""><div class="flash"></div><div class="tt"></div><button class="skip">' + L.skip + '</button>';
+  document.body.append(d);
+  const q = c => d.querySelector(c), T = [], at = (ms, f) => T.push(setTimeout(f, ms));
+  const tt = (i) => { const e = q('.tt'); e.classList.remove('on'); setTimeout(() => { e.innerHTML = L.cine[i]; e.classList.add('on'); }, 120); };
+  const shake = () => { d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake'); buzz(40); };
+  let ended = false;
+  const end = () => { if (ended) return; ended = true; T.forEach(clearTimeout); d.style.transition = 'opacity .5s'; d.style.opacity = 0; setTimeout(() => d.remove(), 500); store.set('story', 1); if (then) then(); else showHome(); };
+  q('.skip').onclick = e => { e.stopPropagation(); end(); };
+  requestAnimationFrame(() => q('.bg').classList.add('go'));
+  at(150, () => { tt(0); d.querySelectorAll('.kid').forEach((k, i) => setTimeout(() => k.classList.add('on'), i * 140)); sfx('pick', 1.3, 0.4); });
+  at(2300, () => { tt(1); const z = q('.zb'); z.classList.add('pop'); sfx('bad', 0.8, 0.8); shake(); });
+  at(3500, () => { tt(2); const z = q('.zb'); z.src = '../assets/zibo/png/taunt.webp'; z.classList.remove('pop'); z.classList.add('cast'); });
+  at(4300, () => { q('.wave').classList.add('on'); q('.flash').classList.add('on'); q('.bg').classList.add('frz'); sfx('over', 1.4, 0.9); shake();
+    d.querySelectorAll('.kid').forEach((k, i) => setTimeout(() => { k.classList.add('ice'); const r = k.getBoundingClientRect(); const c = document.createElement('div'); c.className = 'cube'; c.style.cssText = 'left:' + (r.left - 6) + 'px;top:' + (r.top - 6) + 'px;width:' + (r.width + 12) + 'px;height:' + (r.height + 12) + 'px'; d.append(c); requestAnimationFrame(() => c.classList.add('on')); sfx('place', 1.6, 0.6); }, 250 + i * 200)); });
+  at(6600, () => { tt(3); const z = q('.zb'); z.src = '../assets/zibo/png/run_loot.webp'; z.classList.remove('cast'); z.style.opacity = 1; requestAnimationFrame(() => z.classList.add('run')); sfx('pick', 0.7, 0.6); });
+  at(8800, () => { shake(); for (let k = 0; k < 26; k++) { const sh = document.createElement('i'); sh.className = 'shard'; sh.style.left = '50%'; sh.style.top = '55%'; d.append(sh); const a = Math.random() * 6.28, r = 120 + Math.random() * 260; sh.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: 'translate(' + Math.cos(a) * r + 'px,' + Math.sin(a) * r + 'px) rotate(' + (Math.random() * 720) + 'deg)', opacity: 0 }], { duration: 900, easing: 'ease-out', fill: 'forwards' }); }
+    q('.flash').classList.remove('on'); void q('.flash').offsetWidth; q('.flash').classList.add('on'); sfx('big', 1, 0.9); tt(4); });
+  at(11500, end);
+}
+function story(then) { return cinema(then); }
+function storyOld(then) {
   const imgs = ['../assets/scenes/story3.webp', '../assets/scenes/story2.webp', '../assets/scenes/story_fest.webp']; let i = 0;
   const d = document.createElement('div'); d.className = 'story'; document.body.append(d);
   const show = () => { d.innerHTML = '<img src="' + imgs[i] + '" style="' + (i === 2 ? 'filter:grayscale(.9) brightness(.6) hue-rotate(180deg)' : '') + '" alt=""><div class="tx">' + L.story[i] + '<small>' + L.tap + '</small></div>'; };
