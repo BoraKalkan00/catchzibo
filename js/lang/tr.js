@@ -7,6 +7,7 @@ CZ.i18n.register('tr', 'Türkçe', {
 
   'title.name': 'Zibo’s Raid: Tiny Keep',
   'title.tag': 'Şımarık bir goblin kışı çaldı. Geri al!',
+  'home.hint': 'Kaydır: şerit değiştir · Yukarı: zıpla · Aşağı: kay',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',
@@ -89,7 +90,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'win.record': 'Yeni rekor: {s} saniye!',
   'win.roomDone': 'Bütün oturma odası yeniden senin! Zibo küplere bindi. Mutfak açıldı!',
   'win.next': 'Sıradaki eşya',
-  'win.toVillage': 'Merkeze dön',
+  'win.toVillage': 'Ana sayfa',
   'win.toMansion': 'Malikaneye dön',
 
   'village.title': 'Köyün',

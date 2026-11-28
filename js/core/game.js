@@ -221,7 +221,7 @@ CZ.game = (function () {
     const d = CZ.state.data;
     // Yeni akış: açılır açılmaz köyde Noel gecesi hikâyesi (prolog). Karakter sonra Karakterler'den değişir.
     if (!d.avatar) { d.avatar = 'boy'; }
-    if (!d.introDone) { d.tutorialDone = true; d.storySeen = true; CZ.state.save(); return CZ.ui.wipeTo('valley'); }
+    if (!d.introDone) { d.tutorialDone = true; d.storySeen = true; CZ.state.save(); return CZ.ui.go('home'); }
     return CZ.ui.go('hub');
   }
 

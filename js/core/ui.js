@@ -98,7 +98,7 @@ CZ.ui = (function () {
 
   const GAME = ['play', 'chase'];
   function go(name, params) {
-    if (name === 'hub' || name === 'title') name = 'valley';   // (23 Kas) eski menü/başlık ekranı artık yok: her 'eve dön' köye döner
+    if (name === 'hub' || name === 'title' || name === 'valley' || name === 'village') name = 'home';   // (28 Kas) oyun = sadece koşu; eski köy kapalı   // (23 Kas) eski menü/başlık ekranı artık yok: her 'eve dön' köye döner
     params = params || {};
     const from = active && active.name;
     if (active && active.screen.leave) active.screen.leave();

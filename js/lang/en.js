@@ -7,6 +7,7 @@ CZ.i18n.register('en', 'English', {
 
   'title.name': 'Zibo’s Raid: Tiny Keep',
   'title.tag': 'A spoiled goblin stole winter. Get it back!',
+  'home.hint': 'Swipe to switch lanes · Up: jump · Down: slide',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',
@@ -89,7 +90,7 @@ CZ.i18n.register('en', 'English', {
   'win.record': 'New record: {s} seconds!',
   'win.roomDone': 'The whole living room is yours again! Zibo is furious. The kitchen just opened!',
   'win.next': 'Next item',
-  'win.toVillage': 'Back to town',
+  'win.toVillage': 'Home',
   'win.toMansion': 'Back to mansion',
 
   'village.title': 'Your Village',

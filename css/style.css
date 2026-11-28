@@ -2386,3 +2386,27 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 
 /* (26 Kas) üst çubuk dar telefonda duraklat düğmesinin altına taşıyordu */
 .vl-top .vl-time { min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; }
+
+/* (28 Kas) yeni ana ekran */
+.screen-home { position: fixed; inset: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; color: #fff; touch-action: manipulation; }
+.hm-bg, .hm-shade { position: absolute; inset: 0; }
+.hm-bg-img { width: 100%; height: 100%; object-fit: cover; }
+.hm-shade { background: linear-gradient(180deg, rgba(10,20,50,.55) 0%, rgba(10,20,50,0) 35%, rgba(10,20,50,0) 55%, rgba(10,20,50,.75) 100%); }
+.hm-top { position: relative; width: 100%; display: flex; justify-content: space-between; padding: calc(env(safe-area-inset-top) + 14px) 16px 0; box-sizing: border-box; }
+.hm-chip { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.45); border-radius: 999px; padding: 6px 14px 6px 8px; font-size: 18px; }
+.hm-chip svg, .hm-ic { width: 24px; height: 24px; }
+.hm-logo { position: relative; margin-top: 4vh; width: min(82vw, 420px); }
+.hm-logo img { width: 100%; filter: drop-shadow(0 6px 10px rgba(0,0,0,.45)); animation: hmBob 3s ease-in-out infinite; }
+@keyframes hmBob { 50% { transform: translateY(-6px) } }
+.hm-mid { flex: 1; }
+.hm-bot { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 20px calc(env(safe-area-inset-bottom) + 22px); box-sizing: border-box; }
+.hm-play { width: min(80vw, 340px); font: 900 34px/1 inherit; font-family: inherit; color: #3a2200; background: linear-gradient(#ffe066, #ffb703); border: 0; border-radius: 22px; padding: 20px 0; box-shadow: 0 6px 0 #b86e00, 0 12px 24px rgba(0,0,0,.4); animation: hmPulse 1.4s ease-in-out infinite; }
+.hm-play:active { transform: translateY(4px); box-shadow: 0 2px 0 #b86e00; }
+@keyframes hmPulse { 50% { transform: scale(1.05) } }
+.hm-hint { margin: 0; font-size: 14px; opacity: .9; text-shadow: 0 1px 3px #000; text-align: center; }
+.hm-row { display: flex; gap: 12px; }
+.hm-small { font: 800 16px/1 inherit; font-family: inherit; color: #fff; background: rgba(0,0,0,.45); border: 2px solid rgba(255,255,255,.5); border-radius: 14px; padding: 12px 18px; }
+.hm-chip > :not(b) { width: 24px !important; height: 24px !important; flex: 0 0 24px; }
+.hm-chip svg, .hm-chip img { width: 24px !important; height: 24px !important; }
+.hm-play { font-size: 34px; font-weight: 900; letter-spacing: 1px; }
+.hm-small { font-size: 16px; font-weight: 800; }
