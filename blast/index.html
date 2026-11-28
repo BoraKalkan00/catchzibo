@@ -97,6 +97,24 @@ canvas#c { position: relative; z-index: 2; touch-action: none; }
 .cine .skip { position: absolute; z-index: 3; right: 12px; top: calc(env(safe-area-inset-top) + 12px); border: 0; border-radius: 99px; background: rgba(0,0,0,.5); color: #fff; font: 800 15px 'Baloo', sans-serif; padding: 8px 16px; }
 .cine.shake { animation: cshake .45s; } @keyframes cshake { 20% { transform: translate(-8px, 4px); } 40% { transform: translate(7px, -5px); } 60% { transform: translate(-5px, 3px); } 80% { transform: translate(3px, -2px); } }
 .cine video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; background: #000; }
+
+.home.map { overflow-y: auto; display: block; }
+.home.map .htop { position: sticky; top: 0; z-index: 5; background: linear-gradient(#0d1430, rgba(13,20,48,0)); padding-bottom: 10px; }
+.path { position: relative; width: 100%; max-width: 520px; margin: 0 auto; padding-bottom: 100px; }
+.wsec { position: relative; height: 1700px; overflow: hidden; }
+.wsec .wbg { position: absolute; inset: 0; background: var(--img) center top / 100% auto repeat-y; filter: grayscale(calc(var(--frz) * .9)) brightness(calc(1 - var(--frz) * .45)) var(--tint); }
+.wsec .wbg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(150,210,255,calc(var(--frz) * .35)), rgba(10,16,48,.35)); }
+.wsec.locked .wbg { filter: grayscale(1) brightness(.35) blur(2px); }
+.whead { position: absolute; z-index: 2; top: 18px; left: 50%; transform: translateX(-50%); width: 82%; text-align: center; background: rgba(8,12,40,.78); border: 2px solid rgba(255,226,122,.7); border-radius: 18px; padding: 8px 12px; }
+.whead b { display: block; font-size: 20px; color: #ffe27a; } .whead small { font-size: 13px; } .whead p { margin: 6px 0 0; font-size: 14px; }
+.node { position: absolute; z-index: 2; width: 64px; height: 64px; margin-left: -32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; background: #5a5f7a; border: 4px solid rgba(255,255,255,.5); box-shadow: 0 6px 0 rgba(0,0,0,.35); }
+.node.done { background: linear-gradient(#ffe066, #e0a000); border-color: #fff3b0; font-size: 11px; }
+.node.cur { width: 86px; height: 86px; margin-left: -43px; font-size: 38px; background: linear-gradient(#5fd068, #2fa045); border-color: #fff; animation: pulse 1.2s ease-in-out infinite; }
+.node.cur em { position: absolute; bottom: -30px; font-style: normal; font-size: 16px; background: #fff; color: #2fa045; border-radius: 99px; padding: 1px 12px; }
+.node.boss { width: 82px; height: 82px; margin-left: -41px; background: linear-gradient(#a04ad6, #5a1a8a); }
+.node.boss.done { background: linear-gradient(#ffe066, #e0a000); }
+.node.lock { opacity: .85; }
+.goal.hurry { background: #c8242e; animation: pulse .6s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -123,6 +141,7 @@ const L = TR ? {
   over: 'Yer kalmadı!', score: 'Puan', best: 'Rekor', newBest: 'YENİ REKOR!', again: 'Tekrar oyna', revive: '▶ Reklam izle, devam et', share: 'Skorunu paylaş',
   z: ['Hihihi, bunu sığdıramazsın!', 'Benim altınlarım güvende!', 'Yavaşsın!', 'Hayır! Altınlarım!', 'Dur dur, o kadar da değil!'],
   clear: 'Tahta temizlendi!', back: '‹ Ana sayfa', level: 'Seviye',
+  gifts: 'hediye', movesLeft: 'Hamle', sec: 'sn', survive: 'dayan', boss: 'ZİBO!', gIce: 'Buzdaki {n} arkadaşını kurtar!', gGift: '{n} hediyeyi patlatarak topla!', gScore: '{m} hamlede {n} puan yap!', gSurvive: 'Zibo tahtaya blok fırlatıyor! {n} saniye dayan!', gBoss: 'ZİBO SAVAŞI! {t} saniyede {n} arkadaşını kurtar!', bossWin: 'ZİBO YENİLDİ!', newWorld: 'Yeni dünya', chest: 'Sandık!', map: 'Harita', locked: 'Kilitli', done: 'Bu seviyeyi geçtin!', w1: 'Zibo her şeyi çaldı. En dipten başlıyorsun…',
   cine: ['Noel gecesi köy neşe içindeydi…', 'Ta ki Zibo gelene kadar!', 'Buz büyüsüyle her şeyi dondurdu!', 'Arkadaşlarını buza hapsedip altınlarla kaçtı!', 'Blokları patlat, buzları kır,<b>arkadaşlarını kurtar!</b>'], skip: 'Geç ›',
   story: ['Noel gecesi Zibo köye gizlice girdi…', 'Buz büyüsüyle bütün köyü dondurdu ve arkadaşlarını buz bloklarına hapsetti!', 'Blokları patlat, buzları kır, herkesi kurtar. Köyü yeniden süsle ve Noel\'i kurtar!'],
   tap: 'Devam etmek için dokun', play: 'Oyna', free: 'Kurtar', freed: 'kurtarıldı', win: 'SEVİYE TAMAM!', starGot: '+1 ⭐ Yıldız', next: 'Sonraki seviye', toVillage: 'Köye dön',
@@ -135,6 +154,7 @@ const L = TR ? {
   over: 'No space left!', score: 'Score', best: 'Best', newBest: 'NEW BEST!', again: 'Play again', revive: '▶ Watch an ad to continue', share: 'Share score',
   z: ["Hehe, that won't fit!", 'My gold is safe!', "You're too slow!", 'No! My gold!', 'Hey, stop that!'],
   clear: 'Board cleared!', back: '‹ Home', level: 'Level',
+  gifts: 'gifts', movesLeft: 'Moves', sec: 's', survive: 'survive', boss: 'ZIBO!', gIce: 'Free your {n} friends from the ice!', gGift: 'Blast {n} gifts to collect them!', gScore: 'Score {n} points in {m} moves!', gSurvive: 'Zibo is throwing blocks! Survive {n} seconds!', gBoss: 'ZIBO BATTLE! Free {n} friends in {t} seconds!', bossWin: 'ZIBO DEFEATED!', newWorld: 'New world', chest: 'Chest!', map: 'Map', locked: 'Locked', done: 'You beat this level!', w1: 'Zibo stole everything. You start from the bottom…',
   cine: ['Christmas Eve, the village was full of joy…', 'Until Zibo showed up!', 'His ice spell froze everything!', 'He trapped your friends in ice and ran off with the gold!', 'Blast the blocks, break the ice,<b>save your friends!</b>'], skip: 'Skip ›',
   story: ['On Christmas Eve, Zibo sneaked into the village…', 'With an ice spell he froze the whole village and trapped your friends in ice blocks!', 'Blast the blocks, break the ice, save everyone. Decorate the village again and save Christmas!'],
   tap: 'Tap to continue', play: 'Play', free: 'Free', freed: 'freed', win: 'LEVEL COMPLETE!', starGot: '+1 ⭐ Star', next: 'Next level', toVillage: 'Back to village',
@@ -200,16 +220,6 @@ function newGame(m) {
   if (mode === 'level') setupLevel();
   deal(); upd(); say(L.z[0]);
 }
-function setupLevel() {
-  // seviye büyüdükçe: daha çok buzlu arkadaş, tahtada daha çok dağınık blok
-  need = Math.min(8, 2 + Math.floor((lvl - 1) / 2));
-  const junk = Math.min(22, 3 + Math.floor(lvl * 1.4));
-  const free = () => { for (let t = 0; t < 200; t++) { const x = Math.floor(Math.random() * N), y = Math.floor(Math.random() * N); if (!board[y][x]) return [x, y]; } return null; };
-  for (let k = 0; k < junk; k++) { const c = free(); if (!c) break; board[c[1]][c[0]] = { col: Math.floor(Math.random() * COLORS.length) }; }
-  for (let k = 0; k < need; k++) { const c = free(); if (!c) break; board[c[1]][c[0]] = { ice: true, who: k % FRIENDS.length }; }
-  // hazır dolu satır/sütun bırakma
-  for (let i = 0; i < N; i++) { if (board[i].every(v => v)) board[i][(i * 3) % N] = null; if (board.every(r => r[i])) board[(i * 5) % N][i] = null; }
-}
 function fits(sh, gx, gy) { return sh.every(([x, y]) => { const X = gx + x, Y = gy + y; return X >= 0 && Y >= 0 && X < N && Y < N && !board[Y][X]; }); }
 function canPlace(sh) { for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (fits(sh, x, y)) return true; return false; }
 function rnd(a) { return a[Math.floor(Math.random() * a.length)]; }
@@ -270,6 +280,7 @@ function draw(t) {
     const v = board[y][x];
     const hot = gh && (gh.rows.includes(y) || gh.cols.includes(x));
     if (v && v.ice) { iceCell(px, py, CS, v.who, hot, t); continue; }
+    if (v && v.gift) { block(px, py, CS, v.col); cx.font = Math.floor(CS * 0.62) + 'px serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('🎁', px + CS / 2, py + CS / 2 + 2); if (hot) { cx.fillStyle = 'rgba(255,255,255,' + (0.25 + 0.2 * Math.sin(t / 90)) + ')'; rr(px + 1, py + 1, CS - 2, CS - 2, CS * 0.18); cx.fill(); } continue; }
     if (v) { block(px, py, CS, hot ? tray[drag.i].col : v.col); if (hot) { cx.fillStyle = 'rgba(255,255,255,' + (0.25 + 0.2 * Math.sin(t / 90)) + ')'; rr(px + 1, py + 1, CS - 2, CS - 2, CS * 0.18); cx.fill(); } }
   }
   if (gh) tray[drag.i].sh.forEach(([x, y]) => block(BX + (gh.gx + x) * CS, BY + (gh.gy + y) * CS, CS, tray[drag.i].col, 0.45));
@@ -311,7 +322,7 @@ function up() {
 cv.addEventListener('pointerdown', down); window.addEventListener('pointermove', move, { passive: false }); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', () => { drag = null; });
 function burst(x, y, col, n) { for (let k = 0; k < n; k++) fx.push({ x, y, vx: (Math.random() - 0.5) * 9, vy: -Math.random() * 8 - 2, r: CS * (0.18 + Math.random() * 0.22), c: COLORS[col][Math.random() < 0.5 ? 0 : 1], life: 0.8 + Math.random() * 0.5 }); }
 function place(i, gh) {
-  const p = tray[i]; p.used = true; moves++;
+  const p = tray[i]; p.used = true; moves++; if (mode === 'level' && LD && LD.moves) movesLeft--;
   p.sh.forEach(([x, y]) => { board[gh.gy + y][gh.gx + x] = { col: p.col }; });
   let pts = p.sh.length; sfx('place', 0.9 + Math.random() * 0.2, 0.6); buzz(8);
   const n = gh.rows.length + gh.cols.length;
@@ -321,8 +332,8 @@ function place(i, gh) {
     gh.rows.forEach(r => { for (let x = 0; x < N; x++) cells.add(r * N + x); flashes.push({ row: r, t: 0.35 }); });
     gh.cols.forEach(c => { for (let y = 0; y < N; y++) cells.add(y * N + c); flashes.push({ col: c, t: 0.35 }); });
     let gotNow = 0;
-    cells.forEach(k => { const y = Math.floor(k / N), x = k % N; const v = board[y][x]; if (v && v.ice) { gotNow++; freeFriend(x, y, v.who); } else if (v) burst(BX + x * CS + CS / 2, BY + y * CS + CS / 2, v.col, 5); board[y][x] = null; });
-    if (gotNow) { freed += gotNow; sfx('win', 1.2, 0.5); upd(); }
+    cells.forEach(k => { const y = Math.floor(k / N), x = k % N; const v = board[y][x]; if (v && v.ice) { gotNow++; freeFriend(x, y, v.who); } else if (v && v.gift) { gotNow++; burst(BX + x * CS + CS / 2, BY + y * CS + CS / 2, 2, 14); } else if (v) burst(BX + x * CS + CS / 2, BY + y * CS + CS / 2, v.col, 5); board[y][x] = null; });
+    if (gotNow) { freed += gotNow; goalHave += gotNow; sfx('win', 1.2, 0.5); upd(); }
     const gain = 10 * n * n * combo; pts += gain;
     sfx(n >= 3 ? 'big' : combo >= 3 ? 'combo' : 'clear', 1 + Math.min(0.5, combo * 0.06), 0.8);
     shake = Math.min(1, 0.25 + n * 0.18); buzz(n >= 2 ? [20, 30, 40] : 20);
@@ -332,7 +343,7 @@ function place(i, gh) {
     if (board.every(r => r.every(v => !v))) { pts += 300; floatText(L.clear + ' +300', BY + CS * 5); sfx('win'); zibo('cry', L.z[3]); }
   } else { sinceClear++; if (sinceClear > 2) combo = 0; }
   addScore(pts);
-  if (mode === 'level' && freed >= need) { gameOn = false; setTimeout(levelWin, 900); return; }
+  if (goalCheck()) return;
   if (tray.every(q => q.used)) deal();
   if (!tray.some(q => !q.used && canPlace(q.sh))) setTimeout(gameOver, 450);
 }
@@ -345,7 +356,7 @@ function freeFriend(x, y, who) {
 }
 function addScore(n) { score += n; const el = $('sc'); el.textContent = score; el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 140); upd(); }
 function upd() {
-  const gl = $('goal'); gl.style.display = mode === 'level' ? 'flex' : 'none'; if (mode === 'level') gl.innerHTML = '<img src="' + FRIENDS[0].src + '" alt=""> <b>' + Math.min(freed, need) + ' / ' + need + '</b> ' + L.freed + ' · ' + L.level + ' ' + lvl; $('best').textContent = Math.max(best, score); $('coins').textContent = coins; $('sc').textContent = score; $('lv').textContent = score > best && best > 0 ? '🏆 ' + L.newBest : ''; }
+  const gl = $('goal'); gl.style.display = mode === 'level' ? 'flex' : 'none'; if (mode === 'level') { gl.innerHTML = goalHtml(); gl.classList.toggle('hurry', !!(LD && LD.time && tLeft <= 10)); } $('best').textContent = Math.max(best, score); $('coins').textContent = coins; $('sc').textContent = score; $('lv').textContent = score > best && best > 0 ? '🏆 ' + L.newBest : ''; }
 function floatText(t, y) { document.querySelectorAll('.float').forEach(x => x.remove()); const d = document.createElement('div'); d.className = 'float'; d.textContent = t; d.style.top = (cv.getBoundingClientRect().top + y) + 'px'; document.getElementById('app').append(d); setTimeout(() => d.remove(), 1100); }
 let sayT = 0;
 function say(t) { const s = $('say'); s.textContent = t; s.classList.add('on'); clearTimeout(sayT); sayT = setTimeout(() => s.classList.remove('on'), 2200); }
@@ -360,8 +371,8 @@ function gameOver() {
   document.body.append(m);
   const rv = m.querySelector('#rv');
   if (rv) rv.onclick = () => showAd(() => { m.remove(); revive(); });
-  m.querySelector('#ag').onclick = () => { m.remove(); newGame(); };
-  m.querySelector('#bk').onclick = () => { m.remove(); showHome(); };
+  m.querySelector('#ag').onclick = () => { m.remove(); if (mode === 'level') startLevel(); else newGame(); };
+  m.querySelector('#bk').onclick = () => { m.remove(); if (mode === 'level') showHome(); else showHome(); };
   m.querySelector('#sh').onclick = () => { const txt = (TR ? 'Zibo Blocks\'ta ' + score + ' puan yaptım! Geçebilir misin? ' : 'I scored ' + score + ' in Zibo Blocks! Can you beat me? ') + location.href; if (navigator.share) navigator.share({ text: txt }).catch(() => {}); else try { navigator.clipboard.writeText(txt); } catch (e) {} };
   upd();
 }
@@ -369,7 +380,7 @@ function revive() {
   revived = true; gameOn = true;
   // ortadaki 4x4 alanı temizle ve yeni parçalar ver
   for (let y = 2; y < 6; y++) for (let x = 2; x < 6; x++) { const v = board[y][x]; if (v) burst(BX + x * CS + CS / 2, BY + y * CS + CS / 2, v.col, 3); board[y][x] = null; }
-  shake = 0.6; deal(); sfx('win');
+  shake = 0.6; deal(); sfx('win'); if (mode === 'level' && LD) { if (LD.time) { tLeft += 20; timerOn = true; } if (LD.moves) movesLeft += 5; } upd();
 }
 // Reklam: uygulamada AdMob ödüllü reklam (CZ_ADS), web'de 3 sn'lik örnek ekran
 function showAd(done) {
@@ -377,45 +388,133 @@ function showAd(done) {
   const m = document.createElement('div'); m.className = 'modal'; m.innerHTML = '<div class="card"><p>Reklam…</p><div class="big" id="adn">3</div></div>'; document.body.append(m);
   let n = 3; const tm = setInterval(() => { n--; const e = m.querySelector('#adn'); if (e) e.textContent = n; if (n <= 0) { clearInterval(tm); m.remove(); done(); } }, 1000);
 }
+// ===== (28 Kas) YOL HARİTASI (Duolingo/Candy Crush gibi): 50 dünya × 20 seviye = 1000 seviye (~1 ay, günde 2 saat), sonra sonsuz =====
+// Hikâye: en dipten başlıyorsun (Zibo her şeyi çalmış, boş bir tavan arası). Her dünya bir yer: ev → köy → yol → Zibo'nun konağı.
+// Her dünyada ilerledikçe o dünyanın arka planı buzdan çözülüp renklenir. 20. seviye: ZİBO SAVAŞI.
+const WORLDS = [
+  ['room_attic', 'Boş Tavan Arası', 'Empty Attic'], ['room_kitchen', 'Soğuk Mutfak', 'Cold Kitchen'], ['room_living', 'Oturma Odası', 'Living Room'], ['yard', 'Karlı Avlu', 'Snowy Yard'],
+  ['story_morning', 'Köy Sabahı', 'Village Morning'], ['story1', 'Oyuncak Kamyonu', 'Toy Truck'], ['story2', 'Açık Pencere', 'Open Window'], ['story_trail', 'Kar İzleri', 'Snow Tracks'],
+  ['village_map', 'Köy Haritası', 'Village Map'], ['story_hall', 'Belediye Binası', 'Town Hall'], ['story_fest', 'Noel Pazarı', 'Christmas Market'], ['road', 'Zibo\'nun Yolu', 'Zibo\'s Road'],
+  ['story3', 'Mor Malikâne', 'Purple Mansion'], ['story4', 'Gizli Kapı', 'Secret Door'], ['room_throne', 'Taht Odası', 'Throne Room'], ['room_treasure', 'Hazine Odası', 'Treasure Room'], ['hub_bg', 'Zibo\'nun Konağı', 'Zibo\'s Manor']
+];
+const WN = 50, PER = 20;
+const TINTS = ['', 'hue-rotate(40deg) saturate(1.2)', 'hue-rotate(-40deg)', 'hue-rotate(180deg) saturate(.8)'];
+function world(w) { const k = w % WORLDS.length, round = Math.floor(w / WORLDS.length); const W = WORLDS[k]; return { img: '../assets/scenes/' + W[0] + '.webp', name: (TR ? W[1] : W[2]) + (round ? ' ' + ['', 'II', 'III', 'IV'][round] : ''), tint: TINTS[round % TINTS.length] }; }
+// seviye tanımı (her seviye için sabit: aynı seviye hep aynı kural)
+function levelDef(n) {
+  const w = Math.floor((n - 1) / PER), i = (n - 1) % PER, d = Math.min(1, w / 30), e = Math.min(1, 0.25 + (n - 1) / 40);   // d: 0 → 1 zorluk; e: ilk 30 seviye yumuşak giriş
+  const J = v => Math.round(v * e);
+  if (i === PER - 1) return { type: 'boss', ice: (w ? 3 : 2) + Math.round(d * 4), time: 60 + Math.round(d * 30), drop: Math.max(2.4, 6 - d * 3), junk: J(6 + Math.round(d * 10)) };
+  const t = i % 5;
+  if (t === 4) return { type: 'survive', time: 30 + Math.min(60, w * 3 + (i > 10 ? 15 : 0)), drop: Math.max(2.4, 6.5 - d * 3.5), junk: J(4 + Math.round(d * 8)) };
+  if (t === 2) return { type: 'score', target: 100 + w * 45 + i * 6, moves: 20 + Math.round(d * 4), junk: J(4 + Math.round(d * 10)) };
+  if (t === 3) return { type: 'gift', gifts: 3 + Math.min(6, Math.floor(w / 3)), junk: J(5 + Math.round(d * 12)) };
+  return { type: 'ice', ice: Math.min(9, 2 + Math.floor(w / 2) + (i > 10 ? 1 : 0)), junk: J(Math.min(24, 3 + Math.round(w * 1.2 + i * 0.3))) };
+}
+let LD = null, goalN = 0, goalHave = 0, tLeft = 0, dropT = 0, movesLeft = 0, timerOn = false;
+function setupLevel() {
+  LD = levelDef(lvl); goalHave = 0; timerOn = false;
+  const free = () => { for (let t = 0; t < 300; t++) { const x = Math.floor(Math.random() * N), y = Math.floor(Math.random() * N); if (!board[y][x]) return [x, y]; } return null; };
+  for (let k = 0; k < (LD.junk || 0); k++) { const c = free(); if (!c) break; board[c[1]][c[0]] = { col: Math.floor(Math.random() * COLORS.length) }; }
+  const nIce = LD.ice || 0, nGift = LD.gifts || 0;
+  for (let k = 0; k < nIce; k++) { const c = free(); if (c) board[c[1]][c[0]] = { ice: true, who: k % FRIENDS.length }; }
+  for (let k = 0; k < nGift; k++) { const c = free(); if (c) board[c[1]][c[0]] = { gift: true, col: k % COLORS.length }; }
+  for (let i = 0; i < N; i++) { if (board[i].every(v => v)) board[i][(i * 3) % N] = null; if (board.every(r => r[i])) board[(i * 5) % N][i] = null; }
+  goalN = LD.type === 'score' ? LD.target : LD.type === 'gift' ? nGift : LD.type === 'survive' ? LD.time : nIce;
+  movesLeft = LD.moves || 0; tLeft = LD.time || 0; dropT = LD.drop || 0;
+  need = goalN; freed = 0;
+  if (LD.time) { timerOn = true; }
+  // arka plan: dünyanın resmi, karartılmış
+  const W = world(Math.floor((lvl - 1) / PER));
+  $('app').style.background = 'linear-gradient(rgba(10,16,48,.45), rgba(10,16,48,.8)), url(' + W.img + ') center/cover';
+  $('app').style.filter = '';
+}
+// her saniye: zamanlı seviyede süre azalır, Zibo tahtaya blok fırlatır
+setInterval(() => {
+  if (!gameOn || mode !== 'level' || !timerOn || document.querySelector('.modal')) return;
+  tLeft -= 1; dropT -= 1;
+  if (LD.drop && dropT <= 0) { dropT = LD.drop; ziboDrop(); }
+  if (tLeft <= 0) { tLeft = 0; if (LD.type === 'survive' || (LD.type === 'boss' && goalHave >= (LD.ice || 0))) { gameOn = false; setTimeout(levelWin, 500); } else if (LD.type === 'boss') { gameOn = false; setTimeout(gameOver, 300); } }
+  if (tLeft <= 5 && tLeft > 0) sfx('pick', 1.6, 0.4);
+  upd();
+}, 1000);
+function ziboDrop() {
+  const empty = []; for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!board[y][x]) empty.push([x, y]);
+  if (!empty.length) return;
+  const [x, y] = rnd(empty); board[y][x] = { col: Math.floor(Math.random() * COLORS.length), junk: true };
+  burst(BX + x * CS + CS / 2, BY + y * CS + CS / 2, 6, 6); shake = 0.25; sfx('bad', 0.7, 0.35); zibo('throw', null);
+  if (!tray.some(q => !q.used && canPlace(q.sh))) setTimeout(gameOver, 300);
+}
+function goalCheck() {
+  if (mode !== 'level' || !gameOn) return false;
+  let won = false;
+  if (LD.type === 'ice' || LD.type === 'gift') won = goalHave >= goalN;
+  if (LD.type === 'score') won = score >= goalN;
+  if (LD.type === 'boss' && goalHave >= (LD.ice || 0)) won = true;
+  if (won) { gameOn = false; setTimeout(levelWin, 900); return true; }
+  if (LD.type === 'score' && movesLeft <= 0) { setTimeout(gameOver, 500); return true; }
+  return false;
+}
+function goalHtml() {
+  if (!LD) return '';
+  const lv = L.level + ' ' + lvl;
+  if (LD.type === 'ice') return '<img src="' + FRIENDS[0].src + '" alt=""> <b>' + Math.min(goalHave, goalN) + '/' + goalN + '</b> ' + L.freed + ' · ' + lv;
+  if (LD.type === 'gift') return '🎁 <b>' + Math.min(goalHave, goalN) + '/' + goalN + '</b> ' + L.gifts + ' · ' + lv;
+  if (LD.type === 'score') return '🎯 <b>' + Math.min(score, goalN) + '/' + goalN + '</b> · ' + L.movesLeft + ' <b>' + movesLeft + '</b>';
+  if (LD.type === 'survive') return '⏱ <b>' + tLeft + ' ' + L.sec + '</b> ' + L.survive + ' · ' + lv;
+  return '👹 <b>' + Math.min(goalHave, LD.ice) + '/' + LD.ice + '</b> ' + L.freed + ' · ⏱ <b>' + tLeft + '</b> · ' + L.boss;
+}
+function goalIntro() {
+  const t = LD.type, m = document.createElement('div'); m.className = 'modal';
+  const txt = t === 'ice' ? L.gIce.replace('{n}', goalN) : t === 'gift' ? L.gGift.replace('{n}', goalN) : t === 'score' ? L.gScore.replace('{n}', goalN).replace('{m}', LD.moves) : t === 'survive' ? L.gSurvive.replace('{n}', LD.time) : L.gBoss.replace('{n}', LD.ice).replace('{t}', LD.time);
+  const ic = t === 'ice' ? '🧊' : t === 'gift' ? '🎁' : t === 'score' ? '🎯' : t === 'survive' ? '⏱' : '👹';
+  m.innerHTML = '<div class="card"><p style="font-size:15px;color:#8a6a4a;margin:0">' + world(Math.floor((lvl - 1) / PER)).name + '</p><h2>' + L.level + ' ' + lvl + '</h2><div style="font-size:64px;line-height:1.2">' + ic + '</div><p style="font-size:20px">' + txt + '</p><button class="b g" id="go">' + L.play + '</button></div>';
+  document.body.append(m); timerOn = false;
+  m.querySelector('#go').onclick = () => { m.remove(); if (LD.time) timerOn = true; sfx('pick'); };
+}
 function levelWin() {
   sfx('big', 1, 0.8); buzz([30, 30, 30, 30, 120]); zibo('cry', L.z[3]);
-  lvl++; stars++; store.set('lvl', lvl); store.set('stars', stars); coins += 10; store.set('coins', coins);
+  const st = revived ? 1 : LD.type === 'score' ? (movesLeft >= 5 ? 3 : movesLeft >= 2 ? 2 : 1) : (combo >= 2 || score > goalN * 40 ? 3 : 2);
+  const sl = store.get('lvst', {}); sl[lvl] = Math.max(sl[lvl] || 0, st); store.set('lvst', sl);
+  const isChest = lvl % 5 === 0, gain = (isChest ? 50 : 10) + (LD.type === 'boss' ? 100 : 0);
+  coins += gain; store.set('coins', coins);
+  const wasBoss = LD.type === 'boss';
+  lvl++; store.set('lvl', lvl);
   const m = document.createElement('div'); m.className = 'modal';
-  m.innerHTML = '<div class="card"><h2>' + L.win + '</h2><p style="font-size:30px;margin:10px 0">' + L.starGot + '</p><p>' + need + ' ' + L.freed + ' 🧊 · +10 🪙</p>' +
-    '<button class="b g" id="hv">' + L.toVillage + ' (⭐ ' + stars + ')</button><button class="b" id="nx">' + L.next + ' ›</button></div>';
+  m.innerHTML = '<div class="card"><h2>' + (wasBoss ? L.bossWin : L.win) + '</h2><div style="font-size:44px;margin:6px 0">' + '⭐'.repeat(st) + '<span style="opacity:.25">' + '⭐'.repeat(3 - st) + '</span></div><p>+' + gain + ' 🪙' + (isChest ? ' · ' + L.chest : '') + '</p>' +
+    (wasBoss ? '<p style="font-size:18px">🎉 ' + L.newWorld + ': <b>' + world(Math.floor((lvl - 1) / PER)).name + '</b></p>' : '') +
+    '<button class="b" id="nx">' + L.next + ' ›</button><button class="b s" id="hv">' + L.map + '</button></div>';
   document.body.append(m);
-  m.querySelector('#hv').onclick = () => { m.remove(); showHome(); };
-  m.querySelector('#nx').onclick = () => { m.remove(); newGame('level'); };
+  m.querySelector('#hv').onclick = () => { m.remove(); showHome(true); };
+  m.querySelector('#nx').onclick = () => { m.remove(); startLevel(); };
 }
-function partsHtml(c) {
-  const P = PARTS[c], d = done.filter(k => k[0] === c).map(k => k[1]);
-  return d.map(i => '<img class="part" data-i="' + i + '" src="' + SCENES[c] + '" style="clip-path: inset(' + P[i].map(v => v + '%').join(' ') + ')" alt="">').join('');
-}
-function showHome(justDid) {
+function startLevel() { newGame('level'); goalIntro(); }
+// ---- HARİTA ----
+function showHome(anim) {
   const old = document.querySelector('.home'); if (old) old.remove();
-  const c = Math.min(chap, SCENES.length - 1), names = L.chaps[c], cnt = done.filter(k => k[0] === c).length, next = cnt < 10 ? cnt : -1;
-  const h = document.createElement('div'); h.className = 'home';
-  const allDone = cnt >= 10;
-  h.innerHTML = '<div class="scene"><img class="' + (allDone ? '' : 'frozen') + '" src="' + SCENES[c] + '" alt="">' + (allDone ? '' : '<div class="ice"></div>') + '<img class="part" src="' + SCENES[c] + '" style="clip-path: inset(0 0 100% 0)" alt="">' + partsHtml(c) +
-    '<div class="htop"><div class="chip">⭐ ' + stars + '</div><div class="chip">🪙 ' + coins + '</div><button class="btn-ic" id="snd2">' + (muted ? '🔇' : '🔊') + '</button></div>' +
-    '<div class="chap"><b>' + L.chapter + ' ' + (c + 1) + ': ' + names[0] + '</b><small>' + cnt + ' / 10</small><div class="bar"><i style="width:' + cnt * 10 + '%"></i></div></div>' +
-    (next >= 0 ? '<div class="task' + (stars >= COST[next] ? ' glow' : '') + '"><span>' + names[1][next] + '<small>' + L.story2 + ': ' + (next + 1) + '/10</small></span><button id="dt" class="' + (stars >= COST[next] ? '' : 'no') + '">' + L.restore + ' ⭐' + COST[next] + '</button></div>' : '') +
-    '</div><div class="hbot"><button class="play" id="pl">' + L.play + '<small>' + L.level + ' ' + lvl + '</small></button><div class="row2"><button id="cl">♾ ' + L.classic + '</button><button id="st">📖 ' + L.story2 + '</button><button id="bk2">‹ Catch Zibo!</button></div></div>';
-  document.body.append(h);
-  if (justDid != null) { const im = h.querySelector('.part[data-i="' + justDid + '"]'); if (im) im.classList.add('new'); }
-  h.querySelector('#pl').onclick = () => { audio(); startMusic(); h.remove(); newGame('level'); };
-  h.querySelector('#cl').onclick = () => { audio(); startMusic(); h.remove(); newGame('classic'); };
+  const cur = lvl, cw = Math.floor((cur - 1) / PER), sl = store.get('lvst', {});
+  const h = document.createElement('div'); h.className = 'home map';
+  let html = '<div class="htop"><div class="chip">⭐ ' + Object.values(sl).reduce((a, b) => a + b, 0) + '</div><div class="chip">🪙 ' + coins + '</div><button class="btn-ic" id="snd2">' + (muted ? '🔇' : '🔊') + '</button></div><div class="path">';
+  const from = Math.max(0, cw - 1), to = Math.min(WN - 1, cw + 1);
+  for (let w = to; w >= from; w--) {
+    const W = world(w), done = Math.max(0, Math.min(PER, cur - 1 - w * PER)), k = done / PER, locked = w > cw;
+    html += '<section class="wsec' + (locked ? ' locked' : '') + '" style="--img:url(' + W.img + ');--frz:' + (1 - k).toFixed(2) + ';--tint:' + (W.tint || 'none') + '"><div class="wbg"></div><div class="whead"><b>' + (w + 1) + '. ' + W.name + '</b><small>' + (locked ? '🔒 ' + L.locked : done + ' / ' + PER) + '</small><div class="bar"><i style="width:' + k * 100 + '%"></i></div>' + (w === 0 && cw === 0 ? '<p>' + L.w1 + '</p>' : '') + '</div>';
+    for (let i = PER - 1; i >= 0; i--) {
+      const n = w * PER + i + 1, x = 50 + Math.sin(i * 0.9) * 28, D = levelDef(n);
+      const cls = n < cur ? 'done' : n === cur ? 'cur' : 'lock';
+      const ic = D.type === 'boss' ? '👹' : n % 5 === 0 ? '🎁' : D.type === 'survive' ? '⏱' : D.type === 'score' ? '🎯' : D.type === 'gift' ? '🎁' : '🧊';
+      html += '<div class="node ' + cls + (D.type === 'boss' ? ' boss' : '') + '" data-n="' + n + '" style="left:' + x + '%;top:' + (170 + (PER - 1 - i) * 76) + 'px"><span>' + (n === cur ? ic : n < cur ? '⭐'.repeat(sl[n] || 1) : n) + '</span>' + (n === cur ? '<em>' + L.play + '</em>' : '') + '</div>';
+    }
+    html += '</section>';
+  }
+  html += '</div><div class="hbot"><div class="row2"><button id="cl">♾ ' + L.classic + '</button><button id="st">📖 ' + L.story2 + '</button><button id="bk2">‹ Catch Zibo!</button></div></div>';
+  h.innerHTML = html; document.body.append(h);
+  const node = h.querySelector('.node.cur'); if (node) { node.scrollIntoView({ block: 'center' }); node.onclick = () => { audio(); startMusic(); h.remove(); startLevel(); }; }
+  h.querySelectorAll('.node.done').forEach(nd => nd.onclick = () => say(L.done));
+  h.querySelector('#cl').onclick = () => { audio(); startMusic(); h.remove(); $('app').style.background = ''; newGame('classic'); };
   h.querySelector('#st').onclick = () => story();
   h.querySelector('#bk2').onclick = () => { location.href = '../'; };
   h.querySelector('#snd2').onclick = () => { $('snd').click(); showHome(); };
-  const dt = h.querySelector('#dt');
-  if (dt) dt.onclick = () => {
-    audio();
-    if (stars < COST[next]) { sfx('bad'); return say(L.need); }
-    stars -= COST[next]; store.set('stars', stars); done.push([c, next]); store.set('done', done); sfx('win'); buzz([20, 30, 60]);
-    if (done.filter(k => k[0] === c).length >= 10) { setTimeout(() => { sfx('big'); const m = document.createElement('div'); m.className = 'modal'; m.innerHTML = '<div class="card"><img src="../assets/zibo/png/tantrum.webp" alt=""><h2>🎄 ' + L.saved + '</h2><button class="b" id="ok">' + L.play + '</button></div>'; document.body.append(m); m.querySelector('#ok').onclick = () => { m.remove(); if (chap < SCENES.length - 1) { chap++; store.set('chap', chap); } showHome(); }; }, 1800); }
-    showHome(next);
-  };
 }
 // (28 Kas) AÇILIŞ SİNEMASI (~11 sn): neşeli köy → Zibo fırlar → buz dalgası → arkadaşlar buzda → Zibo altınla kaçar → buz çatlar, oyun başlar
 function cinema(then) {
@@ -471,8 +570,8 @@ function storyOld(then) {
 const sn = $('snow'), sx = sn.getContext('2d'); let flakes = [];
 function snowLoop() { const w = sn.width = innerWidth, h = sn.height = innerHeight; if (!flakes.length) flakes = Array.from({ length: 60 }, () => ({ x: Math.random() * w, y: Math.random() * h, r: 1 + Math.random() * 2.5, v: 0.3 + Math.random() * 0.8 })); sx.fillStyle = 'rgba(255,255,255,.7)'; flakes.forEach(f => { f.y += f.v; f.x += Math.sin(f.y / 40) * 0.3; if (f.y > h) { f.y = -5; f.x = Math.random() * w; } sx.beginPath(); sx.arc(f.x, f.y, f.r, 0, 7); sx.fill(); }); requestAnimationFrame(snowLoop); }
 window.addEventListener('resize', layout);
-window.ZB = { showHome, newGame, get freed() { return freed; }, get need() { return need; }, get board() { return board; }, get tray() { return tray; }, place, calc, fits, canPlace, get score() { return score; } };
-setTimeout(() => { layout(); newGame('level'); requestAnimationFrame(loop); snowLoop(); if (!store.get('story', 0)) story(); else showHome(); }, 30);
+window.ZB = { showHome, newGame, startLevel, levelDef, get LD() { return LD; }, get goalHave() { return goalHave; }, setLvl(n) { lvl = n; store.set('lvl', n); }, get freed() { return freed; }, get need() { return need; }, get board() { return board; }, get tray() { return tray; }, place, calc, fits, canPlace, get score() { return score; } };
+setTimeout(() => { layout(); LD = levelDef(lvl); newGame('classic'); requestAnimationFrame(loop); snowLoop(); if (!store.get('story', 0)) story(); else showHome(); }, 30);
 </script>
 </body>
 </html>
