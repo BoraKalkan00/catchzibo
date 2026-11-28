@@ -507,13 +507,13 @@ function showHome(anim) {
     }
     html += '</section>';
   }
-  html += '</div><div class="hbot"><div class="row2"><button id="cl">♾ ' + L.classic + '</button><button id="st">📖 ' + L.story2 + '</button><button id="bk2">‹ Catch Zibo!</button></div></div>';
+  html += '</div><div class="hbot"><div class="row2"><button id="cl">♾ ' + L.classic + '</button><button id="st">📖 ' + L.story2 + '</button>' + (window.ZB_APP ? '' : '<button id="bk2">‹ Catch Zibo!</button>') + '</div></div>';
   h.innerHTML = html; document.body.append(h);
   const node = h.querySelector('.node.cur'); if (node) { node.scrollIntoView({ block: 'center' }); node.onclick = () => { audio(); startMusic(); h.remove(); startLevel(); }; }
   h.querySelectorAll('.node.done').forEach(nd => nd.onclick = () => say(L.done));
   h.querySelector('#cl').onclick = () => { audio(); startMusic(); h.remove(); $('app').style.background = ''; newGame('classic'); };
   h.querySelector('#st').onclick = () => story();
-  h.querySelector('#bk2').onclick = () => { location.href = '../'; };
+  const bk2 = h.querySelector('#bk2'); if (bk2) bk2.onclick = () => { location.href = '../'; };
   h.querySelector('#snd2').onclick = () => { $('snd').click(); showHome(); };
 }
 // (28 Kas) AÇILIŞ SİNEMASI (~11 sn): neşeli köy → Zibo fırlar → buz dalgası → arkadaşlar buzda → Zibo altınla kaçar → buz çatlar, oyun başlar

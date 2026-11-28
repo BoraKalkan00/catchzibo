@@ -1,0 +1,13 @@
+{
+  "name": "ziboblocks-app",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Zibo Blocks Android uygulaması (Capacitor). Oyun blast/ klasöründe; bu klasör onu uygulamaya sarar.",
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor-community/admob": "^6.0.0",
+    "@capacitor/share": "^6.0.0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "appId": "com.catchzibo.blocks",
+  "appName": "Zibo Blocks",
+  "webDir": "www",
+  "android": { "backgroundColor": "#141d48" },
+  "server": { "androidScheme": "https" }
+}

@@ -1,0 +1,72 @@
+# Zibo Blocks APK'sı (ayrı uygulama). İndirme linki:
+#   https://github.com/BoraKalkan00/catchzibo/releases/download/blocks-build/ziboblocks.apk
+name: Zibo Blocks APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['blast/**', 'app_blocks/**', 'assets/sfx/**', 'assets/music/**', 'assets/video/**', '.github/workflows/android_blocks.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app_blocks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+
+      - name: Oyunu uygulamaya kopyala (yalnız gereken dosyalar)
+        run: |
+          mkdir -p www/assets
+          sed -e 's#\.\./assets/#assets/#g' -e 's#<script>#<script>window.ZB_APP = true;#' ../blast/index.html > www/index.html
+          mkdir -p www/assets/zibo/png www/assets/chars www/assets/scenes www/assets/fonts www/assets/sfx www/assets/music www/assets/video
+          cp ../assets/zibo/png/*.webp www/assets/zibo/png/
+          cp ../assets/chars/*_front.webp www/assets/chars/
+          cp ../assets/scenes/*.webp www/assets/scenes/
+          cp ../assets/fonts/baloo2-800.woff www/assets/fonts/
+          cp ../assets/sfx/*.ogg www/assets/sfx/
+          cp ../assets/music/menu.ogg www/assets/music/
+          cp ../assets/video/intro.mp4 www/assets/video/
+          du -sh www
+
+      - name: Capacitor kur ve Android projesini oluştur
+        run: |
+          npm install
+          npx cap add android
+          npx cap sync android
+
+      - name: Dikey ekran, sürüm, ikon
+        run: |
+          sed -i 's/<activity/<activity android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
+          APPID=$(grep -o "appId: '[^']*'" ../js/core/ads.js | head -1 | cut -d"'" -f2)
+          sed -i "s#</application>#<meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"$APPID\"/></application>#" android/app/src/main/AndroidManifest.xml
+          sed -i "s/versionCode 1/versionCode ${GITHUB_RUN_NUMBER}/" android/app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"0.1.${GITHUB_RUN_NUMBER}\"/" android/app/build.gradle
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            rm -f android/app/src/main/res/mipmap-$d/ic_launcher*
+            cp icons/$d.png android/app/src/main/res/mipmap-$d/ic_launcher.png
+            cp icons/$d.png android/app/src/main/res/mipmap-$d/ic_launcher_round.png
+          done
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
+
+      - name: APK derle
+        run: |
+          cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../../ziboblocks.apk
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: blocks-build
+          name: Zibo Blocks test sürümü
+          body: Zibo Blocks — telefona kurulacak en yeni test sürümü.
+          files: ziboblocks.apk
+          make_latest: false
