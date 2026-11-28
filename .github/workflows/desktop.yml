@@ -23,7 +23,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p game
-          rsync -a ../ game/ --exclude .git --exclude .github --exclude app --exclude desktop --exclude cizim --exclude store --exclude tools --exclude '*.md' --exclude assets/3d/gen --exclude assets/3d/kh --exclude assets/house --exclude assets/map --exclude assets/usta || (cd .. && tar --exclude=.git --exclude=.github --exclude=app --exclude=desktop --exclude=cizim --exclude=store --exclude=tools -cf - . | (cd desktop/game && tar -xf -))
+          rsync -a ../ game/ --exclude .git --exclude .github --exclude app --exclude desktop --exclude cizim --exclude store --exclude tools --exclude '*.md' --exclude assets/3d/gen --exclude assets/house --exclude assets/map --exclude assets/usta || (cd .. && tar --exclude=.git --exclude=.github --exclude=app --exclude=desktop --exclude=cizim --exclude=store --exclude=tools -cf - . | (cd desktop/game && tar -xf -))
       - run: npm install --no-audit --no-fund
       - run: npx electron-builder --win dir --x64 --publish never
       - name: Zip

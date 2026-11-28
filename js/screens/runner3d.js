@@ -208,6 +208,17 @@ CZ.runner3d = (function () {
     const sun = new THREE.DirectionalLight(0xffe2b8, 0.75);
     sun.position.set(3, 8, 4);
     scene.add(sun);
+    // (28 Kas) GERÇEK GÖLGELER (yüksek grafikte): karakterler, Zibo ve engeller yola gölge düşürür
+    const SHADOWS = CZ.style.gfx() === 'hi';
+    const LH = SHADOWS ? 0.62 : 0.95, LS = SHADOWS ? 1.35 : 0.75;
+    hemi.intensity = LH; sun.intensity = LS;
+    if (SHADOWS) {
+      renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
+      const sc2 = sun.shadow.camera; sc2.left = -7; sc2.right = 7; sc2.top = 14; sc2.bottom = -14; sc2.near = 1; sc2.far = 40; sun.shadow.bias = -0.0015;
+      sun.position.set(4, 12, 2); sun.target.position.set(0, 0, -8); scene.add(sun.target);
+    }
+    const shadowOn = o => { if (SHADOWS) o.traverse(m => { if (m.isMesh || m.isSkinnedMesh) m.castShadow = true; }); };
 
     // Malzemeler (paylaşılır)
     const M = {
@@ -277,6 +288,7 @@ CZ.runner3d = (function () {
     const roadW = LANES * LANE_W + 0.5;
     const road = mesh(GEO.plane, M.road, roadW, 200, 1, 0, 0, -90);
     road.rotation.x = -Math.PI / 2;
+    road.receiveShadow = true;
     scene.add(road);
     const laneLine = new THREE.MeshBasicMaterial({ color: 0xc9d4ff, transparent: true, opacity: 0.22 });
     for (let i = 1; i < LANES; i++) {
@@ -286,6 +298,7 @@ CZ.runner3d = (function () {
     }
     [-1, 1].forEach(side => {
       const walk = mesh(GEO.plane, M.snow, 30, 200, 1, side * (roadW / 2 + 15), 0.12, -90);
+      walk.receiveShadow = true;
       walk.rotation.x = -Math.PI / 2;
       scene.add(walk);
       scene.add(mesh(GEO.box, M.curb, 0.35, 0.22, 200, side * (roadW / 2 + 0.1), 0.08, -90));
@@ -404,9 +417,67 @@ CZ.runner3d = (function () {
       return g;
     }
     const deco = [];
+    // (28 Kas) GERÇEK MODELLER: KayKit (CC0) evler, ağaçlar, kayalar — tek parça şeritlere birleştirilir (2 çizim/yan), karla kaplanır
+    const KH = CZ.KH && CZ.KH.has && CZ.KH.has('building_home_A_blue');
+    const snowMatCache = {};
+    function snowy(m) {
+      if (snowMatCache[m.uuid]) return snowMatCache[m.uuid];
+      const c = m.clone(); const prevK = c.customProgramCacheKey ? c.customProgramCacheKey() : '', prevC = c.onBeforeCompile;
+      c.customProgramCacheKey = () => 'rsnow' + prevK;
+      c.onBeforeCompile = (sh, r) => { if (prevC) prevC(sh, r);
+        sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vSnN;').replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nvSnN = normalize(mat3(modelMatrix) * objectNormal);');
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vSnN;').replace('#include <map_fragment>', '#include <map_fragment>\n{ float snY = normalize(vSnN).y; float snK = smoothstep(0.55, 0.9, snY) * 0.9; diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.95, 0.97, 1.0), clamp(snK, 0.0, 0.9)); }'); };
+      return (snowMatCache[m.uuid] = c);
+    }
+    function khMat(name) { let m = null; const o = CZ.KH.get(name, 1); o.traverse(x => { if (x.isMesh && !m) m = x.material; }); return snowy(m); }
+    // items: [{n: model, w: genişlik/yükseklik, h: yüksekliğe göre mi, x, z, r: dönüş}]
+    function khStrip(items) {
+      const byMat = {};
+      items.forEach(it => {
+        const g = CZ.KH.geo(THREE, it.n, it.w, it.h); if (!g) return;
+        const m4 = new THREE.Matrix4().compose(new THREE.Vector3(it.x, it.y || 0, it.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), it.r || 0), new THREE.Vector3(1, 1, 1));
+        g.applyMatrix4(m4);
+        const key = CZ.KH.NAT.has(it.n) ? 'nat' : 'bld';
+        (byMat[key] = byMat[key] || { mat: khMat(it.n), list: [] }).list.push(g);
+      });
+      const grp = new THREE.Group();
+      Object.values(byMat).forEach(({ mat, list }) => {
+        let n = 0; list.forEach(g => { n += g.attributes.position.count; });
+        const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3), uv = new Float32Array(n * 2); let o2 = 0;
+        list.forEach(g => { pos.set(g.attributes.position.array, o2 * 3); if (g.attributes.normal) nor.set(g.attributes.normal.array, o2 * 3); if (g.attributes.uv) uv.set(g.attributes.uv.array, o2 * 2); o2 += g.attributes.position.count; g.dispose(); });
+        const G = new THREE.BufferGeometry(); G.setAttribute('position', new THREE.BufferAttribute(pos, 3)); G.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); G.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); G.computeBoundingSphere();
+        const mm = new THREE.Mesh(G, mat); mm.castShadow = false; mm.receiveShadow = true; mm.frustumCulled = false; grp.add(mm);
+      });
+      grp.userData.strip = true;
+      return grp;
+    }
+    function stripPair(zone, build) {   // 118 birimlik iki kopya: biri bitince 236 geri atlar
+      [0, -118].forEach(off => { const g = khStrip(build()); g.position.z = off; g.userData.zone = zone; if (zone) g.visible = false; scene.add(g); deco.push(g); });
+    }
+    const edge = side => side * (roadW / 2 + 0.4);
+    if (KH) {
+      const HOUSES = ['building_home_A_blue', 'building_home_B_blue', 'building_home_A_blue', 'building_tavern_blue', 'building_home_B_blue', 'building_market_blue', 'building_well_blue', 'building_church_blue', 'building_blacksmith_blue'];
+      stripPair(0, () => { const it = []; [-1, 1].forEach(side => {
+        for (let z = 6; z > -112;) { const n = pick(HOUSES), w = n.includes('church') ? 7 : n.includes('well') ? 2.4 : rand(5.2, 6.2); it.push({ n, w, x: side * (roadW / 2 + 1.6 + w / 2 + rand(0, 0.6)), z: z - w / 2, r: side > 0 ? -Math.PI / 2 : Math.PI / 2 }); if (Math.random() < 0.5) it.push({ n: pick(['barrel', 'crate_A_small', 'sack', 'wheelbarrow']), w: rand(0.7, 1), x: edge(side) + side * 0.6, z: z - w - 0.3, r: rand(0, 6) }); z -= w + rand(0.4, 1.4); }
+        for (let z = 0; z > -112; z -= rand(12, 20)) it.push({ n: pick(['tree_single_A', 'tree_single_B']), w: rand(2.6, 3.4), h: true, x: side * (roadW / 2 + 1.1), z });
+      }); return it; });
+      stripPair(1, () => { const it = []; [-1, 1].forEach(side => {
+        for (let z = 6; z > -112; z -= rand(2.6, 4)) { const w = rand(3, 5); it.push({ n: pick(['trees_A_medium', 'trees_B_medium', 'tree_single_A', 'tree_single_B', 'trees_A_large']), w, h: true, x: side * (roadW / 2 + 1.2 + w * 0.45 + rand(0, 4)), z, r: rand(0, 6) }); }
+        for (let z = 0; z > -112; z -= rand(9, 15)) it.push({ n: pick(['rock_single_A', 'rock_single_B', 'rock_single_C', 'rock_single_D']), w: rand(1.2, 2.4), x: side * (roadW / 2 + rand(1, 2.5)), z, r: rand(0, 6) });
+      }); return it; });
+      stripPair(2, () => { const it = []; [-1, 1].forEach(side => {
+        for (let z = 4; z > -112; z -= rand(8, 13)) it.push({ n: pick(['tree_single_A', 'tree_single_B']), w: rand(2.8, 3.6), h: true, x: side * (roadW / 2 + rand(3, 7)), z, r: rand(0, 6) });
+        for (let z = 0; z > -112; z -= rand(6, 10)) it.push({ n: pick(['rock_single_A', 'rock_single_C', 'rock_single_D']), w: rand(1.4, 3), x: side * (roadW / 2 + rand(1.2, 4)), z, r: rand(0, 6) });
+      }); return it; });
+      stripPair(3, () => { const it = []; [-1, 1].forEach(side => {
+        for (let z = 6; z > -112; z -= 6) it.push({ n: 'wall_straight', w: 6, x: side * (roadW / 2 + 1.5), z: z - 3, r: Math.PI / 2 });
+        for (let z = 0; z > -112; z -= 24) { it.push({ n: pick(['building_tower_A_blue', 'building_tower_B_blue']), w: 4, x: side * (roadW / 2 + 3.2), z, r: rand(0, 6) }); it.push({ n: 'flag_blue', w: 1.2, x: edge(side) + side * 0.2, z: z - 8 }); }
+        for (let z = -40; z > -112; z -= 70) it.push({ n: 'building_castle_blue', w: 14, x: side * (roadW / 2 + 12), z, r: side > 0 ? -Math.PI / 2 : Math.PI / 2 });
+      }); return it; });
+    }
     [-1, 1].forEach(side => {
       let z = 6;
-      while (z > -110) {
+      while (!KH && z > -110) {
         const hz = bake(house(side));
         hz.position.z = z - hz.userData.len / 2;
         scene.add(hz); deco.push(hz);
@@ -415,14 +486,14 @@ CZ.runner3d = (function () {
       for (let z2 = 2; z2 > -110; z2 -= 13) {
         const l = bake(lamp(side)); l.position.z = z2; scene.add(l); deco.push(l);
       }
-      for (let z3 = -4; z3 > -110; z3 -= rand(18, 26)) {
+      for (let z3 = -4; !KH && z3 > -110; z3 -= rand(18, 26)) {
         const p = bake(pine(side)); p.position.z = z3; p.position.x = side * (roadW / 2 + 1.0); scene.add(p); deco.push(p);
       }
     });
 
     // (28 Kas) BÖLGELER: koştukça köy → çam ormanı → donmuş göl → Zibo'nun kalesi → köy... (her ~45 sn)
     // Geçiş: kısa bir kar tipisi (sis kalınlaşır), o sırada kenar dekoru, gökyüzü ve yol rengi değişir.
-    deco.forEach(o => { o.userData.zone = 0; });
+    deco.forEach(o => { if (o.userData.zone == null) o.userData.zone = 0; });
     const ZM = {
       rock: CZ.style.mat({ color: 0x8a8fa0 }), ice: CZ.style.mat({ color: 0x9fdcff, emissive: 0x1a4a6a }), frost: CZ.style.mat({ color: 0xdff2ff }),
       stone: CZ.style.mat({ color: 0x6a6478 }), stoneD: CZ.style.mat({ color: 0x4a4458 }), purple: CZ.style.mat({ color: 0x6a2a9a }),
@@ -457,7 +528,7 @@ CZ.runner3d = (function () {
       g.position.x = side * (roadW / 2 + 1.4); return g;
     }
     function zonePool(zone, items) { items.forEach(it => { it.userData.zone = zone; it.visible = false; scene.add(it); deco.push(it); }); }
-    [-1, 1].forEach(side => {
+    if (!KH) [-1, 1].forEach(side => {
       const f = [], l = [], c2 = [];
       for (let z = 4; z > -112; z -= rand(3.2, 4.6)) { const p = bake(pine(side)); p.position.z = z; p.position.x = side * (roadW / 2 + rand(1.2, 5)); p.scale.setScalar(rand(0.9, 1.5)); f.push(p); }
       for (let z = 0; z > -112; z -= rand(16, 24)) { const r = bake(rockPile(side)); r.position.z = z; f.push(r); }
@@ -518,7 +589,7 @@ CZ.runner3d = (function () {
       sledRide.add(mesh(GEO.box, a, 0.8, 0.4, 0.14, 0, 0.42, -0.72));
       [-0.34, 0.34].forEach(x => { sledRide.add(mesh(GEO.box, b2, 0.07, 0.07, 1.7, x, 0.06, 0.05)); sledRide.add(mesh(GEO.box, b2, 0.07, 0.22, 0.07, x, 0.15, -0.4)); sledRide.add(mesh(GEO.box, b2, 0.07, 0.22, 0.07, x, 0.15, 0.4)); });
       sledRide.visible = false; scene.add(sledRide); }
-    scene.add(hero.root);
+    scene.add(hero.root); shadowOn(hero.root);
     const pShadow = mesh(GEO.circle, M.shadow, 1.1, 0.7, 1, 0, 0.02, 0);
     pShadow.rotation.x = -Math.PI / 2;
     scene.add(pShadow);
@@ -535,7 +606,7 @@ CZ.runner3d = (function () {
     // 3D Zibo: sprite görünmez kalır (konum/ölçek hesapları onunla), çizilen 3D goblin.
     const SKIN = { 0x9fdcff: 0x8fd6ff, 0xd9b0ff: 0xc79bff, 0xffb59e: 0xff9a6a, 0xffe48a: 0xe8c040 };
     const zibo3 = CZ.kk && CZ.kk.ready() && !CZ.HERO_SPRITES ? CZ.kk.zibo(THREE, opts.ziboTint ? SKIN[opts.ziboTint] : null) : CZ.toonZibo && !CZ.HERO_SPRITES ? CZ.toonZibo(THREE, opts.ziboTint ? SKIN[opts.ziboTint] : null) : null;
-    if (zibo3) { scene.add(zibo3.root); if (opts.ziboCrown) zibo3.setCrown(true); }
+    if (zibo3) { scene.add(zibo3.root); shadowOn(zibo3.root); if (opts.ziboCrown) zibo3.setCrown(true); }
     let jet = null;
     if (zibo3) {
       jet = new THREE.Group();
@@ -814,6 +885,7 @@ CZ.runner3d = (function () {
     function addObj(o) {
       if (o.mesh.isGroup && !o.mesh.userData.noBake) { if (o.mesh.userData.wobble) o.mesh.children.forEach(u => u.isGroup && bake(u)); else bake(o.mesh); }
       if (HICON && o.type !== 'deco') { const hz = mesh(GEO.plane, hazMat, LANE_W * 0.95, (o.len || 1) + 0.8, 1, 0, 0.03, 0); hz.rotation.x = -Math.PI / 2; o.mesh.add(hz); }
+      if (o.type !== 'deco') shadowOn(o.mesh);
       o.mesh.position.z = SPAWN_Z; scene.add(o.mesh); s.objs.push(o); return o;
     }
     // TÜNEL (sürpriz an): yolun üstünü kaplayan taş kemerli tünel, içinde renkli Noel ışıkları.
@@ -1437,7 +1509,8 @@ CZ.runner3d = (function () {
       // dekor geri döner
       deco.forEach(d => {
         d.position.z += dz;
-        if (d.position.z > KILL_Z + 4) d.position.z -= 118;
+        if (d.userData.strip) { if (d.position.z > 124) d.position.z -= 236; }
+        else if (d.position.z > KILL_Z + 4) d.position.z -= 118;
       });
       animateSnow(dt, s.speed * 0.6);
       zoneStep(dt);
@@ -1551,7 +1624,7 @@ CZ.runner3d = (function () {
       // engeller
       let nextFloor = 0;
       s.dimK = (s.dimK || 0) + ((s.dimHit ? 1 : 0) - (s.dimK || 0)) * Math.min(1, dt * 4);
-      hemi.intensity = 0.95 - 0.4 * s.dimK; sun.intensity = 0.75 - 0.45 * s.dimK;
+      hemi.intensity = LH - 0.3 * s.dimK; sun.intensity = LS - 0.7 * s.dimK;   // (28 Kas) güneş daha güçlü: gölgeler ve derinlik
       s.dimHit = 0;
       for (let i = s.objs.length - 1; i >= 0; i--) {
         const o = s.objs[i];
@@ -1967,7 +2040,7 @@ CZ.runner3d = (function () {
     raf = requestAnimationFrame(loop);
 
     return {
-      ready, renderer,
+      ready, renderer, scene, sun,
       state: s,
       go(intro) { s.running = true; last = 0; if (intro) { s.introT = 1; s.introLook = true; } },
       pause(on) { s.paused = !!on; last = 0; },
@@ -2058,6 +2131,9 @@ CZ.runner3d = (function () {
 
   // 3D modeller de yüklensin (yüklenemezse kodla yapılmış karakterlere düşer)
   // (28 Kas) köy modelleri (gen3d, ~10 MB) artık inmiyor: koşu yalnız Mixamo karakterlerini kullanır → ilk açılış çok daha hızlı
-  const load = () => loadThree().then(() => (CZ.kk ? CZ.kk.load(THREE).catch(() => null) : null));   // seçili karakterin 3D modeli de insin
+  const KH_NAMES = ['building_home_A_blue', 'building_home_B_blue', 'building_tavern_blue', 'building_market_blue', 'building_well_blue', 'building_church_blue', 'building_blacksmith_blue', 'barrel', 'crate_A_small', 'sack', 'wheelbarrow',
+    'tree_single_A', 'tree_single_B', 'trees_A_medium', 'trees_B_medium', 'trees_A_large', 'rock_single_A', 'rock_single_B', 'rock_single_C', 'rock_single_D', 'mountain_A_grass_trees', 'mountain_A', 'mountain_B',
+    'wall_straight', 'building_tower_A_blue', 'building_tower_B_blue', 'flag_blue', 'building_castle_blue'];
+  const load = () => loadThree().then(() => (CZ.kk ? CZ.kk.load(THREE).catch(() => null) : null)).then(() => (CZ.KH && THREE.GLTFLoader ? CZ.KH.loadAll(THREE, KH_NAMES).catch(() => null) : null));   // seçili karakterin 3D modeli de insin
   return { load, start };
 })();
