@@ -1542,6 +1542,7 @@ CZ.runner3d = (function () {
         if (o.type === 'deco') { const inside = z + o.len / 2 > 0 && z - o.len / 2 < 2; if (inside) s.dimHit = 1; continue; }
         if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
         if (o.roll) o.roll.rotation.x += dt * (s.speed + o.vz) / 0.62;
+        if (o.roll && z > 1.2) { o.mesh.scale.setScalar(Math.max(0.01, 1 - (z - 1.2) / 2)); }   // (28 Kas) geçen dev kartopu kameraya yapışmasın
         if (o.type === 'train' || o.type === 'wall') {
           const back = z + o.len / 2;          // nesnenin kameraya yakın ucu
           const mine = Math.abs(s.px - laneX(o.lane)) < 0.7 && s.py > 0.6;
