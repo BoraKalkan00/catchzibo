@@ -517,6 +517,11 @@
     else weaponSlot.scale.setScalar(1 / 0.5);
 
     const st = { mode: '', wasJump: false, wasSlide: false, side: 0, dodgeT: 0 };
+    const RSTY = { girl: [1, 0.06, 0.03, 0], boy: [1.06, 0.1, 0.02, 0], elf: [1.18, 0.04, 0.06, 0.06], snowkid: [1.1, 0.02, 0.08, 0.05], reindeer: [1.2, 0.14, 0.02, 0.08],
+      mila: [0.96, 0.05, 0.04, 0], hero_rudi: [0.92, 0.12, 0.05, 0], santa: [0.86, 0.02, 0.09, 0.03], hero_ela: [1.04, 0.08, 0.03, 0], hero_demir: [0.9, 0.16, 0.03, 0],
+      knight: [0.88, 0.1, 0.05, 0], hero_buzbas: [0.84, 0.04, 0.1, 0.04], hero_noel: [0.9, 0.04, 0.08, 0.03], goblin: [1.2, 0.18, 0.06, 0.04], chief: [0.85, 0.14, 0.06, 0], zibo: [1.22, 0.16, 0.07, 0.05] };
+    const rs0 = RSTY[kind] || [1, 0.06, 0.03, 0];
+    const RS = { t: rs0[0], lean: rs0[1], sway: rs0[2], hop: rs0[3] };
     function update(dt, info) {
       let want = 'run';
       if (info.dead) want = 'dead';
@@ -547,7 +552,10 @@
         else if (want === 'cheer') R.play('Cheer', { fade: 0.2 });
         else R.play('Idle', { fade: 0.25 });
       }
-      if (want === 'run') { const a = R.cur; if (a) a.timeScale = 0.9 + Math.min(0.8, (info.speed || 14) / 40); }
+      if (want === 'run') { const a = R.cur; if (a) a.timeScale = (0.9 + Math.min(0.8, (info.speed || 14) / 40)) * RS.t; }
+      // (28 Kas) her karakterin kendi koşu stili: adım hızı, öne eğilme, zıplayarak koşma
+      st.rsT = (st.rsT || 0) + dt * (want === 'run' ? 1 : 0);
+      const rsLean = want === 'run' ? RS.lean : 0;
       // Kayma: yere oturup bacaklar önde kayar (Subway Surfers gibi), poz hızla oturur ve kayarken kalır
       // TAKLA: toplanıp öne bir tam tur döner (Subway Surfers gibi), sonra eğik kalır
       if (want === 'roll' && st.rollT > -50) {
@@ -561,6 +569,8 @@
         spin.rotation.x *= 0.5; if (Math.abs(spin.rotation.x) < 0.01) spin.rotation.x = 0;
         spin.position.y += (0.42 - spin.position.y) * Math.min(1, dt * 14);
         spin.scale.y += (1 - spin.scale.y) * Math.min(1, dt * 14);
+        spin.rotation.x = -rsLean; spin.rotation.z = want === 'run' ? Math.sin(st.rsT * 9 * RS.t) * RS.sway : 0;
+        if (want === 'run' && RS.hop) spin.position.y = 0.42 + Math.abs(Math.sin(st.rsT * 9 * RS.t)) * RS.hop;
       }
       R.mixer.update(dt);
     }

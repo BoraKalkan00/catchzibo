@@ -39,7 +39,7 @@ CZ.screens.chase = (function () {
     const W = c.W = CZ.GOLD.weapons.find(w => w.id === CZ.state.data.weapon) || CZ.GOLD.weapons[0];
     // (28 Kas) yükleme ekranı yalnız ilk koşuda (modeller inmişse 'Tekrar koş' anında başlar)
     const loading = CZ.ui.loading && !(window.THREE && CZ.kk && CZ.kk.ready()) ? CZ.ui.loading(el, { min: 1200 }) : null;
-    c.readyP = CZ.runner3d.load().then(() => {
+    c.readyP = CZ.runner3d.load().then(() => (CZ.kk && CZ.kk.needMX ? CZ.kk.needMX([CZ.state.data.avatar || 'girl', 'zibo']).catch(() => null) : null)).then(() => {   // (28 Kas) seçilen karakter her zaman yüklü olsun
       if (loading) loading.done();
       if (!c || c.el !== el) return;
       c.run = CZ.runner3d.start(c.stage, {
