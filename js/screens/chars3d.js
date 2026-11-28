@@ -115,14 +115,15 @@ CZ.screens.chars = {
 };
 
 // Canlı 3D önizleme: karakter yavaşça döner, parmakla çevrilir.
-function preview3d(host, id) {
+function preview3d(host, id, opt) {
+  opt = opt || {};
   const T = window.THREE;
   const r = new T.WebGLRenderer({ antialias: true, alpha: true });
   r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   host.append(r.domElement);
   const sc = new T.Scene();
   const cam = new T.PerspectiveCamera(26, 1, 0.1, 100);
-  cam.position.set(0, 1.0, 4.1); cam.lookAt(0, 0.78, 0);
+  cam.position.set(0, 1.0, opt.dist || 4.1); cam.lookAt(0, opt.look || 0.78, 0);
   sc.add(new T.HemisphereLight(0xffffff, 0x8a90a8, 0.85));
   const dl = new T.DirectionalLight(0xffffff, 0.75); dl.position.set(2.5, 4, 5); sc.add(dl);
   const disc = new T.Mesh(new T.CylinderGeometry(0.8, 0.8, 0.06, 40), new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18 }));
@@ -139,7 +140,7 @@ function preview3d(host, id) {
   const loop = now => {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
-    if (drag == null) rot += dt * 0.5;
+    if (drag == null) rot = opt.still ? rot + (Math.PI - 0.25 + Math.sin(now / 1400) * 0.25 - rot) * Math.min(1, dt * 2) : rot + dt * 0.5;
     cheerT = Math.max(0, cheerT - dt);
     if (o) { o.root.rotation.y = rot; o.update(dt, cheerT > 0 ? { cheer: true } : { idle: true, speed: 0 }); }
     r.render(sc, cam);
@@ -147,3 +148,5 @@ function preview3d(host, id) {
   raf = requestAnimationFrame(loop);
   return { set, cheer() { cheerT = 2; }, stop() { cancelAnimationFrame(raf); ro.disconnect(); r.dispose(); r.forceContextLoss(); r.domElement.remove(); } };
 }
+
+CZ.preview3d = preview3d;

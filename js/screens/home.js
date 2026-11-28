@@ -13,13 +13,22 @@ CZ.screens.home = {
         h('div', { class: 'hm-chip' }, img('ui.gold', 'hm-ic'), h('b', { text: String(gold) })),
         h('div', { class: 'hm-chip' }, CZ.icon ? CZ.icon('trophy') : '', h('b', { text: String(d.bestRun || 0) }))),
       h('div', { class: 'hm-logo' }, h('img', { src: 'assets/ui/logo.webp', alt: t('title.name'), draggable: 'false' })),
-      h('div', { class: 'hm-mid' }),
+      this.stage = h('div', { class: 'hm-mid hm-stage' }),
       h('div', { class: 'hm-bot' },
         h('button', { class: 'hm-play', type: 'button', onClick: e => { e.stopPropagation(); play(); } }, t('title.play')),
         h('p', { class: 'hm-hint', text: t('home.hint') }),
         h('div', { class: 'hm-row' },
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('chars', { returnTo: 'home' }); } }, t('chars.title')),
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('settings'); } }, t('settings.title')))));
-    el.addEventListener('pointerdown', e => { if (!e.target.closest('button')) play(); });
+    el.addEventListener('pointerdown', e => { if (!e.target.closest('button, .hm-stage')) play(); });
+    // (28 Kas) seçili karakter ana ekranda canlı 3D bekler (Subway gibi); dokununca sevinir
+    const st = this.stage;
+    CZ.runner3d.load().then(() => CZ.kk.needMX([d.avatar || 'girl'])).then(() => {
+      if (!st.isConnected) return;
+      this.p3 = CZ.preview3d(st, d.avatar || 'girl', { still: true, dist: 6.2, look: 0.95 });
+      st.addEventListener('click', () => { if (this.p3) { this.p3.cheer(); CZ.audio.sfx('poke'); } });
+    }).catch(() => {});
+  },
+  leave() { if (this.p3) { this.p3.stop(); this.p3 = null; }
   }
 };

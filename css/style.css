@@ -2474,3 +2474,5 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .c3-price .mini-ico { width: 13px; height: 13px; }
 .c3-ok { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; }
 .c3-wait { flex: 1; }
+.hm-stage { position: relative; width: 100%; min-height: 200px; }
+.hm-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
