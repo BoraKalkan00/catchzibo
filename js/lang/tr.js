@@ -68,6 +68,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'ev.love': "Sevgililer Etkinliği",
   'ev.cadi': "Cadılar Bayramı",
   'ev.info': "Bölüm ödülleri +%25 altın · {n} gün kaldı",
+  'home.puzzle': 'Zibo Blocks: Bulmaca oyna',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

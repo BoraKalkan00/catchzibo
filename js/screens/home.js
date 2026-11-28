@@ -93,7 +93,8 @@ CZ.screens.home = {
         h('div', { class: 'hm-row' },
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('chars', { returnTo: 'home' }); } }, t('chars.title')),
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('upg'); } }, t('home.upg')),
-          h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('settings'); } }, t('settings.title')))));
+          h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('settings'); } }, t('settings.title'))),
+        h('button', { class: 'hm-small hm-puz', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); location.href = 'blast/'; } }, '🧩 ', t('home.puzzle'))));   // (28 Kas) ikinci oyun: Zibo Blocks
     el.addEventListener('pointerdown', e => { if (!e.target.closest('button, .hm-stage, .modal-wrap')) play(); });
     const onKey = e => { if ((e.key === 'Enter' || e.key === ' ') && !document.querySelector('.modal-wrap')) { e.preventDefault(); play(); } };   // (28 Kas) PC: Enter/Boşluk = oyna
     window.addEventListener('keydown', onKey); this.offKey = () => window.removeEventListener('keydown', onKey);

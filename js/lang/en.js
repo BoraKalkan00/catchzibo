@@ -68,6 +68,7 @@ CZ.i18n.register('en', 'English', {
   'ev.love': "Valentine's Event",
   'ev.cadi': "Halloween Event",
   'ev.info': "Level rewards +25% gold · {n} days left",
+  'home.puzzle': 'Zibo Blocks: Play the puzzle',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',
