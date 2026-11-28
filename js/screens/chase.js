@@ -508,7 +508,7 @@ CZ.screens.chase = (function () {
       h('h2', { text: t('endless.saveMe') }), ring,
       h('p', { class: 'save-score', text: Math.floor(c.score).toLocaleString() }),
       c.revived < 1 ? btn(t('endless.revive'), () => { if (done) return; close(); adThen(() => { c.revived += 1; back(); }); }, 'primary wide', 'ic:play') : null,
-      btn(t('endless.reviveGems', { n: gemCost }), () => {
+      (d.emeralds || 0) < gemCost ? null : btn(t('endless.reviveGems', { n: gemCost }), () => {   /* (28 Kas) elmas yetmezse düğme hiç çıkmasın */
         if (done) return;
         if ((d.emeralds || 0) < gemCost) { CZ.audio.sfx('wrong'); return CZ.ui.toast(t('chars.gemShort', { n: gemCost - (d.emeralds || 0) })); }
         close(); d.emeralds -= gemCost; c.gemRevives = (c.gemRevives || 0) + 1; CZ.state.save(); back();

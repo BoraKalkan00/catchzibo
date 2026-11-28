@@ -2410,3 +2410,6 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .hm-chip svg, .hm-chip img { width: 24px !important; height: 24px !important; }
 .hm-play { font-size: 34px; font-weight: 900; letter-spacing: 1px; }
 .hm-small { font-size: 16px; font-weight: 800; }
+
+/* (28 Kas) bitiş/kurtar ekranında oyun düğmeleri yukarı fırlayıp üst çubuğa biniyordu */
+.screen-chase:has(.endless-over, .save-me) .hook-btn, .screen-chase:has(.endless-over, .save-me) .sled-btn, .screen-chase:has(.endless-over, .save-me) .pause-btn { display: none !important; }
