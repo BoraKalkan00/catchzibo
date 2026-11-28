@@ -37,7 +37,8 @@ CZ.screens.chase = (function () {
     c.floats = h('div', { class: 'run-floats' });
     c.field = h('div', { class: 'chase-field3d' }, c.stage, c.bubble, c.floats);
     const W = c.W = CZ.GOLD.weapons.find(w => w.id === CZ.state.data.weapon) || CZ.GOLD.weapons[0];
-    const loading = CZ.ui.loading ? CZ.ui.loading(el) : null;
+    // (28 Kas) yükleme ekranı yalnız ilk koşuda (modeller inmişse 'Tekrar koş' anında başlar)
+    const loading = CZ.ui.loading && !(window.THREE && CZ.kk && CZ.kk.ready()) ? CZ.ui.loading(el, { min: 1200 }) : null;
     c.readyP = CZ.runner3d.load().then(() => {
       if (loading) loading.done();
       if (!c || c.el !== el) return;

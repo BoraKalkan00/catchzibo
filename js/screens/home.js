@@ -1,3 +1,4 @@
+CZ.LD_SC = ['zibo_soygun', 'zibo_soygun'];   // (28 Kas) yükleme: Zibo hazineyi kaçırıyor (koşu oyununun hikâyesi)
 // (28 Kas) ANA EKRAN: oyun tek şey — Zibo'yu kovala (sonsuz koşu). Subway Surfers sadeliği:
 // üstte altın / elmas / ses, logo, seviye çubuğu; ortada canlı 3D karakter; solda 3 küçük düğme (görevler, günlük ödül, kutu);
 // altta kocaman OYNA, altında karakterler + ayarlar. Ekrana dokunmak da oynatır.

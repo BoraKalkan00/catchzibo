@@ -166,14 +166,14 @@ CZ.DIARY_COUNT = 14;
 
 // GÜNLÜK ÖDÜL ve SEVİYE.
 CZ.PROGRESS = {
-  daily: [                         // art arda giriş: 1. gün ... 7. gün (7'den sonra tekrar 1'e döner)
-    { gold: 30 },
+  daily: [                         // art arda giriş: 1. gün ... 7. gün (7'den sonra tekrar 1'e döner)  (28 Kas) koşu ekonomisine göre büyütüldü
+    { gold: 200 },
     { emeralds: 5 },
-    { gold: 60 },
-    { cocoa: 1 },
-    { gold: 100 },
-    { emeralds: 15 },
-    { gold: 250, emeralds: 30, cocoa: 1, big: true }
+    { gold: 400 },
+    { emeralds: 10 },
+    { gold: 800 },
+    { emeralds: 20 },
+    { gold: 2000, emeralds: 50, big: true }
   ],
   xp: { find: 40, replay: 8, crate: 0.5, chase: 25, daily: 10 },
   xpBase: 120,                     // 1→2 için 120 XP, sonra her seviye 80 fazla
