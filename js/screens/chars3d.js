@@ -92,7 +92,8 @@ CZ.screens.chars = {
     el.append(
       CZ.ui.header(t('chars.title'), back),
       h('div', { class: 'c3-top' },
-        h('div', { class: 'emeralds gold-badge' }, img('ui.gold', 'emerald-icon'), goldEl)),
+        h('div', { class: 'emeralds gold-badge' }, img('ui.gold', 'emerald-icon'), goldEl),
+        h('div', { class: 'emeralds c3-col' }, '🏅 ', t('chars.col', { n: CZ.ROSTER.filter(c => CZ.chars.state(c) === 'open').length, m: CZ.ROSTER.length }))),   // (28 Kas) koleksiyon hedefi
       h('div', { class: 'c3-show' }, stage, arrow(-1), arrow(1)),
       h('div', { class: 'c3-info' }, nameEl, perkEl, actEl),
       h('div', { class: 'scroll c3-body' }, grid));

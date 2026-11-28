@@ -46,6 +46,8 @@ CZ.i18n.register('en', 'English', {
   'story.run1': "Zibo stole all the village's gold!",
   'story.run2': "Chase him, hit him with snowballs and catch him!",
   'story.tap': "Tap to start",
+  'chars.col': 'Collection {n}/{m}',
+  'opt.hicon': 'High-contrast obstacles',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',

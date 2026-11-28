@@ -46,6 +46,8 @@ CZ.i18n.register('tr', 'Türkçe', {
   'story.run1': "Zibo köyün bütün altınını çaldı!",
   'story.run2': "Peşinden koş, kartopuyla vur ve yakala!",
   'story.tap': "Başlamak için dokun",
+  'chars.col': 'Koleksiyon {n}/{m}',
+  'opt.hicon': 'Yüksek kontrast engeller',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

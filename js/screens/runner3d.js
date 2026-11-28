@@ -799,8 +799,12 @@ CZ.runner3d = (function () {
       o.mesh.traverse(c => { if (c.userData && c.userData.own && c.geometry) c.geometry.dispose(); });
       if (o.fadeMats) { o.fadeMats.forEach(m => m.dispose()); o.fadeMats = null; }
     }
+    // (28 Kas) Yüksek kontrast (renk körü dostu): her engelin altına sarı-siyah tehlike şeridi
+    const HICON = !!(CZ.state && CZ.state.data.hiConS === 'on');
+    const hazMat = HICON ? new THREE.MeshBasicMaterial({ map: canvasTex(64, 64, (x, w, hh) => { x.fillStyle = '#ffd400'; x.fillRect(0, 0, w, hh); x.fillStyle = '#111'; for (let i = -64; i < 64; i += 22) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 11, 0); x.lineTo(i + 75, hh); x.lineTo(i + 64, hh); x.fill(); } }, [1, 2]) }) : null;
     function addObj(o) {
       if (o.mesh.isGroup && !o.mesh.userData.noBake) { if (o.mesh.userData.wobble) o.mesh.children.forEach(u => u.isGroup && bake(u)); else bake(o.mesh); }
+      if (HICON && o.type !== 'deco') { const hz = mesh(GEO.plane, hazMat, LANE_W * 0.95, (o.len || 1) + 0.8, 1, 0, 0.03, 0); hz.rotation.x = -Math.PI / 2; o.mesh.add(hz); }
       o.mesh.position.z = SPAWN_Z; scene.add(o.mesh); s.objs.push(o); return o;
     }
     // TÜNEL (sürpriz an): yolun üstünü kaplayan taş kemerli tünel, içinde renkli Noel ışıkları.
@@ -1214,6 +1218,18 @@ CZ.runner3d = (function () {
     cv.addEventListener('pointermove', onMove);
     cv.addEventListener('pointerup', onUp);
     cv.addEventListener('pointercancel', () => { down.t = 0; });
+    // (28 Kas) Steam/PC: oyun kolu desteği (sol çubuk/yön tuşları = şerit/zıpla/kay, A = zıpla, B = kay, X = kartopu, Y = kızak)
+    const padPrev = {};
+    function padStep() {
+      const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+      const p = pads && [...pads].find(x => x && x.connected); if (!p) return;
+      const ax = p.axes[0] || 0, ay = p.axes[1] || 0, b = i => !!(p.buttons[i] && p.buttons[i].pressed);
+      const st = { L: ax < -0.6 || b(14), R: ax > 0.6 || b(15), U: ay < -0.6 || b(12) || b(0), D: ay > 0.6 || b(13) || b(1), X: b(2), Y: b(3) };
+      const edge = k => st[k] && !padPrev[k];
+      if (edge('L')) move(-1); if (edge('R')) move(1); if (edge('U')) (opts.onSwipeUp || jump)(); if (edge('D')) slide();
+      if (edge('X')) (opts.onTap || shoot)(); if (edge('Y')) dash();
+      Object.assign(padPrev, st);
+    }
     function onKey(e) {
       const map = { ArrowLeft: () => move(-1), ArrowRight: () => move(1), ArrowUp: opts.onSwipeUp || jump, ArrowDown: slide, ' ': opts.onTap || shoot };
       if (map[e.key]) { e.preventDefault(); map[e.key](); }
@@ -1251,6 +1267,7 @@ CZ.runner3d = (function () {
       last = now;
       const t0 = performance.now();
       if (s.paused) { post.render(scene, camera); return; }
+      if (s.running) padStep();
       if (s.running) step(dt);
       else if (s.catching) catchStep(dt);
       else idle(dt);

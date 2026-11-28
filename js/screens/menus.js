@@ -522,7 +522,8 @@ CZ.optsPanel = function (onChange) {
   };
   const row = (lbl, el) => h('div', { class: 'set-row opt-row' }, h('span', { text: lbl }), el);
   return h('div', { class: 'opt-panel' },
-    row(t('opt.hand'), seg('hand', [['r', t('opt.handR')], ['l', t('opt.handL')]], 'r')),   // (28 Kas) sol el: At! ve Kızak yer değiştirir
+    row(t('opt.hand'), seg('hand', [['r', t('opt.handR')], ['l', t('opt.handL')]], 'r')),
+    row(t('opt.hicon'), seg('hiConS', [['off', t('settings.off')], ['on', t('settings.on')]], 'off')),   // (28 Kas) sol el: At! ve Kızak yer değiştirir
     row(t('opt.gfx'), seg('gfx', [['hi', t('opt.gfxHi')], ['lo', t('opt.gfxLo')]], CZ.style ? CZ.style.gfx() : 'hi')),
     row(t('opt.priv'), h('div', { class: 'seg' }, h('button', { type: 'button', text: '🔒 ' + t('opt.privAds'), onClick: () => { CZ.audio.sfx('button'); CZ.ads.privacy(); } }),
       h('button', { type: 'button', text: '📄', onClick: () => { window.open('https://borakalkan00.github.io/catchzibo/privacy.html', '_blank'); } }))),
