@@ -95,6 +95,9 @@ CZ.screens.chase = (function () {
       el.classList.add('endless');
       c.bestEl = h('small', { class: 'hud-best', text: '🏆 ' + (CZ.state.data.bestRun || 0) });
       c.field.append(h('div', { class: 'run-hud' }, c.clock, c.bestEl));
+      // (28 Kas) Zibo göstergesi: ne kadar uzakta, kartopu atınca yaklaşır, 0 olunca yakalarsın
+      c.zmFill = h('i'); c.zmText = h('b', { text: '' });
+      c.field.append(h('div', { class: 'zibo-meter' }, h('img', { src: 'assets/zibo/png/laugh.webp', alt: '' }), h('div', { class: 'zm-bar' }, c.zmFill), c.zmText));
     }
     if (E && c.mult > 1) c.field.append(h('div', { class: 'mult-chip' }, 'x' + c.mult));
     if (E) c.field.append(c.powerHud);
@@ -275,6 +278,7 @@ CZ.screens.chase = (function () {
   function layout() {
     if (c.run) c.run.setZibo(c.ziboLane, -(3 + c.gap * 0.17));
     c.gapText.textContent = t('chase.meters', { n: Math.ceil(c.gap) });
+    if (c.zmFill) { c.zmFill.style.width = Math.max(4, 100 - c.gap / C.startGap * 100) + '%'; c.zmText.textContent = Math.ceil(c.gap) + ' m'; c.zmFill.parentNode.parentNode.classList.toggle('near', c.gap < 12); }
     c.gapBar.style.width = Math.max(0, 100 - c.gap / C.startGap * 100) + '%';
     c.hookBtn.classList.toggle('cool', c.hookReady > 0);
     c.hookBtn.style.setProperty('--cool', c.hookReady / C.hookCooldown);
