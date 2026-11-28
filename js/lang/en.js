@@ -39,6 +39,9 @@ CZ.i18n.register('en', 'English', {
   'box.won': 'You won a Mystery Box! Open it on the home screen',
   'upg.sec': '{n} seconds',
   'upg.note': 'Make the power-ups you collect last longer',
+  'run.newBest': 'NEW BEST!',
+  'run.toBest': '🏆 {n} to your best!',
+  'run.almost': 'Only {n} away from your best! Try again!',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',

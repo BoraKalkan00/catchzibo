@@ -91,15 +91,17 @@ CZ.runner3d = (function () {
     });
   }
 
-  function skyTex() {
+  function skyTex(cols, moon) {
+    cols = cols || ['#081232', '#1d2f6b', '#4e5ea6', '#8a8fc9'];
     return canvasTex(512, 1024, (x, w, h) => {
       const g = x.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#081232'); g.addColorStop(0.45, '#1d2f6b'); g.addColorStop(0.62, '#4e5ea6'); g.addColorStop(1, '#8a8fc9');
+      g.addColorStop(0, cols[0]); g.addColorStop(0.45, cols[1]); g.addColorStop(0.62, cols[2]); g.addColorStop(1, cols[3]);
       x.fillStyle = g; x.fillRect(0, 0, w, h);
       for (let i = 0; i < 160; i++) {
         x.fillStyle = `rgba(255,255,255,${rand(0.3, 1)})`;
         x.fillRect(Math.random() * w, Math.random() * h * 0.55, rand(1, 2.4), rand(1, 2.4));
       }
+      if (moon === false) return;
       const mx = w * 0.26, my = h * 0.12;
       const glow = x.createRadialGradient(mx, my, 10, mx, my, 90);
       glow.addColorStop(0, 'rgba(255,250,220,.55)'); glow.addColorStop(1, 'rgba(255,250,220,0)');
@@ -289,6 +291,7 @@ CZ.runner3d = (function () {
       scene.add(mesh(GEO.box, M.curb, 0.35, 0.22, 200, side * (roadW / 2 + 0.1), 0.08, -90));
     });
 
+    let mansionSp = null;
     // Uzak manzara: Zibo'nun malikanesi yolun sonunda.
     mansionTex(CZ.art('scene.road')).then(m => {
       if (!m || !s.alive) return;
@@ -297,6 +300,7 @@ CZ.runner3d = (function () {
       sp.scale.set(hgt * m.ratio, hgt, 1);
       sp.position.set(0, 13, -150);
       scene.add(sp);
+      mansionSp = sp; sp.visible = s.zone === 0 || s.zone === 3;
     });
 
     // AKICILIK: bir dekor grubundaki onlarca küçük kutuyu tek bir ağa "pişir" (renkler köşe rengine).
@@ -416,6 +420,81 @@ CZ.runner3d = (function () {
       }
     });
 
+    // (28 Kas) BÖLGELER: koştukça köy → çam ormanı → donmuş göl → Zibo'nun kalesi → köy... (her ~45 sn)
+    // Geçiş: kısa bir kar tipisi (sis kalınlaşır), o sırada kenar dekoru, gökyüzü ve yol rengi değişir.
+    deco.forEach(o => { o.userData.zone = 0; });
+    const ZM = {
+      rock: CZ.style.mat({ color: 0x8a8fa0 }), ice: CZ.style.mat({ color: 0x9fdcff, emissive: 0x1a4a6a }), frost: CZ.style.mat({ color: 0xdff2ff }),
+      stone: CZ.style.mat({ color: 0x6a6478 }), stoneD: CZ.style.mat({ color: 0x4a4458 }), purple: CZ.style.mat({ color: 0x6a2a9a }),
+      fire: new THREE.MeshBasicMaterial({ color: 0xff9a2a }), crystal: CZ.style.mat({ color: 0xbfe8ff, emissive: 0x2a6a9a })
+    };
+    const glowFire = new THREE.SpriteMaterial({ map: glowTex('rgba(255,150,60,.95)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+    const glowIce = new THREE.SpriteMaterial({ map: glowTex('rgba(150,220,255,.8)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+    function rockPile(side) {
+      const g = new THREE.Group();
+      for (let i = 0; i < 3; i++) { const r = rand(0.5, 1.1); g.add(mesh(GEO.gem, ZM.rock, r * 2, r * 1.4, r * 2, rand(-0.8, 0.8), r * 0.5, rand(-1, 1))); g.add(mesh(GEO.gem, M.roofSnow, r * 1.6, r * 0.5, r * 1.6, 0, r * 1.0, 0)); }
+      g.position.x = side * (roadW / 2 + rand(2.5, 4)); return g;
+    }
+    function frostPine(side) { const g = pine(side); g.children.forEach(m => { if (m.material === M.pine) m.material = ZM.frost; }); return g; }
+    function iceShard(side) {
+      const g = new THREE.Group();
+      for (let i = 0; i < 3; i++) { const hh = rand(1.4, 3.4); const m = mesh(GEO.cone, ZM.crystal, rand(0.35, 0.6), hh, rand(0.35, 0.6), rand(-0.7, 0.7), hh / 2, rand(-0.8, 0.8)); m.rotation.z = rand(-0.3, 0.3); g.add(m); }
+      const gl = new THREE.Sprite(glowIce); gl.scale.set(3, 3, 1); gl.position.y = 1.4; g.add(gl);
+      g.position.x = side * (roadW / 2 + rand(1.4, 3)); return g;
+    }
+    function castleWall(side) {
+      const g = new THREE.Group(); const L = 9, H = 5.5;
+      g.add(mesh(GEO.box, ZM.stone, 1.6, H, L, 0, H / 2, 0));
+      for (let z = -L / 2 + 0.7; z < L / 2; z += 1.6) g.add(mesh(GEO.box, ZM.stoneD, 1.7, 0.8, 0.8, 0, H + 0.4, z));
+      const fx = -side * 0.84;
+      const ban = mesh(GEO.box, ZM.purple, 0.05, 2.4, 1.1, fx, H * 0.6, -1.5); g.add(ban);
+      g.add(mesh(GEO.box, M.ribbon, 0.06, 0.25, 1.1, fx, H * 0.6 + 1.1, -1.5));
+      // meşale
+      g.add(mesh(GEO.cyl, M.trunk, 0.06, 0.7, 0.06, fx - side * -0.1, 2.3, 2));
+      g.add(mesh(GEO.cone, ZM.fire, 0.16, 0.36, 0.16, fx - side * -0.1, 2.8, 2));
+      const gl = new THREE.Sprite(glowFire); gl.scale.set(2.4, 2.4, 1); gl.position.set(fx - side * -0.2, 2.8, 2); g.add(gl);
+      g.userData.len = L;
+      g.position.x = side * (roadW / 2 + 1.4); return g;
+    }
+    function zonePool(zone, items) { items.forEach(it => { it.userData.zone = zone; it.visible = false; scene.add(it); deco.push(it); }); }
+    [-1, 1].forEach(side => {
+      const f = [], l = [], c2 = [];
+      for (let z = 4; z > -112; z -= rand(3.2, 4.6)) { const p = bake(pine(side)); p.position.z = z; p.position.x = side * (roadW / 2 + rand(1.2, 5)); p.scale.setScalar(rand(0.9, 1.5)); f.push(p); }
+      for (let z = 0; z > -112; z -= rand(16, 24)) { const r = bake(rockPile(side)); r.position.z = z; f.push(r); }
+      for (let z = 2; z > -112; z -= rand(7, 11)) { const p = bake(frostPine(side)); p.position.z = z; p.position.x = side * (roadW / 2 + rand(3, 6)); l.push(p); }
+      for (let z = -2; z > -112; z -= rand(9, 14)) { const i2 = bake(iceShard(side)); i2.position.z = z; l.push(i2); }
+      for (let z = 6; z > -112; z -= 9) { const w = bake(castleWall(side)); w.position.z = z - 4.5; c2.push(w); }
+      zonePool(1, f); zonePool(2, l); zonePool(3, c2);
+    });
+    const ZONES = [
+      { sky: null, fog: FOG, road: 0xffffff, snow: 0xffffff, hemi: 0xb9c8ff },
+      { sky: ['#1a1030', '#4a2a5a', '#c0607a', '#f0a070'], moon: false, fog: 0x8a5a7a, road: 0xd8d0e0, snow: 0xf4e8f0, hemi: 0xffd0c0 },
+      { sky: ['#5aa8e8', '#8ac8f0', '#c8e8ff', '#eaf6ff'], moon: false, fog: 0xb8dcf4, road: 0xa8d0f0, snow: 0xe8f6ff, hemi: 0xe0f0ff },
+      { sky: ['#0a0414', '#2a0a3a', '#4a1a5a', '#6a3a7a'], fog: 0x3a1a4a, road: 0xa898b8, snow: 0xc8b8d8, hemi: 0xc8a0ff }
+    ];
+    const skies = ZONES.map(z => z.sky ? skyTex(z.sky, z.moon) : null);
+    s.zone = 0; s.zoneT = 0;
+    function setZone(k) {
+      s.zone = k; const Z = ZONES[k];
+      deco.forEach(o => { o.visible = (o.userData.zone || 0) === k; });
+      scene.background = skies[k] || sky;
+      scene.fog.color.setHex(Z.fog);
+      M.road.color.setHex(Z.road); M.snow.color.setHex(Z.snow); hemi.color.setHex(Z.hemi);
+      if (mansionSp) mansionSp.visible = k === 0 || k === 3;
+      if (opts.onZone) opts.onZone(k);
+    }
+    function zoneStep(dt) {
+      if (!opts.endless) return;
+      s.zoneT += dt;
+      if (!s.zGust && s.zoneT > 45) { s.zGust = 1.6; CZ.audio.sfx('whoosh'); }
+      if (s.zGust > 0) {
+        s.zGust -= dt;
+        const k = 1 - Math.abs(s.zGust - 0.8) / 0.8;          // 0 → 1 → 0
+        scene.fog.near = 38 - 34 * k; scene.fog.far = 92 - 78 * k;
+        if (s.zGust <= 0.8 && !s.zSwapped) { s.zSwapped = true; setZone((s.zone + 1) % ZONES.length); }
+        if (s.zGust <= 0) { s.zGust = 0; s.zSwapped = false; s.zoneT = 0; scene.fog.near = 38; scene.fog.far = 92; }
+      }
+    }
     // Kar yağışı (tek çizim çağrısı)
     const flakes = 260;
     const flakeGeo = new THREE.BufferGeometry();
@@ -1318,6 +1397,7 @@ CZ.runner3d = (function () {
         if (d.position.z > KILL_Z + 4) d.position.z -= 118;
       });
       animateSnow(dt, s.speed * 0.6);
+      zoneStep(dt);
 
       // sıra doğar
       s.nextRow -= dz;

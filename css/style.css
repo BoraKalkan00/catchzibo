@@ -2514,3 +2514,7 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .mb-modal h2 { position: relative; z-index: 3; }
 .upg-txt { align-items: flex-start; text-align: left; }
 .hm-level .level-bar { display: flex; align-items: center; gap: 8px; } .hm-level .xp-track { flex: 1; }
+
+.hud-best.hot { color: #fff; background: #e8423a; padding: 2px 8px; border-radius: 99px; animation: zmPulse .6s ease-in-out infinite; }
+.chase-field3d.record::before { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(ellipse at center, rgba(255,226,122,0) 30%, rgba(255,200,40,.6) 100%); animation: dieFlash 1.6s ease-out both; }
+.near-best { color: #c2362e; font-weight: 900; margin: 2px 0; }

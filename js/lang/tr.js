@@ -39,6 +39,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   'box.won': 'Gizemli kutu kazandın! Ana sayfada aç',
   'upg.sec': '{n} saniye',
   'upg.note': 'Koşuda topladığın güçler daha uzun sürsün',
+  'run.newBest': 'YENİ REKOR!',
+  'run.toBest': '🏆 Rekora {n}!',
+  'run.almost': 'Rekoruna sadece {n} kaldı! Bir daha dene!',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

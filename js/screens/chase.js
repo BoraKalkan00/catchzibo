@@ -206,7 +206,9 @@ CZ.screens.chase = (function () {
     // her 15 sn biraz hızlan (en çok 1.7 kat)
     const sc = Math.floor(c.score);
     if (sc !== c.shown) { c.shown = sc; c.clock.textContent = sc; }
-    if (!c.recordSaid && CZ.state.data.bestRun && sc > CZ.state.data.bestRun) { c.recordSaid = true; floatText(t('endless.record'), 'gold', true); CZ.audio.sfx('star'); }
+    const best = CZ.state.data.bestRun || 0;
+    if (!c.recordSaid && best && sc > best) { c.recordSaid = true; floatText(t('endless.record'), 'gold', true); CZ.audio.sfx('star'); CZ.audio.vibrate([30, 20, 60]); c.field.classList.add('record'); setTimeout(() => c && c.field.classList.remove('record'), 1600); if (c.bestEl) { c.bestEl.textContent = '🏆 ' + t('run.newBest'); c.bestEl.classList.add('hot'); } }
+    else if (c.bestEl && best && !c.recordSaid) { const left = best - sc; const near = left > 0 && left < Math.max(60, best * 0.15); c.bestEl.textContent = near ? t('run.toBest', { n: left }) : '🏆 ' + best; c.bestEl.classList.toggle('hot', near); }   // (28 Kas) rekora yaklaşınca sayaç
     // ligdeki / arkadaşlardaki hedefleri geçtikçe haber ver
     if (c.targets && c.targets.length && sc > c.targets[0].score) {
       const tg = c.targets.shift();
@@ -605,6 +607,7 @@ CZ.screens.chase = (function () {
       h('small', { text: t(record ? 'endless.newBest' : 'endless.over') }),
       h('h2', { class: 'big-score', text: sc }),
       h('p', { text: t('endless.best', { n: d.bestRun || 0 }) + (c.mult > 1 ? '  ·  x' + c.mult : '') }),
+      !record && d.bestRun && d.bestRun - sc < d.bestRun * 0.2 ? h('p', { class: 'near-best', text: t('run.almost', { n: d.bestRun - sc }) }) : null,
       goldP,
       // (28 Kas) sade bitiş: lig satırı ve görev paneli kaldırıldı (görevler ana ekranda)
       setDone ? h('p', { class: 'rank-up' }, CZ.icon('trophy'), t('home.setDone')) : null,
