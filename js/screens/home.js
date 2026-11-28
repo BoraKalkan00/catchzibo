@@ -31,6 +31,7 @@ CZ.mbox = {
 };
 
 CZ.screens.home = {
+  music: 'home',
   render(el) {
     const { h, img } = CZ.ui; const t = CZ.t; const d = CZ.state.data;
     const play = () => { if (this.go) return; this.go = true; CZ.audio.sfx('button'); CZ.ui.wipeTo('chase', { endless: true }); };

@@ -218,6 +218,8 @@ CZ.audio = (function () {
     step: (t, side = 0) => noise(t, 0.07, { gain: 0.035, freq: side ? 900 : 750, to: 300, q: 0.8, type: 'lowpass' }),
     jump: t => { noise(t, 0.18, { gain: 0.07, freq: 500, to: 2600, q: 0.6 }); tone(330, t, 0.16, { gain: 0.05, to: 660, type: 'triangle' }); },
     slide: t => noise(t, 0.32, { gain: 0.09, freq: 2600, to: 400, q: 0.5 }),
+    whoosh: t => { noise(t, 1.4, { gain: 0.14, freq: 300, to: 3200, q: 0.4 }); noise(t + 0.6, 0.9, { gain: 0.08, freq: 3000, to: 500, q: 0.5 }); },   // (28 Kas) bölge geçişi tipisi
+    lane: t => noise(t, 0.12, { gain: 0.05, freq: 1800, to: 900, q: 0.8 }),
     land: t => { noise(t, 0.09, { gain: 0.09, freq: 600, to: 200, q: 0.7, type: 'lowpass' }); tone(110, t, 0.08, { gain: 0.08, to: 70 }); },
     swish: t => noise(t, 0.1, { gain: 0.05, freq: 1400, to: 3000, q: 0.9 }),
     // tren kornası: iki tonlu, kalın

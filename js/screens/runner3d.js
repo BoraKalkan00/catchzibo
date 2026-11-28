@@ -1140,6 +1140,7 @@ CZ.runner3d = (function () {
     /* ---------- Kontroller ---------- */
     function move(dir) {
       if (opts.onAct) opts.onAct('move');
+      CZ.audio.sfx('lane');
       if (!s.running) return;
       const n = Math.max(0, Math.min(LANES - 1, s.lane + dir));
       if (n === s.lane) { bump(); return; }
