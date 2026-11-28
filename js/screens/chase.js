@@ -235,7 +235,7 @@ CZ.screens.chase = (function () {
     const sc = Math.floor(c.score);
     if (sc !== c.shown) { c.shown = sc; c.clock.textContent = sc; }
     const best = CZ.state.data.bestRun || 0;
-    if (!c.recordSaid && best && sc > best) { c.recordSaid = true; floatText(t('endless.record'), 'gold', true); CZ.audio.sfx('star'); CZ.audio.vibrate([30, 20, 60]); c.field.classList.add('record'); setTimeout(() => c && c.field.classList.remove('record'), 1600); if (c.bestEl) { c.bestEl.textContent = '🏆 ' + t('run.newBest'); c.bestEl.classList.add('hot'); } }
+    if (!c.recordSaid && best && sc > best) { c.recordSaid = true; floatText(t('endless.record'), 'gold', true); CZ.audio.sfx('record'); CZ.audio.vibrate([30, 20, 60]); c.field.classList.add('record'); setTimeout(() => c && c.field.classList.remove('record'), 1600); if (c.bestEl) { c.bestEl.textContent = '🏆 ' + t('run.newBest'); c.bestEl.classList.add('hot'); } }
     else if (c.bestEl && best && !c.recordSaid) { const left = best - sc; const near = left > 0 && left < Math.max(60, best * 0.15); c.bestEl.textContent = near ? t('run.toBest', { n: left }) : '🏆 ' + best; c.bestEl.classList.toggle('hot', near); }   // (28 Kas) rekora yaklaşınca sayaç
     // ligdeki / arkadaşlardaki hedefleri geçtikçe haber ver
     if (c.targets && c.targets.length && sc > c.targets[0].score) {
@@ -559,7 +559,7 @@ CZ.screens.chase = (function () {
     CZ.audio.sfx('lose');
     CZ.audio.vibrate([120, 60, 200]);
     if (c.run) c.run.ziboPose('tongue');
-    say('zibo.chase.escaped');
+    say('zibo.chase.escaped'); CZ.audio.sfx('lvlfail');
     if (c.run && c.run.deathFx) c.run.deathFx();
     c.field.classList.add('dying');
     // (28 Kas) ilk 30 saniyede ölünce 'Kurtar beni' reklamı çıkmaz, direkt skor (oyuncuyu reklama boğma)
@@ -596,7 +596,7 @@ CZ.screens.chase = (function () {
     if (c.lvlDone) return; c.lvlDone = true;
     const d = CZ.state.data, L = c.level;
     stop(); if (c.run) c.run.caught();
-    CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 40, 30, 160]); say('zibo.chase.caught');
+    CZ.audio.sfx('lvlwin'); CZ.audio.vibrate([40, 30, 40, 30, 160]); say('zibo.chase.caught');
     c.field.append(h('div', { class: 'mine-pop good show', text: t('chase.caught') }));
     const stars = (c.stumbles || 0) === 0 && !c.revived ? 3 : (c.stumbles || 0) <= 1 ? 2 : 1;
     const reward = 150 + L * 50 + stars * 50;

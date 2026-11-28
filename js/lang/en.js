@@ -1342,7 +1342,7 @@ CZ.i18n.register('en', 'English', {
   "achv.d.PHOTO_1": "Share from photo mode",
   "achv.n.RICH": "Mountain of Gold",
   "achv.d.RICH": "Hold {n} gold at once",
-  "opt.credits": "Credits: 3D models by KayKit (CC0) and Meshy AI (CC BY 4.0), animations by Mixamo.",
+  "opt.credits": "Credits: 3D models by KayKit (CC0) and Meshy AI (CC BY 4.0), animations by Mixamo. Music: 3xBlast, Tarush Singhal (CC0, OpenGameArt). Sounds: Kenney (CC0).",
   "ord.btn": "Orders",
   "ord.title": "Order Board",
   "ord.rep": "Village reputation: Lv. {n} ({k}/{m})",

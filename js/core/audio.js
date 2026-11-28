@@ -31,7 +31,7 @@ CZ.audio = (function () {
       noiseBuffer = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       const data = noiseBuffer.getChannelData(0);
       for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-      startSong();
+      if (TRACKS[songName]) playTrack(TRACKS[songName]); else startSong();
     }
     if (ctx.state === 'suspended' && !document.hidden) ctx.resume();
   }
@@ -237,6 +237,7 @@ CZ.audio = (function () {
 
   // Gerçek kayıt sesler (Kenney, CC0). Yüklenene kadar ya da çözülemezse eski üretilmiş ses çalar.
   const SAMPLES = {
+    lvlwin: ['jingle_win', 0.8], lvlfail: ['jingle_fail', 0.7], record: ['jingle_record', 0.75], lane: [['swish_1', 'swish_2', 'swish_3'], 0.35], whoosh: ['wind_gust', 0.7],   // (28 Kas) gerçek sesler (CC0)
     coin: ['sfx_coin', 0.45], jump: ['sfx_jump', 0.6], jumpHigh: ['sfx_jump-high', 0.65], hit: ['impactPunch_heavy_000', 0.9], hurt: ['sfx_hurt', 0.7],
     throw: ['sfx_throw', 0.6], gem: ['sfx_gem', 0.6], power: ['sfx_magic', 0.7], star: ['powerUp3', 0.5], land: ['footstep_snow_000', 0.7],
     step: [['footstep_snow_000', 'footstep_snow_001', 'footstep_snow_002', 'footstep_snow_003'], 0.22], slide: ['impactSoft_medium_000', 0.6],
@@ -412,10 +413,41 @@ CZ.audio = (function () {
     }
   }
 
+  // (28 Kas) GERÇEK MÜZİK: koşuda ve menüde kayıtlı parçalar (CC0, OpenGameArt). Yoksa eski sentez müzik.
+  const TRACKS = { play: 'run', home: 'menu', menu: 'menu' };
+  const trackBuf = {}, trackLoad = {};
+  let trackSrc = null, trackGain = null, trackName = null;
+  function loadTrack(f) {
+    if (!trackLoad[f]) trackLoad[f] = fetch('assets/music/' + f + '.ogg').then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b => (trackBuf[f] = b)).catch(() => null);
+    return trackLoad[f];
+  }
+  function stopTrack(fade) {
+    if (!trackSrc) return;
+    const src = trackSrc, g = trackGain, now = ctx.currentTime;
+    g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value, now); g.gain.linearRampToValueAtTime(0, now + (fade || 0.8));
+    setTimeout(() => { try { src.stop(); } catch (e) {} src.disconnect(); g.disconnect(); }, (fade || 0.8) * 1000 + 100);
+    trackSrc = null; trackGain = null; trackName = null;
+  }
+  function playTrack(f) {
+    if (!ctx) return;
+    if (trackName === f && trackSrc) return;
+    stopTrack(0.8);
+    trackName = f;
+    loadTrack(f).then(b => {
+      if (!b || trackName !== f || trackSrc || !CZ.state.data.music) return;
+      const src = ctx.createBufferSource(); src.buffer = b; src.loop = true;
+      const g = ctx.createGain(); g.gain.value = 0; src.connect(g); g.connect(musicBus);
+      const now = ctx.currentTime; g.gain.linearRampToValueAtTime(f === 'run' ? 0.9 : 0.75, now + 1.0);
+      src.start(); trackSrc = src; trackGain = g;
+    });
+  }
   function music(name) {
     if (name === songName) return;
     songName = name;
     tempo = 1;
+    const f = TRACKS[name];
+    if (f && ctx) { clearInterval(scheduler); scheduler = null; song = null; playTrack(f); return; }
+    if (ctx) stopTrack(0.6);
     startSong();
   }
 
@@ -469,7 +501,7 @@ CZ.audio = (function () {
     return { peak, rms: Math.sqrt(sum / buf.length), state: ctx.state };
   }
 
-  return { unlock, speak, sfx, charge, music, duck, vibrate, level, vol, setVolume, applyVolume, setTempo: m => { tempo = m; }, get song() { return songName; } };
+  return { unlock, speak, sfx, charge, music, duck, vibrate, level, vol, setVolume, applyVolume, setTempo: m => { tempo = m; if (trackSrc) trackSrc.playbackRate.setTargetAtTime(Math.min(1.1, Math.max(0.9, m)), ctx.currentTime, 0.5); }, get song() { return songName; } };
 })();
 
 // Duraklatma menüsündeki ses ayarları: genel ses, müzik, efektler, karakter sesleri ve titreşim.
