@@ -49,6 +49,7 @@ CZ.screens.chase = (function () {
         onAct(k) { if (c && c.tut) tutAct(k); if (c && c.act && c.running && k !== 'move') c.act[k] = (c.act[k] || 0) + 1; },
         onDash(lvl) { if (!c || !c.running) return; if (c.act) c.act.sled += 1; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
         onTap: () => hook(),
+        bestDist: E ? (CZ.state.data.bestDist || 0) : 0, bestText: t('run.signBest'),
         letter: () => E && CZ.letters ? CZ.letters.next() : null,
         onLetter(ch) { if (!CZ.letters) return; const r = CZ.letters.got(ch); floatText(t('let.got', { ch, n: r.n }), 'gold', true); if (r.done) { floatText(t('let.done'), 'gold', true); CZ.audio.sfx('win'); } },   // (28 Kas) ekrana dokun = kartopu at (tek parmak)
         onSledReady() { const d = CZ.state.data; if ((d.sledTips || 0) < 3) { d.sledTips = (d.sledTips || 0) + 1; CZ.state.save(); tutTip('tut.sled', '🛷'); } },
@@ -604,7 +605,7 @@ CZ.screens.chase = (function () {
     const d = CZ.state.data;
     const sc = Math.floor(c.score);
     const record = sc > (d.bestRun || 0);
-    if (record) d.bestRun = sc;
+    if (record) { d.bestRun = sc; if (c.run) d.bestDist = Math.round(c.run.state.dist); }
     d.runs = (d.runs || 0) + 1;
     if ((c.alive || 0) > 12) d.runTut = true;
     d.runGold = (d.runGold || 0) + c.gold;

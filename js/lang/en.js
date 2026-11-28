@@ -56,6 +56,7 @@ CZ.i18n.register('en', 'English', {
   'skin.ice': "Ice",
   'skin.gold': "Gold",
   'upg.sled': 'Sled color (shown when you dash)',
+  'run.signBest': '🏆 YOUR BEST',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',

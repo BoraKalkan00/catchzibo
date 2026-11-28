@@ -1441,6 +1441,16 @@ CZ.runner3d = (function () {
       });
       animateSnow(dt, s.speed * 0.6);
       zoneStep(dt);
+      // (28 Kas) rekor tabelası: en iyi koşunun bittiği yerde yolun üstünde 'REKOR' kemeri
+      if (opts.bestDist > 60 && !s.bestSign && s.dist > opts.bestDist + SPAWN_Z) {
+        s.bestSign = true;
+        const g = new THREE.Group(), W2 = LANES * LANE_W + 1;
+        [-1, 1].forEach(sd => g.add(mesh(GEO.cyl, M.pole, 0.12, 4.4, 0.12, sd * W2 / 2, 2.2, 0)));
+        const cv = canvasTex(512, 128, (x, w, hh) => { x.fillStyle = '#e8423a'; x.fillRect(0, 0, w, hh); x.strokeStyle = '#fff'; x.lineWidth = 10; x.strokeRect(5, 5, w - 10, hh - 10); x.fillStyle = '#fff'; x.font = '900 72px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(opts.bestText || 'BEST', w / 2, hh / 2 + 4); });
+        const ban = new THREE.Mesh(GEO.plane, new THREE.MeshBasicMaterial({ map: cv, side: THREE.DoubleSide })); ban.scale.set(W2, W2 / 4, 1); ban.position.y = 4.2; g.add(ban);
+        g.userData.noBake = true;
+        addObj({ type: 'deco', lane: -9, len: 0.5, mesh: g, noDim: true });
+      }
 
       // sıra doğar
       s.nextRow -= dz;
@@ -1549,7 +1559,7 @@ CZ.runner3d = (function () {
         const z = o.mesh.position.z;
         if (o.oncoming && !o.honk && z > -55) { o.honk = true; CZ.audio.sfx('horn'); }
         if (z > KILL_Z + (o.type === 'deco' ? o.len / 2 : 0)) { drop(o); s.objs.splice(i, 1); continue; }
-        if (o.type === 'deco') { const inside = z + o.len / 2 > 0 && z - o.len / 2 < 2; if (inside) s.dimHit = 1; continue; }
+        if (o.type === 'deco') { const inside = z + o.len / 2 > 0 && z - o.len / 2 < 2; if (inside && !o.noDim) s.dimHit = 1; continue; }
         if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
         if (o.roll) o.roll.rotation.x += dt * (s.speed + o.vz) / 0.62;
         if (o.roll && z > 1.2) { o.mesh.scale.setScalar(Math.max(0.01, 1 - (z - 1.2) / 2)); }   // (28 Kas) geçen dev kartopu kameraya yapışmasın

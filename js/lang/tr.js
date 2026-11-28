@@ -56,6 +56,7 @@ CZ.i18n.register('tr', 'Türkçe', {
   'skin.ice': "Buz",
   'skin.gold': "Altın",
   'upg.sled': 'Kızak rengi (kızak atağında görünür)',
+  'run.signBest': '🏆 REKORUN',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',
