@@ -36,14 +36,7 @@ CZ.notify = (function () {
         at.setHours(HOUR, Math.floor(Math.random() * 20), 0, 0);
         return { id, title: CZ.t('notif.title'), body: text(pool[(start + i) % pool.length]), schedule: { at, allowWhileIdle: true } };
       });
-      // İnşaat bitince haber ver (köy binası ya da vadideki kule/çit)
-      const d = CZ.state.data; let soon = 0;
-      if (d.vil && d.vil.job) soon = d.vil.job.end;
-      const def = d.vil && d.vil.def;
-      if (def) ['t', 'f'].forEach(k => (def[k] || []).forEach(it => { if (it && it.job && (!soon || it.job.end < soon)) soon = it.job.end; }));
-      // depolar dolunca (çevrimdışı gelir 12 saatte dolar) haber ver
-      if (CZ.village && CZ.village.lv && (CZ.village.lv('mine') || CZ.village.lv('goldmine') || CZ.village.lv('bakery'))) notifications.push({ id: JOB_ID + 1, title: CZ.t('notif.title'), body: CZ.t('notif.full'), schedule: { at: new Date(Date.now() + 12 * 3600000), allowWhileIdle: true } });
-      if (soon > Date.now() + 60000) notifications.push({ id: JOB_ID, title: CZ.t('notif.title'), body: CZ.t('notif.built'), schedule: { at: new Date(soon), allowWhileIdle: true } });
+      // (28 Kas) köy kalktı: inşaat/depo bildirimleri yok
       await ln.schedule({ notifications });
     } catch (e) {
       console.warn('Bildirim kurulamadı.', e);
