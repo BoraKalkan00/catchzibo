@@ -43,12 +43,14 @@ CZ.screens.chase = (function () {
       if (loading) loading.done();
       if (!c || c.el !== el) return;
       c.run = CZ.runner3d.start(c.stage, {
-        mode: 'chase', lanes: 3, speed: 17, endless: E, avatar: CZ.state.data.avatar || 'girl', loot: 'item.' + round.target,
+        mode: 'chase', lanes: 3, speed: 17, endless: E, avatar: CZ.state.data.avatar || 'girl', loot: E ? 'gold.chest_gold' : 'item.' + round.target,
         ziboTint: c.boss.tint, ziboFly: c.boss.fly, ziboCrown: c.boss.crown,
         pet: CZ.activePet(), perk: {}, goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
         onAct(k) { if (c && c.tut) tutAct(k); if (c && c.act && c.running && k !== 'move') c.act[k] = (c.act[k] || 0) + 1; },
         onDash(lvl) { if (!c || !c.running) return; if (c.act) c.act.sled += 1; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
         onTap: () => hook(),
+        onZoneGust() { if (!c) return; c.field.classList.add('gust'); setTimeout(() => c && c.field.classList.remove('gust'), 2600); },
+        startZone: E ? ((CZ.state.data.level || 1) - 1) % 4 : 0,
         bestDist: E ? (CZ.state.data.bestDist || 0) : 0, bestText: t('run.signBest'),
         letter: () => E && CZ.letters ? CZ.letters.next() : null,
         onLetter(ch) { if (!CZ.letters) return; const r = CZ.letters.got(ch); floatText(t('let.got', { ch, n: r.n }), 'gold', true); if (r.done) { floatText(t('let.done'), 'gold', true); CZ.audio.sfx('win'); } },   // (28 Kas) ekrana dokun = kartopu at (tek parmak)
@@ -108,7 +110,10 @@ CZ.screens.chase = (function () {
     if (E && c.mult > 1) c.field.append(h('div', { class: 'mult-chip' }, 'x' + c.mult));
     if (E) c.field.append(c.powerHud);
     if (E) {
-      c.gap = Math.max(8, C.startGap - CZ.runPerk('head'));
+      // (28 Kas) BÖLÜM: her koşunun amacı Zibo'yu bir kez yakalamak. Bölüm büyüdükçe Zibo daha uzakta ve yol daha hızlı.
+      c.level = CZ.state.data.level || 1;
+      c.gap = Math.max(8, Math.min(95, 38 + c.level * 6) - CZ.runPerk('head'));
+      c.gap0 = c.gap;
       c.targets = CZ.challenge ? CZ.challenge.targets().filter(x => x.score > 0) : [];
       c.targetEl = h('div', { class: 'target-chip' });
       drawTarget();   // (28 Kas) 'Sıradaki: Zibo 590' kaldırıldı (anlaşılmıyordu)
@@ -162,6 +167,7 @@ CZ.screens.chase = (function () {
     c.last = performance.now();
     c.loop = requestAnimationFrame(loop);
     if (c.endless) { if (c.run) c.run.state.invT = 2.4; countdown(() => {}, true); }
+    if (c.level) { const gb = h('div', { class: 'lvl-banner' }, h('small', { text: t('lvl.play', { n: c.level }) }), h('strong', { text: t('lvl.goal') })); c.field.append(gb); setTimeout(() => gb.classList.add('out'), 2600); setTimeout(() => gb.remove(), 3100); }
     c.nextSwitch = c.sim + byLevel(C.laneSwitchMs) * (c.boss.switchMul || 1);
     c.nextBomb = c.sim + (c.endless ? 25000 : 1500);
     CZ.audio.music('play');
@@ -222,6 +228,8 @@ CZ.screens.chase = (function () {
     c.score += dt * 10 * ((rs.speed || 18) / 18) * (rs.doubleT > 0 ? 2 : 1) * c.mult * (1 + CZ.runPerk('score'));
     c.alive = (c.alive || 0) + dt;
     tutStep();
+    // (28 Kas) OTOMATİK ATIŞ: Zibo'nun şeridindeysen kartopu kendiliğinden atılır (dokunmak da atar)
+    if (c.lane === c.ziboLane && c.hookReady <= 0 && !c.tut && c.alive > 2) hook(true);
     if (c.speedEl) { const sp = rs.speed || 15, k = Math.max(0, Math.min(1, (sp - 22) / 10)) + (rs.dashT > 0 || rs.flyT > 0 ? 0.6 : 0); c.speedEl.style.opacity = Math.min(0.85, k).toFixed(2); }
     // her 15 sn biraz hızlan (en çok 1.7 kat)
     const sc = Math.floor(c.score);
@@ -237,6 +245,7 @@ CZ.screens.chase = (function () {
     }
   }
   function endlessCatch() {
+    if (c.level) return levelDone();
     c.catches += 1;
     const bonus = Math.round(100 * c.mult * c.catches * (1 + CZ.runPerk('catchBonus')));
     c.score += bonus;
@@ -300,7 +309,7 @@ CZ.screens.chase = (function () {
   function layout() {
     if (c.run) c.run.setZibo(c.ziboLane, -(3 + c.gap * 0.17));
     c.gapText.textContent = t('chase.meters', { n: Math.ceil(c.gap) });
-    if (c.zmFill) { c.zmFill.style.width = Math.max(4, 100 - c.gap / C.startGap * 100) + '%'; c.zmText.textContent = Math.ceil(c.gap) + ' m'; c.zmFill.parentNode.parentNode.classList.toggle('near', c.gap < 12); }
+    if (c.zmFill) { c.zmFill.style.width = Math.max(4, 100 - c.gap / (c.gap0 || C.startGap) * 100) + '%'; c.zmText.textContent = Math.ceil(c.gap) + ' m'; c.zmFill.parentNode.parentNode.classList.toggle('near', c.gap < 12); }
     c.gapBar.style.width = Math.max(0, 100 - c.gap / C.startGap * 100) + '%';
     c.hookBtn.classList.toggle('cool', c.hookReady > 0);
     c.hookBtn.style.setProperty('--cool', c.hookReady / C.hookCooldown);
@@ -385,7 +394,7 @@ CZ.screens.chase = (function () {
     // (28 Kas) Subway Surfers gibi: ilk çarpma tökezletir (Zibo güler, 8 sn dikkat), 8 sn içinde ikinci çarpma biter.
     if (c.endless) {
       if (!(c.stumbleUntil > c.sim)) {
-        c.stumbleUntil = c.sim + 8000; c.stun = 0.5;
+        c.stumbleUntil = c.sim + 8000; c.stun = 0.5; c.stumbles = (c.stumbles || 0) + 1;
         CZ.audio.vibrate([60, 30, 60]); floatText(t('run.stumble'), 'bad'); say('zibo.chase.hit');
         c.field.classList.add('stumble'); clearTimeout(c.stT); c.stT = setTimeout(() => c && c.field.classList.remove('stumble'), 8000);
         return;
@@ -415,18 +424,18 @@ CZ.screens.chase = (function () {
   const pull = () => Math.round(byLevel([C.hookPull + 1, C.hookPull - 2]) + (c.W.dmg - 1) * 0.6 + CZ.charPerk('power'));
 
   // Kanca: Zibo aynı şeritteyse çeker ama tamamen değil; sonra Zibo hızlanır.
-  function hook() {
+  function hook(auto) {
     if (!c || !c.running || c.hookReady > 0) return;
-    c.hookReady = C.hookCooldown;
+    c.hookReady = auto ? 1.5 : C.hookCooldown;
     const hit = c.lane === c.ziboLane;
     if (c.run) c.run.throwAt(hit, () => {
       if (!c || !c.running) return;
       // İsabet: Zibo sendeler ve gözle görülür şekilde geri düşer.
-      c.gap = Math.max(0, c.gap - pull());
+      c.gap = Math.max(0, c.gap - (c.level ? 2.5 + (c.W.dmg - 1) * 0.4 + CZ.runPerk('power') * 0.5 : pull()));   // (28 Kas) bölümde her isabet az yaklaştırır (bölüm ~30-50 sn)
       c.ziboStun = 0.45 + c.W.dmg * 0.06;
       if (c.act) c.act.hit += 1;
       say(pick(['zibo.chase.ouch', 'zibo.chase.hooked']));
-      floatText(t('chase.pulled', { n: pull() }), 'gold');
+      if (!c.level) floatText(t('chase.pulled', { n: pull() }), 'gold');
       layout();
     });
     if (!hit) floatText(t('chase.miss'), 'bad');
@@ -582,6 +591,36 @@ CZ.screens.chase = (function () {
     c.timers.push(tm);
     c.el.append(box);
   }
+  // (28 Kas) BÖLÜM TAMAM: Zibo yakalandı → kutlama, yıldızlar, ödül, sonraki bölüm
+  function levelDone() {
+    if (c.lvlDone) return; c.lvlDone = true;
+    const d = CZ.state.data, L = c.level;
+    stop(); if (c.run) c.run.caught();
+    CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 40, 30, 160]); say('zibo.chase.caught');
+    c.field.append(h('div', { class: 'mine-pop good show', text: t('chase.caught') }));
+    const stars = (c.stumbles || 0) === 0 && !c.revived ? 3 : (c.stumbles || 0) <= 1 ? 2 : 1;
+    const reward = 150 + L * 50 + stars * 50;
+    c.gold += reward;
+    d.level = L + 1; d.lvlStars = d.lvlStars || {}; d.lvlStars[L] = Math.max(d.lvlStars[L] || 0, stars);
+    const sc = Math.floor(c.score); if (sc > (d.bestRun || 0)) d.bestRun = sc;
+    d.runs = (d.runs || 0) + 1; d.runGold = (d.runGold || 0) + c.gold;
+    if (L % 3 === 0 && CZ.mbox) CZ.mbox.add(1);
+    CZ.state.save(); CZ.progress.addXp(30 + L * 5);
+    try { const M = CZ.missions; M.add('runs', 1); M.add('goldT', c.gold); M.add('catch', 1); M.finish(); } catch (e) {}
+    const tm = setTimeout(() => {
+      if (!c) return;
+      c.el.append(h('div', { class: 'sheet sheet-win lvl-win' },
+        h('small', { text: t('lvl.done', { n: L }) }),
+        h('div', { class: 'star-row' }, [0, 1, 2].map(i => img(i < stars ? 'ui.star' : 'ui.star_empty', 'star' + (i < stars ? ' pop' : '')))),
+        h('p', { class: 'reward' }, img('ui.gold', 'emerald-icon'), h('b', { text: '+' + c.gold })),
+        L % 3 === 0 ? h('p', { class: 'rank-up' }, '📦 ', t('box.won')) : null,
+        h('p', { class: 'lvl-next', text: t('lvl.next', { n: L + 1 }) }),
+        h('div', { class: 'sheet-row' },
+          btn(t('win.toVillage'), () => CZ.ui.go('home'), 'ghost-dark wide'),
+          btn(t('lvl.go', { n: L + 1 }), () => CZ.ui.wipeTo('chase', { endless: true }), 'primary wide'))));
+    }, 1800);
+    c.timers.push(tm);
+  }
   // (28 Kas) skor paylaş: görsel kart (logo + skor) üret, telefonun paylaş menüsüyle gönder
   function shareScore(sc) {
     const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1350; const x = cv.getContext('2d');
@@ -624,7 +663,7 @@ CZ.screens.chase = (function () {
     let doubled = false;
     const goldP = h('p', { class: 'reward' }, img('ui.gold', 'emerald-icon'), h('b', { text: '+' + c.gold }));
     const sheet = h('div', { class: 'sheet sheet-lose endless-over' },
-      h('small', { text: t(record ? 'endless.newBest' : 'endless.over') }),
+      h('small', { text: c.level ? t('lvl.fail', { n: c.level }) : t(record ? 'endless.newBest' : 'endless.over') }),
       h('h2', { class: 'big-score', text: sc }),
       h('p', { text: t('endless.best', { n: d.bestRun || 0 }) + (c.mult > 1 ? '  ·  x' + c.mult : '') }),
       !record && d.bestRun && d.bestRun - sc < d.bestRun * 0.2 ? h('p', { class: 'near-best', text: t('run.almost', { n: d.bestRun - sc }) }) : null,
@@ -640,7 +679,7 @@ CZ.screens.chase = (function () {
       btn(t('share.btn'), () => shareScore(sc), 'small ghost-dark', 'ic:share'),
       h('div', { class: 'sheet-row' },
         btn(t('win.toVillage'), () => CZ.ui.go('hub'), 'ghost-dark wide'),
-        btn(t('endless.again'), () => CZ.ui.wipeTo('chase', { endless: true }), 'primary wide')));
+        btn(c.level ? t('lvl.retry') : t('endless.again'), () => CZ.ui.wipeTo('chase', { endless: true }), 'primary wide')));
     c.el.append(sheet);
     if (setDone) { CZ.audio.sfx('win'); CZ.audio.vibrate([40, 30, 80]); }
     // Subway Surfers gibi: skor görünür görünmez reklam kendiliğinden açılır (her 2 oyunda bir).

@@ -79,7 +79,7 @@ CZ.screens.home = {
         dailyReady ? sideBtn('gift glow', '🎁', t('home.daily'), '!', () => CZ.progress.showOnHub(el, refresh)) : null,
         CZ.mbox.count() > 0 ? sideBtn('box glow', '📦', t('box.short'), String(CZ.mbox.count()), () => CZ.mbox.open(refresh)) : null),
       h('div', { class: 'hm-bot' },
-        h('button', { class: 'hm-play', type: 'button', onClick: e => { e.stopPropagation(); play(); } }, t('title.play')),
+        h('button', { class: 'hm-play', type: 'button', onClick: e => { e.stopPropagation(); play(); } }, t('title.play'), h('small', { text: t('lvl.play', { n: d.level || 1 }) })),
         h('p', { class: 'hm-hint', text: t(CZ.PC || matchMedia('(pointer: fine)').matches ? 'home.hintPc' : 'home.hint') }),
         h('div', { class: 'hm-row' },
           h('button', { class: 'hm-small', type: 'button', onClick: e => { e.stopPropagation(); CZ.audio.sfx('button'); CZ.ui.go('chars', { returnTo: 'home' }); } }, t('chars.title')),

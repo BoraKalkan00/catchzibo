@@ -119,14 +119,15 @@ CZ.ui = (function () {
 
   // Daire kapanıp açılan geçiş: malikaneye girerken ve tura başlarken.
   function wipeTo(name, params) {
-    const cover = h('div', { class: 'wipe' });
+    // (28 Kas) yumuşak geçiş: ekran kararır (kar taneli), yeni ekran yavaşça açılır
+    const cover = h('div', { class: 'wipe soft' });
     root.append(cover);
     setTimeout(() => {
       go(name, params);
       cover.classList.add('out');
       root.append(cover);
-      setTimeout(() => cover.remove(), 300);
-    }, 240);
+      setTimeout(() => cover.remove(), 520);
+    }, 360);
   }
 
   // Dil değişince mevcut ekranı yeniden çizer.

@@ -554,15 +554,16 @@ CZ.runner3d = (function () {
       if (mansionSp) mansionSp.visible = k === 0 || k === 3;
       if (opts.onZone) opts.onZone(k);
     }
+    if (opts.startZone) setZone(opts.startZone % ZONES.length);
     function zoneStep(dt) {
       if (!opts.endless) return;
       s.zoneT += dt;
-      if (!s.zGust && s.zoneT > 45) { s.zGust = 1.6; CZ.audio.sfx('whoosh'); }
+      if (!s.zGust && s.zoneT > 45) { s.zGust = 2.6; CZ.audio.sfx('whoosh'); if (opts.onZoneGust) opts.onZoneGust(); }
       if (s.zGust > 0) {
         s.zGust -= dt;
-        const k = 1 - Math.abs(s.zGust - 0.8) / 0.8;          // 0 → 1 → 0
+        const k = Math.pow(1 - Math.abs(s.zGust - 1.3) / 1.3, 0.7);   // 0 → 1 → 0 (daha uzun, yumuşak tipi)
         scene.fog.near = 38 - 34 * k; scene.fog.far = 92 - 78 * k;
-        if (s.zGust <= 0.8 && !s.zSwapped) { s.zSwapped = true; setZone((s.zone + 1) % ZONES.length); }
+        if (s.zGust <= 1.3 && !s.zSwapped) { s.zSwapped = true; setZone((s.zone + 1) % ZONES.length); }
         if (s.zGust <= 0) { s.zGust = 0; s.zSwapped = false; s.zoneT = 0; scene.fog.near = 38; scene.fog.far = 92; }
       }
     }

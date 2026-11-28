@@ -57,6 +57,13 @@ CZ.i18n.register('tr', 'Türkçe', {
   'skin.gold': "Altın",
   'upg.sled': 'Kızak rengi (kızak atağında görünür)',
   'run.signBest': '🏆 REKORUN',
+  'lvl.done': "BÖLÜM {n} TAMAM!",
+  'lvl.next': "Zibo kaçtı ama bir sonraki saklandığı yeri biliyoruz: Bölüm {n}",
+  'lvl.go': "Bölüm {n} ›",
+  'lvl.play': "Bölüm {n}",
+  'lvl.goal': "Zibo'yu yakala!",
+  'lvl.fail': "Zibo kaçtı! Bölüm {n}",
+  'lvl.retry': "Tekrar dene",
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

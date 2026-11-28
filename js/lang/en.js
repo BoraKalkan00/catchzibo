@@ -57,6 +57,13 @@ CZ.i18n.register('en', 'English', {
   'skin.gold': "Gold",
   'upg.sled': 'Sled color (shown when you dash)',
   'run.signBest': '🏆 YOUR BEST',
+  'lvl.done': "LEVEL {n} COMPLETE!",
+  'lvl.next': "Zibo escaped, but we know his next hideout: Level {n}",
+  'lvl.go': "Level {n} ›",
+  'lvl.play': "Level {n}",
+  'lvl.goal': "Catch Zibo!",
+  'lvl.fail': "Zibo got away! Level {n}",
+  'lvl.retry': "Try again",
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',

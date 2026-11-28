@@ -2567,3 +2567,24 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .sc-red i { background: #c8242e; } .sc-blue i { background: #2f6fd6; } .sc-gold i { background: #f3c33c; } .sc-black i { background: #22222a; }
 .sled-col.on i { border-color: #2fa05a; box-shadow: 0 0 8px #2fa05a; }
 .sled-col small { font-size: 11px; }
+
+.hm-play small { display: block; font-size: 15px; font-weight: 800; margin-top: 4px; opacity: .8; }
+.lvl-banner { position: absolute; left: 50%; top: 26%; transform: translateX(-50%); z-index: 9; text-align: center; padding: 12px 26px; border-radius: 20px; background: rgba(10,16,48,.85); border: 3px solid #ffe27a; color: #fff; animation: rise .4s ease-out both; transition: opacity .5s; pointer-events: none; }
+.lvl-banner small { display: block; color: #ffe27a; font-weight: 900; font-size: 16px; }
+.lvl-banner strong { font-size: 28px; font-weight: 900; }
+.lvl-banner.out { opacity: 0; }
+.lvl-win .lvl-next { font-weight: 800; color: #6a4a2a; }
+
+/* (28 Kas) yumuşak ekran geçişleri */
+.wipe.soft { clip-path: none; background: radial-gradient(ellipse at center, #1b2a6b, #070c1e); opacity: 0; animation: softIn .36s ease-in forwards; }
+.wipe.soft.out { animation: softOut .5s ease-out forwards; }
+@keyframes softIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes softOut { from { opacity: 1; } to { opacity: 0; } }
+.screen { animation: scrIn .38s ease-out both; }
+@keyframes scrIn { from { opacity: 0; transform: scale(1.03); } to { opacity: 1; transform: none; } }
+.sheet { animation: sheetUp .45s cubic-bezier(.2,1.2,.4,1) both; }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+.modal-wrap { animation: softIn .25s ease-out both; }
+.screen-chase:has(.lvl-win) .sled-btn, .screen-chase:has(.lvl-win) .pause-btn { display: none !important; }
+.chase-field3d.gust::before { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(ellipse at center, rgba(255,255,255,.0) 20%, rgba(240,248,255,.85) 90%); animation: gustA 2.6s ease-in-out both; }
+@keyframes gustA { 0%,100% { opacity: 0 } 45%,55% { opacity: 1 } }
