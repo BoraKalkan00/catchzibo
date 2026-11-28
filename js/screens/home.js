@@ -2,6 +2,13 @@ CZ.LD_SC = ['zibo_soygun', 'zibo_soygun'];   // (28 Kas) yükleme: Zibo hazineyi
 // (28 Kas) ANA EKRAN: oyun tek şey — Zibo'yu kovala (sonsuz koşu). Subway Surfers sadeliği:
 // üstte altın / elmas / ses, logo, seviye çubuğu; ortada canlı 3D karakter; solda 3 küçük düğme (görevler, günlük ödül, kutu);
 // altta kocaman OYNA, altında karakterler + ayarlar. Ekrana dokunmak da oynatır.
+// (28 Kas) GÜNLÜK HARF AVI: her gün Z-İ-B-O harflerini koşularda topla → 500 altın + gizemli kutu
+CZ.letters = {
+  W: ['Z', 'İ', 'B', 'O'],
+  st() { const d = CZ.state.data, day = CZ.state.today(); if (!d.letters || d.letters.day !== day) d.letters = { day, got: [] }; return d.letters; },
+  next() { const L = this.st(); return this.W.find(c => !L.got.includes(c)) || null; },
+  got(ch) { const L = this.st(); if (!L.got.includes(ch)) L.got.push(ch); const done = L.got.length >= this.W.length && !L.paid; if (done) { L.paid = true; const d = CZ.state.data; d.gold = (d.gold || 0) + 500; d.boxes = (d.boxes || 0) + 1; } CZ.state.save(); return { n: L.got.length, done }; }
+};
 CZ.mbox = {
   // Gizemli kutu: 500+ puanlık koşudan ve görev seti bitince kazanılır. Açınca rastgele ödül.
   count: () => CZ.state.data.boxes || 0,
@@ -61,6 +68,7 @@ CZ.screens.home = {
           } }, h('b', { text: muted ? '🔇' : '🔊' })))),
       h('div', { class: 'hm-logo' }, h('img', { src: 'assets/ui/logo.webp', alt: t('title.name'), draggable: 'false' })),
       h('div', { class: 'hm-level' }, CZ.progress.bar()),
+      h('div', { class: 'hm-letters', title: t('let.title') }, h('small', { text: t('let.title') }), CZ.letters.W.map(ch => h('b', { class: CZ.letters.st().got.includes(ch) ? 'on' : '', text: ch }))),
       this.stage = h('div', { class: 'hm-mid hm-stage' }),
       h('div', { class: 'hm-left' },
         sideBtn('mis', CZ.icon('target'), t('home.missions'), misLeft ? String(misLeft) : '', () => {

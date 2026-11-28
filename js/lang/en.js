@@ -48,6 +48,9 @@ CZ.i18n.register('en', 'English', {
   'story.tap': "Tap to start",
   'chars.col': 'Collection {n}/{m}',
   'opt.hicon': 'High-contrast obstacles',
+  'let.got': "Letter {ch}! ({n}/4)",
+  'let.done': "ZIBO complete! +500 gold + mystery box",
+  'let.title': "Today's letters:",
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',

@@ -48,7 +48,9 @@ CZ.screens.chase = (function () {
         pet: CZ.activePet(), perk: {}, goldMult: 1 + CZ.charPerk('gold'), sledBoost: CZ.charPerk('sled'), dmg: W.dmg, weaponId: W.id, weaponArt: W.art, ball: W.ball, sledLvl: CZ.upLevel('sled'),
         onAct(k) { if (c && c.tut) tutAct(k); if (c && c.act && c.running && k !== 'move') c.act[k] = (c.act[k] || 0) + 1; },
         onDash(lvl) { if (!c || !c.running) return; if (c.act) c.act.sled += 1; const n = 3 + lvl; c.gap = Math.max(0, c.gap - n); floatText(t('run.sledGo') + ' -' + n + ' m', 'gold'); say('zibo.chase.dash'); },
-        onTap: () => hook(),   // (28 Kas) ekrana dokun = kartopu at (tek parmak)
+        onTap: () => hook(),
+        letter: () => E && CZ.letters ? CZ.letters.next() : null,
+        onLetter(ch) { if (!CZ.letters) return; const r = CZ.letters.got(ch); floatText(t('let.got', { ch, n: r.n }), 'gold', true); if (r.done) { floatText(t('let.done'), 'gold', true); CZ.audio.sfx('win'); } },   // (28 Kas) ekrana dokun = kartopu at (tek parmak)
         onSledReady() { const d = CZ.state.data; if ((d.sledTips || 0) < 3) { d.sledTips = (d.sledTips || 0) + 1; CZ.state.save(); tutTip('tut.sled', '🛷'); } },
         onGold(n) { c.gold += n; if (c.gold >= (c.goldSay || 25)) { c.goldSay = c.gold + 40; if (!speaking()) say('zibo.chase.gold'); } c.goldText.textContent = c.gold; c.goldText.parentNode.classList.remove('bump'); void c.goldText.offsetWidth; c.goldText.parentNode.classList.add('bump'); },
         onEmerald() {}, onCrate() {},

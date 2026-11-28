@@ -2537,3 +2537,8 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .story-txt strong { display: block; font-size: 28px; font-weight: 900; color: #ffe27a; text-shadow: 0 3px 0 #000; }
 .story-txt p { font-size: 19px; font-weight: 800; margin: 8px 0; }
 .story-txt small { opacity: .8; animation: zmPulse 1s infinite; }
+
+.hm-letters { position: relative; display: flex; align-items: center; gap: 5px; margin-top: 6px; padding: 3px 10px; border-radius: 99px; background: rgba(0,0,0,.45); }
+.hm-letters small { font-weight: 800; font-size: 12px; margin-right: 2px; }
+.hm-letters b { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; background: rgba(255,255,255,.18); color: rgba(255,255,255,.5); }
+.hm-letters b.on { background: #7b3fc4; color: #ffe27a; border: 2px solid #fff; }

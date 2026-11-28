@@ -1132,6 +1132,12 @@ CZ.runner3d = (function () {
           gem(l, SPAWN_Z, 2.15);
         }
       }
+      // (28 Kas) Günlük harf avı: Z-İ-B-O harfleri yolda belirir (koşu başına en çok 2)
+      if (opts.letter && s.t >= (s.nextLetter || 14) && (s.lettersSpawned || 0) < 2) {
+        const free = ALL.filter(l => !kinds[l]); const ch = opts.letter();
+        if (free.length && ch) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex(ch, '#7b3fc4', '#ffe27a') })); sp.scale.set(1.1, 1.1, 1); sp.position.set(laneX(pick(free)), 1.0, SPAWN_Z - 3); const gl = new THREE.Sprite(powerGlow); gl.scale.set(2.3, 2.3, 1); gl.position.z = -0.05; sp.add(gl); scene.add(sp); s.coins.push({ kind: 'letter', ch, mesh: sp, lane: 0, power: true, bob: 0 }); s.lettersSpawned = (s.lettersSpawned || 0) + 1; }
+        s.nextLetter = s.t + rand(25, 40);
+      }
       if (s.t >= s.nextPower) {
         const free = ALL.filter(l => !kinds[l]);
         if (free.length) { power(pick(free), SPAWN_Z - 6, opts.endless ? pickW(ENDLESS_POWERS).id : Math.random() < 0.5 ? 'magnet' : 'double'); s.nextPower = s.t + (opts.endless ? rand(9, 15) : rand(R.powerEvery[0], R.powerEvery[1])); }
@@ -1659,6 +1665,9 @@ CZ.runner3d = (function () {
         CZ.audio.sfx('coin', s.coinStreak);
         opts.onGold(n);
         fillSled(1);
+      } else if (c.kind === 'letter') {
+        CZ.audio.sfx('star'); CZ.audio.vibrate([20, 20, 40]); sparks(c.mesh.position, 12, '#ffe27a');
+        if (opts.onLetter) opts.onLetter(c.ch);
       } else if (c.kind === 'gem') {
         s.emeralds += 1;
         CZ.audio.sfx('win');
