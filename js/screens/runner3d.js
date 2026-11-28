@@ -621,6 +621,17 @@ CZ.runner3d = (function () {
       jet.userData.fl = fl;
       jet.visible = false;
       zibo3.root.add(jet);
+      // (28 Kas) Zibo'nun sırtında çaldığı altın çuvalı (hikâye ekranda görünsün)
+      if (opts.endless) {
+        const sack = new THREE.Group(), cloth = CZ.style.mat({ color: 0x8a5a2a }), rope = CZ.style.mat({ color: 0xd8b060 }), au = CZ.style.mat({ color: 0xffc928, emissive: 0x5a3a00 });
+        const b1 = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 10), cloth); b1.scale.set(1, 1.1, 0.85); sack.add(b1);
+        const nk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.16, 0.16, 10), cloth); nk.position.y = 0.38; sack.add(nk);
+        const rp = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.03, 6, 14), rope); rp.rotation.x = Math.PI / 2; rp.position.y = 0.33; sack.add(rp);
+        for (let i = 0; i < 5; i++) { const cn = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.025, 12), au); cn.position.set(rand(-0.1, 0.1), 0.47 + i * 0.012, rand(-0.06, 0.06)); cn.rotation.set(rand(-0.6, 0.6), 0, rand(-0.6, 0.6)); sack.add(cn); }
+        sack.position.set(0.28, 0.72, 0.22); sack.rotation.z = -0.35; sack.scale.setScalar(0.62);
+        sack.traverse(m => { if (m.isMesh) m.castShadow = true; });
+        zibo3.root.add(sack);
+      }
     }
     function syncZibo3(dt) {
       if (!zibo3) return;
@@ -629,7 +640,10 @@ CZ.runner3d = (function () {
       zibo3.root.position.copy(zibo.position);
       zibo3.root.rotation.z = zibo.material.rotation || 0;
       const sy = zibo.userData.sy || 1;
-      zibo3.root.scale.set(1, sy, 1);
+      const ZS = opts.endless ? 1.3 : 1; zibo3.root.scale.set(ZS, sy * ZS, ZS);   // (28 Kas) Zibo daha büyük ve okunaklı
+      // yakınken arada omzunun üstünden geriye bakıp dil çıkarır (yüzü görünsün)
+      s.lookBackT = (s.lookBackT || 0) - dt; if (s.lookBackT < -4) s.lookBackT = 1.1;
+      zibo3.root.rotation.y = (zibo3.root.rotation.y || 0) + ((s.lookBackT > 0 && opts.endless ? Math.PI * 0.75 : 0) - (zibo3.root.rotation.y || 0)) * Math.min(1, dt * 8);
       const f = s.ziboForce || '';
       zibo3.update(dt, {
         running: s.running || s.catching ? !(s.catching && s.catching > 0.6) : false,
@@ -1610,6 +1624,7 @@ CZ.runner3d = (function () {
       s.ziboKick = Math.max(0, (s.ziboKick || 0) - dt * 3);
       if (s.ziboCaughtT > 0) { s.ziboCaughtT -= dt; s.ziboZ = -11 - Math.sin(Math.min(1, (3 - s.ziboCaughtT) / 3) * Math.PI) * 14; }
       zibo.position.z += (s.ziboZ + s.ziboKick - zibo.position.z) * Math.min(1, dt * 7);
+      if (lootSp) lootSp.visible = !opts.endless || !!s.catching;
       if (lootSp) { lootSp.position.set(zibo.position.x + 0.35, zibo.position.y + 1.25, zibo.position.z + 0.05); }
       if (crown) crown.position.set(zibo.position.x, zibo.position.y + zibo.scale.y * 0.98, zibo.position.z + 0.02);
       chaseFx(dt);
