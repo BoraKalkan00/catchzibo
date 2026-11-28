@@ -96,6 +96,7 @@ CZ.screens.chase = (function () {
       c.bestEl = h('small', { class: 'hud-best', text: '🏆 ' + (CZ.state.data.bestRun || 0) });
       c.field.append(h('div', { class: 'run-hud' }, c.clock, c.bestEl));
       // (28 Kas) Zibo göstergesi: ne kadar uzakta, kartopu atınca yaklaşır, 0 olunca yakalarsın
+      c.speedEl = h('div', { class: 'speed-lines' }); c.field.append(c.speedEl);   // (28 Kas) hız çizgileri
       c.zmFill = h('i'); c.zmText = h('b', { text: '' });
       c.field.append(h('div', { class: 'zibo-meter' }, h('img', { src: 'assets/zibo/png/laugh.webp', alt: '' }), h('div', { class: 'zm-bar' }, c.zmFill), c.zmText));
     }
@@ -203,6 +204,7 @@ CZ.screens.chase = (function () {
     c.score += dt * 10 * ((rs.speed || 18) / 18) * (rs.doubleT > 0 ? 2 : 1) * c.mult * (1 + CZ.runPerk('score'));
     c.alive = (c.alive || 0) + dt;
     tutStep();
+    if (c.speedEl) { const sp = rs.speed || 15, k = Math.max(0, Math.min(1, (sp - 22) / 10)) + (rs.dashT > 0 || rs.flyT > 0 ? 0.6 : 0); c.speedEl.style.opacity = Math.min(0.85, k).toFixed(2); }
     // her 15 sn biraz hızlan (en çok 1.7 kat)
     const sc = Math.floor(c.score);
     if (sc !== c.shown) { c.shown = sc; c.clock.textContent = sc; }

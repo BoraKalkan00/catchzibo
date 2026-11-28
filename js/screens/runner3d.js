@@ -800,7 +800,7 @@ CZ.runner3d = (function () {
       if (o.fadeMats) { o.fadeMats.forEach(m => m.dispose()); o.fadeMats = null; }
     }
     function addObj(o) {
-      if (o.mesh.isGroup) { if (o.mesh.userData.wobble) o.mesh.children.forEach(u => u.isGroup && bake(u)); else bake(o.mesh); }
+      if (o.mesh.isGroup && !o.mesh.userData.noBake) { if (o.mesh.userData.wobble) o.mesh.children.forEach(u => u.isGroup && bake(u)); else bake(o.mesh); }
       o.mesh.position.z = SPAWN_Z; scene.add(o.mesh); s.objs.push(o); return o;
     }
     // TÜNEL (sürpriz an): yolun üstünü kaplayan taş kemerli tünel, içinde renkli Noel ışıkları.
@@ -835,6 +835,16 @@ CZ.runner3d = (function () {
       g.add(mesh(GEO.box, pick(M.gifts), 0.44, 0.44, 0.44, 0, 0.84, 0.05));
       g.position.x = laneX(lane);
       return addObj({ type: 'low', lane, len: 0.7, top: 0.75, mesh: g });
+    }
+    // (28 Kas) yeni engel: sana doğru yuvarlanan dev kartopu → ZIPLA (dönerek gelir)
+    const ballGeo = new THREE.IcosahedronGeometry(0.62, 1);
+    function rollball(lane) {
+      const g = new THREE.Group();
+      const b = new THREE.Mesh(ballGeo, M.snowman); b.position.y = 0.62; b.userData.spin = true; g.add(b);
+      const sp = mesh(GEO.circle, M.shadow, 1.3, 0.9, 1, 0, 0.02, 0); sp.rotation.x = -Math.PI / 2; g.add(sp);
+      g.position.x = laneX(lane);
+      g.userData.noBake = true;
+      return addObj({ type: 'low', lane, len: 1.2, top: 1.25, mesh: g, vz: 7, roll: b });
     }
     function snowman(lane) {         // alçak (ama daha yüksek): kardan adam → ZIPLA
       const g = new THREE.Group();
@@ -1093,7 +1103,7 @@ CZ.runner3d = (function () {
       kinds.forEach((k2, l) => {
         if (k2 === 'oncoming') { const o = train(l, false, true); s.busy[l] = s.dist + o.len * 2.2 + 40; return; }
         if (k2 === 'train') { const o = train(l, Math.random() < R.rampChance); s.busy[l] = s.dist + o.len + 4; return; }
-        if (k2 === 'soldier') soldiers(l); else if (k2 === 'low') { if (Math.random() < 0.35) snowman(l); else hurdle(l); } else if (k2 === 'high') banner(l); else if (k2 === 'wall') sled(l); else if (k2 === 'crate') crate(l);
+        if (k2 === 'soldier') soldiers(l); else if (k2 === 'low') { const r2 = Math.random(); if (opts.endless && s.t > 20 && r2 < 0.22) rollball(l); else if (r2 < 0.5) snowman(l); else hurdle(l); } else if (k2 === 'high') banner(l); else if (k2 === 'wall') sled(l); else if (k2 === 'crate') crate(l);
       });
       if (!early && Math.random() < 0.5) { s.ziboPose = 0.5; }
       // Altın dizisi: geçilebilir bir şeritte, engelin önünde başlar, alçak engelin üstünden kavis çizer.
@@ -1507,6 +1517,7 @@ CZ.runner3d = (function () {
         if (z > KILL_Z + (o.type === 'deco' ? o.len / 2 : 0)) { drop(o); s.objs.splice(i, 1); continue; }
         if (o.type === 'deco') { const inside = z + o.len / 2 > 0 && z - o.len / 2 < 2; if (inside) s.dimHit = 1; continue; }
         if (o.mesh.userData.wobble) o.mesh.children.forEach(u => { u.rotation.z = Math.sin(s.frame * 9 + u.userData.wob) * 0.18; });
+        if (o.roll) o.roll.rotation.x += dt * (s.speed + o.vz) / 0.62;
         if (o.type === 'train' || o.type === 'wall') {
           const back = z + o.len / 2;          // nesnenin kameraya yakın ucu
           const mine = Math.abs(s.px - laneX(o.lane)) < 0.7 && s.py > 0.6;

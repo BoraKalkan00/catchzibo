@@ -2518,3 +2518,9 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .hud-best.hot { color: #fff; background: #e8423a; padding: 2px 8px; border-radius: 99px; animation: zmPulse .6s ease-in-out infinite; }
 .chase-field3d.record::before { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none; background: radial-gradient(ellipse at center, rgba(255,226,122,0) 30%, rgba(255,200,40,.6) 100%); animation: dieFlash 1.6s ease-out both; }
 .near-best { color: #c2362e; font-weight: 900; margin: 2px 0; }
+
+.speed-lines { position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0; transition: opacity .4s;
+  background: repeating-conic-gradient(from 0deg at 50% 42%, rgba(255,255,255,0) 0deg 7deg, rgba(255,255,255,.22) 7deg 7.6deg);
+  -webkit-mask: radial-gradient(ellipse at 50% 42%, transparent 32%, #000 70%); mask: radial-gradient(ellipse at 50% 42%, transparent 32%, #000 70%);
+  animation: spdSpin .35s linear infinite; }
+@keyframes spdSpin { 50% { transform: scale(1.04); } }
