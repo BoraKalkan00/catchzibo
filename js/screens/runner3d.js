@@ -1558,7 +1558,8 @@ CZ.runner3d = (function () {
         opts.onEmerald(1);
       } else {
         CZ.audio.sfx('power');
-        if (c.kind === 'magnet') s.magnetT = R.magnetSec; else if (c.kind === 'double') s.doubleT = R.doubleSec; else if (c.kind === 'boots') s.superT = 10; else if (c.kind === 'sleigh') startFlight();
+        const pm = k => (CZ.pupMul ? CZ.pupMul(k) : 1);   // (28 Kas) güç yükseltmeleri
+        if (c.kind === 'magnet') s.magnetT = R.magnetSec * pm('magnet'); else if (c.kind === 'double') s.doubleT = R.doubleSec * pm('double'); else if (c.kind === 'boots') s.superT = 10 * pm('boots'); else if (c.kind === 'sleigh') startFlight();
         sparks(c.mesh.position, 10, '#fff2a8');
         CZ.audio.sfx('buy');
         CZ.audio.vibrate(30);
@@ -1645,7 +1646,7 @@ CZ.runner3d = (function () {
     function startFlight() {
       if (!sleigh) sleigh = buildSleigh();
       if (!(s.flyT > 0)) { s.flyY = s.py; sleigh.visible = true; CZ.audio.sfx('star'); }
-      s.flyT = 9.5;
+      s.flyT = 9.5 * (CZ.pupMul ? CZ.pupMul('sleigh') : 1);
       s.nextRow = 4;
       s.bombs.forEach(b => scene.remove(b.sp, b.ring, b.fill)); s.bombs = [];
       s.invT = Math.max(s.invT, 10);

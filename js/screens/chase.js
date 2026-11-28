@@ -587,6 +587,7 @@ CZ.screens.chase = (function () {
     d.runs = (d.runs || 0) + 1;
     if ((c.alive || 0) > 12) d.runTut = true;
     d.runGold = (d.runGold || 0) + c.gold;
+    c.boxWon = sc >= 500; if (c.boxWon && CZ.mbox) CZ.mbox.add(1);   // (28 Kas) 500+ puan = gizemli kutu
     CZ.state.save();
     if (CZ.quests) CZ.quests.track('chase');
     CZ.progress.addXp(Math.min(40, 5 + Math.floor(sc / 200)));
@@ -607,6 +608,7 @@ CZ.screens.chase = (function () {
       goldP,
       // (28 Kas) sade bitiş: lig satırı ve görev paneli kaldırıldı (görevler ana ekranda)
       setDone ? h('p', { class: 'rank-up' }, CZ.icon('trophy'), t('home.setDone')) : null,
+      c.boxWon ? h('p', { class: 'rank-up' }, '📦 ', t('box.won')) : null,
       c.gold > 0 ? btn(t('endless.double', { n: c.gold }), e => {
         const b = e.currentTarget;
         if (doubled) return;

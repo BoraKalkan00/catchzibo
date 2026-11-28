@@ -2476,3 +2476,41 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .c3-wait { flex: 1; }
 .hm-stage { position: relative; width: 100%; min-height: 200px; }
 .hm-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+
+/* (28 Kas) ana ekran ekleri */
+.hm-chips { display: flex; gap: 8px; }
+.hm-sound { border: 0; color: #fff; cursor: pointer; }
+.hm-level { position: relative; width: min(80vw, 320px); margin-top: 6px; }
+.hm-level .level-bar { background: rgba(0,0,0,.45); border-radius: 99px; padding: 3px 10px 3px 3px; color: #fff; }
+.hm-left { position: absolute; left: 10px; top: 42%; display: flex; flex-direction: column; gap: 10px; z-index: 3; }
+.hm-side { position: relative; width: 64px; height: 64px; border-radius: 18px; border: 3px solid rgba(255,255,255,.7); background: rgba(20,30,80,.7); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; }
+.hm-side svg { width: 30px; height: 30px; }
+.hm-side .hm-emo { font-size: 28px; line-height: 1; }
+.hm-side small { font-size: 11px; font-weight: 900; }
+.hm-side em { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; border-radius: 99px; background: #e8423a; color: #fff; font-style: normal; font-weight: 900; font-size: 13px; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+.hm-side.glow { animation: hmGlow 1.2s ease-in-out infinite; }
+@keyframes hmGlow { 50% { box-shadow: 0 0 18px #ffe27a; border-color: #ffe27a; } }
+.hm-row .hm-small { padding: 12px 14px; }
+.mis-modal .mis-panel { margin-bottom: 12px; }
+.mb-modal { text-align: center; }
+.mb-box { position: relative; width: 140px; height: 120px; margin: 16px auto; animation: mbShake .25s ease-in-out 5; }
+.mb-body { position: absolute; left: 10px; right: 10px; bottom: 0; height: 80px; border-radius: 10px; background: linear-gradient(90deg, #7b3fc4 42%, #ffcf3a 42% 58%, #7b3fc4 58%); box-shadow: 0 6px 0 #4a2380; }
+.mb-lid { position: absolute; left: 0; right: 0; top: 10px; height: 32px; border-radius: 10px; background: linear-gradient(90deg, #9a5ae0 42%, #ffe27a 42% 58%, #9a5ae0 58%); transition: transform .5s cubic-bezier(.2,1.6,.4,1); z-index: 2; }
+.mb-box.open .mb-lid { transform: translateY(-50px) rotate(-25deg); }
+.mb-box.open { animation: none; }
+@keyframes mbShake { 25% { transform: rotate(-6deg) } 75% { transform: rotate(6deg) } }
+.mb-prize { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 34px; font-weight: 900; opacity: 0; transform: scale(.4); transition: all .4s cubic-bezier(.2,1.6,.4,1); margin-bottom: 12px; }
+.mb-prize.on { opacity: 1; transform: scale(1); }
+.mb-ic { width: 44px; height: 44px; }
+.screen-upg { display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% 20%, #3a4fa8, #141d48 70%); color: #fff; }
+.upg-gold { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 22px; font-weight: 900; padding: 8px; }
+.upg-note { text-align: center; margin: 0 0 8px; opacity: .85; }
+.upg-list { display: flex; flex-direction: column; gap: 10px; padding: 0 12px 20px; }
+.upg-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 18px; background: #fbecc9; color: #3a2a1a; border: 3px solid #e2c48f; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
+.upg-ic { font-size: 36px; width: 48px; text-align: center; }
+.upg-txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.upg-txt strong { font-size: 18px; }
+.mb-box.open .mb-lid { transform: translate(30px, -18px) rotate(18deg); }
+.mb-modal h2 { position: relative; z-index: 3; }
+.upg-txt { align-items: flex-start; text-align: left; }
+.hm-level .level-bar { display: flex; align-items: center; gap: 8px; } .hm-level .xp-track { flex: 1; }
