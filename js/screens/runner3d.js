@@ -2037,6 +2037,7 @@ CZ.runner3d = (function () {
   }
 
   // 3D modeller de yüklensin (yüklenemezse kodla yapılmış karakterlere düşer)
-  const load = () => loadThree().then(() => (CZ.kk ? CZ.kk.load(THREE).catch(() => null) : null)).then(() => (CZ.gen3d ? CZ.gen3d.load() : null));   // seçili karakterin 3D modeli de insin
+  // (28 Kas) köy modelleri (gen3d, ~10 MB) artık inmiyor: koşu yalnız Mixamo karakterlerini kullanır → ilk açılış çok daha hızlı
+  const load = () => loadThree().then(() => (CZ.kk ? CZ.kk.load(THREE).catch(() => null) : null));   // seçili karakterin 3D modeli de insin
   return { load, start };
 })();

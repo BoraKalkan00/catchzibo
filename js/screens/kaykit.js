@@ -34,7 +34,7 @@
           const getM = f => new Promise(ok => L.load('assets/3d/mx/' + f + '.glb', g => ok(g), undefined, () => ok(null)));
           MX_GET = getM;
           const d = (CZ.state && CZ.state.data) || {};
-          const first = ['zibo', 'goblin', 'chief', 'mila', d.avatar || 'girl'];
+          const first = ['zibo', d.avatar || 'girl'];   // (28 Kas) koşu için yalnız Zibo + seçili karakter
           try { const b = CZ.heroes && CZ.heroes.buddy && CZ.heroes.buddy(); if (b) first.push('hero_' + b); } catch (e) { }
           const mp = getM('anims').then(a => {
             if (!a) return;
