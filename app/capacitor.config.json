@@ -1,6 +1,6 @@
 {
   "appId": "com.catchzibo.game",
-  "appName": "Zibo’s Raid",
+  "appName": "Catch Zibo!",
   "webDir": "www",
   "android": {
     "backgroundColor": "#14233c"

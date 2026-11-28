@@ -2524,3 +2524,4 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
   -webkit-mask: radial-gradient(ellipse at 50% 42%, transparent 32%, #000 70%); mask: radial-gradient(ellipse at 50% 42%, transparent 32%, #000 70%);
   animation: spdSpin .35s linear infinite; }
 @keyframes spdSpin { 50% { transform: scale(1.04); } }
+.hm-logo { width: min(72vw, 360px); margin-top: 2vh; }

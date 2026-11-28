@@ -54,11 +54,11 @@ CZ.share = (function () {
           const w = await P.Filesystem.writeFile({ path: 'catch-zibo.png', data, directory: 'CACHE' });
           files = [w.uri];
         }
-        await P.Share.share(Object.assign({ title: 'Zibo’s Raid', text, dialogTitle: 'Zibo’s Raid' }, info.url ? { url: info.url } : {}, files ? { files } : {}));
+        await P.Share.share(Object.assign({ title: 'Catch Zibo!', text, dialogTitle: 'Catch Zibo!' }, info.url ? { url: info.url } : {}, files ? { files } : {}));
         return;
       } catch (e) {
         if (e && /cancel/i.test(e.message || '')) return;
-        try { await P.Share.share({ title: 'Zibo’s Raid', text, url: info.url }); return; } catch (e2) { /* tarayıcı yoluna düş */ }
+        try { await P.Share.share({ title: 'Catch Zibo!', text, url: info.url }); return; } catch (e2) { /* tarayıcı yoluna düş */ }
       }
     }
     try {

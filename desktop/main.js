@@ -24,7 +24,7 @@ ipcMain.on('saveWrite', (e, txt) => { try { const f = SAVE(); fs.writeFileSync(f
 function create() {
   const win = new BrowserWindow({
     width: 1280, height: 720, minWidth: 960, minHeight: 540, backgroundColor: '#14233c', show: false,
-    title: "Zibo's Raid", autoHideMenuBar: true,
+    title: "Catch Zibo!", autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, backgroundThrottling: false }
   });
   Menu.setApplicationMenu(null);

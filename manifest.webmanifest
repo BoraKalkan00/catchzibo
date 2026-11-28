@@ -1,6 +1,6 @@
 {
-  "name": "Zibo’s Raid: Tiny Keep",
-  "short_name": "Zibo’s Raid",
+  "name": "Catch Zibo!",
+  "short_name": "Catch Zibo!",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
