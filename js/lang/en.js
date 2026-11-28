@@ -16,6 +16,9 @@ CZ.i18n.register('en', 'English', {
   'share.beat': 'Can you beat me?',
   'share.text': 'I scored {n} chasing Zibo! Can you beat me?',
   'share.copied': 'Link copied',
+  'opt.hand': 'Buttons',
+  'opt.handR': 'Right hand',
+  'opt.handL': 'Left hand',
   'title.play': 'Play',
 
   'avatar.title': 'Who are you?',

@@ -92,7 +92,7 @@ CZ.screens.chase = (function () {
     document.addEventListener('visibilitychange', c.onHide);
     window.addEventListener('blur', c.onBlur);
     if (E) {   // (28 Kas) sade HUD: üst şerit yok; sol üstte büyük skor + rekor, sağ üstte altın + duraklat
-      el.classList.add('endless');
+      el.classList.add('endless'); if (CZ.state.data.hand === 'l') el.classList.add('lefty');
       c.bestEl = h('small', { class: 'hud-best', text: '🏆 ' + (CZ.state.data.bestRun || 0) });
       c.field.append(h('div', { class: 'run-hud' }, c.clock, c.bestEl));
       // (28 Kas) Zibo göstergesi: ne kadar uzakta, kartopu atınca yaklaşır, 0 olunca yakalarsın

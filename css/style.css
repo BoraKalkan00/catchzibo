@@ -2442,3 +2442,9 @@ body.pc .ic-play { display: none !important; }   /* PC: reklam yok, ▶ simgesi 
 .zibo-meter b { min-width: 42px; color: #fff; font-weight: 900; font-size: 15px; text-align: right; }
 .zibo-meter.near { border-color: #ffe27a; animation: zmPulse .6s ease-in-out infinite; }
 @keyframes zmPulse { 50% { box-shadow: 0 0 16px #ffe27a; } }
+
+.vol-row, .vol-row span, .opt-row > span, .set-row > span { color: #3a2a1a; }
+.screen-chase.lefty .chase-field3d .hook-btn { right: auto; left: 14px; }
+.screen-chase.lefty .sled-btn { left: auto; right: 14px; }
+.settings .vol-panel { background: #fbecc9; border: 3px solid #e2c48f; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
+.settings .vol-row { color: #3a2a1a; font-size: 15px; }

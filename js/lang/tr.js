@@ -16,6 +16,9 @@ CZ.i18n.register('tr', 'Türkçe', {
   'share.beat': 'Beni geçebilir misin?',
   'share.text': 'Zibo\'nun peşinde {n} puan yaptım! Geçebilir misin?',
   'share.copied': 'Bağlantı kopyalandı',
+  'opt.hand': 'Düğmeler',
+  'opt.handR': 'Sağ el',
+  'opt.handL': 'Sol el',
   'title.play': 'Oyna',
 
   'avatar.title': 'Sen kimsin?',

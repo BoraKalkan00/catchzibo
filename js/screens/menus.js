@@ -473,9 +473,6 @@
               onClick: () => { CZ.audio.sfx('button'); CZ.applyLanguage(l.code); CZ.ui.refresh(); },
               text: l.name
             })))),
-          row(t('settings.avatar'), h('div', { class: 'set-avatar' },
-            CZ.charArt.img(d.avatar || 'girl', 'front', 'set-avatar-img'),
-            btn(t('settings.change'), () => go('chars', { returnTo: 'settings' }), 'small ghost-dark'))),
           CZ.audioPanel(),
           CZ.optsPanel(),
           row(t('settings.landscape'), h('button', {
@@ -488,7 +485,6 @@
             onClick: () => { d.notify = d.notify === false; d.notifyAsked = false; state.save(); if (d.notify) CZ.notify.askOnce(); CZ.notify.schedule(); CZ.ui.refresh(); },
             text: d.notify !== false ? t('settings.on') : t('settings.off')
           })) : null,
-          btn(t('settings.story'), () => go('story', { replay: true }), 'ghost-dark wide'),
           h('a', { class: 'privacy-link', href: 'privacy.html', target: '_blank', rel: 'noopener', text: t('settings.privacy') }),
           !CZ.DEV ? null : h('div', { class: 'test-box' },
             h('h2', { text: t('settings.test') }),
@@ -526,8 +522,7 @@ CZ.optsPanel = function (onChange) {
   };
   const row = (lbl, el) => h('div', { class: 'set-row opt-row' }, h('span', { text: lbl }), el);
   return h('div', { class: 'opt-panel' },
-    row(t('opt.diff'), seg('diff', [['easy', t('opt.easy')], ['normal', t('opt.normal')], ['hard', t('opt.hard')]], 'normal')),
-    row(t('opt.cam'), seg('camZ', [['near', t('opt.near')], ['normal', t('opt.camN')], ['far', t('opt.far')]], 'normal')),
+    row(t('opt.hand'), seg('hand', [['r', t('opt.handR')], ['l', t('opt.handL')]], 'r')),   // (28 Kas) sol el: At! ve Kızak yer değiştirir
     row(t('opt.gfx'), seg('gfx', [['hi', t('opt.gfxHi')], ['lo', t('opt.gfxLo')]], CZ.style ? CZ.style.gfx() : 'hi')),
     row(t('opt.priv'), h('div', { class: 'seg' }, h('button', { type: 'button', text: '🔒 ' + t('opt.privAds'), onClick: () => { CZ.audio.sfx('button'); CZ.ads.privacy(); } }),
       h('button', { type: 'button', text: '📄', onClick: () => { window.open('https://borakalkan00.github.io/catchzibo/privacy.html', '_blank'); } }))),
